@@ -205,7 +205,7 @@ function vSocial() {
         : `<button class="btn primary" data-act="party-new">Crear party</button>`}
       <div class="join-row" style="margin-top:12px">
         <input id="join-code" placeholder="Código (ej. K7M2)" maxlength="4" style="text-transform:uppercase">
-        <button class="btn sm ghost" data-act="party-join">Unirse</button>
+        <button class="btn sm ghost" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Buscando…' : 'Unirse'}</button>
       </div>
       ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
     </div>

@@ -26,6 +26,13 @@ python3 -m http.server 4173 --directory .
 | **Parfect Trainer** | Motor de diagnóstico que compara tus métricas contra benchmarks de tu hándicap meta, detecta la causa raíz (p. ej. "fallas corto el 60% de los greens → selección de palo"), prioriza por golpes/ronda en juego y prescribe drills con dosis y métrica de éxito + estrategia de campo. |
 | **Parfect Tracker** | Registro de sesiones de práctica (intentos/aciertos) con % de acierto por área y delta de mejora. |
 | **Social** | Leaderboard de cuentas del dispositivo + feed de actividad. |
+| **Parfect Party** | Crea una party con código de 4 letras; tus amigos se unen **desde su propio teléfono** (sync en tiempo real vía MQTT/WSS, sin backend propio) o como invitados en el tuyo. Juegos: Skins, La corta, La larga, Gogos, Birdies, Medal, Nassau y Match play — opcionalmente con hándicap (score neto). Cuentas en vivo y liquidación automática de quién paga a quién. |
+
+## Notas técnicas
+
+- **Sync de parties**: broker MQTT público (`broker.emqx.io`) con el código como canal; estado completo retained con last-writer-wins (`rev`/`ts`). Para producción seria, cambiar a un broker propio o backend (Supabase/Firebase).
+- **Offline**: service worker (`sw.js`) cachea la app tras la primera visita (solo en HTTPS). Al actualizar la app, sube la versión `?v=N` en `index.html` y el nombre del cache en `sw.js`.
+- **Contraseñas**: SHA-256 con sal local (las cuentas viejas se migran al iniciar sesión). Sigue siendo auth local de dispositivo, no un sistema de identidad real.
 
 ## Estructura
 

@@ -9,7 +9,18 @@ const Party = (() => {
     gogo:   { name: 'Gogos',    desc: 'Salvar el par fuera de green (up & down) cobra 1 unidad de cada uno.' },
     birdie: { name: 'Birdies',  desc: 'Cada birdie cobra 1 unidad de cada uno; el águila cobra 2.' },
     medal:  { name: 'Medal',    desc: 'Al final, el score total más bajo (sin empate) cobra 2 unidades de cada uno.' },
+    nassau: { name: 'Nassau',   desc: 'Ida, vuelta y total: cada tramo lo cobra el score más bajo (1 unidad de cada uno).' },
+    match:  { name: 'Match play', desc: 'Solo 2 jugadores: al final, quien ganó más hoyos cobra la diferencia en unidades.' },
   };
+
+  /** Golpes de ventaja del jugador en el hoyo i (reparto uniforme de sus strokes) */
+  function alloc(party, pid, i) {
+    if (!party.useNet) return 0;
+    const pl = party.players.find(x => x.pid === pid);
+    const st = (pl && pl.strokes) || 0;
+    const n = party.holesCount || 18;
+    return Math.floor(st / n) + (i < st % n ? 1 : 0);
+  }
 
   // sin caracteres confusos (0/O, 1/I/L)
   const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -49,14 +60,17 @@ const Party = (() => {
       events.push({ hole, label, winner, amount: units * stake * rivals.length });
     };
 
+    // score del hoyo (neto si la party usa hándicap)
+    const sc = (h, i, pid) => h.scores[pid] - alloc(party, pid, i);
+
     let carry = 0;
     party.holes.slice(0, limit).forEach((h, i) => {
       const played = pids.filter(p => h.scores[p] != null);
       if (played.length < 2) return;
 
       if (party.games.skins) {
-        const min = Math.min(...played.map(p => h.scores[p]));
-        const winners = played.filter(p => h.scores[p] === min);
+        const min = Math.min(...played.map(p => sc(h, i, p)));
+        const winners = played.filter(p => sc(h, i, p) === min);
         if (winners.length === 1) {
           pay(winners[0], 1 + carry, carry ? `Skin (+${carry} acumuladas)` : 'Skin', i + 1, played);
           carry = 0;
@@ -76,13 +90,49 @@ const Party = (() => {
       }
     });
 
-    if (party.games.medal && party.status === 'done') {
-      const t = totals(party);
-      const active = pids.filter(p => t[p].holes > 0);
-      if (active.length >= 2) {
-        const min = Math.min(...active.map(p => t[p].score));
-        const winners = active.filter(p => t[p].score === min);
-        if (winners.length === 1) pay(winners[0], 2, 'Medal (total)', null, active);
+    if (party.status === 'done') {
+      const netSum = (pid, from, to) => {
+        let s = 0, n = 0;
+        party.holes.slice(from, to).forEach((h, k) => {
+          if (h.scores[pid] != null) { s += sc(h, from + k, pid); n++; }
+        });
+        return n ? s : null;
+      };
+      const segWinner = (from, to) => {
+        const sums = pids.map(p => [p, netSum(p, from, to)]).filter(([, s]) => s != null);
+        if (sums.length < 2) return null;
+        const min = Math.min(...sums.map(([, s]) => s));
+        const winners = sums.filter(([, s]) => s === min);
+        return winners.length === 1 ? { winner: winners[0][0], pool: sums.map(([p]) => p) } : null;
+      };
+
+      if (party.games.medal) {
+        const w = segWinner(0, party.holes.length);
+        if (w) pay(w.winner, 2, 'Medal (total)', null, w.pool);
+      }
+
+      if (party.games.nassau) {
+        const segs = party.holesCount >= 18
+          ? [['Nassau · ida', 0, 9], ['Nassau · vuelta', 9, 18], ['Nassau · total', 0, 18]]
+          : [['Nassau', 0, party.holes.length]];
+        for (const [label, from, to] of segs) {
+          const w = segWinner(from, to);
+          if (w) pay(w.winner, 1, label, null, w.pool);
+        }
+      }
+
+      if (party.games.match && pids.length === 2) {
+        const [a, b] = pids;
+        let wa = 0, wb = 0;
+        party.holes.forEach((h, i) => {
+          if (h.scores[a] == null || h.scores[b] == null) return;
+          const da = sc(h, i, a), db = sc(h, i, b);
+          if (da < db) wa++; else if (db < da) wb++;
+        });
+        if (wa !== wb) {
+          const winner = wa > wb ? a : b;
+          pay(winner, Math.abs(wa - wb), `Match play (${Math.max(wa, wb)}–${Math.min(wa, wb)})`, null);
+        }
       }
     }
 

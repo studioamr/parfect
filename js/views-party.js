@@ -1,6 +1,20 @@
 /* ============ Parfect Party: setup, lobby, juego en vivo, liquidación ============ */
 
 const activeParty = () => S.parties.find(p => p.id === S.activeParty) || null;
+
+/** Commit que además versiona y publica la party a los demás dispositivos */
+function pcommit(p) {
+  if (p) { p.rev = (p.rev || 0) + 1; p.ts = Date.now(); }
+  commit();
+  if (p) Sync.publish(p);
+}
+
+function syncBadge() {
+  if (!Sync.available()) return '';
+  const st = Sync.status();
+  const txt = st === 'on' ? 'en vivo' : st === 'connecting' ? 'conectando…' : 'sin conexión';
+  return `<span class="sync-badge ${st === 'on' ? 'on' : ''}">● ${txt}</span>`;
+}
 const partyById = id => S.parties.find(p => p.id === id) || null;
 const plName = (party, pid) => {
   const pl = party.players.find(x => x.pid === pid);
@@ -24,6 +38,11 @@ function vPartySetup() {
         </div></div>
       <div class="field"><label>Apuesta por unidad (MXN)</label>
         <input id="pd-stake" type="number" min="0" inputmode="numeric" value="${esc(d.stake)}"></div>
+      <button class="game-row ${d.useNet ? 'on' : ''}" data-act="pd-net" style="border-bottom:none">
+        <div class="g-main"><b>Apostar con hándicap (net)</b>
+        <p>Asigna golpes de ventaja por jugador en el lobby. Skins, Medal, Nassau y Match se juegan con score neto.</p></div>
+        <span class="g-check">${d.useNet ? '✓' : ''}</span>
+      </button>
     </div>
     <div class="card">
       <span class="label">Juegos de la party</span>
@@ -40,7 +59,7 @@ function vPartySetup() {
 /* ---------- Lobby ---------- */
 function vPartyLobby() {
   const p = activeParty();
-  if (!p) { V.view = 'social'; return vShell(vSocial()); }
+  if (!p || p.status === 'cancelled') { S.activeParty = null; V.view = 'social'; return vShell(vSocial()); }
   const u = cur();
   const inAccounts = new Set(p.players.map(x => x.userId).filter(Boolean));
   const otherAccounts = S.users.filter(x => !inAccounts.has(x.id));
@@ -49,9 +68,9 @@ function vPartyLobby() {
     <button class="auth-back" data-act="party-exit">← Guardar y salir</button>
     <h1 class="auth-h">Lobby de la party</h1>
     <div class="code-box">
-      <span class="label">Código para unirse</span>
+      <span class="label">Código para unirse</span> ${syncBadge()}
       <div class="code">${esc(p.code)}</div>
-      <p class="note" style="text-align:center">Tus amigos entran a Social → "Unirse con código" en su cuenta.</p>
+      <p class="note" style="text-align:center">Tus amigos abren PARFECT en su teléfono → Social → "Unirse con código".</p>
     </div>
     <div class="card">
       <span class="label">${esc(p.course)} · ${p.holesCount} hoyos · $${esc(p.stake)}/unidad</span>
@@ -62,9 +81,15 @@ function vPartyLobby() {
       ${p.players.map(pl => `<div class="pl-row">
         <span class="rank">${esc(initials(pl.name))}</span>
         <div class="r-main" style="flex:1"><b>${esc(pl.name)}${pl.userId === u.id ? ' (tú)' : ''}</b>
-          <span>${pl.userId ? 'Cuenta del dispositivo' : 'Invitado'}${pl.pid === p.hostPid ? ' · organiza' : ''}</span></div>
+          <span>${pl.device && pl.device !== DEVICE_ID ? 'Otro dispositivo 📱' : pl.userId ? 'Cuenta del dispositivo' : 'Invitado'}${pl.pid === p.hostPid ? ' · organiza' : ''}</span></div>
+        ${p.useNet ? `<div class="stepper sm">
+          <button data-act="party-strokes" data-pid="${pl.pid}" data-d="-1">−</button>
+          <span class="pl-score" style="font-size:16px">${pl.strokes || 0}</span>
+          <button data-act="party-strokes" data-pid="${pl.pid}" data-d="1">+</button>
+        </div>` : ''}
         ${pl.pid !== p.hostPid ? `<button class="pl-x" data-act="party-remove" data-pid="${pl.pid}">✕</button>` : ''}
       </div>`).join('')}
+      ${p.useNet ? `<p class="note">Los números son golpes de ventaja (hándicap de juego) por jugador.</p>` : ''}
       ${otherAccounts.length ? `<p class="note" style="margin-bottom:6px">Añadir cuentas de este dispositivo:</p>
         <div class="chips">${otherAccounts.map(a => `<button class="chip sm" data-act="party-add-account" data-id="${a.id}">+ ${esc(a.name.split(' ')[0])}</button>`).join('')}</div>` : ''}
       <div class="field" style="margin-top:12px"><label>Invitado sin cuenta</label>
@@ -83,14 +108,15 @@ function vPartyLobby() {
 /* ---------- Juego en vivo ---------- */
 function vPartyLive() {
   const p = activeParty();
-  if (!p) { V.view = 'social'; return vShell(vSocial()); }
+  if (!p || p.status === 'cancelled') { S.activeParty = null; V.view = 'social'; return vShell(vSocial()); }
+  if (p.status === 'done') { V.partyView = p.id; return vPartyDone(); }
   const h = p.holes[p.idx];
   const { net, carry } = Party.ledger(p, p.idx);
   const last = p.idx + 1 === p.holesCount;
   return `<div class="shell no-nav fade-in">
     <div class="play-top">
       <button class="x" data-act="party-exit">✕ Salir</button>
-      <span class="label">Party ${esc(p.code)} · ${esc(p.course)}</span>
+      <span class="label">Party ${esc(p.code)} ${syncBadge()}</span>
       <span class="small muted">${p.idx + 1}/${p.holesCount}</span>
     </div>
     <div class="progress"><i style="width:${(p.idx / p.holesCount) * 100}%"></i></div>
@@ -207,11 +233,12 @@ function makeHoleForParty(p, i) {
 
 const partyActions = {
   'party-new'() {
-    V.partyDraft = { course: '', holes: 18, stake: '50', games: { skins: true, corta: true, larga: true, gogo: true, birdie: true, medal: false } };
+    V.partyDraft = { course: '', holes: 18, stake: '50', useNet: false, games: { skins: true, corta: true, larga: true, gogo: true, birdie: true, medal: false, nassau: false, match: false } };
     go('party-setup');
   },
   'pd-holes'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.holes = Number(d.n); render(); },
   'pd-game'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.games[d.g] = !V.partyDraft.games[d.g]; render(); },
+  'pd-net'() { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.useNet = !V.partyDraft.useNet; render(); },
   'party-create'() {
     const d = V.partyDraft;
     const u = cur();
@@ -225,43 +252,69 @@ const partyActions = {
       holesCount: d.holes,
       stake: Number(val('pd-stake') || d.stake) || 0,
       games: { ...d.games },
-      players: [{ pid: hostPid, name: u.name, userId: u.id }],
+      useNet: !!d.useNet,
+      players: [{ pid: hostPid, name: u.name, userId: u.id, strokes: 0, device: DEVICE_ID }],
       holes: [], idx: 0,
       status: 'setup',
+      rev: 0, ts: Date.now(),
     };
     S.parties.push(party);
     S.activeParty = party.id;
     V.view = 'party-lobby'; V.err = null;
-    commit(); window.scrollTo(0, 0);
+    pcommit(party); window.scrollTo(0, 0);
   },
   'party-add-account'(d) {
     const p = activeParty(); const a = S.users.find(x => x.id === d.id);
     if (!p || !a) return;
-    p.players.push({ pid: Store.uid(), name: a.name, userId: a.id });
-    commit();
+    p.players.push({ pid: Store.uid(), name: a.name, userId: a.id, strokes: 0, device: DEVICE_ID });
+    pcommit(p);
   },
   'party-add-guest'() {
     const p = activeParty(); const name = val('pa-guest');
     if (!p) return;
     if (!name) { V.err = 'Escribe el nombre del invitado.'; render(); return; }
-    p.players.push({ pid: Store.uid(), name, userId: null });
+    p.players.push({ pid: Store.uid(), name, userId: null, strokes: 0, device: DEVICE_ID });
     V.err = null;
-    commit();
+    pcommit(p);
   },
   'party-remove'(d) {
     const p = activeParty(); if (!p) return;
     p.players = p.players.filter(x => x.pid !== d.pid);
-    commit();
+    pcommit(p);
+  },
+  'party-strokes'(d) {
+    const p = activeParty(); if (!p) return;
+    const pl = p.players.find(x => x.pid === d.pid); if (!pl) return;
+    pl.strokes = Math.max(0, Math.min(36, (pl.strokes || 0) + Number(d.d)));
+    pcommit(p);
   },
   'party-join'() {
-    const code = val('join-code').toUpperCase();
-    const p = S.parties.find(x => x.code === code && x.status !== 'done');
-    if (!p) { V.err = 'No hay ninguna party activa con ese código en este dispositivo.'; render(); return; }
+    const code = val('join-code').toUpperCase().trim();
+    if (!code) { V.err = 'Escribe el código de la party.'; render(); return; }
     const u = cur();
-    if (!p.players.some(x => x.userId === u.id)) p.players.push({ pid: Store.uid(), name: u.name, userId: u.id });
-    S.activeParty = p.id;
-    V.err = null; V.view = p.status === 'live' ? 'party-live' : 'party-lobby';
-    commit(); window.scrollTo(0, 0);
+    const enter = (p) => {
+      if (!p.players.some(x => x.userId === u.id && x.device === DEVICE_ID) && !p.players.some(x => x.userId === u.id && !x.device)) {
+        p.players.push({ pid: Store.uid(), name: u.name, userId: u.id, strokes: 0, device: DEVICE_ID });
+      }
+      S.activeParty = p.id;
+      Sync.watch(p.code);
+      V.err = null; V.joining = false; V.view = p.status === 'live' ? 'party-live' : 'party-lobby';
+      pcommit(p); window.scrollTo(0, 0);
+    };
+    const local = S.parties.find(x => x.code === code && x.status !== 'done' && x.status !== 'cancelled');
+    if (local) { enter(local); return; }
+    if (!Sync.available()) { V.err = 'No hay ninguna party activa con ese código en este dispositivo.'; render(); return; }
+    V.joining = true; V.err = null; render();
+    Sync.joinRemote(code, (remote) => {
+      V.joining = false;
+      if (!remote || remote.status === 'done' || remote.status === 'cancelled') {
+        V.err = 'No se encontró una party activa con ese código. Revisa el código y que el organizador tenga conexión.';
+        render(); return;
+      }
+      let p = S.parties.find(x => x.code === remote.code);
+      if (p) Object.assign(p, remote); else { S.parties.push(remote); p = remote; }
+      enter(p);
+    });
   },
   'party-start'() {
     const p = activeParty();
@@ -269,16 +322,19 @@ const partyActions = {
     p.status = 'live';
     if (!p.holes.length) p.holes.push(makeHoleForParty(p, 0));
     V.view = 'party-live';
-    commit(); window.scrollTo(0, 0);
+    pcommit(p); window.scrollTo(0, 0);
   },
   'party-resume'() {
     const p = activeParty(); if (!p) return;
+    Sync.watch(p.code);
     V.view = p.status === 'live' ? 'party-live' : 'party-lobby';
     render(); window.scrollTo(0, 0);
   },
   'party-cancel'() {
     const p = activeParty(); if (!p) return;
     if (V.delArm !== p.id) { V.delArm = p.id; render(); return; }
+    p.status = 'cancelled'; p.rev = (p.rev || 0) + 1; p.ts = Date.now();
+    Sync.publish(p);
     S.parties = S.parties.filter(x => x.id !== p.id);
     S.activeParty = null; V.delArm = null; V.view = 'social';
     commit();
@@ -292,36 +348,36 @@ const partyActions = {
     for (const pid of Object.keys(h.scores)) if (h.scores[pid] === old) h.scores[pid] = par;
     if (par !== 3) h.corta = null;
     if (par !== 5) h.larga = null;
-    commit();
+    pcommit(p);
   },
   'pa-score'(d) {
     const p = activeParty(); const h = p.holes[p.idx];
     h.scores[d.pid] = Math.max(1, (h.scores[d.pid] ?? h.par) + Number(d.d));
-    commit();
+    pcommit(p);
   },
-  'pa-corta'(d) { const h = activeParty().holes[activeParty().idx]; h.corta = h.corta === d.pid ? null : d.pid; commit(); },
-  'pa-larga'(d) { const h = activeParty().holes[activeParty().idx]; h.larga = h.larga === d.pid ? null : d.pid; commit(); },
+  'pa-corta'(d) { const p = activeParty(); const h = p.holes[p.idx]; h.corta = h.corta === d.pid ? null : d.pid; pcommit(p); },
+  'pa-larga'(d) { const p = activeParty(); const h = p.holes[p.idx]; h.larga = h.larga === d.pid ? null : d.pid; pcommit(p); },
   'pa-gogo'(d) {
-    const h = activeParty().holes[activeParty().idx];
+    const p = activeParty(); const h = p.holes[p.idx];
     h.gogos = h.gogos || [];
     h.gogos = h.gogos.includes(d.pid) ? h.gogos.filter(x => x !== d.pid) : [...h.gogos, d.pid];
-    commit();
+    pcommit(p);
   },
   'pa-next'() {
     const p = activeParty();
     if (p.idx + 1 >= p.holesCount) return;
     p.idx++;
     if (!p.holes[p.idx]) p.holes[p.idx] = makeHoleForParty(p, p.idx);
-    commit(); window.scrollTo(0, 0);
+    pcommit(p); window.scrollTo(0, 0);
   },
-  'pa-prev'() { const p = activeParty(); if (p.idx > 0) { p.idx--; commit(); window.scrollTo(0, 0); } },
+  'pa-prev'() { const p = activeParty(); if (p.idx > 0) { p.idx--; pcommit(p); window.scrollTo(0, 0); } },
   'pa-money'() { V.showMoney = true; render(); },
   'pa-money-close'() { V.showMoney = false; render(); },
   'pa-finish'() {
     const p = activeParty();
     p.status = 'done';
     V.partyView = p.id; V.showMoney = false; V.view = 'party-done';
-    commit(); window.scrollTo(0, 0);
+    pcommit(p); window.scrollTo(0, 0);
   },
   'party-open'(d) { V.partyView = d.id; go('party-done'); },
   'party-close-done'() {

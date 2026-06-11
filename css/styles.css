@@ -382,6 +382,12 @@ button.row { cursor: pointer; }
 }
 .join-row input:focus { border-color: var(--lime); }
 .join-row .btn.sm { flex: none; }
+.sync-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted2); margin-left: 8px;
+}
+.sync-badge.on { color: var(--lime); }
 .settle-row {
   padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px;
   background: var(--lime-faint); margin-top: 8px; font-size: 14.5px;

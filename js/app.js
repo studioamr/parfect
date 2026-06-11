@@ -22,6 +22,15 @@ const val = id => (document.getElementById(id) ? document.getElementById(id).val
 function commit() { Store.save(S); render(); }
 function go(view) { V.view = view; V.err = null; render(); window.scrollTo(0, 0); }
 
+async function hashPass(pass) {
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('parfect·' + pass));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    return btoa(pass); // contexto sin crypto.subtle: comportamiento anterior
+  }
+}
+
 function newHole(par) {
   return { par, tee: null, app: null, upDown: null, putts: null, dist: null, score: null };
 }
@@ -81,18 +90,26 @@ const actions = {
   nav(d) { V.delArm = null; V.wipeArm = false; V.profileOpen = false; go(d.view); },
 
   /* ---- auth ---- */
-  login() {
+  async login() {
     const email = val('f-email').toLowerCase();
     const pass = document.getElementById('f-pass').value;
     V.authVals = { email };
     const u = S.users.find(x => x.email === email);
-    if (!u || u.pass !== btoa(pass)) { V.err = 'Email o contraseña incorrectos.'; render(); return; }
+    const h = await hashPass(pass);
+    let ok = !!u && u.pass === h;
+    if (!ok && u) {
+      // migración: cuentas creadas antes del hash SHA-256
+      let legacy = null;
+      try { legacy = btoa(pass); } catch (e) {}
+      if (legacy && u.pass === legacy) { u.pass = h; ok = true; }
+    }
+    if (!ok) { V.err = 'Email o contraseña incorrectos.'; render(); return; }
     S.session = u.id;
     V.authVals = null; V.err = null; V.view = 'inicio'; V.diag = null;
     commit(); window.scrollTo(0, 0);
   },
 
-  signup() {
+  async signup() {
     const name = val('f-name');
     const email = val('f-email').toLowerCase();
     const pass = document.getElementById('f-pass').value;
@@ -105,7 +122,7 @@ const actions = {
     if (S.users.some(x => x.email === email)) { V.err = 'Ya existe una cuenta con ese email en este dispositivo.'; render(); return; }
     const hcp = hcpRaw === '' ? 18 : Math.round(Number(hcpRaw));
     const goal = goalRaw === '' ? Math.max(hcp - 5, 0) : Math.round(Number(goalRaw));
-    const u = { id: Store.uid(), name, email, pass: btoa(pass), hcp, goal, createdAt: Date.now() };
+    const u = { id: Store.uid(), name, email, pass: await hashPass(pass), hcp, goal, createdAt: Date.now() };
     S.users.push(u);
     S.session = u.id;
     if (demo) {
@@ -272,3 +289,12 @@ document.addEventListener('keydown', e => {
 });
 
 render();
+
+/* ---- arranque: sync de party activa + service worker (solo producción) ---- */
+(() => {
+  const p = S.parties.find(x => x.id === S.activeParty);
+  if (p && p.status !== 'done' && p.status !== 'cancelled') Sync.watch(p.code);
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
