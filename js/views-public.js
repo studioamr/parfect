@@ -13,12 +13,12 @@ function vLanding() {
     <div class="land-hero">
       <span class="badge">⛳ Golf · Stats · IA</span>
       <h1 class="land-h1">Deja de practicar.<br/><span class="lime">Empieza a mejorar.</span></h1>
-      <p class="land-sub">PARFECT anota tu juego hoyo por hoyo, te dice en qué estás fallando y qué practicar para bajar tu hándicap. Y cuando juegas con amigos, lleva las apuestas por ti.</p>
+      <p class="land-sub">PARFECT anota tu juego hoyo por hoyo, te dice en qué estás fallando y qué practicar para bajar tu hándicap. Y cuando juegas con amigos, lleva la tabla por ti.</p>
       <button class="btn primary" data-act="go" data-view="signup">Crear cuenta gratis</button>
       <button class="btn ghost" data-act="go" data-view="login">Ya tengo cuenta</button>
       <div class="mini-stats">
         <div class="mini-stat"><b>4 toques</b><span>por hoyo</span></div>
-        <div class="mini-stat"><b>Apuestas</b><span>con amigos</span></div>
+        <div class="mini-stat"><b>Party</b><span>con amigos</span></div>
         <div class="mini-stat"><b>IA</b><span>tu coach</span></div>
       </div>
     </div>
@@ -50,7 +50,7 @@ function vLanding() {
       <div class="card feat">
         <div class="f-ico">${ICONS.social}</div>
         <h3>Parfect Party 🎉</h3>
-        <p>Juega y apuesta con amigos: Skins, La corta, La larga y más. Cada quien anota desde su celular y la app saca las cuentas sola. Ideal para tu torneo.</p>
+        <p>Juega con amigos en Medal o Match play. Cada quien anota desde su celular y la app lleva la tabla en vivo. Ideal para tu torneo.</p>
       </div>
     </div>
 

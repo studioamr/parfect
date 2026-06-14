@@ -224,20 +224,22 @@ function vSocial() {
   const act = activeParty();
   const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
   const partyFeed = S.parties.filter(p => p.status === 'done').map(p => {
-    const { net } = Party.ledger(p);
-    const top = [...p.players].sort((a, b) => net[b.pid] - net[a.pid])[0];
+    const ms = p.games && p.games.match ? Party.matchStatus(p) : null;
+    let winName = '—';
+    if (ms) { winName = ms.up !== 0 ? plName(p, ms.leader).split(' ')[0] : 'Empate'; }
+    else { const st = Party.standings(p).filter(r => r.holes); winName = st.length ? st[0].name.split(' ')[0] : '—'; }
     return { date: p.date, html: `<button class="row" data-act="party-open" data-id="${p.id}">
       <div class="r-main"><b>🎉 Party en ${esc(p.course)}</b>
       <span>${fmtDate(p.date)} · ${p.players.length} jugadores · código ${esc(p.code)}</span></div>
-      <div class="r-side"><b>${esc(top ? top.name.split(' ')[0] : '—')}</b><span>${top && net[top.pid] > 0 ? fmtMoney(net[top.pid]) : 'ganador'}</span></div>
+      <div class="r-side"><b>${esc(winName)}</b><span>ganador</span></div>
     </button>` };
   });
   const feed = [...partyFeed, ...roundFeed].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14).map(x => x.html).join('');
 
   return `<div class="sec-h"><h2>Social</h2></div>
     <div class="card">
-      <span class="label">🎉 Parfect Party · juega y apuesta</span>
-      <p class="small muted" style="margin-top:2px">Skins, La corta, La larga, Gogos, Birdies y Medal. Crea la party, comparte el código y las cuentas se llevan solas.</p>
+      <span class="label">🎉 Parfect Party · juega con amigos</span>
+      <p class="small muted" style="margin-top:2px">Medal o Match play. Crea la party, comparte el código y cada quien anota desde su celular.</p>
       ${myActive ? `<button class="btn primary" data-act="party-resume">Continuar party ${esc(act.code)} ${act.status === 'live' ? `· hoyo ${act.idx + 1}` : '· lobby'}</button>`
         : `<button class="btn primary" data-act="party-new">Crear party</button>`}
       <div class="join-row" style="margin-top:12px">

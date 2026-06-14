@@ -27,7 +27,7 @@ function vPartySetup() {
   return `<div class="shell no-nav fade-in">
     <button class="auth-back" data-act="nav" data-view="social">← Social</button>
     <h1 class="auth-h">Nueva party 🎉</h1>
-    <p class="auth-sub">Configura la jugada, comparte el código y a apostar.</p>
+    <p class="auth-sub">Configura el juego, comparte el código y a jugar.</p>
     <div class="card">
       <div class="field" style="margin-top:0"><label>Campo</label>
         <input id="pd-course" placeholder="Nombre del campo" value="${esc(d.course)}"></div>
@@ -36,10 +36,8 @@ function vPartySetup() {
           <button class="chip ${d.holes === 9 ? 'on' : ''}" data-act="pd-holes" data-n="9">9 hoyos</button>
           <button class="chip ${d.holes === 18 ? 'on' : ''}" data-act="pd-holes" data-n="18">18 hoyos</button>
         </div></div>
-      <div class="field"><label>Apuesta por unidad (MXN)</label>
-        <input id="pd-stake" type="number" min="0" inputmode="numeric" value="${esc(d.stake)}"></div>
       <button class="game-row ${d.useNet ? 'on' : ''}" data-act="pd-net" style="border-bottom:none">
-        <div class="g-main"><b>Apostar con hándicap (net)</b>
+        <div class="g-main"><b>Jugar con hándicap (net)</b>
         <p>Asigna golpes de ventaja por jugador en el lobby. Medal y Match se juegan con score neto.</p></div>
         <span class="g-check">${d.useNet ? '✓' : ''}</span>
       </button>
@@ -73,8 +71,8 @@ function vPartyLobby() {
       <p class="note" style="text-align:center">Tus amigos abren PARFECT en su teléfono → Social → "Unirse con código".</p>
     </div>
     <div class="card">
-      <span class="label">${esc(p.course)} · ${p.holesCount} hoyos · $${esc(p.stake)}/unidad</span>
-      <p class="small muted">${gamesOn.join(' · ') || 'Sin juegos seleccionados'}</p>
+      <span class="label">${esc(p.course)} · ${p.holesCount} hoyos</span>
+      <p class="small muted">${gamesOn.join(' · ') || 'Sin juego seleccionado'}</p>
     </div>
     <div class="card">
       <span class="label">Jugadores (${p.players.length})</span>
@@ -111,7 +109,9 @@ function vPartyLive() {
   if (!p || p.status === 'cancelled') { S.activeParty = null; V.view = 'social'; return vShell(vSocial()); }
   if (p.status === 'done') { V.partyView = p.id; return vPartyDone(); }
   const h = p.holes[p.idx];
-  const { net, carry, cortaPts } = Party.ledger(p, p.idx);
+  const st = Party.standings(p, p.idx);
+  const toParOf = {}; st.forEach(r => { toParOf[r.pid] = r; });
+  const ms = p.games.match ? Party.matchStatus(p, p.idx) : null;
   const last = p.idx + 1 === p.holesCount;
   return `<div class="shell no-nav fade-in">
     <div class="play-top">
@@ -121,7 +121,7 @@ function vPartyLive() {
     </div>
     <div class="progress"><i style="width:${(p.idx / p.holesCount) * 100}%"></i></div>
     <div class="hole-head"><span class="hnum">Hoyo ${p.idx + 1}</span>
-      <span class="hof">${p.games.skins && carry ? `🔥 ${carry} skin${carry > 1 ? 's' : ''} acumulada${carry > 1 ? 's' : ''}` : ''}</span></div>
+      <span class="hof">${ms ? `Match: ${ms.text}` : (p.games.medal ? 'Medal' : '')}</span></div>
 
     <div class="group">
       <div class="g-lab"><span class="label">Par del hoyo</span></div>
@@ -134,10 +134,12 @@ function vPartyLive() {
       ${p.players.map(pl => {
         const s = h.scores[pl.pid] ?? h.par;
         const d = s - h.par;
+        const r = toParOf[pl.pid];
+        const tot = r && r.holes ? `Total ${fmtToPar(r.toPar)}` : 'Sin hoyos';
         return `<div class="pl-row">
           <span class="rank">${esc(initials(pl.name))}</span>
           <div class="r-main" style="flex:1"><b>${esc(pl.name.split(' ')[0])}</b>
-            <span class="${net[pl.pid] > 0 ? 'lime' : ''}" style="${net[pl.pid] < 0 ? 'color:var(--danger)' : ''}">${fmtMoney(net[pl.pid])}</span></div>
+            <span class="muted">${tot}${p.useNet && (pl.strokes || 0) ? ` · ${pl.strokes} golpes` : ''}</span></div>
           <span class="pl-rel ${d < 0 ? 'lime' : ''}">${d === 0 ? 'PAR' : d > 0 ? `+${d}` : d}</span>
           <div class="stepper sm">
             <button data-act="pa-score" data-pid="${pl.pid}" data-d="-1">−</button>
@@ -148,88 +150,63 @@ function vPartyLive() {
       }).join('')}
     </div>
 
-    ${p.games.corta ? `<div class="group">
-      <div class="g-lab"><span class="label">🎯 La corta · marca lo bueno</span><span class="small muted">birdie/águila van solos</span></div>
-      ${p.players.map(pl => {
-        const here = Party.cortaHolePoints(h, pl.pid);
-        const tot = (cortaPts[pl.pid] || 0) + here;
-        return `<div class="pl-row">
-        <span class="rank">${esc(initials(pl.name))}</span>
-        <div class="r-main" style="flex:1"><b>${esc(pl.name.split(' ')[0])}</b>
-          <span class="lime">${tot} pts${here ? ` · +${here} aquí` : ''}</span></div>
-        <button class="chip sm ${(h.gir || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gir" data-pid="${pl.pid}">Green</button>
-        <button class="chip sm ${(h.gogos || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gogo" data-pid="${pl.pid}">Salvó</button>
-      </div>`;
-      }).join('')}
-    </div>` : ''}
-
-    ${p.games.larga && h.par === 5 ? `<div class="group">
-      <div class="g-lab"><span class="label">🚀 La larga</span><span class="small muted">drive más largo</span></div>
-      <div class="chips">${p.players.map(pl =>
-        `<button class="chip sm ${h.larga === pl.pid ? 'on' : ''}" data-act="pa-larga" data-pid="${pl.pid}">${esc(pl.name.split(' ')[0])}</button>`).join('')}</div>
-    </div>` : ''}
-
-    ${p.games.gogo && !p.games.corta ? `<div class="group">
-      <div class="g-lab"><span class="label">⛳ Gogos</span><span class="small muted">salvó par fuera de green</span></div>
-      <div class="chips">${p.players.map(pl =>
-        `<button class="chip sm ${(h.gogos || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gogo" data-pid="${pl.pid}">${esc(pl.name.split(' ')[0])}</button>`).join('')}</div>
-    </div>` : ''}
-
-    ${p.games.birdie ? `<p class="note">Los birdies y águilas cobran solos según el score.</p>` : ''}
-
-    <button class="btn ghost" data-act="pa-money">💰 Ver cuentas de la party</button>
+    <button class="btn ghost" data-act="pa-money">📋 Ver tabla</button>
     <div class="btn-row">
       ${p.idx > 0 ? `<button class="btn" style="flex:0 0 30%" data-act="pa-prev">←</button>` : ''}
       <button class="btn primary" data-act="${last ? 'pa-finish' : 'pa-next'}">${last ? 'Finalizar party 🏁' : 'Siguiente hoyo →'}</button>
     </div>
-    ${V.showMoney ? vPartyMoney(p, false) : ''}
+    ${V.showMoney ? `<div class="overlay" data-act="pa-money-close"><div class="sheet" data-act="noop">
+      <div class="grab"></div><h2>📋 Tabla en vivo</h2>
+      ${vPartyTable(p, p.idx)}
+      <button class="btn" data-act="pa-money-close">Seguir jugando</button>
+    </div></div>` : ''}
   </div>`;
 }
 
-/* ---------- Cuentas (sheet en vivo / pantalla final) ---------- */
-function vPartyMoney(p, done) {
-  const { net, events, carry, cortaPts } = Party.ledger(p, done ? p.holes.length : p.idx);
-  const t = Party.totals(p);
-  const order = [...p.players].sort((a, b) => net[b.pid] - net[a.pid]);
-  const rows = order.map((pl, i) => `<div class="pl-row">
-    <span class="rank">${i + 1}</span>
-    <div class="r-main" style="flex:1"><b>${esc(pl.name)}</b>
-      <span>${t[pl.pid].holes ? `${t[pl.pid].score} golpes (${fmtToPar(t[pl.pid].toPar)})${p.games.corta ? ` · ${cortaPts[pl.pid] || 0} pts corta` : ''}` : 'sin scores'}</span></div>
-    <b class="${net[pl.pid] > 0.005 ? 'lime' : ''}" style="font-size:17px;${net[pl.pid] < -0.005 ? 'color:var(--danger)' : ''}">${fmtMoney(net[pl.pid])}</b>
+/* ---------- Tabla de posiciones (Medal / Match) ---------- */
+function vPartyTable(p, limit) {
+  const st = Party.standings(p, limit);
+  const ms = p.games.match ? Party.matchStatus(p, limit) : null;
+  const rows = st.map((r, i) => `<div class="pl-row">
+    <span class="rank">${r.holes ? i + 1 : '–'}</span>
+    <div class="r-main" style="flex:1"><b>${esc(r.name)}</b>
+      <span>${r.holes ? `${r.holes} hoyos${p.useNet ? ` · bruto ${r.gross}` : ''}` : 'sin scores'}</span></div>
+    <div class="r-side"><b>${r.holes ? r.shown : '—'}</b><span>${r.holes ? fmtToPar(r.toPar) : ''}</span></div>
   </div>`).join('');
-  const evs = events.slice(-8).reverse().map(e =>
-    `<p class="tip">${e.hole ? `H${e.hole} · ` : ''}${esc(e.label)}: <b>${esc(plName(p, e.winner).split(' ')[0])}</b> ${e.pts != null ? `+${e.pts} pts` : `cobra ${fmtMoney(e.amount)}`}</p>`).join('');
-
-  if (!done) {
-    return `<div class="overlay" data-act="pa-money-close"><div class="sheet" data-act="noop">
-      <div class="grab"></div><h2>💰 Cuentas en vivo</h2>
-      ${rows}
-      ${carry ? `<p class="note">🔥 ${carry} skin(s) acumuladas en juego.</p>` : ''}
-      ${evs ? `<p class="label" style="margin-top:16px">Últimos cobros</p>${evs}` : '<p class="note">Aún no hay cobros.</p>'}
-      <button class="btn" data-act="pa-money-close">Seguir jugando</button>
-    </div></div>`;
+  let head = '';
+  if (ms) {
+    head = ms.up === 0
+      ? `<p class="tip">Match igualado tras ${ms.played} hoyos.</p>`
+      : `<p class="tip"><b>${esc(plName(p, ms.leader).split(' ')[0])}</b> ${ms.decided ? `gana ${ms.text}` : `va ${ms.text}`} (${ms.wa}–${ms.wb})</p>`;
+  } else {
+    head = `<p class="note">Medal — gana el score total más bajo${p.useNet ? ' (neto)' : ''}.</p>`;
   }
-  const tx = Party.settle(net);
-  return `${rows}
-    ${tx.length ? `<p class="label" style="margin-top:18px">Liquidación</p>` +
-      tx.map(x => `<div class="settle-row"><b>${esc(plName(p, x.from).split(' ')[0])}</b> le paga <b class="lime">${fmtMoney(x.amount)}</b> a <b>${esc(plName(p, x.to).split(' ')[0])}</b></div>`).join('')
-      : '<p class="note" style="margin-top:14px">Cuentas parejas: nadie debe nada. 🤝</p>'}
-    ${evs ? `<p class="label" style="margin-top:18px">Historial de cobros</p>${evs}` : ''}`;
+  return head + rows;
 }
 
 function vPartyDone() {
   const p = partyById(V.partyView) || activeParty();
   if (!p) { V.view = 'social'; return vShell(vSocial()); }
-  const { net } = Party.ledger(p);
-  const top = [...p.players].sort((a, b) => net[b.pid] - net[a.pid])[0];
+  const st = Party.standings(p);
+  const ms = p.games.match ? Party.matchStatus(p) : null;
+  let winnerPid = null, sub = '';
+  if (ms) {
+    if (ms.up !== 0) { winnerPid = ms.leader; sub = `gana el match ${ms.text} (${ms.wa}–${ms.wb})`; }
+    else sub = 'match empatado 🤝';
+  } else {
+    const played = st.filter(r => r.holes);
+    if (played.length && !(played[1] && played[1].toPar === played[0].toPar)) { winnerPid = played[0].pid; sub = `gana en Medal con ${fmtToPar(played[0].toPar)}`; }
+    else if (played.length) sub = 'empate en el primer lugar 🤝';
+  }
+  const winName = winnerPid ? plName(p, winnerPid).split(' ')[0] : '—';
   return `<div class="shell no-nav fade-in">
     <div class="play-top"><span></span><span class="label">Party ${esc(p.code)} · final</span><span></span></div>
     <div class="greet" style="text-align:center">
       <p class="hi">${esc(p.course)} · ${fmtDate(p.date)}</p>
-      <h1 style="font-size:34px">🏆 ${esc(top ? top.name.split(' ')[0] : '—')}</h1>
-      <p class="hcp">se lleva la party ${net[top?.pid] > 0 ? `(${fmtMoney(net[top.pid])})` : ''}</p>
+      <h1 style="font-size:34px">🏆 ${esc(winName)}</h1>
+      <p class="hcp">${esc(sub)}</p>
     </div>
-    <div class="card">${vPartyMoney(p, true)}</div>
+    <div class="card">${vPartyTable(p, p.holes.length)}</div>
     <button class="btn primary" data-act="party-close-done">Listo ✓</button>
   </div>`;
 }
@@ -242,12 +219,19 @@ function makeHoleForParty(p, i) {
 
 const partyActions = {
   'party-new'() {
-    V.partyDraft = { course: '', holes: 18, stake: '50', useNet: false, games: { corta: false, skins: false, larga: false, gogo: false, birdie: false, medal: true, nassau: false, match: false } };
+    V.partyDraft = { course: '', holes: 18, useNet: false, games: { corta: false, skins: false, larga: false, gogo: false, birdie: false, medal: true, nassau: false, match: false } };
     go('party-setup');
   },
-  'pd-holes'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.holes = Number(d.n); render(); },
-  'pd-game'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.games[d.g] = !V.partyDraft.games[d.g]; render(); },
-  'pd-net'() { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.useNet = !V.partyDraft.useNet; render(); },
+  'pd-holes'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.holes = Number(d.n); render(); },
+  'pd-game'(d) {
+    V.partyDraft.course = val('pd-course');
+    // Medal y Match son excluyentes: elegir uno apaga el otro
+    const on = !V.partyDraft.games[d.g];
+    V.partyDraft.games.medal = false; V.partyDraft.games.match = false;
+    V.partyDraft.games[d.g] = on;
+    render();
+  },
+  'pd-net'() { V.partyDraft.course = val('pd-course'); V.partyDraft.useNet = !V.partyDraft.useNet; render(); },
   'party-create'() {
     const d = V.partyDraft;
     const u = cur();
@@ -259,7 +243,6 @@ const partyActions = {
       hostUserId: u.id, hostPid,
       course: val('pd-course') || d.course || 'Mi campo',
       holesCount: d.holes,
-      stake: Number(val('pd-stake') || d.stake) || 0,
       games: { ...d.games },
       useNet: !!d.useNet,
       players: [{ pid: hostPid, name: u.name, userId: u.id, strokes: 0, device: DEVICE_ID }],

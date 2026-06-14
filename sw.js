@@ -1,23 +1,23 @@
 /* PARFECT service worker: la app funciona offline una vez visitada. */
-const CACHE = 'parfect-v6';
+const CACHE = 'parfect-v8';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
-  './css/styles.css?v=6',
-  './js/ui.js?v=6',
-  './js/store.js?v=6',
-  './js/stats.js?v=6',
-  './js/trainer.js?v=6',
-  './js/views-public.js?v=6',
-  './js/views-home.js?v=6',
-  './js/views-round.js?v=6',
-  './js/views-modules.js?v=6',
-  './js/party.js?v=6',
-  './js/views-party.js?v=6',
-  './js/sync.js?v=6',
-  './js/app.js?v=6',
+  './css/styles.css?v=8',
+  './js/ui.js?v=8',
+  './js/store.js?v=8',
+  './js/stats.js?v=8',
+  './js/trainer.js?v=8',
+  './js/views-public.js?v=8',
+  './js/views-home.js?v=8',
+  './js/views-round.js?v=8',
+  './js/views-modules.js?v=8',
+  './js/party.js?v=8',
+  './js/views-party.js?v=8',
+  './js/sync.js?v=8',
+  './js/app.js?v=8',
 ];
 
 self.addEventListener('install', (e) => {
@@ -35,6 +35,22 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return; // fuentes/CDN: red normal
+
+  const isNav = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
+
+  // HTML (navegación): red primero para ver siempre la última versión; cae a cache si no hay internet.
+  if (isNav) {
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put('./index.html', copy));
+        return res;
+      }).catch(() => caches.match('./index.html').then((h) => h || caches.match('./')))
+    );
+    return;
+  }
+
+  // Resto (assets con ?v=): cache primero, rápido; si no está, red y se guarda.
   e.respondWith(
     caches.match(e.request).then((hit) =>
       hit ||
@@ -44,7 +60,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE).then((c) => c.put(e.request, copy));
         }
         return res;
-      }).catch(() => (e.request.mode === 'navigate' ? caches.match('./') : undefined))
+      })
     )
   );
 });

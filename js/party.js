@@ -8,9 +8,9 @@ const Party = (() => {
     larga:  { name: 'La larga', desc: 'En cada par 5, el drive más largo cobra 1 unidad de cada uno.' },
     gogo:   { name: 'Gogos',    desc: 'Salvar el par fuera de green (up & down) cobra 1 unidad de cada uno.' },
     birdie: { name: 'Birdies',  desc: 'Cada birdie cobra 1 unidad de cada uno; el águila cobra 2.' },
-    medal:  { name: 'Medal',    desc: 'Al final, el score total más bajo (sin empate) cobra 2 unidades de cada uno.' },
+    medal:  { name: 'Medal',    desc: 'Stroke play: gana quien termine con el score total más bajo.' },
     nassau: { name: 'Nassau',   desc: 'Ida, vuelta y total: cada tramo lo cobra el score más bajo (1 unidad de cada uno).' },
-    match:  { name: 'Match play', desc: 'Solo 2 jugadores: al final, quien ganó más hoyos cobra la diferencia en unidades.' },
+    match:  { name: 'Match play', desc: 'Solo 2 jugadores: gana quien gane más hoyos.' },
   };
 
   /** Puntos de La corta que gana un jugador en un hoyo (solo lo bueno suma) */
@@ -170,6 +170,50 @@ const Party = (() => {
     return { net, events, carry, cortaPts };
   }
 
+  /** Tabla de posiciones por score (neto si la party usa hándicap) */
+  function standings(party, limit = party.holes.length) {
+    const rows = party.players.map(pl => {
+      let gross = 0, net = 0, par = 0, n = 0;
+      party.holes.slice(0, limit).forEach((h, i) => {
+        if (h.scores[pl.pid] != null) {
+          gross += h.scores[pl.pid];
+          net += h.scores[pl.pid] - alloc(party, pl.pid, i);
+          par += h.par; n++;
+        }
+      });
+      const shown = party.useNet ? net : gross;
+      return { pid: pl.pid, name: pl.name, gross, net, par, holes: n, shown, toPar: shown - par };
+    });
+    rows.sort((a, b) => (b.holes > 0) - (a.holes > 0) || a.toPar - b.toPar);
+    return rows;
+  }
+
+  /** Estado de Match play (2 jugadores) sobre los hoyos jugados */
+  function matchStatus(party, limit = party.holes.length) {
+    const pids = party.players.map(p => p.pid);
+    if (pids.length !== 2) return null;
+    const [a, b] = pids;
+    let wa = 0, wb = 0, played = 0;
+    party.holes.slice(0, limit).forEach((h, i) => {
+      if (h.scores[a] == null || h.scores[b] == null) return;
+      played++;
+      const da = h.scores[a] - alloc(party, a, i);
+      const db = h.scores[b] - alloc(party, b, i);
+      if (da < db) wa++; else if (db < da) wb++;
+    });
+    const up = wa - wb;
+    const remaining = (party.holesCount || party.holes.length) - played;
+    let leader = null, text, decided = false;
+    if (up === 0) { text = played ? 'Empatados' : '—'; }
+    else {
+      leader = up > 0 ? a : b;
+      const diff = Math.abs(up);
+      if (diff > remaining) { text = `${diff}&${remaining}`; decided = true; }
+      else text = `${diff} ${diff === 1 ? 'arriba' : 'arriba'}`;
+    }
+    return { a, b, wa, wb, up, leader, text, played, remaining, decided };
+  }
+
   /** Quién paga a quién (greedy) */
   function settle(net) {
     const debt = Object.entries(net).filter(([, v]) => v < -0.005).map(([p, v]) => ({ p, v: -v })).sort((a, b) => b.v - a.v);
@@ -186,7 +230,7 @@ const Party = (() => {
     return tx;
   }
 
-  return { GAMES, newCode, totals, ledger, settle, cortaHolePoints };
+  return { GAMES, newCode, totals, ledger, settle, cortaHolePoints, standings, matchStatus };
 })();
 
 function fmtMoney(n) {
