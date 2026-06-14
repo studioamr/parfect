@@ -3,8 +3,8 @@
 const Party = (() => {
 
   const GAMES = {
+    corta:  { name: 'La corta (puntos)', desc: 'Solo lo bueno suma: birdie +2, águila +4, pegar green +1, salvar el par +1. Al final le cobras a cada rival la diferencia de puntos × la apuesta.' },
     skins:  { name: 'Skins',    desc: 'El score más bajo del hoyo (sin empate) gana 1 unidad de cada uno. Los empates acumulan al siguiente.' },
-    corta:  { name: 'La corta', desc: 'En cada par 3, el que quede más cerca de bandera cobra 1 unidad de cada uno.' },
     larga:  { name: 'La larga', desc: 'En cada par 5, el drive más largo cobra 1 unidad de cada uno.' },
     gogo:   { name: 'Gogos',    desc: 'Salvar el par fuera de green (up & down) cobra 1 unidad de cada uno.' },
     birdie: { name: 'Birdies',  desc: 'Cada birdie cobra 1 unidad de cada uno; el águila cobra 2.' },
@@ -12,6 +12,18 @@ const Party = (() => {
     nassau: { name: 'Nassau',   desc: 'Ida, vuelta y total: cada tramo lo cobra el score más bajo (1 unidad de cada uno).' },
     match:  { name: 'Match play', desc: 'Solo 2 jugadores: al final, quien ganó más hoyos cobra la diferencia en unidades.' },
   };
+
+  /** Puntos de La corta que gana un jugador en un hoyo (solo lo bueno suma) */
+  function cortaHolePoints(h, pid) {
+    let pts = 0;
+    if (h.scores[pid] != null) {
+      const d = h.scores[pid] - h.par;       // birdie/águila por score bruto
+      if (d <= -2) pts += 4; else if (d === -1) pts += 2;
+    }
+    if ((h.gir || []).includes(pid)) pts += 1;    // pegó green en regulación
+    if ((h.gogos || []).includes(pid)) pts += 1;  // salvó el par fuera de green
+    return pts;
+  }
 
   /** Golpes de ventaja del jugador en el hoyo i (reparto uniforme de sus strokes) */
   function alloc(party, pid, i) {
@@ -63,6 +75,9 @@ const Party = (() => {
     // score del hoyo (neto si la party usa hándicap)
     const sc = (h, i, pid) => h.scores[pid] - alloc(party, pid, i);
 
+    const cortaPts = {};
+    pids.forEach(p => { cortaPts[p] = 0; });
+
     let carry = 0;
     party.holes.slice(0, limit).forEach((h, i) => {
       const played = pids.filter(p => h.scores[p] != null);
@@ -78,7 +93,12 @@ const Party = (() => {
           carry++;
         }
       }
-      if (party.games.corta && h.par === 3 && h.corta && played.includes(h.corta)) pay(h.corta, 1, 'La corta', i + 1, played);
+      if (party.games.corta) {
+        for (const p of played) {
+          const pts = cortaHolePoints(h, p);
+          if (pts > 0) { cortaPts[p] += pts; events.push({ hole: i + 1, label: 'La corta', winner: p, pts }); }
+        }
+      }
       if (party.games.larga && h.par === 5 && h.larga && played.includes(h.larga)) pay(h.larga, 1, 'La larga', i + 1, played);
       if (party.games.gogo) for (const p of (h.gogos || [])) if (played.includes(p)) pay(p, 1, 'Gogo', i + 1, played);
       if (party.games.birdie) {
@@ -89,6 +109,16 @@ const Party = (() => {
         }
       }
     });
+
+    // La corta se liquida por diferencia de puntos contra cada rival (suma cero)
+    if (party.games.corta) {
+      const active = pids.filter(p => party.holes.slice(0, limit).some(h => h.scores[p] != null));
+      const n = active.length;
+      if (n >= 2) {
+        const sumP = active.reduce((a, p) => a + cortaPts[p], 0);
+        for (const p of active) net[p] += stake * (n * cortaPts[p] - sumP);
+      }
+    }
 
     if (party.status === 'done') {
       const netSum = (pid, from, to) => {
@@ -136,7 +166,7 @@ const Party = (() => {
       }
     }
 
-    return { net, events, carry };
+    return { net, events, carry, cortaPts };
   }
 
   /** Quién paga a quién (greedy) */
@@ -155,7 +185,7 @@ const Party = (() => {
     return tx;
   }
 
-  return { GAMES, newCode, totals, ledger, settle };
+  return { GAMES, newCode, totals, ledger, settle, cortaHolePoints };
 })();
 
 function fmtMoney(n) {

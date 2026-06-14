@@ -11,72 +11,77 @@ function vLanding() {
     </div>
 
     <div class="land-hero">
-      <span class="badge">⛳ Golf Analytics · IA</span>
+      <span class="badge">⛳ Golf · Stats · IA</span>
       <h1 class="land-h1">Deja de practicar.<br/><span class="lime">Empieza a mejorar.</span></h1>
-      <p class="land-sub">PARFECT correlaciona cada métrica de tu juego para darte diagnósticos de causa raíz, prescripción de drills y estrategia personalizada.</p>
+      <p class="land-sub">PARFECT anota tu juego hoyo por hoyo, te dice en qué estás fallando y qué practicar para bajar tu hándicap. Y cuando juegas con amigos, lleva las apuestas por ti.</p>
       <button class="btn primary" data-act="go" data-view="signup">Crear cuenta gratis</button>
       <button class="btn ghost" data-act="go" data-view="login">Ya tengo cuenta</button>
       <div class="mini-stats">
         <div class="mini-stat"><b>4 toques</b><span>por hoyo</span></div>
-        <div class="mini-stat"><b>12+</b><span>métricas</span></div>
-        <div class="mini-stat"><b>IA</b><span>diagnóstico</span></div>
+        <div class="mini-stat"><b>Apuestas</b><span>con amigos</span></div>
+        <div class="mini-stat"><b>IA</b><span>tu coach</span></div>
       </div>
     </div>
 
     <div class="land-sec">
-      <h2 class="land-h2">Todo lo que necesitas<br/>para bajar tu hándicap</h2>
-      <p class="land-lead">Cuatro módulos integrados que convierten datos en mejoras reales en el campo.</p>
+      <h2 class="land-h2">Todo lo que necesitas<br/>para jugar mejor</h2>
+      <p class="land-lead">Cinco herramientas que convierten tus números en mejoras de verdad.</p>
 
       <div class="card feat">
         <div class="f-ico">${ICONS.feat_round}</div>
-        <h3>Registro de Rondas</h3>
-        <p>Captura hoyo a hoyo con solo 4 toques. Tee, approach, around-the-green y putting — todo en segundos.</p>
+        <h3>Anota tus rondas</h3>
+        <p>Captura cada hoyo en 4 toques: salida, approach, juego corto y putts. En segundos.</p>
       </div>
       <div class="card feat">
         <div class="f-ico">${ICONS.feat_stats}</div>
-        <h3>Avatar Stats</h3>
-        <p>Métricas correlacionadas: fairways, GIR, scrambling, putting por distancia. Conoce tu juego con precisión quirúrgica.</p>
+        <h3>Tus números</h3>
+        <p>Calles, greens, salvadas y putts, claros y a la mano. Sabes exactamente cómo juegas.</p>
       </div>
       <div class="card feat">
         <div class="f-ico">${ICONS.feat_ai}</div>
         <h3>Parfect Trainer</h3>
-        <p>IA que analiza tus patrones de fallo reales y genera diagnósticos, drills y estrategia de campo personalizados.</p>
+        <p>La IA revisa tus rondas, te dice por qué pierdes golpes y te arma ejercicios para tu caso.</p>
       </div>
       <div class="card feat">
         <div class="f-ico">${ICONS.feat_track}</div>
         <h3>Parfect Tracker</h3>
-        <p>Registra cada sesión de práctica con métricas de acierto y patrón de dispersión para cuantificar tu mejora.</p>
+        <p>Anota cada práctica con tus aciertos y comprueba si de verdad estás mejorando.</p>
+      </div>
+      <div class="card feat">
+        <div class="f-ico">${ICONS.social}</div>
+        <h3>Parfect Party 🎉</h3>
+        <p>Juega y apuesta con amigos: Skins, La corta, La larga y más. Cada quien anota desde su celular y la app saca las cuentas sola. Ideal para tu torneo.</p>
       </div>
     </div>
 
     <div class="land-sec">
       <h2 class="land-h2">Cómo funciona</h2>
-      <p class="land-lead">Tres pasos para transformar tus datos en resultados.</p>
+      <p class="land-lead">Tres pasos, sin complicarte.</p>
       <div class="step">
         <span class="s-num">01</span>
-        <div><h3>Registra tu ronda</h3><p>Captura cada hoyo en menos de 30 segundos con nuestro formulario optimizado para móvil.</p></div>
+        <div><h3>Anota tu ronda</h3><p>Captura cada hoyo en 30 segundos desde tu celular.</p></div>
       </div>
       <div class="step">
         <span class="s-num">02</span>
-        <div><h3>Analiza tus patrones</h3><p>Avatar Stats correlaciona tus métricas y detecta exactamente dónde se van los golpes de más.</p></div>
+        <div><h3>Mira dónde fallas</h3><p>La app encuentra dónde se te van los golpes de más.</p></div>
       </div>
       <div class="step">
         <span class="s-num">03</span>
-        <div><h3>Practica lo correcto</h3><p>Parfect Trainer genera drills específicos para tus fallas reales. No más práctica genérica.</p></div>
+        <div><h3>Practica lo correcto</h3><p>Practica solo lo que te hace falta. Sin perder el tiempo.</p></div>
       </div>
     </div>
 
     <div class="land-cta">
       <span class="label">¿Listo para jugar tu mejor golf?</span>
       <h2 class="land-h2" style="margin-top:10px">Tu hándicap<br/><span class="lime">te está esperando.</span></h2>
-      <p class="land-lead">Crea tu cuenta gratis y empieza a construir tu perfil de jugador hoy.</p>
+      <p class="land-lead">Crea tu cuenta gratis y empieza hoy.</p>
       <button class="btn primary" data-act="go" data-view="signup">Empezar ahora</button>
     </div>
 
     <div class="land-foot">
       <span class="logo-word">${logoMark(15)} PARFECT</span>
-      Tu plataforma de analytics y entrenamiento para golf.<br/>
-      Tus datos viven en este dispositivo. Sin servidores, sin trackers.
+      Tu app para mejorar en el golf y jugar con amigos.<br/>
+      Tus datos se guardan en tu dispositivo.
     </div>
   </div>`;
 }

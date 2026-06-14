@@ -111,7 +111,7 @@ function vPartyLive() {
   if (!p || p.status === 'cancelled') { S.activeParty = null; V.view = 'social'; return vShell(vSocial()); }
   if (p.status === 'done') { V.partyView = p.id; return vPartyDone(); }
   const h = p.holes[p.idx];
-  const { net, carry } = Party.ledger(p, p.idx);
+  const { net, carry, cortaPts } = Party.ledger(p, p.idx);
   const last = p.idx + 1 === p.holesCount;
   return `<div class="shell no-nav fade-in">
     <div class="play-top">
@@ -148,10 +148,19 @@ function vPartyLive() {
       }).join('')}
     </div>
 
-    ${p.games.corta && h.par === 3 ? `<div class="group">
-      <div class="g-lab"><span class="label">🎯 La corta</span><span class="small muted">¿quién quedó más cerca?</span></div>
-      <div class="chips">${p.players.map(pl =>
-        `<button class="chip sm ${h.corta === pl.pid ? 'on' : ''}" data-act="pa-corta" data-pid="${pl.pid}">${esc(pl.name.split(' ')[0])}</button>`).join('')}</div>
+    ${p.games.corta ? `<div class="group">
+      <div class="g-lab"><span class="label">🎯 La corta · marca lo bueno</span><span class="small muted">birdie/águila van solos</span></div>
+      ${p.players.map(pl => {
+        const here = Party.cortaHolePoints(h, pl.pid);
+        const tot = (cortaPts[pl.pid] || 0) + here;
+        return `<div class="pl-row">
+        <span class="rank">${esc(initials(pl.name))}</span>
+        <div class="r-main" style="flex:1"><b>${esc(pl.name.split(' ')[0])}</b>
+          <span class="lime">${tot} pts${here ? ` · +${here} aquí` : ''}</span></div>
+        <button class="chip sm ${(h.gir || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gir" data-pid="${pl.pid}">Green</button>
+        <button class="chip sm ${(h.gogos || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gogo" data-pid="${pl.pid}">Salvó</button>
+      </div>`;
+      }).join('')}
     </div>` : ''}
 
     ${p.games.larga && h.par === 5 ? `<div class="group">
@@ -160,7 +169,7 @@ function vPartyLive() {
         `<button class="chip sm ${h.larga === pl.pid ? 'on' : ''}" data-act="pa-larga" data-pid="${pl.pid}">${esc(pl.name.split(' ')[0])}</button>`).join('')}</div>
     </div>` : ''}
 
-    ${p.games.gogo ? `<div class="group">
+    ${p.games.gogo && !p.games.corta ? `<div class="group">
       <div class="g-lab"><span class="label">⛳ Gogos</span><span class="small muted">salvó par fuera de green</span></div>
       <div class="chips">${p.players.map(pl =>
         `<button class="chip sm ${(h.gogos || []).includes(pl.pid) ? 'on' : ''}" data-act="pa-gogo" data-pid="${pl.pid}">${esc(pl.name.split(' ')[0])}</button>`).join('')}</div>
@@ -179,17 +188,17 @@ function vPartyLive() {
 
 /* ---------- Cuentas (sheet en vivo / pantalla final) ---------- */
 function vPartyMoney(p, done) {
-  const { net, events, carry } = Party.ledger(p, done ? p.holes.length : p.idx);
+  const { net, events, carry, cortaPts } = Party.ledger(p, done ? p.holes.length : p.idx);
   const t = Party.totals(p);
   const order = [...p.players].sort((a, b) => net[b.pid] - net[a.pid]);
   const rows = order.map((pl, i) => `<div class="pl-row">
     <span class="rank">${i + 1}</span>
     <div class="r-main" style="flex:1"><b>${esc(pl.name)}</b>
-      <span>${t[pl.pid].holes ? `${t[pl.pid].score} golpes (${fmtToPar(t[pl.pid].toPar)}) · ${t[pl.pid].holes} hoyos` : 'sin scores'}</span></div>
+      <span>${t[pl.pid].holes ? `${t[pl.pid].score} golpes (${fmtToPar(t[pl.pid].toPar)})${p.games.corta ? ` · ${cortaPts[pl.pid] || 0} pts corta` : ''}` : 'sin scores'}</span></div>
     <b class="${net[pl.pid] > 0.005 ? 'lime' : ''}" style="font-size:17px;${net[pl.pid] < -0.005 ? 'color:var(--danger)' : ''}">${fmtMoney(net[pl.pid])}</b>
   </div>`).join('');
   const evs = events.slice(-8).reverse().map(e =>
-    `<p class="tip">${e.hole ? `H${e.hole} · ` : ''}${esc(e.label)}: <b>${esc(plName(p, e.winner).split(' ')[0])}</b> cobra ${fmtMoney(e.amount)}</p>`).join('');
+    `<p class="tip">${e.hole ? `H${e.hole} · ` : ''}${esc(e.label)}: <b>${esc(plName(p, e.winner).split(' ')[0])}</b> ${e.pts != null ? `+${e.pts} pts` : `cobra ${fmtMoney(e.amount)}`}</p>`).join('');
 
   if (!done) {
     return `<div class="overlay" data-act="pa-money-close"><div class="sheet" data-act="noop">
@@ -228,12 +237,12 @@ function vPartyDone() {
 /* ---------- Acciones ---------- */
 function makeHoleForParty(p, i) {
   const par = Stats.PAR_SEQ[i % 18];
-  return { par, scores: Object.fromEntries(p.players.map(pl => [pl.pid, par])), corta: null, larga: null, gogos: [] };
+  return { par, scores: Object.fromEntries(p.players.map(pl => [pl.pid, par])), larga: null, gogos: [], gir: [] };
 }
 
 const partyActions = {
   'party-new'() {
-    V.partyDraft = { course: '', holes: 18, stake: '50', useNet: false, games: { skins: true, corta: true, larga: true, gogo: true, birdie: true, medal: false, nassau: false, match: false } };
+    V.partyDraft = { course: '', holes: 18, stake: '50', useNet: false, games: { corta: true, skins: true, larga: true, gogo: false, birdie: false, medal: false, nassau: false, match: false } };
     go('party-setup');
   },
   'pd-holes'(d) { V.partyDraft.course = val('pd-course'); V.partyDraft.stake = val('pd-stake'); V.partyDraft.holes = Number(d.n); render(); },
@@ -346,7 +355,6 @@ const partyActions = {
     const old = h.par; const par = Number(d.v);
     h.par = par;
     for (const pid of Object.keys(h.scores)) if (h.scores[pid] === old) h.scores[pid] = par;
-    if (par !== 3) h.corta = null;
     if (par !== 5) h.larga = null;
     pcommit(p);
   },
@@ -355,8 +363,13 @@ const partyActions = {
     h.scores[d.pid] = Math.max(1, (h.scores[d.pid] ?? h.par) + Number(d.d));
     pcommit(p);
   },
-  'pa-corta'(d) { const p = activeParty(); const h = p.holes[p.idx]; h.corta = h.corta === d.pid ? null : d.pid; pcommit(p); },
   'pa-larga'(d) { const p = activeParty(); const h = p.holes[p.idx]; h.larga = h.larga === d.pid ? null : d.pid; pcommit(p); },
+  'pa-gir'(d) {
+    const p = activeParty(); const h = p.holes[p.idx];
+    h.gir = h.gir || [];
+    h.gir = h.gir.includes(d.pid) ? h.gir.filter(x => x !== d.pid) : [...h.gir, d.pid];
+    pcommit(p);
+  },
   'pa-gogo'(d) {
     const p = activeParty(); const h = p.holes[p.idx];
     h.gogos = h.gogos || [];
