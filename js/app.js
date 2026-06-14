@@ -9,7 +9,7 @@ let V = {
   hole: null, scoreTouched: false, confirmExit: false,
   detail: null, delArm: null,
   trainerTab: 'diag', diag: null, diagBusy: false,
-  trackVals: null,
+  trackVals: null, trkTab: 'plan', drillLog: null,
   partyDraft: null, showMoney: false, partyView: null,
 };
 
@@ -259,6 +259,27 @@ const actions = {
       render();
       window.scrollTo(0, 0);
     }, 700);
+  },
+  'trk-tab'(d) { V.trkTab = d.t; V.err = null; render(); },
+  'drill-open'(d) {
+    const dr = drillById(d.id);
+    if (!dr) return;
+    V.drillLog = { id: d.id, hits: dr.target };
+    render();
+  },
+  'drill-hit'(d) {
+    if (!V.drillLog) return;
+    const dr = drillById(V.drillLog.id);
+    V.drillLog.hits = Math.max(0, Math.min(dr.target, V.drillLog.hits + Number(d.d)));
+    render();
+  },
+  'drill-close'() { V.drillLog = null; render(); },
+  'drill-save'() {
+    if (!V.drillLog) return;
+    const dr = drillById(V.drillLog.id);
+    S.practices.push({ id: Store.uid(), userId: S.session, date: today(), area: dr.cat, drill: dr.name, attempts: dr.target, hits: V.drillLog.hits, notes: '' });
+    V.drillLog = null;
+    commit();
   },
   'practice-add'() {
     const area = val('t-area'), drill = val('t-drill');

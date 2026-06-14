@@ -119,7 +119,95 @@ function vDiag() {
 /* ---------- Parfect Tracker ---------- */
 const AREAS = ['Driver', 'Hierros', 'Wedges', 'Chipping', 'Bunker', 'Putting'];
 
+/* Plan de práctica PARFECT — drills fijos por área (meta = aciertos / intentos) */
+const PARFECT_PLAN = [
+  { cat: 'Juego largo', icon: '🏌️', drills: [
+    { id: 'lg-dr', name: 'Driver', goal: '280 yds carry, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'lg-w3', name: 'Madera 3', goal: '260 yds carry, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'lg-h4', name: 'Híbrido 4', goal: '240 yds carry, hueco de 40 yds', target: 7, timer: 20 },
+  ] },
+  { cat: 'Hierros', icon: '🎯', drills: [
+    { id: 'ir-4', name: 'Fierro 4', goal: '220 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'ir-5', name: 'Fierro 5', goal: '210 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'ir-6', name: 'Fierro 6', goal: '200 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'ir-7', name: 'Fierro 7', goal: '190 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'ir-8', name: 'Fierro 8', goal: '180 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'ir-9', name: 'Fierro 9', goal: '170 yds, hueco de 40 yds', target: 7, timer: 20 },
+  ] },
+  { cat: 'Wedges', icon: '⛳', drills: [
+    { id: 'wd-pw', name: 'Pitching wedge', goal: '160/150 yds, hueco de 40 yds', target: 7, timer: 20 },
+    { id: 'wd-52', name: 'Wedge 52', goal: '140/130 yds, hueco de 20 yds', target: 7, timer: 20 },
+    { id: 'wd-56', name: 'Wedge 56', goal: '120/110 yds, hueco de 20 yds', target: 7, timer: 20 },
+    { id: 'wd-60', name: 'Wedge 60', goal: '100 yds, hueco de 20 yds', target: 7, timer: 20 },
+  ] },
+  { cat: 'Approach', icon: '🟢', drills: [
+    { id: 'ap-40', name: 'Up & down 40 yds', goal: 'up & downs aleatorios', target: 7, timer: 20 },
+    { id: 'ap-30', name: 'Up & down 30 yds', goal: 'up & downs aleatorios', target: 7, timer: 20 },
+    { id: 'ap-10', name: 'Up & down 10 yds', goal: 'up & downs aleatorios', target: 7, timer: 20 },
+  ] },
+  { cat: 'Putt', icon: '🥅', drills: [
+    { id: 'pt-3', name: 'Putt 3 ft', goal: 'seguidos', target: 10, timer: 20 },
+    { id: 'pt-5', name: 'Putt 5 ft', goal: 'seguidos', target: 10, timer: 20 },
+    { id: 'pt-7', name: 'Putt 7 ft', goal: '', target: 10, timer: 20 },
+    { id: 'pt-10', name: 'Putt 10 ft', goal: '', target: 10, timer: 20 },
+    { id: 'pt-15', name: 'Putt 15 ft', goal: 'dejándola a 3 ft (gimme)', target: 10, timer: 20 },
+    { id: 'pt-20', name: 'Putt 20 ft', goal: 'a distancia de dada', target: 10, timer: 20 },
+    { id: 'pt-30', name: 'Putt 30 ft', goal: 'a distancia de dada', target: 10, timer: 20 },
+  ] },
+];
+const ALL_DRILLS = PARFECT_PLAN.flatMap(c => c.drills.map(d => ({ ...d, cat: c.cat })));
+const drillById = id => ALL_DRILLS.find(d => d.id === id);
+
 function vTracker() {
+  const tab = V.trkTab || 'plan';
+  return `<div class="sec-h"><h2>Parfect Tracker</h2><span class="small muted">tu práctica, medida</span></div>
+    <div class="tabs">
+      <button class="tab ${tab === 'plan' ? 'on' : ''}" data-act="trk-tab" data-t="plan">Plan PARFECT</button>
+      <button class="tab ${tab === 'libre' ? 'on' : ''}" data-act="trk-tab" data-t="libre">Registro libre</button>
+    </div>
+    ${tab === 'plan' ? vTrackerPlan() : vTrackerFree()}
+    ${V.drillLog ? vDrillSheet() : ''}`;
+}
+
+function vTrackerPlan() {
+  const list = myPractices();
+  const lastOf = name => [...list].reverse().find(p => p.drill === name);
+  const cats = PARFECT_PLAN.map(c => {
+    const rows = c.drills.map(d => {
+      const last = lastOf(d.name);
+      const pct = last ? Math.round((last.hits / last.attempts) * 100) : 0;
+      const hit = last && last.hits >= d.target;
+      return `<button class="row" data-act="drill-open" data-id="${d.id}">
+        <div class="r-main"><b>${esc(d.name)}${hit ? ' ✓' : ''}</b><span>${d.target}/${d.target}${d.goal ? ' · ' + esc(d.goal) : ''} · ${d.timer} min</span></div>
+        <div class="r-side">${last ? `<b>${last.hits}/${last.attempts}</b><span>${pct}%</span>` : `<span class="muted small">registrar →</span>`}</div>
+      </button>`;
+    }).join('');
+    return `<div class="sec-h" style="margin-top:20px"><h2 style="font-size:16px">${c.icon} ${esc(c.cat)}</h2></div>${rows}`;
+  }).join('');
+  return `<p class="note" style="margin-top:14px">Toca un drill para registrar tu resultado. La meta de cada uno es completar la cuenta dentro de los 20 min.</p>${cats}`;
+}
+
+function vDrillSheet() {
+  const d = drillById(V.drillLog.id);
+  if (!d) return '';
+  const hits = V.drillLog.hits;
+  return `<div class="overlay" data-act="drill-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>${esc(d.name)}</h2>
+    <p class="auth-sub">${d.goal ? esc(d.goal) + ' · ' : ''}${d.timer} min · meta ${d.target}/${d.target}</p>
+    <div class="score-row" style="margin-top:20px">
+      <div class="sc-val"><span class="sc-num">${hits}</span><span class="sc-rel">/ ${d.target} aciertos</span></div>
+      <div class="stepper">
+        <button data-act="drill-hit" data-d="-1">−</button>
+        <button data-act="drill-hit" data-d="1">+</button>
+      </div>
+    </div>
+    <button class="btn primary" data-act="drill-save">Guardar resultado</button>
+    <button class="btn" data-act="drill-close">Cancelar</button>
+  </div></div>`;
+}
+
+function vTrackerFree() {
   const list = myPractices();
   const vals = V.trackVals || {};
   const byArea = {};
