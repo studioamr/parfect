@@ -107,36 +107,34 @@ function chipRow(items, key, current) {
   ).join('') + `</div>`;
 }
 
-/* posiciones de los tiros registrados, para animar el hoyo (consciente del score) */
-function captureShots(h, score) {
+/* posiciones de los tiros — se construyen SOLO con lo que ya registraste, tiro por tiro */
+function captureShots(h) {
   const shots = [];
   const par = h.par;
-  const putts = h.putts != null ? h.putts : 2;
-  const full = (score != null ? Math.max(1, score - putts) : (par === 3 ? 1 : par === 5 ? 3 : 2));
-  const missed = !!(h.app && h.app !== 'gir');
-  const chip = missed && full >= 2 ? 1 : 0;          // un tiro alrededor del green si falló
-  const advance = Math.max(par === 3 ? 0 : 1, full - 1 - chip); // tiros de avance (incluye salida)
-  for (let i = 0; i < advance; i++) {
-    const prog = advance <= 1 ? 0.48 : 0.34 + i * (0.5 / (advance - 1)); // 0.34 → 0.84
-    let side = 0, ok = true, lie = 'fw';
-    if (i === 0 && par >= 4 && h.tee) {
-      side = h.tee === 'izq' ? -0.62 : h.tee === 'der' ? 0.62 : h.tee === 'penal' ? -0.82 : 0;
-      ok = h.tee === 'fw'; lie = h.tee === 'penal' ? 'water' : (ok ? 'fw' : 'rough');
+  // 1 · Salida (par 4/5)
+  if (par >= 4 && h.tee) {
+    const side = h.tee === 'izq' ? -0.62 : h.tee === 'der' ? 0.62 : h.tee === 'penal' ? -0.82 : 0;
+    const ok = h.tee === 'fw';
+    shots.push({ prog: par === 5 ? 0.33 : 0.5, side, ok, lie: h.tee === 'penal' ? 'water' : (ok ? 'fw' : 'rough') });
+  }
+  // 2 · Approach (en par 5, primero el tiro de avance / layup)
+  if (h.app) {
+    if (par === 5 && h.tee) shots.push({ prog: 0.72, side: 0, ok: true, lie: 'fw' });
+    if (h.app === 'gir') shots.push({ prog: 1, side: 0, ok: true, lie: 'green' });
+    else {
+      const side = h.app === 'izq' ? -0.6 : h.app === 'der' ? 0.6 : 0;
+      const prog = h.app === 'largo' ? 1.13 : h.app === 'corto' ? 0.82 : 1;   // largo = se pasa del green
+      shots.push({ prog, side, ok: false, lie: 'rough' });
+      // 3 · Alrededor del green (solo si ya lo registraste)
+      if (h.upDown != null) shots.push({ prog: 0.99, side: 0.1, ok: h.upDown === true, lie: 'green' });
     }
-    shots.push({ prog, side, ok, lie });
   }
-  if (h.app === 'gir') shots.push({ prog: 1, side: 0, ok: true, lie: 'green' });
-  else if (h.app) {
-    const side = h.app === 'izq' ? -0.6 : h.app === 'der' ? 0.6 : 0;
-    const prog = h.app === 'largo' ? 1.13 : h.app === 'corto' ? 0.82 : 1;   // largo = se pasa del green
-    shots.push({ prog, side, ok: false, lie: 'rough' });
-    if (chip) shots.push({ prog: 0.99, side: 0.1, ok: h.upDown === true, lie: 'green' });
-  }
-  for (let i = 0; i < putts; i++) shots.push({ prog: 1, side: (i % 2 ? 0.06 : -0.06), ok: true, lie: 'green' });
+  // 4 · Putts
+  if (h.putts != null) for (let i = 0; i < h.putts; i++) shots.push({ prog: 1, side: (i % 2 ? 0.06 : -0.06), ok: true, lie: 'green' });
   return shots;
 }
-function captureSchematic(h, score, chole) {
-  const shots = captureShots(h, score);
+function captureSchematic(h, chole) {
+  const shots = captureShots(h);
   const dog = (chole && chole.dog) || 'straight';
   const par3 = (chole ? chole.par : h.par) === 3;
   const W = 300, H = 296, tee = [150, 266];
@@ -218,7 +216,7 @@ function vPlay() {
     </div>
 
     <div class="card" style="padding:10px">
-      ${captureSchematic(h, score, chole)}
+      ${captureSchematic(h, chole)}
       <p class="note" style="text-align:center;margin:6px 0 0">${sl.length ? esc(sl.join('  ·  ')) : 'Registra tu hoyo y míralo tiro por tiro.'}</p>
     </div>
 
