@@ -138,14 +138,10 @@ function captureShots(h) {
   }
   return shots;
 }
-/* color por tipo de tiro: salida/calle, approach/GIR, chip/up&down, putt */
+/* un solo color para los tiros (lima); rojo solo para penal/agua */
 function shotColor(s) {
-  if (!s) return '#eef3e6';
-  if (s.role === 'putt') return '#eef3e6';
-  if (s.role === 'chip' || s.ud) return '#5aa9e0';
-  if (s.lie === 'water') return '#ff7a6b';
-  if (s.role === 'approach') return s.ok ? '#6fd08a' : '#ff9f43';
-  return s.ok ? '#c9f73e' : '#ff9f43';
+  if (s && s.lie === 'water') return '#ff7a6b';
+  return '#c9f73e';
 }
 function captureSchematic(h, chole, noZoom) {
   const shots = captureShots(h);
@@ -193,16 +189,14 @@ function captureSchematic(h, chole, noZoom) {
   if (h.par >= 4 && teeIdx >= 0) { const tp = fpts[teeIdx]; const fw = h.tee === 'fw'; pills += pill(tp.x, tp.y - 15, fw ? 'CALLE ✓' : h.tee === 'penal' ? 'PENAL ✗' : 'CALLE ✗', fw ? '#c9f73e' : '#ff9f43'); }
   const gir = h.app === 'gir', saved = h.app && h.app !== 'gir' && h.upDown === true;
   let gtxt = gir ? 'GIR ✓' : saved ? 'SALVÓ ✓' : (h.app && h.app !== 'gir' && h.upDown === false ? 'FALLÓ GREEN' : '');
-  const gcol = gir ? '#6fd08a' : saved ? '#5aa9e0' : '#ff9f43';
+  const gcol = (gir || saved) ? '#c9f73e' : '#ff9f43';
   if (nPutts > 0) gtxt = (gtxt ? gtxt + ' · ' : '') + nPutts + ' PUTT' + (nPutts !== 1 ? 'S' : '');
-  if (gtxt) pills += pill(gx, gy + lagDy + 18, gtxt, nPutts > 0 && !gir && !saved ? '#eef3e6' : gcol);
+  if (gtxt) pills += pill(gx, gy + lagDy + 18, gtxt, gtxt.includes('✓') ? '#c9f73e' : '#ff9f43');
   let zones = '', dots = '';
   shots.forEach((s, i) => { if (s.lie === 'green') return; const q = fpts[i], c = shotColor(s), rx = s.ok ? 13 : 18; zones += `<ellipse cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" rx="${rx}" ry="${(rx * 0.7).toFixed(0)}" fill="${c}" opacity="0.16" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4"/>`; });
   pts.forEach((q, i) => {
-    const s = seq[i], c = shotColor(s);
-    if (s.ud) dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="6" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.6"/><circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.4" fill="${c}"/>`;
-    else if (s.role === 'putt') dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="${i === pts.length - 1 ? 2.6 : 3.2}" fill="${c}" stroke="#0a0f08" stroke-width="0.5"/>`;
-    else dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.4" fill="${c}"/>`;
+    const c = shotColor(seq[i]);
+    dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.4" fill="${c}"/>`;
   });
   let haz = '';
   ((chole && chole.risks) || []).forEach(r => {
@@ -225,14 +219,18 @@ function captureSchematic(h, chole, noZoom) {
     const dur = Math.min(9, 1.2 + (nf.length - 1) * 1.25).toFixed(1);   // tempo más lento y calmado
     ball = `<circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
     { const N = pts.length; let cnum = '';
+      const roleLbl = { tee: 'SALIDA', advance: 'AVANCE', approach: 'APPROACH', chip: 'CHIP', putt: 'PUTT' };
       for (let i = 1; i <= N; i++) {
-        const t0 = nodeT[i] != null ? Number(nodeT[i]) : i / N;
-        const t1 = i < N ? (nodeT[i + 1] != null ? Number(nodeT[i + 1]) : 1) : 1;
-        const k = [0, Math.max(0.001, t0 - 0.006), t0, Math.max(t0 + 0.003, t1 - 0.006), Math.min(1, t1)];
-        for (let j = 1; j < k.length; j++) if (k[j] <= k[j - 1]) k[j] = Math.min(1, k[j - 1] + 0.003);
-        cnum += `<text x="20" y="18" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="16" font-weight="900" fill="${shotColor(seq[i - 1])}" opacity="0">${i}<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="${k.map(x => x.toFixed(3)).join(';')}" dur="${dur}s" repeatCount="indefinite"/></text>`;
+        const isFirst = i === 1;
+        let t0 = isFirst ? 0 : Number(nodeT[i] != null ? nodeT[i] : i / N);
+        let t1 = i < N ? Number(nodeT[i + 1] != null ? nodeT[i + 1] : 1) : 1;
+        t0 = Math.max(0, Math.min(0.985, t0)); t1 = Math.max(t0 + 0.01, Math.min(0.999, t1));
+        const lbl = `TIRO ${i}/${N} · ${roleLbl[seq[i - 1].role] || 'TIRO'}`;
+        const vals = isFirst ? '1;0;0' : '0;1;0;0';
+        const kt = isFirst ? `0;${t1.toFixed(3)};1` : `0;${t0.toFixed(3)};${t1.toFixed(3)};1`;
+        cnum += `<text x="79" y="17" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="900" letter-spacing="0.4" fill="#08120a" opacity="${isFirst ? '1' : '0'}">${lbl}<animate attributeName="opacity" values="${vals}" keyTimes="${kt}" dur="${dur}s" calcMode="discrete" repeatCount="indefinite"/></text>`;
       }
-      counter = `<svg class="cap-count" viewBox="0 0 40 26" aria-hidden="true"><circle cx="20" cy="13" r="12" fill="rgba(0,0,0,0.6)" stroke="rgba(201,247,62,0.35)" stroke-width="0.8"/>${cnum}</svg>`;
+      counter = `<svg class="cap-count" viewBox="0 0 158 26" aria-hidden="true"><rect x="2" y="3" width="154" height="20" rx="10" fill="#c9f73e"/>${cnum}</svg>`;
     }
     // ---- zoom de cámara al green durante los putts ----
     if (!noZoom && nPutts > 0 && lagNode >= 0) {
