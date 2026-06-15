@@ -177,6 +177,27 @@ function vTrainingCard(u) {
     </button>`;
 }
 
+/* desglose claro de los tiros de un hoyo (con su color) */
+function holeShotList(hh) {
+  const dot = c => `<i style="background:${c}"></i>`;
+  const distTxt = { '0-3': '0–3 ft', '3-8': '3–8 ft', '8-20': '8–20 ft', '20+': '+20 ft' };
+  const rows = [];
+  if (hh.par >= 4) {
+    const t = hh.tee;
+    const txt = t === 'fw' ? 'Fairway ✓' : t === 'izq' ? 'falló izquierda' : t === 'der' ? 'falló derecha' : t === 'penal' ? 'OB / Penal' : '—';
+    const col = t === 'fw' ? '#c9f73e' : t === 'penal' ? '#ff7a6b' : '#ff9f43';
+    rows.push(`<span>${dot(col)} Salida · ${txt}</span>`);
+  }
+  if (hh.app) {
+    const a = hh.app;
+    const txt = a === 'gir' ? 'Green ✓' : a === 'corto' ? 'corto' : a === 'largo' ? 'largo, se pasó' : a === 'izq' ? 'falló izquierda' : 'falló derecha';
+    rows.push(`<span>${dot(a === 'gir' ? '#46d39a' : '#ff9f43')} Approach · ${txt}</span>`);
+    if (a !== 'gir' && hh.upDown != null) rows.push(`<span>${dot('#5aa9e0')} Up & down · ${hh.upDown ? 'salvado ✓' : 'no ✗'}</span>`);
+  }
+  if (hh.putts != null) rows.push(`<span>${dot('#eef3e6')} ${hh.putts} putt${hh.putts !== 1 ? 's' : ''}${hh.dist && distTxt[hh.dist] ? ` · 1er a ${distTxt[hh.dist]}` : ''}</span>`);
+  return `<div class="hole-shots">${rows.join('')}</div>`;
+}
+
 /* última ronda: % de la ronda + reel infinito de sus hoyos tiro por tiro */
 function vLastRound(rounds) {
   const r = rounds[0];
@@ -188,8 +209,7 @@ function vLastRound(rounds) {
   const card = (hh, i) => {
     const ch = (r.courseId && COURSES[r.courseId] && COURSES[r.courseId].holes[i]) ? COURSES[r.courseId].holes[i] : null;
     const yds = ch && ch.yds ? ` · ${ch.yds}y` : '';
-    const stats = [hh.par >= 4 ? (hh.tee === 'fw' ? 'Calle ✓' : 'Calle ✗') : '', hh.app === 'gir' ? 'GIR ✓' : 'GIR ✗', hh.putts != null ? `${hh.putts} putts` : ''].filter(Boolean).join(' · ');
-    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch)}</div><div class="reel-meta" style="padding:12px 16px 14px"><b style="font-size:22px">Hoyo ${i + 1}</b><span>Par ${hh.par}${yds} · ${hh.score} (${fmtToPar(hh.score - hh.par)})</span><span class="lr-holestats">${stats}</span></div></div>`;
+    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch)}</div><div class="reel-meta" style="padding:13px 16px 16px"><div class="hole-head2"><b>Hoyo ${i + 1}</b><span class="hh-par">Par ${hh.par}${yds}</span><span class="hh-score">${hh.score} <em>${fmtToPar(hh.score - hh.par)}</em></span></div>${holeShotList(hh)}</div></div>`;
   };
   const set = r.holes.map(card).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu última ronda</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>

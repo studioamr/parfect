@@ -190,9 +190,9 @@ function captureSchematic(h, chole, noZoom) {
   shots.forEach((s, i) => { if (s.lie === 'green') return; const q = fpts[i], c = shotColor(s), rx = s.ok ? 13 : 18; zones += `<ellipse cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" rx="${rx}" ry="${(rx * 0.7).toFixed(0)}" fill="${c}" opacity="0.16" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4"/>`; });
   pts.forEach((q, i) => {
     const s = seq[i], c = shotColor(s);
-    if (s.ud) dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="9" fill="none" stroke="${c}" stroke-width="1.4" opacity="0.6"/><circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="5" fill="${c}"/>`;
-    else if (s.role === 'putt') dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="${i === pts.length - 1 ? 3.2 : 4.2}" fill="${c}" stroke="#0a0f08" stroke-width="0.6"/>`;
-    else dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="4.5" fill="${c}"/>`;
+    if (s.ud) dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="6" fill="none" stroke="${c}" stroke-width="1.2" opacity="0.6"/><circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.4" fill="${c}"/>`;
+    else if (s.role === 'putt') dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="${i === pts.length - 1 ? 2.6 : 3.2}" fill="${c}" stroke="#0a0f08" stroke-width="0.5"/>`;
+    else dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.4" fill="${c}"/>`;
   });
   let haz = '';
   ((chole && chole.risks) || []).forEach(r => {
@@ -213,7 +213,7 @@ function captureSchematic(h, chole, noZoom) {
     const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; const nodeT = {};
     ev.forEach(e => { ac += e.d; const t = ac / TT; kp.push(e.p.toFixed(3)); kt.push(t.toFixed(3)); if (e.node != null) nodeT[e.node] = t; });
     const dur = Math.min(9, 1.2 + (nf.length - 1) * 1.25).toFixed(1);   // tempo más lento y calmado
-    ball = `<circle r="6" fill="#fff" stroke="#0a0f08" stroke-width="1.2"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+    ball = `<circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
     { const N = pts.length; let cnum = '';
       for (let i = 1; i <= N; i++) {
         const t0 = nodeT[i] != null ? Number(nodeT[i]) : i / N;
@@ -226,9 +226,10 @@ function captureSchematic(h, chole, noZoom) {
     }
     // ---- zoom de cámara al green durante los putts ----
     if (!noZoom && nPutts > 0 && lagNode >= 0) {
-      const bx = Math.max(0, Math.min(W - 118, gx - 59)).toFixed(0);
-      const by = Math.max(0, Math.min(H - 116, gy + lagDy / 2 - 58)).toFixed(0);
-      const box = `${bx} ${by} 118 116`;
+      const bw = 178, bh = 176;
+      const bx = Math.max(0, Math.min(W - bw, gx - bw / 2)).toFixed(0);
+      const by = Math.max(0, Math.min(H - bh, gy + lagDy / 2 - bh / 2)).toFixed(0);
+      const box = `${bx} ${by} ${bw} ${bh}`;
       const tA = nodeT[lagNode] != null ? nodeT[lagNode] : 0.55;
       let k = [0, Math.max(0.05, tA - 0.03), Math.min(0.9, tA + 0.06), 0.96, 1];
       for (let i = 1; i < k.length; i++) if (k[i] <= k[i - 1]) k[i] = Math.min(1, k[i - 1] + 0.005);
