@@ -12,7 +12,7 @@ let V = {
   trackVals: null, trkTab: 'plan', drillLog: null, drillCat: 'fw',
   calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null, holeIdx: 0,
   courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null, camposHcp: null,
-  partyDraft: null, showMoney: false, partyView: null,
+  partyDraft: null, showMoney: false, partyView: null, capPid: null,
 };
 
 const cur = () => S.users.find(u => u.id === S.session) || null;

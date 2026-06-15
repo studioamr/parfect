@@ -50,11 +50,11 @@ function vLanding() {
       </div>
       <div class="card feat">
         <div class="f-ico">${ICONS.social}</div>
-        <h3>Juega con amigos 🎉</h3>
+        <h3>Juega con amigos</h3>
         <p>Arma una partida con un código. Cada quien apunta desde su celular y la app lleva la cuenta en vivo. Perfecto para torneos.</p>
       </div>
       <div class="card feat">
-        <div class="f-ico">🏆</div>
+        <div class="f-ico">${golfIcon('trophy')}</div>
         <h3>Trofeos y metas</h3>
         <p>Ponte objetivos y desbloquea logros conforme mejoras. Tu progreso, claro y motivante.</p>
       </div>
@@ -100,7 +100,7 @@ function vAuth(mode) {
   if (mode === 'login') {
     return `<div class="shell no-nav fade-in">
       <button class="auth-back" data-act="go" data-view="landing">← Volver</button>
-      <h1 class="auth-h">Hola de nuevo 👋</h1>
+      <h1 class="auth-h">Hola de nuevo</h1>
       <p class="auth-sub">Inicia sesión para seguir construyendo tu perfil de jugador.</p>
       <div class="field"><label>Email</label><input id="f-email" type="email" autocomplete="email" placeholder="tu@email.com" value="${esc(vals.email || '')}"></div>
       <div class="field"><label>Contraseña</label><input id="f-pass" type="password" autocomplete="current-password" placeholder="••••••••"></div>

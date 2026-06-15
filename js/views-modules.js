@@ -6,7 +6,7 @@ function vStats() {
   const agg = Stats.aggregate(rounds);
   if (!agg) {
     return `<div class="sec-h"><h2>Avatar Stats</h2></div>
-      <div class="card empty"><div class="e-ico">📊</div><h3>Sin datos todavía</h3>
+      <div class="card empty"><div class="e-ico">${golfIcon('card')}</div><h3>Sin datos todavía</h3>
       <p>Registra rondas para construir tu avatar de jugador.</p>
       <button class="btn primary" data-act="quick-round">Registrar ronda</button></div>`;
   }
@@ -90,22 +90,22 @@ function vTrainer() {
 function vDiag() {
   const agg = Stats.aggregate(myRounds());
   if (!agg) {
-    return `<div class="card empty"><div class="e-ico">🧠</div><h3>La IA necesita datos</h3>
+    return `<div class="card empty"><div class="e-ico">${golfIcon('green')}</div><h3>La IA necesita datos</h3>
       <p>Registra al menos una ronda y Parfect Trainer encontrará dónde se van tus golpes.</p>
       <button class="btn primary" data-act="quick-round">Registrar ronda</button></div>`;
   }
   if (V.diagBusy) {
-    return `<div class="card empty"><div class="e-ico">🧠</div><h3>Analizando tus patrones…</h3>
+    return `<div class="card empty"><div class="e-ico">${golfIcon('green')}</div><h3>Analizando tus patrones…</h3>
       <p>Correlacionando ${agg.holesPlayed} hoyos, ${agg.rounds} rondas y 12+ métricas.</p></div>`;
   }
   if (!V.diag) {
-    return `<div class="card empty"><div class="e-ico">🧠</div><h3>Diagnóstico IA</h3>
+    return `<div class="card empty"><div class="e-ico">${golfIcon('green')}</div><h3>Diagnóstico IA</h3>
       <p>La IA cruza tus ${agg.rounds} rondas (${agg.holesPlayed} hoyos) para detectar dónde se van los golpes de más — y qué practicar.</p>
       <button class="btn primary" data-act="diagnose">Generar diagnóstico IA</button></div>`;
   }
   const d = V.diag;
   const warn = d.readiness === 'low'
-    ? `<p class="note">⚠️ Con menos de 3 rondas el diagnóstico es preliminar. Cada ronda nueva lo afina.</p>` : '';
+    ? `<p class="note">Con menos de 3 rondas el diagnóstico es preliminar. Cada ronda nueva lo afina.</p>` : '';
   return warn + d.focus.map((f, i) => `
     <div class="card">
       <span class="prio ${i > 0 ? 'p2' : ''}">${i === 0 ? 'Prioridad 1 · enfoque' : `Prioridad ${i + 1}`}</span>
@@ -117,15 +117,15 @@ function vDiag() {
         ${f.drills.map(dr => `<div class="drill"><b>${esc(dr.name)}</b>
           ${drillArt(f.key)}
           <p>${esc(dr.desc)}</p>
-          <div class="d-meta"><span>📋 ${esc(dr.dose)}</span><span>🎯 ${esc(dr.metric)}</span></div></div>`).join('')}
-        <div class="drill" style="border-color:var(--lime)"><b>🎯 Reto: 7 de 7 seguidas</b>
+          <div class="d-meta"><span>${golfIcon('card')} ${esc(dr.dose)}</span><span>${golfIcon('green')} ${esc(dr.metric)}</span></div></div>`).join('')}
+        <div class="drill" style="border-color:var(--lime)"><b>${golfIcon('green')} Reto: 7 de 7 seguidas</b>
           <p>Mete 7 bolas seguidas (de 7) con timer. Si fallas una, vuelves a empezar. Así llevas el drill a presión real.</p>
           <button class="btn sm" data-act="go-entreno" style="margin-top:8px">Entrenar con timer →</button></div>
       ` : ''}
       <p class="label" style="margin-top:14px">Estrategia de campo</p>
       ${f.tips.map(t => `<p class="tip">${esc(t)}</p>`).join('')}
     </div>`).join('') +
-    `<button class="btn ghost" data-act="diagnose">↻ Recalcular diagnóstico</button>
+    `<button class="btn ghost" data-act="diagnose">Recalcular diagnóstico</button>
      <p class="note">Registra los drills en Parfect Tracker para medir tu progreso real.</p>`;
 }
 
@@ -141,7 +141,7 @@ function vDrillsLibrary() {
   const cards = list.map(d => `<div class="drill">
     <b>${esc(d.name)}</b>
     <p>${esc(d.desc)}</p>
-    <div class="d-meta"><span>📋 ${esc(d.dose)}</span><span>🎯 ${esc(d.metric)}</span></div>
+    <div class="d-meta"><span>${golfIcon('card')} ${esc(d.dose)}</span><span>${golfIcon('green')} ${esc(d.metric)}</span></div>
   </div>`).join('');
   return `<p class="note" style="margin-top:14px">${DRILL_LIBRARY.length} ejercicios para cada parte de tu juego. Elige una categoría.</p>
     <div class="tabs" style="flex-wrap:wrap">${chips}</div>
@@ -182,14 +182,14 @@ const CLUB_EFF_DEFAULT = 70;
 /* clubs[id] puede ser número (carry, formato viejo) o {c:carry, e:efectividad%} */
 function clubC(clubs, id) { const v = clubs && clubs[id]; if (v == null) return null; return typeof v === 'number' ? v : (v.c != null ? v.c : null); }
 function clubE(clubs, id) { const v = clubs && clubs[id]; if (v != null && typeof v === 'object' && v.e != null) return v.e; return null; }
-const GROUP_META = { largo: { cat: 'Juego largo', icon: '🏌️' }, hierros: { cat: 'Hierros', icon: '🎯' }, wedges: { cat: 'Wedges', icon: '⛳' } };
+const GROUP_META = { largo: { cat: 'Juego largo', icon: 'club' }, hierros: { cat: 'Hierros', icon: 'tee' }, wedges: { cat: 'Wedges', icon: 'green' } };
 
-const APPROACH_GROUP = { cat: 'Approach', icon: '🟢', drills: [
+const APPROACH_GROUP = { cat: 'Approach', icon: 'green', drills: [
   { name: 'Up & down 40 yds', area: 'Approach', goal: 'up & downs aleatorios', target: 7, timer: 20 },
   { name: 'Up & down 30 yds', area: 'Approach', goal: 'up & downs aleatorios', target: 7, timer: 20 },
   { name: 'Up & down 10 yds', area: 'Approach', goal: 'up & downs aleatorios', target: 7, timer: 20 },
 ] };
-const PUTT_GROUP = { cat: 'Putt', icon: '🥅', drills: [
+const PUTT_GROUP = { cat: 'Putt', icon: 'putter', drills: [
   { name: 'Putt 3 ft', area: 'Putt', goal: 'seguidos', target: 10, timer: 20 },
   { name: 'Putt 5 ft', area: 'Putt', goal: 'seguidos', target: 10, timer: 20 },
   { name: 'Putt 7 ft', area: 'Putt', goal: '', target: 10, timer: 20 },
@@ -232,7 +232,7 @@ function vTrainObjectives(u) {
     </tr>`;
   }).join('');
   return `<div class="card">
-    <span class="label">🎯 Objetivo por hándicap</span>
+    <span class="label">${golfIcon('green')} Objetivo por hándicap</span>
     <p class="note" style="margin-top:0;margin-bottom:8px">Cuántas bolas <b class="lime">seguidas (de 7)</b> mete cada nivel en los drills. Apunta a las de tu meta.</p>
     <div class="sc-scroll"><table class="sc-table ref-table">
       <thead><tr><th class="sc-name">HCP</th><th>Bolas seguidas</th></tr></thead>
@@ -263,9 +263,9 @@ function vTrackerPlan() {
         <span class="ct-best">${best ? 'mejor ' + best + '/' + d.target : 'meta ' + d.target + ' seguidas'}</span>
       </button>`;
     }).join('');
-    return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:15px">${c.icon} ${esc(c.cat)}</h2></div><div class="club-grid">${tiles}</div>`;
+    return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:15px">${golfIcon(c.icon)} ${esc(c.cat)}</h2></div><div class="club-grid">${tiles}</div>`;
   }).join('');
-  return `<p class="note">Elige el bastón o área que quieras entrenar y dale ⏱.</p>${cats}`;
+  return `<p class="note">Elige el bastón o área que quieras entrenar y dale para empezar.</p>${cats}`;
 }
 
 function vDrillSheet() {
@@ -285,19 +285,19 @@ function vDrillSheet() {
     <div class="drill-timer ${d.running ? 'run' : ''} ${timeUp ? 'up' : ''}">
       <div class="dt-time" id="drill-time">${mm}:${ss}</div>
       <div class="dt-btns">
-        <button class="btn sm primary" data-act="drill-timer-toggle">${d.running ? '⏸ Pausar' : (timeUp ? '¡Tiempo!' : (secs < full ? '▶ Reanudar' : '▶ Iniciar'))}</button>
-        <button class="btn sm ghost" data-act="drill-timer-reset" aria-label="Reiniciar timer">↺ Reiniciar</button>
+        <button class="btn sm primary" data-act="drill-timer-toggle">${d.running ? 'Pausar' : (timeUp ? '¡Tiempo!' : (secs < full ? '▶ Reanudar' : '▶ Iniciar'))}</button>
+        <button class="btn sm ghost" data-act="drill-timer-reset" aria-label="Reiniciar timer">Reiniciar</button>
       </div>
     </div>
 
     <div class="drill-count">
       <div class="dc-num ${done ? 'done' : ''}">${streak}<span>/ ${d.target} seguidas</span></div>
       <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
-      <p class="note" style="margin:8px 0 0">${done ? '¡Objetivo logrado! 🎯' : `Mejor racha: ${best}/${d.target}`}</p>
+      <p class="note" style="margin:8px 0 0">${done ? '¡Objetivo logrado!' : `Mejor racha: ${best}/${d.target}`}</p>
     </div>
 
     <button class="btn primary drill-tap" data-act="drill-hit">✓ Metió</button>
-    <button class="btn danger" data-act="drill-miss" style="margin-top:8px">✗ Falló · vuelve a 0</button>
+    <button class="btn danger" data-act="drill-miss" style="margin-top:8px">Falló · vuelve a 0</button>
 
     <button class="btn primary" data-act="drill-save" style="margin-top:16px">Guardar resultado</button>
     <button class="btn" data-act="drill-close">Cancelar</button>
@@ -319,7 +319,7 @@ function vClubs() {
         </div>
       </div>`;
     }).join('');
-    return `<div class="card"><span class="label">${GROUP_META[g].icon} ${groupName[g]}</span><p class="note" style="margin-top:0;margin-bottom:6px">Carry de cada bastón (cuánto vuela, en yardas).</p>${rows}</div>`;
+    return `<div class="card"><span class="label">${golfIcon(GROUP_META[g].icon)} ${groupName[g]}</span><p class="note" style="margin-top:0;margin-bottom:6px">Carry de cada bastón (cuánto vuela, en yardas).</p>${rows}</div>`;
   }).join('');
   return `<button class="auth-back" data-act="nav" data-view="perfil">← Perfil</button>
     <h1 class="auth-h">Mis bastones</h1>
@@ -334,7 +334,7 @@ const FOCUS_LABEL = { driving: 'Driving', approach: 'Hierros', short: 'Juego cor
 const CAL_WD = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 const CAL_WD_FULL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const EV_LABEL = { ronda: 'Ronda', entreno: 'Entreno', descanso: 'Descanso' };
-const EV_ICON = { ronda: '⛳', entreno: '🛠️', descanso: '😴' };
+const EV_ICON = { ronda: 'flag', entreno: 'bucket', descanso: 'green' };
 
 function isoLocal(d) { const z = new Date(d); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString().slice(0, 10); }
 function todayLocal() { return isoLocal(new Date()); }
@@ -416,12 +416,12 @@ function vCalendar() {
   const selEvs = byDate[V.calSel] || [];
   const selList = selEvs.length
     ? selEvs.map(e => `<div class="cal-ev ${e.type}">
-        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${EV_LABEL[e.type]}${e.area ? ' · ' + esc(e.area) : ''}${e.ai ? ' · IA' : ''}</span></div>
+        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${golfIcon(EV_ICON[e.type])} ${EV_LABEL[e.type]}${e.area ? ' · ' + esc(e.area) : ''}${e.ai ? ' · IA' : ''}</span></div>
         <button class="pl-x" data-act="cal-del" data-id="${e.id}" aria-label="Eliminar">✕</button>
       </div>`).join('')
     : `<p class="note" style="margin:8px 0 0">Sin nada agendado${selWd === closedDay ? ' · el club cierra este día' : ''}.</p>`;
   const addType = V.calAddType || 'entreno';
-  const typeChips = ['entreno', 'ronda', 'descanso'].map(t => `<button class="chip sm ${addType === t ? 'on' : ''}" data-act="cal-addtype" data-t="${t}">${EV_ICON[t]} ${EV_LABEL[t]}</button>`).join('');
+  const typeChips = ['entreno', 'ronda', 'descanso'].map(t => `<button class="chip sm ${addType === t ? 'on' : ''}" data-act="cal-addtype" data-t="${t}">${golfIcon(EV_ICON[t])} ${EV_LABEL[t]}</button>`).join('');
 
   return `
     <div class="card">
@@ -464,7 +464,7 @@ function partyCard() {
   const act = activeParty();
   const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
   return `<div class="card">
-      <span class="label">🎉 Parfect Party · juega con amigos</span>
+      <span class="label">${golfIcon('flag')} Parfect Party · juega con amigos</span>
       <p class="small muted" style="margin-top:2px">Medal, Match play y La corta (puedes combinarlos). Crea la party, comparte el código y cada quien anota desde su celular.</p>
       ${myActive ? `<button class="btn primary" data-act="party-resume">Continuar party ${esc(act.code)} ${act.status === 'live' ? `· hoyo ${act.idx + 1}` : '· lobby'}</button>`
         : `<button class="btn primary" data-act="party-new">Crear party</button>`}
@@ -497,7 +497,7 @@ function vFriend() {
       </div>
     </div>`;
   if (!agg) {
-    return head + `<div class="card empty"><div class="e-ico">⛳</div><h3>Sin rondas todavía</h3><p>${me ? 'Aún no registras rondas.' : 'Este jugador aún no tiene rondas.'}</p></div>`;
+    return head + `<div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Sin rondas todavía</h3><p>${me ? 'Aún no registras rondas.' : 'Este jugador aún no tiene rondas.'}</p></div>`;
   }
   const radar = Stats.radarOf(agg);
   return head + `
@@ -516,7 +516,7 @@ function vFriend() {
       ${rounds.slice(0, 6).map(r => {
         const s = Stats.roundStats(r);
         return `<div class="hist-row" style="cursor:default">
-          <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' 🎉' : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
+          <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
           <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
         </div>`;
       }).join('')}

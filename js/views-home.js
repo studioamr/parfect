@@ -62,17 +62,17 @@ function progressCard(u, rounds) {
     const avgE = data.slice(0, half).reduce((a, b) => a + b, 0) / half;
     const avgL = data.slice(-half).reduce((a, b) => a + b, 0) / half;
     const d = Math.round(avgE - avgL);
-    trend = d > 0 ? `📉 Vas mejorando: ~<b class="lime">${d}</b> golpes menos que tus primeras rondas.`
-      : d < 0 ? `📈 Has subido ~${-d} golpes — toca apretar la práctica.` : `Estable en tus últimas rondas.`;
+    trend = d > 0 ? `Vas mejorando: ~<b class="lime">${d}</b> golpes menos que tus primeras rondas.`
+      : d < 0 ? `Has subido ~${-d} golpes — toca apretar la práctica.` : `Estable en tus últimas rondas.`;
   } else {
     chart = `<p class="note">Registra 2+ rondas para ver tu tendencia.</p>`;
   }
   const gap = Math.max(0, Math.round(u.hcp - u.goal));
   return `<div class="card">
-    <span class="label">📈 Seguimiento de progreso</span>
+    <span class="label">${golfIcon('peak')} Seguimiento de progreso</span>
     ${chart}
     ${trend ? `<p class="note" style="margin:8px 0 6px">${trend}</p>` : ''}
-    <p class="note" style="margin-bottom:0">HCP ${fmtHcp(u.hcp)} · meta ${fmtHcp(u.goal)}${gap > 0 ? ` · te faltan <b class="lime">${gap}</b> para tu meta` : ' · ¡meta alcanzada! 🎯'}</p>
+    <p class="note" style="margin-bottom:0">HCP ${fmtHcp(u.hcp)} · meta ${fmtHcp(u.goal)}${gap > 0 ? ` · te faltan <b class="lime">${gap}</b> para tu meta` : ' · ¡meta alcanzada!'}</p>
   </div>`;
 }
 
@@ -82,9 +82,9 @@ function upcomingCard(u) {
   const up = (u.events || []).filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
   if (!up.length) return '';
   const rows = up.map(e => `<button class="cal-ev ${e.type}" data-act="cal-goto" data-date="${e.date}" style="width:100%;text-align:left;cursor:pointer">
-      <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${calDateLabel(e.date)}${e.area ? ' · ' + esc(e.area) : ''}</span></div><span class="muted">›</span>
+      <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${golfIcon(EV_ICON[e.type])} ${calDateLabel(e.date)}${e.area ? ' · ' + esc(e.area) : ''}</span></div><span class="muted">›</span>
     </button>`).join('');
-  return `<div class="card"><span class="label">📅 Próximos eventos</span>${rows}</div>`;
+  return `<div class="card"><span class="label">${golfIcon('card')} Próximos eventos</span>${rows}</div>`;
 }
 
 function vDashboard() {
@@ -99,7 +99,7 @@ function vDashboard() {
 
   if (!agg) {
     return head + `<div class="card empty">
-      <div class="e-ico">⛳</div>
+      <div class="e-ico">${golfIcon('flag')}</div>
       <h3>Tu perfil de jugador empieza aquí</h3>
       <p>Registra tu primera ronda — o carga datos de ejemplo para ver PARFECT en acción.</p>
       <button class="btn primary" data-act="quick-round">${logoMark(15)} Registrar mi primera ronda</button>
@@ -122,7 +122,7 @@ function vDashboard() {
     <div class="card">
       <span class="label">Tarjetas pasadas</span>
       ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
-        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' 🎉' : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
+        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
         <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
       </button>`; }).join('')}
       <button class="btn sm ghost" data-act="nav" data-view="ronda" style="margin-top:12px">Ver todas las tarjetas →</button>
@@ -149,7 +149,7 @@ function vScoreDist(agg) {
     <span class="sd-n">${c.n}</span>
   </div>`).join('');
   return `<div class="card">
-    <span class="label">Mi juego · ${agg.holesPlayed} hoyos${d.eagle ? ` · ${d.eagle} águila${d.eagle > 1 ? 's' : ''} 🦅` : ''}</span>
+    <span class="label">Mi juego · ${agg.holesPlayed} hoyos${d.eagle ? ` · ${d.eagle} águila${d.eagle > 1 ? 's' : ''} ${golfIcon('bird')}` : ''}</span>
     <div class="sd-bar">${seg}</div>
     <div class="sd-list">${rows}</div>
   </div>`;

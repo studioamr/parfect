@@ -69,12 +69,12 @@ function vRondaTab() {
     </button>`;
   }
   if (!rounds.length) {
-    html += `<div class="card empty"><div class="e-ico">🏌️</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p></div>`;
+    html += `<div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p></div>`;
   } else {
     html += rounds.map(r => {
       const s = Stats.roundStats(r);
       return `<button class="row" data-act="round-detail" data-id="${r.id}">
-        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' 🎉' : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
+        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
         <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
       </button>`;
     }).join('');
