@@ -700,6 +700,84 @@ function vEntreno() {
 }
 
 /* CAMPOS → camino ideal por hoyo, analizable por hándicap */
+/* consejo de juego conservador según las stats reales del jugador y el hoyo */
+function conservativeAdvice(agg, hole) {
+  if (!agg) return ['Aún sin datos: tira al centro del green y deja que tu putt trabaje. Un par tranquilo siempre suma.'];
+  const t = [];
+  const driveRisk = (hole.risks || []).some(r => r.at === 'drive');
+  const waterGreen = (hole.risks || []).some(r => r.at === 'green' && r.kind === 'water');
+  const fw = Math.round(agg.fwPct), gir = Math.round(agg.girPct), ud = Math.round(agg.scrPct);
+  if (hole.par >= 4 && fw < 52) t.push(`Tu calle va en ${fw}%: en la salida pega madera o híbrido para asegurar el fairway antes que distancia.`);
+  if (hole.par === 5 && gir < 42) t.push(`Par 5 y tu GIR es ${gir}%: no fuerces el green en dos. Deja un layup a tu wedge favorito (~90–100y) y ataca cómodo.`);
+  if (hole.par === 4 && hole.yds >= 410 && gir < 46) t.push(`Par 4 largo para tu GIR (${gir}%): juega a green-corto-centro; mejor un putt largo que un bunker.`);
+  if (waterGreen && (agg.penals18 || 0) > 1.4) t.push(`Hay agua junto al green y promedias ${(agg.penals18 || 0).toFixed(1)} penales/ronda: apunta al lado seguro, nunca al pin sobre el agua.`);
+  if (driveRisk && fw < 56) t.push('Bunkers en la salida: club abajo y al lado ancho de la calle.');
+  if (ud >= 55) t.push(`Tu up&down va bien (${ud}%): si fallas el green, déjala del lado fácil y sálvala.`);
+  if (!t.length) t.push('Vas sólido en este tipo de hoyo: tira al centro del green y deja que tu putt trabaje.');
+  return t.slice(0, 2);
+}
+
+/* Estrategia por hoyo (random + stats) + historias de hoyos pasados tiro por tiro */
+function vEstrategia() {
+  const u = cur();
+  const agg = Stats.aggregate(myRounds());
+  const cid = (V.stratCid && COURSES[V.stratCid]) ? V.stratCid : 'campestre';
+  const course = COURSES[cid];
+  let idx = V.stratIdx; if (idx == null || idx >= course.holes.length) idx = 0;
+  const hole = course.holes[idx];
+  const ideal = idealPath(u, hole, null, false);
+  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
+  const landings = computeLandings(hole, teeClub, false);
+  const sName = course.name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
+  const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === cid ? 'on' : ''}" data-act="strat-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
+  const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="strat-hole" data-i="${i}">${h.n}</button>`).join('');
+  const shotRows = ideal.shots.map((s, i) => {
+    const nm = s.club ? s.club.name : '—';
+    const lab = i === 0 ? '1er golpe' : i === 1 ? '2º golpe' : `${i + 1}º golpe`;
+    const leaveTxt = s.to === 'green' ? 'al green' : `deja ${s.leaves}y (${s.to})`;
+    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(lab)}: ${esc(nm)}</b><span>vuela ~${s.carry}y · ${leaveTxt}</span></div></div>`;
+  }).join('');
+  const advice = conservativeAdvice(agg, hole).map(x => `<p class="tip" style="margin-top:8px">${esc(x)}</p>`).join('');
+
+  // ---- historias de hoyos pasados (tiro por tiro) ----
+  const rounds = myRounds();
+  let hist = `<div class="card empty" style="margin-top:18px"><div class="e-ico">${golfIcon('flag')}</div><h3>Sin historias todavía</h3><p>Registra rondas para revivir tus hoyos tiro por tiro.</p></div>`;
+  if (rounds.length) {
+    const rid = (V.histRound && rounds.find(r => r.id === V.histRound)) ? V.histRound : rounds[0].id;
+    const r = rounds.find(x => x.id === rid);
+    let hidx = V.histHole; if (hidx == null || hidx >= r.holes.length) hidx = 0;
+    const hh = r.holes[hidx];
+    const rchole = (r.courseId && COURSES[r.courseId] && COURSES[r.courseId].holes[hidx]) ? COURSES[r.courseId].holes[hidx] : null;
+    const yds = rchole && rchole.yds ? ` · ${rchole.yds}y` : '';
+    const roundChips = rounds.slice(0, 8).map(x => `<button class="chip sm ${x.id === rid ? 'on' : ''}" data-act="hist-round" data-id="${x.id}">${esc(x.course)} · ${fmtDate(x.date)}</button>`).join('');
+    const holeStrip = r.holes.map((_, i) => `<button class="hole-chip ${i === hidx ? 'on' : ''}" data-act="hist-hole" data-i="${i}">${i + 1}</button>`).join('');
+    hist = `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:18px">Historias de hoyos</h2><span class="small muted">tiro por tiro</span></div>
+      <div class="chips scroll" style="margin-top:6px">${roundChips}</div>
+      <div class="hole-strip" style="margin-top:8px">${holeStrip}</div>
+      <div class="card" style="padding:12px">${captureSchematic(hh, rchole)}
+        <p class="note" style="text-align:center;margin:6px 0 0"><b>${esc(r.course)}</b> · Hoyo ${hidx + 1} · Par ${hh.par}${yds} · <b class="lime">${hh.score} (${fmtToPar(hh.score - hh.par)})</b></p>
+      </div>
+      <div class="card"><span class="label">Tarjeta · ${esc(r.course)} · ${fmtDate(r.date)}</span>
+        ${scorecardTable(r.holes.length, i => (r.holes[i] ? r.holes[i].par : Stats.PAR_SEQ[i % 18]), [{ name: u.name.split(' ')[0], scoreOf: i => (r.holes[i] ? r.holes[i].score : null) }], hidx)}
+      </div>`;
+  }
+
+  return `<div class="sec-h" style="margin-top:4px"><h2 style="font-size:18px">Estrategia por hoyo</h2><span class="small muted">según tus stats</span></div>
+    <div class="chips" style="margin-top:6px">${courseChips}</div>
+    <button class="btn sm ghost" data-act="strat-random" style="margin-top:8px">${golfIcon('ball')} Hoyo al azar</button>
+    <div class="hole-strip" style="margin-top:8px">${holeChips}</div>
+    <div class="card" style="padding:12px">${holeSchematic(hole, landings)}</div>
+    <div class="card">
+      <span class="label">${esc(sName)} · Hoyo ${hole.n} · Par ${hole.par} · ${hole.yds}y</span>
+      <div class="path-list" style="margin-top:8px">${shotRows}
+        <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar ${ideal.idealScore}</span></div></div>
+      </div>
+      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">Jugar conservador (según tus stats):</b></p>
+      ${advice}
+    </div>
+    ${hist}`;
+}
+
 function vCampos() {
   const u = cur();
   const course = COURSES[V.courseId] || COURSES.campestre;
