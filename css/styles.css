@@ -917,6 +917,12 @@ body.is-scrolling .reel-track { animation-play-state: paused; }
 .sim-tile.b1 b { color: #ff9f43; }
 .sim-tile.b2 b { color: var(--danger); }
 
+/* historial: cabecera de la última ronda (marca el score) */
+.lr-last { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; margin-bottom: 2px; }
+.lr-last-id b { display: block; font-size: 16px; font-weight: 900; }
+.lr-last-score { flex: none; font-size: 27px; font-weight: 900; color: var(--lime); letter-spacing: -0.02em; }
+.lr-last-score em { font-size: 13px; font-style: normal; font-weight: 700; color: var(--muted); margin-left: 4px; }
+
 /* tus rondas por campo: chips + historial de tarjetas */
 .lr-chips { margin-bottom: 10px; }
 .lr-pick { padding: 12px 14px; margin-bottom: 2px; }

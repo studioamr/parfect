@@ -303,54 +303,18 @@ function vMisNumeros(u, agg) {
     <div class="reel bag-reel"><div class="reel-track">${tiles}${tiles}</div></div>`;
 }
 
-/* historial: elige campo (3) y tarjeta guardada */
+/* historial: solo el último campo jugado, marca su score y muestra sus hoyos */
 function vLastRound(rounds) {
-  // agrupar rondas por campo real (con su diseño/curvas), en orden más reciente primero
-  const byCourse = {};
-  for (const r of rounds) {
-    if (!r.courseId || !COURSES[r.courseId]) continue;
-    (byCourse[r.courseId] = byCourse[r.courseId] || []).push(r);
-  }
-  const available = COURSE_ORDER.filter(id => byCourse[id] && byCourse[id].length);
-
-  // sin campos reales (datos antiguos): mostrar última ronda simple
-  if (!available.length) {
-    const r = rounds[0];
-    if (!r) return '';
-    const set = r.holes.map((hh, i) => lrHoleCard(hh, i, null)).join('');
-    return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Historial</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
-      <div class="reel reel-swipe"><div class="reel-track">${set}</div></div>`;
-  }
-
-  // campo seleccionado (con fallback al campo de la ronda más reciente)
-  const recent = rounds.find(r => r.courseId && COURSES[r.courseId]);
-  let cid = (V.homeCid && byCourse[V.homeCid]) ? V.homeCid : (recent ? recent.courseId : available[0]);
-  const list = byCourse[cid];
-  const r = list.find(x => x.id === V.homeRid) || list[0];
-  const courseName = COURSES[cid].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
-
-  const chips = COURSE_ORDER.map(id => {
-    const has = byCourse[id] && byCourse[id].length;
-    const name = COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
-    return `<button class="chip sm ${id === cid ? 'on' : ''}" data-act="home-course" data-c="${id}"${has ? '' : ' disabled style="opacity:.38"'}>${esc(name)}${has ? ` · ${has}` : ''}</button>`;
-  }).join('');
-
-  // historial de tarjetas guardadas de este campo (elige cuál ver)
-  const hist = list.map(rr => {
-    const ss = Stats.roundStats(rr);
-    return `<button class="lr-card ${rr.id === r.id ? 'on' : ''}" data-act="home-round" data-id="${rr.id}">
-      <span class="lr-date">${fmtDate(rr.date)}</span><b class="lr-sc">${ss.score}</b><em class="lr-tp">${fmtToPar(ss.toPar)}</em>
-    </button>`;
-  }).join('');
-
-  const card = (hh, i) => lrHoleCard(hh, i, (COURSES[cid] && COURSES[cid].holes[i]) ? COURSES[cid].holes[i] : null);
-  const set = r.holes.map(card).join('');
-
-  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Historial</h2><span class="small muted">elige campo y tarjeta</span></div>
-    <div class="chips lr-chips">${chips}</div>
-    <div class="card lr-pick">
-      <div class="lr-pick-head"><b>${esc(courseName)}</b><span class="small muted">${fmtDate(r.date)} · desliza los hoyos →</span></div>
-      <div class="lr-hist">${hist}</div>
+  const r = rounds.find(x => x.courseId && COURSES[x.courseId]) || rounds[0];
+  if (!r) return '';
+  const cid = (r.courseId && COURSES[r.courseId]) ? r.courseId : null;
+  const courseName = cid ? COURSES[cid].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
+  const s = Stats.roundStats(r);
+  const set = r.holes.map((hh, i) => lrHoleCard(hh, i, (cid && COURSES[cid].holes[i]) ? COURSES[cid].holes[i] : null)).join('');
+  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Historial</h2><span class="small muted">tu última ronda →</span></div>
+    <div class="card lr-last">
+      <div class="lr-last-id"><b>${esc(courseName)}</b><span class="small muted">${fmtDate(r.date)} · desliza los hoyos →</span></div>
+      <span class="lr-last-score">${s.score}<em>${fmtToPar(s.toPar)}</em></span>
     </div>
     <div class="reel reel-swipe"><div class="reel-track">${set}</div></div>`;
 }
