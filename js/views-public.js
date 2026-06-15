@@ -41,106 +41,79 @@ function lpDrillCards() {
 }
 
 function vLanding() {
+  const feat = (ic, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-ic">${ic}</div><h3>${t}</h3><p>${d}</p></div>`;
   return `<div class="lp">
-    <div class="lp-bg">
-      <div class="lp-stars lp-stars-a parallax" data-speed="0.12"></div>
-      <div class="lp-stars lp-stars-b parallax" data-speed="0.25"></div>
-      <div class="lp-aura"></div>
-      <div class="lp-grid"></div>
-    </div>
-
     <header class="lp-nav">
       <span class="lp-logo">${logoMark(18)} PARFECT</span>
-      <span class="lp-tagline">CERO EXCUSAS &nbsp;·&nbsp; PURO GOLF</span>
       <nav class="lp-links">
-        <button data-act="go" data-view="login">ENTRAR</button>
-        <button class="lp-cta-sm" data-act="go" data-view="signup">EMPEZAR</button>
+        <button data-act="go" data-view="login">Entrar</button>
+        <button class="lp-cta-sm" data-act="go" data-view="signup">Empezar</button>
       </nav>
     </header>
 
     <section class="lp-hero">
-      <h2 class="lp-ghost" aria-hidden="true">PARFECT</h2>
-
-      <div class="lp-side lp-left">
-        <p class="lp-kicker">ENERGÍA PARA TU<br/>MEJOR JUEGO</p>
-        <div class="lp-chevs">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</div>
-        <button class="lp-order" data-act="go" data-view="signup">EMPEZAR GRATIS</button>
+      <div class="lp-hero-copy reveal">
+        <span class="lp-pill">⛳ Golf analytics con IA</span>
+        <h1 class="lp-title">Guarda tu tarjeta.<br/><span class="lime">Baja tu hándicap.</span></h1>
+        <p class="lp-sub">Registra cada ronda en segundos, deja que la IA la analice y entrena exactamente lo que te hace mejor. Sin adivinar.</p>
+        <div class="lp-cta-row">
+          <button class="lp-order" data-act="go" data-view="signup">Empezar gratis →</button>
+          <button class="lp-ghostbtn" data-act="demo-account">Ver demo</button>
+        </div>
+        <p class="lp-trust">Tus datos viven en tu dispositivo · Gratis para empezar</p>
       </div>
 
       <div class="lp-stage">
-        <div class="lp-halo"></div>
-        <div class="lp-ball parallax" data-speed="0.5"><div class="lp-ball-i">${golfBallSVG()}</div></div>
-        <div class="lp-sat lp-sat1 parallax" data-speed="1.1"><div class="lp-sat-i">${golfIcon('flag')}</div></div>
-        <div class="lp-sat lp-sat2 parallax" data-speed="0.85"><div class="lp-sat-i">${golfIcon('tee')}</div></div>
-        <div class="lp-sat lp-sat3 parallax" data-speed="1.35"><div class="lp-sat-i">${golfIcon('green')}</div></div>
+        <div class="lp-glow"></div>
+        <img class="lp-golfer parallax" data-speed="0.16" src="assets/golfer.png" alt="Golfista PARFECT" />
+        <div class="lp-fcard lp-fc1 parallax" data-speed="0.7"><span class="lp-fc-k">Hándicap</span><b class="lp-fc-v">12.4 <i>▾</i></b></div>
+        <div class="lp-fcard lp-fc2 parallax" data-speed="0.95"><img class="lp-fc-img" src="assets/bird.png" alt="" /><span>¡Birdie!</span></div>
+        <div class="lp-fcard lp-fc3 parallax" data-speed="0.5"><span class="lp-fc-k">GIR</span><b class="lp-fc-v lime">64%</b></div>
       </div>
-
-      <div class="lp-side lp-right">
-        <p class="lp-desc">REGISTRA CADA HOYO EN SEGUNDOS. LA APP TE DICE DÓNDE PIERDES GOLPES Y QUÉ PRACTICAR PARA BAJAR TU HÁNDICAP.</p>
-      </div>
-
-      <div class="lp-flavors">
-        <div>REGISTRA TU RONDA</div>
-        <div class="on">JUEGA CON AMIGOS</div>
-        <div>MEJORA CON IA</div>
-      </div>
-
-      <div class="lp-terrain"><svg viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0,220 L0,150 L70,118 L150,142 L210,96 L300,128 L380,84 L470,120 L560,82 L660,128 L760,92 L880,134 L980,90 L1080,126 L1180,86 L1290,124 L1380,98 L1440,128 L1440,220 Z" fill="#0a0b0e"/>
-        <path d="M0,150 L70,118 L150,142 L210,96 L300,128 L380,84 L470,120 L560,82 L660,128 L760,92 L880,134 L980,90 L1080,126 L1180,86 L1290,124 L1380,98 L1440,128" fill="none" stroke="rgba(201,247,62,0.18)" stroke-width="1.5"/>
-      </svg></div>
     </section>
 
     <section class="lp-sec">
-      <span class="lp-eyebrow reveal">LA APP</span>
-      <h2 class="lp-h2 reveal">Todo en un<br/><span class="lime">solo lugar.</span></h2>
+      <span class="lp-eyebrow reveal">Cómo funciona</span>
+      <h2 class="lp-h2 reveal">De tu tarjeta<br/><span class="lime">a tu mejor golf.</span></h2>
+      <div class="lp-flow">
+        ${[['01', 'Guarda tu tarjeta', 'Apunta cada hoyo en segundos: salida, green, juego corto y putts. Tu ronda, completa.', ICONS.feat_round],
+           ['02', 'Analízala con IA', 'La inteligencia lee tus rondas y encuentra exactamente dónde se te van los golpes.', ICONS.feat_ai],
+           ['03', 'Entrena inteligente', 'Recibes la sesión que toca: el drill exacto, las reps y el tiempo. Practicas lo justo.', ICONS.feat_stats],
+           ['04', 'Sé mejor', 'Bajas tu hándicap, subes de rango y lo ves en cada número. Tu progreso, claro.', golfIcon('trophy')]]
+          .map(([n, t, d, ic]) => `<div class="lp-flowc reveal"><div class="lp-flowc-top"><span class="lp-flown">${n}</span><div class="lp-flowc-ic">${ic}</div></div><h3>${t}</h3><p>${d}</p></div>`).join('')}
+      </div>
+    </section>
+
+    <section class="lp-sec">
+      <span class="lp-eyebrow reveal">La app</span>
+      <h2 class="lp-h2 reveal">Todo para jugar<br/><span class="lime">más inteligente.</span></h2>
       <div class="lp-feats">
-        ${[[ICONS.feat_round, 'Apunta tus rondas', 'Cada hoyo con unos toques: salida, green, juego corto y putts. Listo en segundos.'],
+        ${[[ICONS.feat_round, 'Apunta tus rondas', 'Cada hoyo con unos toques. Listo en segundos, sin lápiz ni papel.'],
            [ICONS.feat_stats, 'Mira tus números', 'Calles, greens, salvadas y putts, claros. Sabes cómo juegas de verdad.'],
-           [ICONS.feat_ai, 'Tu entrenador IA', 'Revisa tus rondas, te dice por qué pierdes golpes y te arma drills a tu medida.'],
-           [ICONS.feat_track, 'Tus prácticas', 'Apunta cada sesión y comprueba si de verdad estás mejorando.'],
-           [ICONS.social, 'Juega con amigos', 'Arma una partida con código. Cada quien apunta y la app lleva La corta en vivo.'],
-           [golfIcon('trophy'), 'Trofeos y metas', 'Ponte objetivos y desbloquea logros conforme mejoras. Tu progreso, claro.']]
-          .map(([ic, t, d]) => `<div class="lp-feat reveal"><div class="lp-feat-ic">${ic}</div><h3>${t}</h3><p>${d}</p></div>`).join('')}
+           [ICONS.feat_ai, 'Tu entrenador IA', 'Revisa tus rondas, te dice por qué pierdes golpes y arma tus drills.'],
+           [ICONS.social, 'Juega con amigos', 'Arma una partida con código y lleva La corta en vivo.']]
+          .map(([ic, t, d]) => feat(ic, t, d)).join('')}
       </div>
     </section>
 
     <section class="lp-sec lp-train">
-      <span class="lp-eyebrow reveal">ENTRENA CON PROPÓSITO</span>
+      <span class="lp-eyebrow reveal">Entrena con propósito</span>
       <h2 class="lp-h2 reveal">Drills que sí<br/><span class="lime">mueven la aguja.</span></h2>
       <p class="lp-lead reveal">La IA detecta tu mayor fuga de golpes y arma la sesión: el drill, las repeticiones y el cronómetro. Tú solo ejecutas.</p>
       <div class="lp-drillreel reveal"><div class="reel-track">${lpDrillCards()}${lpDrillCards()}</div></div>
-      <div class="lp-trainfeat reveal">
-        <div class="lp-trainfeat-art">${drillScene('Reloj con wedges', 'approach')}</div>
-        <div class="lp-trainfeat-body">
-          <span class="lp-eyebrow">TU SESIÓN DE HOY</span>
-          <h3>El entrenamiento que toca, ya armado.</h3>
-          <p>Cada sesión sale de tus rondas reales: pantalla interactiva, contador de aciertos y temporizador. Entrenas lo justo, no de más.</p>
-          <button class="lp-order" data-act="go" data-view="signup">EMPEZAR A ENTRENAR</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="lp-sec">
-      <span class="lp-eyebrow reveal">ASÍ DE FÁCIL</span>
-      <h2 class="lp-h2 reveal">Tres pasos<br/><span class="lime">y ya.</span></h2>
-      <div class="lp-steps">
-        ${[['01', 'Apunta tu ronda', 'Cada hoyo en 30 segundos, desde tu celular.'],
-           ['02', 'Ve qué fallas', 'La app te dice dónde se te van los golpes.'],
-           ['03', 'Practica lo justo', 'Solo lo que te hace falta. Sin perder el tiempo.']]
-          .map(([n, t, d]) => `<div class="lp-step reveal"><span class="lp-snum">${n}</span><div><h3>${t}</h3><p>${d}</p></div></div>`).join('')}
-      </div>
     </section>
 
     <section class="lp-final reveal">
-      <span class="lp-eyebrow">¿LISTO PARA JUGAR MEJOR?</span>
-      <h2 class="lp-h2" style="margin-top:12px">Tu mejor golf<br/><span class="lime">empieza hoy.</span></h2>
-      <p class="lp-lead">Crea tu cuenta gratis. Toma menos de un minuto.</p>
-      <button class="lp-order" data-act="go" data-view="signup">EMPEZAR GRATIS</button>
-      <div class="lp-alt">
-        <button data-act="go" data-view="login">Ya tengo cuenta</button>
-        <span>·</span>
-        <button data-act="demo-account">Ver demo (HCP 7)</button>
+      <div class="lp-finalcard">
+        <span class="lp-eyebrow">¿Listo para jugar mejor?</span>
+        <h2 class="lp-h2">Tu mejor golf<br/><span class="lime">empieza hoy.</span></h2>
+        <p class="lp-lead">Crea tu cuenta gratis. Toma menos de un minuto.</p>
+        <button class="lp-order" data-act="go" data-view="signup">Empezar gratis →</button>
+        <div class="lp-alt">
+          <button data-act="go" data-view="login">Ya tengo cuenta</button>
+          <span>·</span>
+          <button data-act="demo-account">Ver demo (HCP 7)</button>
+        </div>
       </div>
     </section>
 
