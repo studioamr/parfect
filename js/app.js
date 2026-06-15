@@ -174,7 +174,7 @@ const actions = {
     u.name = val('p-name') || u.name;
     u.hcp = Math.round(Number(val('p-hcp'))) || 0;
     u.goal = Math.round(Number(val('p-goal'))) || 0;
-    V.profileOpen = false; V.diag = null;
+    V.diag = null;
     commit();
   },
   'seed-demo'() {

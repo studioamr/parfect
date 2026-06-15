@@ -605,45 +605,52 @@ function vPlayerCard(u, agg) {
 function vPerfil() {
   const u = cur();
   const agg = Stats.aggregate(myRounds());
-  return `<div class="sec-h"><h2>Tu perfil</h2><button class="sec-edit" data-act="profile-edit">${t('edit')}</button></div>
+  return `<div class="sec-h"><h2>Tu perfil</h2><button class="sec-edit" data-act="profile-edit" aria-label="Ajustes">⚙ Ajustes</button></div>
     ${vPlayerCard(u, agg)}
-    ${vAvatarPicker(u)}
-    ${vBagEditor(u)}
     ${vLogros()}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('settings')}</h2></div>
-    <div class="card">
-      <div class="set-row"><span class="set-lab">${t('language')}</span><div class="chips">
-        <button class="chip sm ${curLang() === 'es' ? 'on' : ''}" data-act="set-lang" data-v="es">Español</button>
-        <button class="chip sm ${curLang() === 'en' ? 'on' : ''}" data-act="set-lang" data-v="en">English</button></div></div>
-      <div class="set-row" style="margin-top:12px"><span class="set-lab">${t('theme')}</span><div class="chips">
-        <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? '' : 'on'}" data-act="set-theme" data-v="dark">${golfIcon('peak')} ${t('dark')}</button>
-        <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? 'on' : ''}" data-act="set-theme" data-v="light">${t('light')}</button></div></div>
-      <hr class="set-div">
-      <button class="btn ghost" data-act="seed-demo">${t('load_demo')}</button>
-      <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? t('wipe_confirm') : t('wipe')}</button>
-      <button class="btn" data-act="logout">${t('logout')}</button>
-      <p class="note">${t('local_note')} · ${esc(u.email)}</p>
-    </div>
     ${V.profileOpen ? vProfile() : ''}`;
 }
 
-/* ============ Perfil (sheet) ============ */
+/* ============ Perfil · panel de ajustes (datos + golfista + bolsa + config) ============ */
 function vProfile() {
   const u = cur();
-  return `<div class="overlay" data-act="profile-close">
-    <div class="sheet" data-act="noop">
-      <div class="grab"></div>
-      <h2>Editar perfil</h2>
-      <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
-      <div class="field-row">
-        <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
-        <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
+  return `<div class="overlay panel-ov" data-act="profile-close">
+    <div class="panel" data-act="noop">
+      <div class="panel-head">
+        <h2>Ajustes</h2>
+        <button class="panel-x" data-act="profile-close" aria-label="Cerrar">✕</button>
       </div>
-      <div class="field"><label>Campo de casa</label>
-        <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>
+      <div class="panel-body">
+        <div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Tus datos</h2></div>
+        <div class="card">
+          <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
+          <div class="field-row">
+            <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
+            <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
+          </div>
+          <div class="field"><label>Campo de casa</label>
+            <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>
+          </div>
+          <button class="btn primary" data-act="profile-save">Guardar cambios</button>
+        </div>
+        ${vAvatarCreator(u)}
+        <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('sec_bag')}</h2></div>
+        ${vBagEditor(u)}
+        <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('settings')}</h2></div>
+        <div class="card">
+          <div class="set-row"><span class="set-lab">${t('language')}</span><div class="chips">
+            <button class="chip sm ${curLang() === 'es' ? 'on' : ''}" data-act="set-lang" data-v="es">Español</button>
+            <button class="chip sm ${curLang() === 'en' ? 'on' : ''}" data-act="set-lang" data-v="en">English</button></div></div>
+          <div class="set-row" style="margin-top:12px"><span class="set-lab">${t('theme')}</span><div class="chips">
+            <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? '' : 'on'}" data-act="set-theme" data-v="dark">${golfIcon('peak')} ${t('dark')}</button>
+            <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? 'on' : ''}" data-act="set-theme" data-v="light">${t('light')}</button></div></div>
+          <hr class="set-div">
+          <button class="btn ghost" data-act="seed-demo">${t('load_demo')}</button>
+          <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? t('wipe_confirm') : t('wipe')}</button>
+          <button class="btn" data-act="logout">${t('logout')}</button>
+          <p class="note">${t('local_note')} · ${esc(u.email)}</p>
+        </div>
       </div>
-      <button class="btn primary" data-act="profile-save">Guardar cambios</button>
-      <button class="btn" data-act="profile-close">Cerrar</button>
     </div>
   </div>`;
 }
