@@ -200,7 +200,8 @@ function holeShotList(hh) {
 
 /* última ronda: % de la ronda + reel infinito de sus hoyos tiro por tiro */
 function vLastRound(rounds) {
-  const r = rounds[0];
+  // preferimos la última ronda jugada en uno de los 3 campos reales (con su diseño/curvas)
+  const r = rounds.find(x => x.courseId && COURSES[x.courseId]) || rounds[0];
   if (!r) return '';
   const s = Stats.roundStats(r);
   const frac = (a, b) => b ? `${a}/${b}` : '—';
@@ -209,7 +210,7 @@ function vLastRound(rounds) {
   const card = (hh, i) => {
     const ch = (r.courseId && COURSES[r.courseId] && COURSES[r.courseId].holes[i]) ? COURSES[r.courseId].holes[i] : null;
     const yds = ch && ch.yds ? ` · ${ch.yds}y` : '';
-    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch)}</div><div class="reel-meta" style="padding:13px 16px 16px"><div class="hole-head2"><b>Hoyo ${i + 1}</b><span class="hh-par">Par ${hh.par}${yds}</span><span class="hh-score">${hh.score} <em>${fmtToPar(hh.score - hh.par)}</em></span></div>${holeShotList(hh)}</div></div>`;
+    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch, true, true)}</div><div class="reel-meta" style="padding:13px 16px 16px"><div class="hole-head2"><b>Hoyo ${i + 1}</b><span class="hh-par">Par ${hh.par}${yds}</span><span class="hh-score">${hh.score} <em>${fmtToPar(hh.score - hh.par)}</em></span></div>${holeShotList(hh)}</div></div>`;
   };
   const set = r.holes.map(card).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu última ronda</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
@@ -252,7 +253,6 @@ function vDashboard() {
   return head + `
     <div class="sec-h" style="margin-top:2px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
     ${vStatReel(rounds, agg)}
-    ${vRecommendedDrills(u, agg)}
     ${vLastRound(rounds)}`;
 }
 

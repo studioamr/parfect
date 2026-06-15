@@ -139,7 +139,7 @@ const actions = {
     S.users.push(u);
     S.session = u.id;
     if (demo) {
-      S.rounds.push(...Demo.rounds(u.id));
+      S.rounds.push(...Demo.realRounds(u.id, 8));
       S.practices.push(...Demo.practices(u.id));
     }
     V.authVals = null; V.err = null; V.view = 'inicio'; V.diag = null;
@@ -175,7 +175,7 @@ const actions = {
   },
   'seed-demo'() {
     const u = cur();
-    S.rounds.push(...Demo.rounds(u.id));
+    S.rounds.push(...Demo.realRounds(u.id, 8));
     S.practices.push(...Demo.practices(u.id));
     V.profileOpen = false; V.diag = null;
     commit();

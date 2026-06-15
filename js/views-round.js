@@ -143,7 +143,7 @@ function shotColor(s) {
   if (s && s.lie === 'water') return '#ff7a6b';
   return '#c9f73e';
 }
-function captureSchematic(h, chole, noZoom) {
+function captureSchematic(h, chole, noZoom, clean) {
   const shots = captureShots(h);
   const dog = (chole && chole.dog) || 'straight';
   const par3 = (chole ? chole.par : h.par) === 3;
@@ -245,7 +245,7 @@ function captureSchematic(h, chole, noZoom) {
       vbAnim = `<animate attributeName="viewBox" dur="${dur}s" repeatCount="indefinite" values="${vals}" keyTimes="${k.map(x => x.toFixed(3)).join(';')}" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>`;
     }
   }
-  return `<div class="cap">${counter}<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tiros del hoyo">
+  return `<div class="cap">${clean ? '' : counter}<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tiros del hoyo">
     ${vbAnim}
     <rect width="${W}" height="${H}" rx="14" fill="#0a0f08" stroke="#1d2914"/>
     <path d="${fair}" fill="none" stroke="#2f6b39" stroke-width="${par3 ? 40 : 56}" stroke-linecap="round"/>
@@ -255,7 +255,7 @@ function captureSchematic(h, chole, noZoom) {
     <line x1="${gx}" y1="${gy}" x2="${gx}" y2="${gy - 22}" stroke="#eef3e6" stroke-width="2"/><path d="M${gx},${gy - 22} l11,3 -11,3z" fill="#c9f73e"/>
     ${haz}${zones}
     <path d="${route}" fill="none" stroke="#c9f73e" stroke-width="2" stroke-dasharray="3 5"/>
-    ${dots}${puttLbl}${pills}${ball}
+    ${dots}${clean ? '' : puttLbl}${clean ? '' : pills}${ball}
     <rect x="${tee[0] - 9}" y="${tee[1]}" width="18" height="6" rx="2" fill="#9ab07f"/>
   </svg></div>`;
 }
