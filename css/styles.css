@@ -806,10 +806,20 @@ button.row { cursor: pointer; }
 .reel-track { display: flex; gap: 12px; width: max-content; padding: 0 18px; animation: reelScroll 34s linear infinite; }
 .reel:hover .reel-track, .reel:active .reel-track { animation-play-state: paused; }
 @keyframes reelScroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 6px)); } }
-.reel-card { flex: 0 0 auto; width: 168px; background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.reel-card { flex: 0 0 auto; width: min(80vw, 300px); background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
 .reel-scene { width: 100%; }
-.rscene { display: block; width: 100%; height: 100px; }
-.reel-meta { padding: 10px 13px 13px; }
-.reel-meta b { font-size: 27px; font-weight: 900; color: var(--lime); letter-spacing: -0.02em; line-height: 1; }
-.reel-meta span { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.rscene { display: block; width: 100%; height: 200px; }
+.reel-meta { padding: 16px 18px 20px; }
+.reel-meta b { font-size: 44px; font-weight: 900; color: var(--lime); letter-spacing: -0.02em; line-height: 1; }
+.reel-meta span { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { .reel-track { animation: none; } .reel { overflow-x: auto; } }
+
+/* tarjeta del entrenamiento que toca */
+.train-card { display: block; width: 100%; text-align: left; padding: 12px; }
+.tc-art { border-radius: 12px; overflow: hidden; }
+.tc-art .drill-art { display: block; width: 100%; height: auto; }
+.tc-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.tc-body { flex: 1; min-width: 0; }
+.tc-body b { display: block; font-size: 16px; font-weight: 800; }
+.tc-body span { font-size: 12.5px; color: var(--muted); }
+.tc-go { flex: none; font-size: 12.5px; font-weight: 800; color: var(--lime); }

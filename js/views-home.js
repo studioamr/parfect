@@ -139,6 +139,41 @@ function vStatReel(rounds, agg) {
   const set = cards.map(([k, v, t]) => `<div class="reel-card"><div class="reel-scene">${statScene(k)}</div><div class="reel-meta"><b>${v}</b><span>${esc(t)}</span></div></div>`).join('');
   return `<div class="reel"><div class="reel-track">${set}${set}</div></div>`;
 }
+/* área (texto del plan) → llave de drillArt */
+function areaKey(a) {
+  const s = (a || '').toLowerCase();
+  if (s.includes('driv') || s.includes('madera') || s.includes('salida')) return 'driving';
+  if (s.includes('putt')) return 'putting';
+  if (s.includes('corto') || s.includes('wedge') || s.includes('chip') || s.includes('up &')) return 'short';
+  return 'approach';
+}
+/* el entrenamiento que toca: próximo del plan, o el punto débil recomendado */
+function nextTraining(u) {
+  const tl = todayLocal();
+  const ev = (u.events || []).filter(e => e.type === 'entreno' && e.date >= tl).sort((a, b) => a.date.localeCompare(b.date))[0];
+  if (ev) return { area: ev.area || 'Entrenamiento', name: ev.title || 'Sesión', date: ev.date, key: areaKey(ev.area) };
+  const agg = Stats.aggregate(myRounds());
+  if (agg && typeof Trainer !== 'undefined') {
+    const f = (Trainer.analyze(agg, u).focus || [])[0];
+    if (f) return { area: (typeof FOCUS_LABEL !== 'undefined' && FOCUS_LABEL[f.key]) || f.titulo, name: (f.drills && f.drills[0] && f.drills[0].name) || 'Sesión recomendada', key: f.key, rec: true };
+  }
+  return null;
+}
+/* tarjeta "GIF" del entrenamiento/drill que toca (Inicio) */
+function vTrainingCard(u) {
+  const t = nextTraining(u);
+  if (!t) return '';
+  const when = t.rec ? 'Recomendado para ti' : (t.date === todayLocal() ? 'Hoy' : 'Próximo · ' + fmtDate(t.date));
+  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">Entrenamiento que toca</h2><span class="small muted">${when}</span></div>
+    <button class="card train-card" data-act="nav" data-view="trainer">
+      <div class="tc-art">${drillArt(t.key)}</div>
+      <div class="tc-row">
+        <div class="tc-body"><b>${esc(t.name)}</b><span>${esc(t.area)}${t.rec ? ' · tu mayor fuga de golpes' : ''}</span></div>
+        <span class="tc-go">Entrenar →</span>
+      </div>
+    </button>`;
+}
+
 /* stats en conjunto (radar + tarjetas) para Perfil */
 function vStatsBundle(agg) {
   const radar = Stats.radarOf(agg);
@@ -172,8 +207,9 @@ function vDashboard() {
   }
 
   return head + `
-    <div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
+    <div class="sec-h" style="margin-top:2px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
     ${vStatReel(rounds, agg)}
+    ${vTrainingCard(u)}
     <div class="card" style="margin-top:16px">
       <span class="label">Tarjetas pasadas</span>
       ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
