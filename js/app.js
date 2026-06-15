@@ -287,17 +287,7 @@ const actions = {
     commit();
   },
   friend(d) { V.friendId = d.id; go('friend'); },
-  'friend-add'() { V.addFriend = true; V.err = null; render(); },
-  'friend-add-close'() { V.addFriend = false; V.err = null; render(); },
-  'friend-save'() {
-    const name = val('fr-name');
-    if (!name) { V.err = 'Escribe el nombre del amigo.'; render(); return; }
-    const hcp = val('fr-hcp') === '' ? 18 : Math.round(Number(val('fr-hcp')));
-    const goal = val('fr-goal') === '' ? Math.max(hcp - 5, 0) : Math.round(Number(val('fr-goal')));
-    S.users.push({ id: Store.uid(), name, email: null, pass: null, hcp, goal, friend: true, createdAt: Date.now() });
-    V.addFriend = false; V.err = null;
-    commit();
-  },
+  'friend-soon'() { alert('Agregar amigos de otros dispositivos llegará con las cuentas en la nube (backend). Por ahora puedes invitarlos a una Party con el código.'); },
   'cal-train'(d) { const u = cur(); u.trainPerWeek = Stats.clamp((u.trainPerWeek != null ? u.trainPerWeek : 3) + Number(d.d), 0, 14); commit(); },
   'cal-rounds'(d) { const u = cur(); u.roundsPerWeek = Stats.clamp((u.roundsPerWeek != null ? u.roundsPerWeek : 1) + Number(d.d), 0, 7); commit(); },
   'cal-prev'() { if (--V.calM < 0) { V.calM = 11; V.calY--; } render(); },
