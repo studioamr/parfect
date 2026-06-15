@@ -700,36 +700,39 @@ function vEntreno() {
 }
 
 /* CAMPOS → camino ideal por hoyo, analizable por hándicap */
-/* ayuda para conseguir la calle (según hoyo + tu patrón de fallo) */
-function fairwayTip(hole, agg) {
-  if (hole.par === 3) return 'Par 3: no hay calle, es tiro directo al green. Toma el palo justo para la distancia y comprométete al centro.';
+/* ayuda para conseguir la calle (hoyo + tu patrón de fallo + tu bolsa) */
+function fairwayTip(hole, agg, u, bench, teeClub) {
+  if (hole.par === 3) return `Par 3: es tiro directo al green. Con tu bolsa${teeClub ? ` el palo es ${teeClub.name} (~${teeClub.carry}y)` : ''}; comprométete al centro.`;
   const fw = agg ? Math.round(agg.fwPct) : null;
   const miss = agg ? (agg.missTee.izq === agg.missTee.der ? null : (agg.missTee.izq > agg.missTee.der ? 'izq' : 'der')) : null;
-  let s = hole.dog === 'left' ? 'Dogleg a la izquierda: la línea segura es por el centro-derecha de la calle.'
-    : hole.dog === 'right' ? 'Dogleg a la derecha: juega al centro-izquierda de la calle.'
-      : 'Calle recta: fija un blanco en el centro (un árbol, un bunker) y apúntale.';
-  if (fw != null) s += ` Vas ${fw}% de calles${miss ? `, y fallas más a la ${miss === 'izq' ? 'izquierda' : 'derecha'}: apunta al lado contrario` : ''}. ${fw < 55 ? 'Si aprieta, pega madera o híbrido: la calle vale más que 20 yardas.' : 'Tienes salida para sacar el driver con confianza.'}`;
+  let s = hole.dog === 'left' ? 'Dogleg a la izquierda: línea segura por el centro-derecha.'
+    : hole.dog === 'right' ? 'Dogleg a la derecha: juega al centro-izquierda.'
+      : 'Calle recta: fija un blanco en el centro y apúntale.';
+  if (teeClub) s += ` De salida, tu bolsa pide ${teeClub.name} (~${teeClub.carry}y)${fw != null && fw < 55 ? ': prioriza control sobre distancia' : ''}.`;
+  if (fw != null) s += ` Vas ${fw}% de calles${miss ? `, fallas a la ${miss === 'izq' ? 'izquierda' : 'derecha'} (apunta al lado contrario)` : ''}${bench ? ` · meta HCP ${bench.hcp}: ${Math.round(bench.fwPct)}%` : ''}.`;
   return s;
 }
-/* ayuda para conseguir green en regulación */
-function girTip(hole, agg) {
+/* ayuda para conseguir green en regulación (+ palo de tu bolsa) */
+function girTip(hole, agg, u, bench, apprClub) {
   const r = (hole.risks || []).find(x => x.at === 'green');
   const gir = agg ? Math.round(agg.girPct) : null;
-  let s = r ? `${r.kind === 'water' ? 'Agua' : 'Bunker'} ${r.side === 'left' ? 'a la izquierda' : 'a la derecha'} del green: apunta al lado contrario y al centro, nunca al pin sobre el peligro.`
-    : 'Green sin peligros marcados: apunta al centro y deja que tu dispersión trabaje.';
+  let s = r ? `${r.kind === 'water' ? 'Agua' : 'Bunker'} ${r.side === 'left' ? 'a la izquierda' : 'a la derecha'} del green: apunta al lado contrario y al centro.`
+    : 'Green sin peligros marcados: apunta al centro.';
+  if (apprClub) s += ` El tiro al green pide ~${apprClub.carry}y: tu ${apprClub.name} es el palo.`;
   if (agg) {
     const ma = agg.missApp, short = (ma.corto || 0) >= (ma.largo || 0);
-    s += ` Sueles quedarte ${short ? 'corto' : 'largo'}: toma ${short ? 'un palo más' : 'un palo menos'} y juega al centro (vas ${gir}% de GIR).`;
+    s += ` Sueles quedarte ${short ? 'corto: toma un palo más' : 'largo: toma un palo menos'} y juega al centro (vas ${gir}% de GIR${bench ? `, meta ${Math.round(bench.girPct)}%` : ''}).`;
   }
   return s;
 }
-/* objetivo realista del hoyo según tus stats */
-function objectiveTip(hole, u) {
+/* objetivo realista del hoyo según tus stats + rumbo al hándicap meta */
+function objectiveTip(hole, u, bench) {
   let exp = hole.par + 1;
   try { exp = expectedHole(hole, statProbs(u)); } catch (e) {}
   const tgt = Math.round(exp), d = tgt - hole.par;
   const lab = d <= 0 ? 'par o mejor' : d === 1 ? 'bogey' : `+${d}`;
-  return `Apunta a ${tgt} (${lab}). ${d <= 0 ? 'Entra en tu rango: ve por el par sin arriesgar.' : `Un ${lab} aquí es buen número; juega seguro y recupera en los hoyos fáciles.`}`;
+  const goalTxt = bench ? ` Cada calle y green que sumes te acerca a HCP ${bench.hcp}.` : '';
+  return `Apunta a ${tgt} (${lab}). ${d <= 0 ? 'Entra en tu rango: ve por el par sin arriesgar.' : `Un ${lab} aquí es buen número; juega seguro y recupera en los fáciles.`}${goalTxt}`;
 }
 
 /* Estrategia por hoyo (random + stats) + historias de hoyos pasados tiro por tiro */
@@ -741,21 +744,35 @@ function vEstrategia() {
   let idx = V.stratIdx; if (idx == null || idx >= course.holes.length) idx = 0;
   const hole = course.holes[idx];
   const sName = course.name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
+  const bench = Stats.benchFor(u.goal != null ? u.goal : Math.max(0, (u.hcp != null ? u.hcp : 12) - 5));
+  const ideal = idealPath(u, hole, null, false);
+  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
+  const grShot = ideal.shots.filter(s => s.to === 'green').pop() || ideal.shots[ideal.shots.length - 1];
+  const apprClub = grShot ? grShot.club : null;
   const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === cid ? 'on' : ''}" data-act="strat-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
   const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="strat-hole" data-i="${i}">${h.n}</button>`).join('');
   const tip = (icon, title, text) => `<div class="strat-tip"><span class="strat-ic">${golfIcon(icon)}</span><div><b>${title}</b><p>${esc(text)}</p></div></div>`;
+  const clubRows = ideal.shots.map((s, i) => {
+    const nm = s.club ? `${s.club.name} · ~${s.club.carry}y` : '—';
+    const lab = i === 0 ? '1er golpe' : i === 1 ? '2º golpe' : `${i + 1}º golpe`;
+    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(lab)}: ${esc(nm)}</b><span>${s.to === 'green' ? 'al green' : 'a posición de calle'}</span></div></div>`;
+  }).join('');
 
-  return `<div class="sec-h" style="margin-top:4px"><h2 style="font-size:18px">Estrategia por hoyo</h2><span class="small muted">según tus stats</span></div>
+  return `<div class="sec-h" style="margin-top:4px"><h2 style="font-size:18px">Estrategia por hoyo</h2><span class="small muted">con tu bolsa</span></div>
     <div class="chips" style="margin-top:6px">${courseChips}</div>
     <button class="btn sm ghost" data-act="strat-random" style="margin-top:8px">${golfIcon('ball')} Hoyo al azar</button>
     <div class="hole-strip" style="margin-top:8px">${holeChips}</div>
     <div class="card" style="padding:12px">${holeSchematic(hole, [])}</div>
     <div class="card">
       <span class="label">${esc(sName)} · Hoyo ${hole.n} · Par ${hole.par} · ${hole.yds}y</span>
-      <div class="strat-tips">
-        ${tip('tee', 'Conseguir la calle', fairwayTip(hole, agg))}
-        ${tip('green', 'Conseguir el green (GIR)', girTip(hole, agg))}
-        ${tip('flag', 'Objetivo del hoyo', objectiveTip(hole, u))}
+      <span class="label" style="margin-top:10px;display:block">Plan con tu bolsa</span>
+      <div class="path-list" style="margin-top:6px">${clubRows}
+        <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar ${ideal.idealScore}</span></div></div>
+      </div>
+      <div class="strat-tips" style="margin-top:14px">
+        ${tip('tee', 'Conseguir la calle', fairwayTip(hole, agg, u, bench, teeClub))}
+        ${tip('green', 'Conseguir el green (GIR)', girTip(hole, agg, u, bench, apprClub))}
+        ${tip('flag', 'Objetivo · rumbo a tu meta', objectiveTip(hole, u, bench))}
       </div>
     </div>`;
 }

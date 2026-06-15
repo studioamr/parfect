@@ -70,12 +70,28 @@ function vStats() {
     </div>`;
 }
 
+/* reel de ejercicios recomendados según tus puntos débiles */
+function vRecommendedDrills(u, agg) {
+  if (!agg || typeof Trainer === 'undefined') return '';
+  const focus = Trainer.analyze(agg, u).focus || [];
+  if (!focus.length) return '';
+  const recs = [];
+  focus.slice(0, 3).forEach(f => (f.drills || []).slice(0, 2).forEach(d => recs.push({ key: f.key, area: FOCUS_LABEL[f.key] || f.titulo, name: d.name, desc: d.desc || '', target: f.key === 'putting' ? 10 : 7 })));
+  if (!recs.length) return '';
+  const cards = recs.map(d => `<button class="reel-card dr-card" data-act="drill-open" data-name="${esc(d.name)}" data-target="${d.target}" data-area="${esc(d.area)}" data-goal="" data-desc="${esc(d.desc)}" data-timer="20">
+    <div class="dr-scene">${drillArt(d.key)}</div>
+    <div class="reel-meta" style="padding:12px 14px 14px"><b style="font-size:14.5px">${esc(d.name)}</b><span>${esc(d.area)} · Entrenar →</span></div>
+  </button>`).join('');
+  return `<div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Ejercicios recomendados</h2><span class="small muted">para tu meta</span></div>
+    <div class="reel"><div class="reel-track" style="animation-duration:42s">${cards}${cards}</div></div>`;
+}
+
 /* ---------- Parfect Trainer ---------- */
 function vTrainer() {
   const u = cur();
   const tab = V.trainerTab || 'diag';
   const mainPage = vKeyTargets(u) + vDiag();
-  const entreno = vTracker()
+  const entreno = vRecommendedDrills(u, Stats.aggregate(myRounds())) + vTracker()
     + `<div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Biblioteca de drills</h2></div>`
     + vDrillsLibrary();
   const body = tab === 'entreno' ? entreno : tab === 'cal' ? vCalendar() : tab === 'campos' ? vEstrategia() : mainPage;
@@ -279,6 +295,7 @@ function vDrillSheet() {
   return `<div class="overlay" data-act="drill-close"><div class="sheet" data-act="noop">
     <div class="grab"></div>
     <h2>${esc(d.name)}</h2>
+    ${d.desc ? `<p class="auth-sub" style="margin-bottom:6px">${esc(d.desc)}</p>` : ''}
     <p class="auth-sub">Mete <b style="color:var(--text)">${d.target} seguidas</b>${d.goal ? ' · ' + esc(d.goal) : ''} antes de que acabe el timer. Si fallas, vuelves a 0.</p>
 
     <div class="drill-timer ${d.running ? 'run' : ''} ${timeUp ? 'up' : ''}">

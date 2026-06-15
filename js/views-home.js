@@ -232,15 +232,7 @@ function vDashboard() {
     <div class="sec-h" style="margin-top:2px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
     ${vStatReel(rounds, agg)}
     ${vTrainingCard(u)}
-    ${vLastRound(rounds)}
-    <div class="card" style="margin-top:16px">
-      <span class="label">Tarjetas pasadas</span>
-      ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
-        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
-        <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
-      </button>`; }).join('')}
-      <button class="btn sm ghost" data-act="nav" data-view="ronda" style="margin-top:12px">Ver todas las tarjetas →</button>
-    </div>`;
+    ${vLastRound(rounds)}`;
 }
 
 /* ---- reparto de score: birdies / pares / bogeys… ---- */

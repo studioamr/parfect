@@ -296,7 +296,7 @@ const actions = {
   'drill-cat'(d) { V.drillCat = d.c; render(); },
   'drill-open'(d) {
     const timer = Number(d.timer) || 20;
-    V.drillLog = { name: d.name, target: Number(d.target), area: d.area || '', goal: d.goal || '', timer, streak: 0, best: 0, secs: timer * 60, running: false };
+    V.drillLog = { name: d.name, target: Number(d.target), area: d.area || '', goal: d.goal || '', desc: d.desc || '', timer, streak: 0, best: 0, secs: timer * 60, running: false };
     render();
   },
   'drill-hit'() {
