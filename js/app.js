@@ -300,6 +300,7 @@ const actions = {
   'cal-prev'() { if (--V.calM < 0) { V.calM = 11; V.calY--; } render(); },
   'cal-next'() { if (++V.calM > 11) { V.calM = 0; V.calY++; } render(); },
   'cal-day-sel'(d) { V.calSel = d.date; render(); window.scrollTo(0, document.querySelector('.cal-grid') ? 0 : 0); },
+  'cal-goto'(d) { V.calSel = d.date; const dd = new Date(d.date + 'T12:00:00'); V.calY = dd.getFullYear(); V.calM = dd.getMonth(); go('social'); },
   'cal-addtype'(d) { V.calAddType = d.t; render(); },
   'cal-closed'(d) { const u = cur(); u.closedDay = Number(d.d); commit(); },
   'cal-add'() {

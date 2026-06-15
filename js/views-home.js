@@ -77,6 +77,17 @@ function progressCard(u, rounds) {
   </div>`;
 }
 
+/* Próximos eventos (para Inicio) */
+function upcomingCard(u) {
+  const tl = todayLocal();
+  const up = (u.events || []).filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
+  if (!up.length) return '';
+  const rows = up.map(e => `<button class="cal-ev ${e.type}" data-act="cal-goto" data-date="${e.date}" style="width:100%;text-align:left;cursor:pointer">
+      <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${calDateLabel(e.date)}${e.area ? ' · ' + esc(e.area) : ''}</span></div><span class="muted">›</span>
+    </button>`).join('');
+  return `<div class="card"><span class="label">📅 Próximos eventos</span>${rows}</div>`;
+}
+
 function vDashboard() {
   const u = cur();
   const rounds = myRounds();
@@ -108,6 +119,15 @@ function vDashboard() {
       ${statCard(agg.girPct.toFixed(0) + '%', 'GIR', agg.girPct)}
       ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
       ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
+    </div>
+    ${upcomingCard(u)}
+    <div class="card">
+      <span class="label">Tarjetas pasadas</span>
+      ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
+        <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' 🎉' : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
+        <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
+      </button>`; }).join('')}
+      <button class="btn sm ghost" data-act="nav" data-view="ronda" style="margin-top:12px">Ver todas las tarjetas →</button>
     </div>`;
 }
 

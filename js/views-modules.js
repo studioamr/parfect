@@ -309,18 +309,26 @@ function calDateLabel(iso) {
 function generateAIPlan(u) {
   const closedDay = u.closedDay != null ? u.closedDay : 0; // Lun por defecto
   const agg = Stats.aggregate(myRounds());
-  let focuses = ['Putting', 'Juego corto', 'Hierros', 'Driving'];
-  if (agg) focuses = Trainer.analyze(agg, u).focus.map(f => FOCUS_LABEL[f.key] || f.titulo);
+  // drills concretos priorizados por la debilidad del perfil (diagnóstico)
+  let plan = [];
+  if (agg) Trainer.analyze(agg, u).focus.forEach(f => (f.drills || []).forEach(d => plan.push({ area: FOCUS_LABEL[f.key] || f.titulo, name: d.name })));
+  if (!plan.length) plan = [
+    { area: 'Putting', name: 'Reloj de 1.5 m' },
+    { area: 'Juego corto', name: 'Up & Down Challenge' },
+    { area: 'Hierros', name: 'Escalera de distancias' },
+    { area: 'Driving', name: 'Gate Drill con alineación' },
+  ];
   let rounds = u.roundsPerWeek != null ? u.roundsPerWeek : 1;
   let trains = u.trainPerWeek != null ? u.trainPerWeek : 3;
   const start = new Date(); start.setHours(12, 0, 0, 0);
   const days = []; for (let i = 0; i < 7; i++) { const d = new Date(start); d.setDate(d.getDate() + i); days.push(d); }
-  const open = days.filter(d => ((d.getDay() + 6) % 7) !== closedDay);
+  const openDays = days.filter(d => ((d.getDay() + 6) % 7) !== closedDay);
   const out = [], used = new Set(); let fi = 0;
-  const weekendFirst = [...open].sort((a, b) => (((a.getDay() + 6) % 7) >= 5 ? 0 : 1) - (((b.getDay() + 6) % 7) >= 5 ? 0 : 1));
+  const weekendFirst = [...openDays].sort((a, b) => (((a.getDay() + 6) % 7) >= 5 ? 0 : 1) - (((b.getDay() + 6) % 7) >= 5 ? 0 : 1));
   for (const d of weekendFirst) { if (rounds <= 0) break; const iso = isoLocal(d); if (used.has(iso)) continue; out.push({ id: Store.uid(), date: iso, type: 'ronda', title: 'Ronda', ai: true }); used.add(iso); rounds--; }
-  for (const d of open) { if (trains <= 0) break; const iso = isoLocal(d); if (used.has(iso)) continue; out.push({ id: Store.uid(), date: iso, type: 'entreno', title: focuses[fi % focuses.length], ai: true }); used.add(iso); fi++; trains--; }
-  let idx = 0; while (trains > 0 && open.length && idx < 30) { const iso = isoLocal(open[idx % open.length]); out.push({ id: Store.uid(), date: iso, type: 'entreno', title: focuses[fi % focuses.length], ai: true }); fi++; trains--; idx++; }
+  const addTrain = iso => { const p = plan[fi % plan.length]; out.push({ id: Store.uid(), date: iso, type: 'entreno', title: p.name, area: p.area, ai: true }); fi++; trains--; };
+  for (const d of openDays) { if (trains <= 0) break; const iso = isoLocal(d); if (used.has(iso)) continue; addTrain(iso); used.add(iso); }
+  let idx = 0; while (trains > 0 && openDays.length && idx < 30) { addTrain(isoLocal(openDays[idx % openDays.length])); idx++; }
   return out;
 }
 
@@ -358,7 +366,7 @@ function vCalendar() {
   const selEvs = byDate[V.calSel] || [];
   const selList = selEvs.length
     ? selEvs.map(e => `<div class="cal-ev ${e.type}">
-        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${EV_LABEL[e.type]}${e.ai ? ' · sugerido por IA' : ''}</span></div>
+        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${EV_LABEL[e.type]}${e.area ? ' · ' + esc(e.area) : ''}${e.ai ? ' · IA' : ''}</span></div>
         <button class="pl-x" data-act="cal-del" data-id="${e.id}" aria-label="Eliminar">✕</button>
       </div>`).join('')
     : `<p class="note" style="margin:8px 0 0">Sin nada agendado${selWd === closedDay ? ' · el club cierra este día' : ''}.</p>`;
@@ -368,7 +376,7 @@ function vCalendar() {
   const upcoming = events.filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
   const agenda = upcoming.length
     ? upcoming.map(e => `<button class="cal-ev ${e.type}" data-act="cal-day-sel" data-date="${e.date}" style="width:100%;text-align:left;cursor:pointer">
-        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${calDateLabel(e.date)}</span></div>
+        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${calDateLabel(e.date)}${e.area ? ' · ' + esc(e.area) : ''}</span></div>
         <span class="muted">›</span>
       </button>`).join('')
     : `<p class="note">Nada agendado. Toca "Planear mi semana" o agrega un evento al día.</p>`;
