@@ -403,6 +403,11 @@ button.row { cursor: pointer; }
 .cal-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--muted); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
 
+/* ============ Estrategia · selector de hoyo ============ */
+.hole-strip { display: flex; gap: 7px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; margin: 0 -2px; }
+.hole-chip { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line-soft); background: var(--card); color: var(--text); font-size: 15px; font-weight: 800; }
+.hole-chip.on { background: var(--lime); border-color: var(--lime); color: #0a0f06; }
+
 /* ============ Amigos (Social) ============ */
 .friend-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 11px 2px; background: none; border: none; border-bottom: 1px solid var(--line-soft); color: var(--text); }
 .friend-row:last-of-type { border-bottom: none; }

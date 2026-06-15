@@ -10,7 +10,7 @@ let V = {
   detail: null, delArm: null,
   trainerTab: 'diag', diag: null, diagBusy: false,
   trackVals: null, trkTab: 'plan', drillLog: null, drillCat: 'fw',
-  calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null,
+  calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null, holeIdx: 0,
   partyDraft: null, showMoney: false, partyView: null,
 };
 
@@ -313,6 +313,7 @@ const actions = {
     u.events = (u.events || []).filter(e => e.id !== d.id);
     commit();
   },
+  'sel-hole'(d) { V.holeIdx = Number(d.i); render(); window.scrollTo(0, 0); },
   'go-clubs'() { V.profileOpen = false; go('clubs'); },
   'save-clubs'() {
     const u = cur();
