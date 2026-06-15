@@ -433,55 +433,8 @@ function partyCard() {
 }
 
 function vSocial() {
-  const u = cur();
-  const players = S.users.map(p => {
-    const agg = Stats.aggregate(S.rounds.filter(r => r.userId === p.id));
-    return { p, agg };
-  }).sort((a, b) => (a.agg ? a.agg.avgToPar : 99) - (b.agg ? b.agg.avgToPar : 99));
-
-  const roundFeed = S.rounds.filter(r => !r.partyId).map(r => {
-    const owner = S.users.find(x => x.id === r.userId);
-    const s = Stats.roundStats(r);
-    const fwP = s.fwTot ? Math.round((s.fw / s.fwTot) * 100) : 0;
-    return { date: r.date, html: `<div class="row">
-      <div class="r-main"><b>${esc(owner ? owner.name : '—')}${owner && owner.id === u.id ? ' (tú)' : ''} jugó ${esc(r.course)}</b>
-      <span>${fmtDate(r.date)} · FW ${fwP}% · ${s.putts} putts</span></div>
-      <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
-    </div>` };
-  });
-
-  const partyFeed = S.parties.filter(p => p.status === 'done').map(p => {
-    const ms = p.games && p.games.match ? Party.matchStatus(p) : null;
-    let winName = '—';
-    if (ms) { winName = ms.leaderWon > ms.runnerWon ? plName(p, ms.leader).split(' ')[0] : 'Empate'; }
-    else { const st = Party.standings(p).filter(r => r.holes); winName = st.length ? st[0].name.split(' ')[0] : '—'; }
-    return { date: p.date, html: `<button class="row" data-act="party-open" data-id="${p.id}">
-      <div class="r-main"><b>🎉 Party en ${esc(p.course)}</b>
-      <span>${fmtDate(p.date)} · ${p.players.length} jugadores · código ${esc(p.code)}</span></div>
-      <div class="r-side"><b>${esc(winName)}</b><span>ganador</span></div>
-    </button>` };
-  });
-  const feed = [...partyFeed, ...roundFeed].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14).map(x => x.html).join('');
-
-  return `<div class="sec-h"><h2>Calendario</h2><span class="small muted">tu plan y tus amigos</span></div>
-    ${vCalendar()}
-    <div class="card" style="margin-top:18px">
-      <span class="label">Amigos</span>
-      <button class="friend-row" data-act="friend" data-id="${u.id}">
-        <span class="avatar-btn" style="width:42px;height:42px;font-size:15px">${esc(initials(u.name))}</span>
-        <div class="r-main" style="flex:1"><b>${esc(u.name)} (tú)</b><span>HCP ${fmtHcp(u.hcp)} · tu perfil</span></div>
-        <span class="muted">›</span>
-      </button>
-      ${players.filter(x => x.p.id !== u.id).map(x => `<button class="friend-row" data-act="friend" data-id="${x.p.id}">
-        <span class="avatar-btn" style="width:42px;height:42px;font-size:15px;background:var(--lime-faint)">${esc(initials(x.p.name))}</span>
-        <div class="r-main" style="flex:1"><b>${esc(x.p.name)}</b><span>HCP ${fmtHcp(x.p.hcp)} · ${x.agg ? x.agg.rounds + ' rondas' : 'sin rondas'}</span></div>
-        <div class="r-side"><b>${x.agg ? fmtToPar(Math.round(x.agg.avgToPar)) : '—'}</b><span>prom/18 ›</span></div>
-      </button>`).join('')}
-      <button class="btn sm ghost" data-act="friend-soon" style="margin-top:12px">➕ Agregar amigo</button>
-      <p class="note">Toca a un amigo para ver su perfil y stats. Agregar amigos de otros dispositivos por código/usuario llegará con las cuentas en la nube.</p>
-    </div>
-    <div class="sec-h"><h2>Actividad</h2></div>
-    ${feed || `<div class="card empty"><div class="e-ico">🏆</div><h3>Nada por aquí aún</h3><p>Las rondas guardadas aparecen en este feed.</p></div>`}`;
+  return `<div class="sec-h"><h2>Calendario</h2><span class="small muted">tu plan de juego y entreno</span></div>
+    ${vCalendar()}`;
 }
 
 /* ---------- Perfil de un jugador (amigo) ---------- */

@@ -68,7 +68,6 @@ function vRondaTab() {
       <div class="r-side"><b>→</b><span>continuar</span></div>
     </button>`;
   }
-  html += partyCard();
   if (!rounds.length) {
     html += `<div class="card empty"><div class="e-ico">🏌️</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p></div>`;
   } else {
@@ -103,7 +102,9 @@ function vSetup() {
       <p class="note">El par de cada hoyo se ajusta durante la captura (secuencia estándar par 72 por defecto).</p>
     </div>
     <button class="btn primary" data-act="start-round">Comenzar ronda →</button>
-    <button class="btn" data-act="nav" data-view="ronda">Cancelar</button>`;
+    <button class="btn" data-act="nav" data-view="ronda">Cancelar</button>
+    <div class="sec-h" style="margin-top:20px"><h2 style="font-size:16px">¿Juegas con amigos?</h2></div>
+    ${partyCard()}`;
 }
 
 /* ---------- Captura de hoyo ---------- */
