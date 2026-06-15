@@ -133,7 +133,7 @@ function captureShots(h) {
       const side = h.app === 'izq' ? -0.6 : h.app === 'der' ? 0.6 : 0;
       const prog = h.app === 'largo' ? 1.13 : h.app === 'corto' ? 0.82 : 1;
       shots.push({ prog, side, ok: false, lie: 'rough' });
-      if (h.upDown != null) shots.push({ prog: 0.99, side: 0.1, ok: h.upDown === true, lie: 'green' });
+      if (h.upDown != null) shots.push({ prog: 0.99, side: 0.1, ok: h.upDown === true, lie: 'green', ud: true });
     }
   }
   return shots;
@@ -174,10 +174,12 @@ function captureSchematic(h, chole, noZoom) {
   const lagNode = lagIdx >= 0 ? lagIdx + 1 : (nPutts > 0 ? fpts.length + 1 : -1);
 
   const route = `M${tee[0]},${tee[1]} ` + pts.map(q => `L${q.x.toFixed(0)},${q.y.toFixed(0)}`).join(' ');
-  const colOf = s => s.ok ? '#c9f73e' : (s.lie === 'water' ? '#ff7a6b' : '#ff9f43');
+  const colOf = s => s.ud ? '#5aa9e0' : s.ok ? '#c9f73e' : (s.lie === 'water' ? '#ff7a6b' : '#ff9f43');
+  const distTxt = { '0-3': '0–3 ft', '3-8': '3–8 ft', '8-20': '8–20 ft', '20+': '+20 ft' };
+  const puttLbl = (nPutts > 0 && h.dist && distTxt[h.dist]) ? `<text x="${(lag.x + 11).toFixed(0)}" y="${(lag.y + 4).toFixed(0)}" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="800">${distTxt[h.dist]}</text>` : '';
   let zones = '', dots = '';
   shots.forEach((s, i) => { if (s.lie === 'green') return; const q = fpts[i], c = colOf(s), rx = s.ok ? 13 : 18; zones += `<ellipse cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" rx="${rx}" ry="${(rx * 0.7).toFixed(0)}" fill="${c}" opacity="0.16" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4"/>`; });
-  fpts.forEach((q, i) => { dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="4" fill="${colOf(shots[i])}"/>`; });
+  fpts.forEach((q, i) => { const s = shots[i]; dots += s.ud ? `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="9" fill="none" stroke="#5aa9e0" stroke-width="1.4" opacity="0.6"/><circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="5" fill="#5aa9e0"/>` : `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="4" fill="${colOf(s)}"/>`; });
   pputts.forEach((q, i) => { dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="${i === nPutts - 1 ? 3.2 : 4.2}" fill="#fff" stroke="#0a0f08" stroke-width="0.6"/>`; });
   let haz = '';
   ((chole && chole.risks) || []).forEach(r => {
@@ -221,7 +223,7 @@ function captureSchematic(h, chole, noZoom) {
     <line x1="${gx}" y1="${gy}" x2="${gx}" y2="${gy - 22}" stroke="#eef3e6" stroke-width="2"/><path d="M${gx},${gy - 22} l11,3 -11,3z" fill="#c9f73e"/>
     ${haz}${zones}
     <path d="${route}" fill="none" stroke="#c9f73e" stroke-width="2" stroke-dasharray="3 5"/>
-    ${dots}${ball}
+    ${dots}${puttLbl}${ball}
     <rect x="${tee[0] - 9}" y="${tee[1]}" width="18" height="6" rx="2" fill="#9ab07f"/>
   </svg>`;
 }

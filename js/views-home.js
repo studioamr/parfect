@@ -188,7 +188,7 @@ function vLastRound(rounds) {
   const card = (hh, i) => {
     const ch = (r.courseId && COURSES[r.courseId] && COURSES[r.courseId].holes[i]) ? COURSES[r.courseId].holes[i] : null;
     const yds = ch && ch.yds ? ` · ${ch.yds}y` : '';
-    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch, true)}</div><div class="reel-meta" style="padding:12px 16px 14px"><b style="font-size:22px">Hoyo ${i + 1}</b><span>Par ${hh.par}${yds} · ${hh.score} (${fmtToPar(hh.score - hh.par)})</span></div></div>`;
+    return `<div class="reel-card"><div class="reel-scene">${captureSchematic(hh, ch)}</div><div class="reel-meta" style="padding:12px 16px 14px"><b style="font-size:22px">Hoyo ${i + 1}</b><span>Par ${hh.par}${yds} · ${hh.score} (${fmtToPar(hh.score - hh.par)})</span></div></div>`;
   };
   const set = r.holes.map(card).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu última ronda</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
@@ -317,6 +317,8 @@ function vPerfil() {
     ${agg ? vScoreDist(agg) : ''}
     ${vBagEditor(u)}
     ${vLogros()}
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('card')} Calendario</h2></div>
+    ${vCalendar()}
     <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('flag')} Patrocinadores y ofertas</h2></div>
     <div class="card">
       <p class="note" style="margin-top:0;margin-bottom:8px">Ofertas de aliados (próximamente). Espacio para patrocinadores.</p>

@@ -94,11 +94,11 @@ function vTrainer() {
   const entreno = vRecommendedDrills(u, Stats.aggregate(myRounds())) + vTracker()
     + `<div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Biblioteca de drills</h2></div>`
     + vDrillsLibrary();
-  const body = tab === 'entreno' ? entreno : tab === 'cal' ? vCalendar() : mainPage;
+  const body = tab === 'entreno' ? entreno : mainPage;
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs scroll">
-      ${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('cal', 'Calendario')}
+      ${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}
     </div>
     ${body}`;
 }
@@ -399,6 +399,7 @@ function ensureWeekPlan(u) {
 
 function vCalendar() {
   const u = cur();
+  ensureWeekPlan(u);
   if (!V.calSel) V.calSel = todayLocal();
   const closedDay = u.closedDay != null ? u.closedDay : 0;
   const events = u.events || [];
