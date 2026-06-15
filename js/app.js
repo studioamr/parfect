@@ -13,7 +13,7 @@ let V = {
   calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null, holeIdx: 0,
   courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null, camposHcp: null,
   partyDraft: null, showMoney: false, partyView: null, capPid: null,
-  stratCid: null, stratIdx: null, histRound: null, histHole: null,
+  stratCid: null, stratIdx: null, stratTeeId: null, histRound: null, histHole: null,
 };
 
 const cur = () => S.users.find(u => u.id === S.session) || null;
@@ -194,9 +194,10 @@ const actions = {
   'go-setup'() { V.setupCourseId = (V.setupCourseId && COURSES[V.setupCourseId]) ? V.setupCourseId : 'campestre'; go('nueva'); },
   'setup-pick-course'(d) { if (COURSES[d.c]) V.setupCourseId = d.c; render(); },
   'setup-pick-tee'(d) { if (TEES.some(t => t.id === d.t)) V.setupTee = d.t; render(); },
-  'strat-course'(d) { if (COURSES[d.c]) { V.stratCid = d.c; V.stratIdx = 0; } render(); },
-  'strat-hole'(d) { V.stratIdx = Number(d.i); render(); },
-  'strat-random'() { const c = COURSE_ORDER[Math.floor(Math.random() * COURSE_ORDER.length)]; V.stratCid = c; V.stratIdx = Math.floor(Math.random() * COURSES[c].holes.length); render(); },
+  'strat-course'(d) { if (COURSES[d.c]) { V.stratCid = d.c; V.stratIdx = 0; V.stratTeeId = null; } render(); },
+  'strat-hole'(d) { V.stratIdx = Number(d.i); V.stratTeeId = null; render(); },
+  'strat-random'() { const c = COURSE_ORDER[Math.floor(Math.random() * COURSE_ORDER.length)]; V.stratCid = c; V.stratIdx = Math.floor(Math.random() * COURSES[c].holes.length); V.stratTeeId = null; render(); },
+  'strat-tee'(d) { V.stratTeeId = d.c; render(); },
   'hist-round'(d) { V.histRound = d.id; V.histHole = 0; render(); },
   'hist-hole'(d) { V.histHole = Number(d.i); render(); },
   'quick-round'() {

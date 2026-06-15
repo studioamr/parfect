@@ -708,9 +708,39 @@ function fairwayTip(hole, agg, u, bench, teeClub) {
   let s = hole.dog === 'left' ? 'Dogleg a la izquierda: línea segura por el centro-derecha.'
     : hole.dog === 'right' ? 'Dogleg a la derecha: juega al centro-izquierda.'
       : 'Calle recta: fija un blanco en el centro y apúntale.';
-  if (teeClub) s += ` De salida, tu bolsa pide ${teeClub.name} (~${teeClub.carry}y)${fw != null && fw < 55 ? ': prioriza control sobre distancia' : ''}.`;
+  if (teeClub) s += ` Con ${teeClub.name} (~${teeClub.carry}y, ${teeClub.eff}% acierto)${fw != null && fw < 55 ? ' priorizas control' : ''}.`;
+  if (hole.dog === 'left') s += ' Un draw (de derecha a izquierda) acompaña el dogleg.';
+  else if (hole.dog === 'right') s += ' Un fade (de izquierda a derecha) acompaña el dogleg.';
   if (fw != null) s += ` Vas ${fw}% de calles${miss ? `, fallas a la ${miss === 'izq' ? 'izquierda' : 'derecha'} (apunta al lado contrario)` : ''}${bench ? ` · meta HCP ${bench.hcp}: ${Math.round(bench.fwPct)}%` : ''}.`;
   return s;
+}
+/* mejor palo de approach que NO se pasa del green (carry ≤ distancia) */
+function approachClubNoOver(u, dist) {
+  let bag = bagInfo(u).filter(c => c.id !== 'dr');
+  if (!bag.length) bag = bagInfo(u);
+  if (!bag.length) return null;
+  const under = bag.filter(c => c.carry <= dist + 6).sort((a, b) => b.carry - a.carry);
+  return under.length ? under[0] : bag.slice().sort((a, b) => a.carry - b.carry)[0];
+}
+/* plan de golpes según el palo de salida elegido (carry real + sin pasarse) */
+function strategyPlan(u, hole, teeClub) {
+  const carry = teeClub ? teeClub.carry : ((bestClubForDist(u, hole.yds, false) || {}).carry || 235);
+  const steps = [];
+  if (hole.par === 3) { steps.push({ club: teeClub, dist: carry, to: 'green', leaves: 0 }); return steps; }
+  let rem = Math.max(0, hole.yds - carry);
+  steps.push({ club: teeClub, dist: carry, to: rem <= 8 ? 'green' : 'calle', leaves: rem });
+  if (rem <= 8) return steps;
+  const bag = bagInfo(u).filter(c => c.id !== 'dr');
+  const longest = bag.length ? bag.slice().sort((a, b) => b.carry - a.carry)[0].carry : 200;
+  if (rem > longest + 8) {
+    const lay = approachClubNoOver(u, rem - 100);
+    const lc = lay ? lay.carry : rem - 100;
+    rem = Math.max(45, rem - lc);
+    steps.push({ club: lay, dist: lc, to: 'calle', leaves: rem, layup: true });
+  }
+  const appr = approachClubNoOver(u, rem);
+  steps.push({ club: appr, dist: appr ? appr.carry : rem, to: 'green', leaves: 0, approach: true });
+  return steps;
 }
 /* ayuda para conseguir green en regulación (+ palo de tu bolsa) */
 function girTip(hole, agg, u, bench, apprClub) {
@@ -745,29 +775,40 @@ function vEstrategia() {
   const hole = course.holes[idx];
   const sName = course.name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
   const bench = Stats.benchFor(u.goal != null ? u.goal : Math.max(0, (u.hcp != null ? u.hcp : 12) - 5));
-  const ideal = idealPath(u, hole, null, false);
-  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
-  const grShot = ideal.shots.filter(s => s.to === 'green').pop() || ideal.shots[ideal.shots.length - 1];
-  const apprClub = grShot ? grShot.club : null;
+  const teeCands = teeCandidates(u, hole);
+  const selTee = teeCands.find(c => c.id === V.stratTeeId) || teeCands[0] || null;
+  const landings = computeLandings(hole, selTee, false);
+  const plan = strategyPlan(u, hole, selTee);
+  const teeClub = selTee;
+  const apprStep = plan.find(s => s.approach) || plan[plan.length - 1];
+  const apprClub = apprStep ? apprStep.club : null;
+  const maxEff = teeCands.reduce((m, c) => Math.max(m, c.eff || 0), 0);
   const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === cid ? 'on' : ''}" data-act="strat-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
   const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="strat-hole" data-i="${i}">${h.n}</button>`).join('');
   const tip = (icon, title, text) => `<div class="strat-tip"><span class="strat-ic">${golfIcon(icon)}</span><div><b>${title}</b><p>${esc(text)}</p></div></div>`;
-  const clubRows = ideal.shots.map((s, i) => {
-    const nm = s.club ? `${s.club.name} · ~${s.club.carry}y` : '—';
-    const lab = i === 0 ? '1er golpe' : i === 1 ? '2º golpe' : `${i + 1}º golpe`;
-    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(lab)}: ${esc(nm)}</b><span>${s.to === 'green' ? 'al green' : 'a posición de calle'}</span></div></div>`;
+  const teeChips = teeCands.length
+    ? teeCands.map(c => `<button class="chip sm ${selTee && c.id === selTee.id ? 'on' : ''}" data-act="strat-tee" data-c="${c.id}">${esc(c.name)} · ${c.carry}y · ${c.eff}%${c.eff === maxEff && maxEff > 0 ? ' ★' : ''}</button>`).join('')
+    : `<p class="note" style="margin:0">Carga tus bastones en Perfil para ver el plan con tu bolsa.</p>`;
+  const planRows = plan.map((s, i) => {
+    const nm = s.club ? s.club.name : '—';
+    const eff = s.club ? ` · ${s.club.eff}%` : '';
+    const lab = i === 0 ? (hole.par === 3 ? 'Tiro al green' : 'Salida') : s.layup ? 'Layup' : 'Al green';
+    const sub = s.to === 'green' ? 'llega al green sin pasarte' : `cae a ~${s.dist}y, te deja ${s.leaves}y`;
+    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(lab)}: ${esc(nm)} (~${s.dist}y${eff})</b><span>${sub}</span></div></div>`;
   }).join('');
 
   return `<div class="sec-h" style="margin-top:4px"><h2 style="font-size:18px">Estrategia por hoyo</h2><span class="small muted">con tu bolsa</span></div>
     <div class="chips" style="margin-top:6px">${courseChips}</div>
     <button class="btn sm ghost" data-act="strat-random" style="margin-top:8px">${golfIcon('ball')} Hoyo al azar</button>
     <div class="hole-strip" style="margin-top:8px">${holeChips}</div>
-    <div class="card" style="padding:12px">${holeSchematic(hole, [])}</div>
+    <div class="card" style="padding:12px">${holeSchematic(hole, landings)}</div>
     <div class="card">
       <span class="label">${esc(sName)} · Hoyo ${hole.n} · Par ${hole.par} · ${hole.yds}y</span>
-      <span class="label" style="margin-top:10px;display:block">Plan con tu bolsa</span>
-      <div class="path-list" style="margin-top:6px">${clubRows}
-        <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar ${ideal.idealScore}</span></div></div>
+      <span class="label" style="margin-top:12px;display:block">${hole.par === 3 ? 'Elige tu palo' : 'Elige tu salida'} <span class="muted" style="text-transform:none;letter-spacing:0">· ★ = más preciso</span></span>
+      <div class="chips" style="margin-top:6px">${teeChips}</div>
+      <span class="label" style="margin-top:14px;display:block">Plan</span>
+      <div class="path-list" style="margin-top:6px">${planRows}
+        <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar tu objetivo</span></div></div>
       </div>
       <div class="strat-tips" style="margin-top:14px">
         ${tip('tee', 'Conseguir la calle', fairwayTip(hole, agg, u, bench, teeClub))}

@@ -82,8 +82,8 @@ function vRecommendedDrills(u, agg) {
     <div class="dr-scene">${drillScene(d.name, d.key)}</div>
     <div class="reel-meta" style="padding:12px 14px 14px"><b style="font-size:14.5px">${esc(d.name)}</b><span>${esc(d.area)} · Entrenar →</span></div>
   </button>`).join('');
-  return `<div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Ejercicios recomendados</h2><span class="small muted">para tu meta</span></div>
-    <div class="reel"><div class="reel-track" style="animation-duration:42s">${cards}${cards}</div></div>`;
+  return `<div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Ejercicios recomendados</h2><span class="small muted">desliza →</span></div>
+    <div class="reel"><div class="reel-track">${cards}</div></div>`;
 }
 
 /* ---------- Parfect Trainer ---------- */

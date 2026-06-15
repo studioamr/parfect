@@ -119,11 +119,23 @@ function vLanding() {
   </div>`;
 }
 
+/* pausa las animaciones SVG mientras se hace scroll → scroll fluido en móvil */
+function setupScrollPause() {
+  if (window.__scrollPauseSet) return;
+  window.__scrollPauseSet = true;
+  let t, paused = false;
+  const all = fn => document.querySelectorAll('svg').forEach(s => { try { s[fn] && s[fn](); } catch (e) {} });
+  const pause = () => { if (paused) return; paused = true; all('pauseAnimations'); document.body.classList.add('is-scrolling'); };
+  const resume = () => { if (!paused) return; paused = false; all('unpauseAnimations'); document.body.classList.remove('is-scrolling'); };
+  addEventListener('scroll', () => { pause(); clearTimeout(t); t = setTimeout(resume, 180); }, { passive: true });
+}
+
 /* hook post-render: anima la landing + transiciones entre vistas de la app */
 function afterRender() {
   if (window.__lpClean) { window.__lpClean(); window.__lpClean = null; }
   const lp = document.querySelector('.lp');
   if (lp) { initLanding(lp); window.__lastView = 'landing'; return; }
+  setupScrollPause();
   // transición de entrada SOLO al cambiar de vista (no en cada re-render por tap)
   const changed = window.__lastView !== V.view;
   window.__lastView = V.view;

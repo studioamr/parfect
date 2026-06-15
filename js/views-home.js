@@ -138,7 +138,7 @@ function vStatReel(rounds, agg) {
     ['lag', noThree + '%', 'Sin 3-putt'],
   ];
   const set = cards.map(([k, v, t]) => `<div class="reel-card"><div class="reel-scene">${statScene(k)}</div><div class="reel-meta"><b>${v}</b><span>${esc(t)}</span></div></div>`).join('');
-  return `<div class="reel"><div class="reel-track">${set}${set}</div></div>`;
+  return `<div class="reel"><div class="reel-track">${set}</div></div>`;
 }
 /* área (texto del plan) → llave de drillArt */
 function areaKey(a) {
@@ -192,8 +192,8 @@ function vLastRound(rounds) {
   };
   const set = r.holes.map(card).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu última ronda</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
-    <div class="card" style="padding:14px">${statRow}<p class="note" style="margin:10px 0 0">${s.score} golpes · ${fmtToPar(s.toPar)} en ${s.holes} hoyos · tiro por tiro abajo →</p></div>
-    <div class="reel"><div class="reel-track">${set}${set}</div></div>`;
+    <div class="card" style="padding:14px">${statRow}<p class="note" style="margin:10px 0 0">${s.score} golpes · ${fmtToPar(s.toPar)} en ${s.holes} hoyos · desliza los hoyos →</p></div>
+    <div class="reel"><div class="reel-track">${set}</div></div>`;
 }
 
 /* stats en conjunto (radar + tarjetas) para Perfil */
@@ -231,7 +231,6 @@ function vDashboard() {
   return head + `
     <div class="sec-h" style="margin-top:2px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
     ${vStatReel(rounds, agg)}
-    ${vTrainingCard(u)}
     ${vRecommendedDrills(u, agg)}
     ${vLastRound(rounds)}`;
 }
