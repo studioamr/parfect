@@ -88,6 +88,8 @@ function render() {
 }
 
 /* ============ Acciones ============ */
+let drillInt = null;
+function stopDrillTimer() { if (drillInt) { clearInterval(drillInt); drillInt = null; } }
 const actions = {
   noop() {},
 
@@ -277,7 +279,8 @@ const actions = {
   'trk-tab'(d) { V.trkTab = d.t; V.err = null; render(); },
   'drill-cat'(d) { V.drillCat = d.c; render(); },
   'drill-open'(d) {
-    V.drillLog = { name: d.name, target: Number(d.target), area: d.area || '', goal: d.goal || '', timer: Number(d.timer) || 20, hits: Number(d.target) };
+    const timer = Number(d.timer) || 20;
+    V.drillLog = { name: d.name, target: Number(d.target), area: d.area || '', goal: d.goal || '', timer, hits: 0, secs: timer * 60, running: false };
     render();
   },
   'drill-hit'(d) {
@@ -285,9 +288,25 @@ const actions = {
     V.drillLog.hits = Math.max(0, Math.min(V.drillLog.target, V.drillLog.hits + Number(d.d)));
     render();
   },
-  'drill-close'() { V.drillLog = null; render(); },
+  'drill-timer-toggle'() {
+    if (!V.drillLog) return;
+    stopDrillTimer();
+    if (V.drillLog.running) { V.drillLog.running = false; render(); return; }
+    if (V.drillLog.secs <= 0) V.drillLog.secs = V.drillLog.timer * 60;
+    V.drillLog.running = true; render();
+    drillInt = setInterval(() => {
+      if (!V.drillLog || !V.drillLog.running) { stopDrillTimer(); return; }
+      V.drillLog.secs--;
+      if (V.drillLog.secs <= 0) { V.drillLog.secs = 0; V.drillLog.running = false; stopDrillTimer(); render(); return; }
+      const el = document.getElementById('drill-time');
+      if (el) el.textContent = String(Math.floor(V.drillLog.secs / 60)).padStart(2, '0') + ':' + String(V.drillLog.secs % 60).padStart(2, '0');
+    }, 1000);
+  },
+  'drill-timer-reset'() { if (!V.drillLog) return; stopDrillTimer(); V.drillLog.secs = V.drillLog.timer * 60; V.drillLog.running = false; render(); },
+  'drill-close'() { stopDrillTimer(); V.drillLog = null; render(); },
   'drill-save'() {
     if (!V.drillLog) return;
+    stopDrillTimer();
     const d = V.drillLog;
     S.practices.push({ id: Store.uid(), userId: S.session, date: today(), area: d.area, drill: d.name, attempts: d.target, hits: d.hits, notes: '' });
     V.drillLog = null;

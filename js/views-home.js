@@ -120,7 +120,6 @@ function vDashboard() {
       ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
       ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
     </div>
-    ${upcomingCard(u)}
     <div class="card">
       <span class="label">Tarjetas pasadas</span>
       ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">

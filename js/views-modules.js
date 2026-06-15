@@ -243,18 +243,35 @@ function vTrackerPlan() {
 
 function vDrillSheet() {
   const d = V.drillLog;
+  const secs = d.secs != null ? d.secs : d.timer * 60;
+  const mm = String(Math.floor(secs / 60)).padStart(2, '0'), ss = String(secs % 60).padStart(2, '0');
+  const full = d.timer * 60;
+  const done = d.hits >= d.target;
+  const pct = Math.min(100, Math.round(d.hits / d.target * 100));
+  const timeUp = secs <= 0;
   return `<div class="overlay" data-act="drill-close"><div class="sheet" data-act="noop">
     <div class="grab"></div>
     <h2>${esc(d.name)}</h2>
-    <p class="auth-sub">${d.goal ? esc(d.goal) + ' · ' : ''}${d.timer} min · meta ${d.target}/${d.target}</p>
-    <div class="score-row" style="margin-top:20px">
-      <div class="sc-val"><span class="sc-num">${d.hits}</span><span class="sc-rel">/ ${d.target} aciertos</span></div>
-      <div class="stepper">
-        <button data-act="drill-hit" data-d="-1">−</button>
-        <button data-act="drill-hit" data-d="1">+</button>
+    <p class="auth-sub">${d.goal ? esc(d.goal) + ' · ' : ''}${d.area ? esc(d.area) + ' · ' : ''}meta ${d.target} aciertos</p>
+
+    <div class="drill-timer ${d.running ? 'run' : ''} ${timeUp ? 'up' : ''}">
+      <div class="dt-time" id="drill-time">${mm}:${ss}</div>
+      <div class="dt-btns">
+        <button class="btn sm primary" data-act="drill-timer-toggle">${d.running ? '⏸ Pausar' : (timeUp ? '¡Tiempo!' : (secs < full ? '▶ Reanudar' : '▶ Iniciar'))}</button>
+        <button class="btn sm ghost" data-act="drill-timer-reset" aria-label="Reiniciar timer">↺ Reiniciar</button>
       </div>
     </div>
-    <button class="btn primary" data-act="drill-save">Guardar resultado</button>
+
+    <div class="drill-count">
+      <div class="dc-num ${done ? 'done' : ''}">${d.hits}<span>/ ${d.target}</span></div>
+      <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
+      ${done ? `<p class="note lime" style="margin:8px 0 0">¡Meta lograda! 🎯</p>` : ''}
+    </div>
+
+    <button class="btn primary drill-tap" data-act="drill-hit" data-d="1">＋ Acierto</button>
+    <button class="btn sm ghost" data-act="drill-hit" data-d="-1" style="margin-top:8px">− Quitar uno</button>
+
+    <button class="btn primary" data-act="drill-save" style="margin-top:16px">Guardar resultado</button>
     <button class="btn" data-act="drill-close">Cancelar</button>
   </div></div>`;
 }
