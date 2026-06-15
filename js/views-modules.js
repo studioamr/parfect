@@ -76,8 +76,7 @@ function vTrainer() {
   const tab = V.trainerTab || 'diag';
   const mainPage = objetivosCard(u)
     + `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">🏋️ Tu entrenamiento para lograrlo</h2><span class="small muted">en pro de tus objetivos</span></div>`
-    + vDiag()
-    + vHcpReference(u);
+    + vDiag();
   const entreno = vTracker()
     + `<div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Biblioteca de drills</h2></div>`
     + vDrillsLibrary();
@@ -354,55 +353,64 @@ function vCalendar() {
 
   const selD = new Date(V.calSel + 'T12:00:00');
   const selWd = (selD.getDay() + 6) % 7;
-  const selHead = `${CAL_WD_FULL[selWd]} ${selD.getDate()} ${selD.toLocaleDateString('es-MX', { month: 'short' })}`;
+  const selHead = `${CAL_WD_FULL[selWd]} ${selD.getDate()} de ${selD.toLocaleDateString('es-MX', { month: 'long' })}`;
+  const selRel = calDateLabel(V.calSel).split('·').pop().trim();
   const selEvs = byDate[V.calSel] || [];
   const selList = selEvs.length
-    ? selEvs.map(e => `<div class="row">
-        <div class="r-main"><b>${EV_ICON[e.type]} ${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_LABEL[e.type]}${e.ai ? ' · sugerido IA' : ''}</span></div>
-        <button class="pl-x" data-act="cal-del" data-id="${e.id}">✕</button>
+    ? selEvs.map(e => `<div class="cal-ev ${e.type}">
+        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${EV_LABEL[e.type]}${e.ai ? ' · sugerido por IA' : ''}</span></div>
+        <button class="pl-x" data-act="cal-del" data-id="${e.id}" aria-label="Eliminar">✕</button>
       </div>`).join('')
-    : `<p class="note">Sin eventos${selWd === closedDay ? ' · club cerrado' : ''}.</p>`;
+    : `<p class="note" style="margin:8px 0 0">Sin nada agendado${selWd === closedDay ? ' · el club cierra este día' : ''}.</p>`;
   const addType = V.calAddType || 'entreno';
-  const typeChips = ['entreno', 'ronda', 'descanso'].map(t => `<button class="chip sm ${addType === t ? 'on' : ''}" data-act="cal-addtype" data-t="${t}">${EV_LABEL[t]}</button>`).join('');
+  const typeChips = ['entreno', 'ronda', 'descanso'].map(t => `<button class="chip sm ${addType === t ? 'on' : ''}" data-act="cal-addtype" data-t="${t}">${EV_ICON[t]} ${EV_LABEL[t]}</button>`).join('');
 
   const upcoming = events.filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
   const agenda = upcoming.length
-    ? upcoming.map(e => `<button class="row" data-act="cal-day-sel" data-date="${e.date}">
-        <div class="r-main"><b>${EV_ICON[e.type]} ${esc(e.title || EV_LABEL[e.type])}</b><span>${calDateLabel(e.date)}</span></div>
+    ? upcoming.map(e => `<button class="cal-ev ${e.type}" data-act="cal-day-sel" data-date="${e.date}" style="width:100%;text-align:left;cursor:pointer">
+        <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_ICON[e.type]} ${calDateLabel(e.date)}</span></div>
         <span class="muted">›</span>
       </button>`).join('')
-    : `<p class="note">Nada agendado. Usa "Planear mi semana" o agrega un evento.</p>`;
+    : `<p class="note">Nada agendado. Toca "Planear mi semana" o agrega un evento al día.</p>`;
 
   return `
     <div class="card">
       <div class="cal-head">
-        <button class="cal-nav" data-act="cal-prev">‹</button>
+        <button class="cal-nav" data-act="cal-prev" aria-label="Mes anterior">‹</button>
         <span class="cal-month">${monthLabel}</span>
-        <button class="cal-nav" data-act="cal-next">›</button>
+        <button class="cal-nav" data-act="cal-next" aria-label="Mes siguiente">›</button>
       </div>
       <div class="cal-grid">
         ${CAL_WD.map(w => `<div class="cal-wd">${w}</div>`).join('')}
         ${cells}
       </div>
-      <div class="cal-legend"><span><i class="cal-dot ronda"></i>Ronda</span><span><i class="cal-dot entreno"></i>Entreno</span><span><i class="cal-dot descanso"></i>Descanso</span></div>
-    </div>
-
-    <div class="card">
-      <span class="label">${selHead}</span>
-      ${selList}
-      <div class="chips" style="margin-top:12px">${typeChips}</div>
-      <div class="join-row" style="margin-top:10px">
-        <input id="cal-title" placeholder="${addType === 'ronda' ? 'Campo' : addType === 'entreno' ? 'Enfoque (ej. Putting)' : 'Nota'}">
-        <button class="btn sm primary" data-act="cal-add">Agregar</button>
+      <div class="cal-legend">
+        <span><i class="cal-dot ronda"></i>Ronda</span>
+        <span><i class="cal-dot entreno"></i>Entreno</span>
+        <span><i class="cal-dot descanso"></i>Descanso</span>
+        <span><i class="cal-sw-closed"></i>Cerrado</span>
       </div>
     </div>
 
     <div class="card">
-      <span class="label">Planear con IA</span>
-      <p class="note" style="margin-top:0;margin-bottom:8px">Arma tu semana según tu ritmo. El club cierra los ${CAL_WD_FULL[closedDay].toLowerCase()}.</p>
-      <div class="ph-head"><div class="r-main" style="flex:1"><b>Entrenamientos</b><span class="muted">por semana</span></div>
+      <div class="cal-day-head"><span class="label" style="margin:0">${selHead}</span><span class="cal-rel">${esc(selRel)}</span></div>
+      ${selList}
+      <div style="border-top:1px solid var(--line-soft);margin-top:14px;padding-top:12px">
+        <span class="label">Agregar al día</span>
+        <div class="chips" style="margin-top:6px">${typeChips}</div>
+        <div class="join-row" style="margin-top:10px">
+          <input id="cal-title" placeholder="${addType === 'ronda' ? 'Campo (ej. Campestre)' : addType === 'entreno' ? 'Enfoque (ej. Putting)' : 'Nota'}">
+          <button class="btn sm primary" data-act="cal-add">Agregar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="label">✨ Planear mi semana con IA</span>
+      <p class="note" style="margin-top:2px;margin-bottom:10px">Arma tu semana según tu ritmo, respetando el día de cierre.</p>
+      <div class="cal-step"><div><b>Entrenamientos</b><span>por semana</span></div>
         <div class="stepper sm"><button data-act="cal-train" data-d="-1">−</button><span class="pl-score">${u.trainPerWeek != null ? u.trainPerWeek : 3}</span><button data-act="cal-train" data-d="1">+</button></div></div>
-      <div class="ph-head" style="margin-top:10px;border-top:1px solid var(--line-soft);padding-top:10px"><div class="r-main" style="flex:1"><b>Rondas</b><span class="muted">por semana</span></div>
+      <div class="cal-step"><div><b>Rondas</b><span>por semana</span></div>
         <div class="stepper sm"><button data-act="cal-rounds" data-d="-1">−</button><span class="pl-score">${u.roundsPerWeek != null ? u.roundsPerWeek : 1}</span><button data-act="cal-rounds" data-d="1">+</button></div></div>
       <p class="label" style="margin-top:14px">El club cierra los</p>
       <div class="chips">${CAL_WD_FULL.map((w, i) => `<button class="chip sm ${closedDay === i ? 'on' : ''}" data-act="cal-closed" data-d="${i}">${w}</button>`).join('')}</div>

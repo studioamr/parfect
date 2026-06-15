@@ -386,25 +386,40 @@ button.row { cursor: pointer; }
 /* ============ Calendario (estilo Apple, mensual) ============ */
 .ph-head .r-main b { display: block; font-size: 14.5px; font-weight: 800; }
 .ph-head .r-main span { font-size: 12px; }
-.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.cal-month { font-size: 17px; font-weight: 900; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-month { font-size: 18px; font-weight: 900; letter-spacing: -0.01em; }
 .cal-nav { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--lime-faint); color: var(--lime); font-size: 20px; font-weight: 800; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-.cal-wd { text-align: center; font-size: 11px; font-weight: 800; color: var(--muted2); padding-bottom: 4px; }
-.cal-cell { aspect-ratio: 1; border: none; background: transparent; border-radius: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text); padding: 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-wd { text-align: center; font-size: 10.5px; font-weight: 800; color: var(--muted2); letter-spacing: 0.04em; padding-bottom: 6px; }
+.cal-cell { aspect-ratio: 1; border: none; background: transparent; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text); padding: 0; }
 .cal-cell.empty { visibility: hidden; }
-.cal-cell .cal-n { font-size: 14px; font-weight: 700; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.cal-cell .cal-n { font-size: 14.5px; font-weight: 700; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.cal-cell.closed { opacity: 0.45; }
 .cal-cell.closed .cal-n { color: var(--muted2); }
-.cal-cell.today .cal-n { background: rgba(201, 247, 62, 0.16); color: var(--lime); }
-.cal-cell.sel { background: var(--card2); border: 1px solid var(--line); }
-.cal-cell.sel .cal-n { background: var(--lime); color: #0a0f06; }
+.cal-cell.today .cal-n { box-shadow: inset 0 0 0 2px var(--lime); color: var(--lime); font-weight: 900; }
+.cal-cell.sel .cal-n { background: var(--lime); color: #0a0f06; font-weight: 900; box-shadow: none; }
 .cal-dots { display: flex; gap: 3px; height: 6px; }
 .cal-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 .cal-dot.ronda { background: var(--lime); }
 .cal-dot.entreno { background: #cfd8c2; }
 .cal-dot.descanso { background: var(--muted2); }
-.cal-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); font-size: 12px; color: var(--muted); }
 .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-sw-closed { width: 9px; height: 9px; border-radius: 2px; display: inline-block; background: var(--muted2); opacity: 0.55; }
+/* día seleccionado + eventos */
+.cal-day-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cal-rel { flex: none; font-size: 11px; font-weight: 800; color: var(--lime); background: var(--lime-dim); padding: 2px 9px; border-radius: 7px; text-transform: capitalize; }
+.cal-ev { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 11px; background: var(--card2); border-left: 3px solid var(--muted2); margin-top: 8px; }
+.cal-ev.ronda { border-left-color: var(--lime); }
+.cal-ev.entreno { border-left-color: #cfd8c2; }
+.cal-ev.descanso { border-left-color: var(--muted2); }
+.cal-ev .r-main { flex: 1; }
+.cal-ev .r-main b { display: block; font-size: 14px; font-weight: 800; }
+.cal-ev .r-main span { font-size: 12px; color: var(--muted); }
+.cal-step { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; }
+.cal-step + .cal-step { border-top: 1px solid var(--line-soft); }
+.cal-step > div b { display: block; font-size: 14px; font-weight: 800; }
+.cal-step > div span { font-size: 12px; color: var(--muted); }
 
 /* ============ Estrategia · selector de hoyo ============ */
 .hole-strip { display: flex; gap: 7px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; margin: 0 -2px; scrollbar-width: none; -ms-overflow-style: none; }
