@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PARFECT · Trazador de hoyos (satélite)</title>
+<style>
+  :root { --lime:#c9f73e; --bg:#0b110a; --panel:#0e150c; --line:rgba(201,247,62,.2); --muted:#8a9a7e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:#eef3e6; font-family:'Inter',system-ui,sans-serif; padding:14px; }
+  h1 { font-size:17px; font-weight:900; font-style:italic; letter-spacing:.1em; color:var(--lime); margin-bottom:8px; }
+  .bar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
+  .bar b { font-size:12px; color:var(--muted); margin-right:2px; }
+  button, select { background:var(--panel); color:#eef3e6; border:1px solid var(--line); border-radius:9px; padding:7px 11px; font-size:13px; font-weight:700; cursor:pointer; }
+  button.on { background:var(--lime); color:#0a0f06; border-color:var(--lime); }
+  button.t { padding:6px 9px; }
+  .wrap { position:relative; width:100%; max-width:1000px; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  canvas { display:block; width:100%; height:auto; cursor:crosshair; touch-action:none; }
+  .hint { font-size:12px; color:var(--muted); margin:8px 0; line-height:1.5; }
+  textarea { width:100%; max-width:1000px; height:120px; margin-top:8px; background:var(--panel); color:#9ab07f; border:1px solid var(--line); border-radius:9px; font-family:monospace; font-size:11px; padding:8px; }
+  .tag { display:inline-block; padding:3px 8px; border-radius:7px; font-size:11px; font-weight:800; }
+</style>
+</head>
+<body>
+<h1>⛳ PARFECT · Trazador de hoyos</h1>
+<div class="hint">Dibuja cada elemento sobre el satélite real: elige <b>hoyo</b> y <b>tipo</b>, haz clic para poner puntos del contorno, y pulsa <b>Cerrar figura</b>. Cuando termines todos, pulsa <b>Exportar</b> y mándame el texto.</div>
+<div class="bar">
+  <b>Hoyo</b><select id="hole"></select>
+  <b>Tipo</b>
+  <button class="t" data-type="calle" onclick="setType(this,'calle')">Calle</button>
+  <button class="t" data-type="green" onclick="setType(this,'green')">Green</button>
+  <button class="t" data-type="bunker" onclick="setType(this,'bunker')">Bunker</button>
+  <button class="t" data-type="agua" onclick="setType(this,'agua')">Agua</button>
+  <button class="t" data-type="tee" onclick="setType(this,'tee')">Tee</button>
+</div>
+<div class="bar">
+  <button onclick="closePoly()">✓ Cerrar figura</button>
+  <button onclick="undoPt()">↶ Quitar punto</button>
+  <button onclick="undoPoly()">🗑 Borrar última figura</button>
+  <button onclick="doExport()">⬇ Exportar</button>
+  <span id="count" class="hint"></span>
+</div>
+<div class="wrap"><canvas id="cv"></canvas></div>
+<div class="hint">Tip: para "Tee" y banderas basta un par de clics. El color: <span class="tag" style="background:#3a8043">calle</span> <span class="tag" style="background:#57b15c;color:#0a0f06">green</span> <span class="tag" style="background:#ddcb8c;color:#0a0f06">bunker</span> <span class="tag" style="background:#2f7fa6">agua</span> <span class="tag" style="background:#c9f73e;color:#0a0f06">tee</span></div>
+<textarea id="out" placeholder="Aquí aparecerá el JSON al exportar — cópialo y mándamelo."></textarea>
+<script>
+const Z=18, R=3, TS=256, CENTER=[19.711,-101.107];
+const COLORS={calle:'#3a8043',green:'#57b15c',bunker:'#ddcb8c',agua:'#2f7fa6',tee:'#c9f73e'};
+function deg2tile(lat,lon,z){const n=2**z;return [(lon+180)/360*n,(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n];}
+const [fx,fy]=deg2tile(CENTER[0],CENTER[1],Z), cx=Math.floor(fx), cy=Math.floor(fy);
+const oTX=cx-R, oTY=cy-R, W=(2*R+1)*TS;
+const cv=document.getElementById('cv'); cv.width=W; cv.height=W;
+const ctx=cv.getContext('2d');
+const base=document.createElement('canvas'); base.width=W; base.height=W; const bctx=base.getContext('2d');
+let loaded=0, total=(2*R+1)**2;
+for(let i=0;i<=2*R;i++)for(let j=0;j<=2*R;j++){
+  const im=new Image();
+  im.onload=()=>{ bctx.drawImage(im,i*TS,j*TS); if(++loaded>=total) redraw(); };
+  im.onerror=()=>{ if(++loaded>=total) redraw(); };
+  im.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${Z}/${oTY+j}/${oTX+i}`;
+}
+function px2ll(px,py){const n=2**Z,gx=oTX*TS+px,gy=oTY*TS+py;return [Math.atan(Math.sinh(Math.PI*(1-2*gy/(TS*n))))*180/Math.PI, gx/(TS*n)*360-180];}
+let curType='calle', curHole=1, cur=[], polys=[];
+const sel=document.getElementById('hole'); for(let h=1;h<=9;h++){const o=document.createElement('option');o.value=h;o.textContent='Hoyo '+h;sel.appendChild(o);} sel.onchange=()=>{curHole=+sel.value;};
+function setType(btn,t){curType=t;document.querySelectorAll('.t').forEach(b=>b.classList.toggle('on',b===btn));}
+document.querySelector('[data-type=calle]').classList.add('on');
+cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)*(W/r.width),y=(e.clientY-r.top)*(W/r.height);cur.push([Math.round(x),Math.round(y)]);redraw();});
+function closePoly(){ if(cur.length>=2){polys.push({hole:curHole,type:curType,px:cur});cur=[];redraw();} }
+function undoPt(){ cur.pop(); redraw(); }
+function undoPoly(){ polys.pop(); redraw(); }
+function redraw(){
+  ctx.drawImage(base,0,0);
+  const draw=(pts,col,closed)=>{ if(!pts.length)return; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); for(const p of pts.slice(1))ctx.lineTo(p[0],p[1]); if(closed)ctx.closePath(); ctx.fillStyle=col+'66'; ctx.strokeStyle=col; ctx.lineWidth=3; if(closed)ctx.fill(); ctx.stroke(); for(const p of pts){ctx.fillStyle=col;ctx.beginPath();ctx.arc(p[0],p[1],4,0,7);ctx.fill();} };
+  for(const pl of polys) draw(pl.px,COLORS[pl.type],true);
+  draw(cur,COLORS[curType],false);
+  document.getElementById('count').textContent=polys.length+' figuras guardadas';
+}
+function doExport(){
+  const data={course:'Club Campestre Morelia',center:CENTER,zoom:Z,figs:polys.map(pl=>({hole:pl.hole,type:pl.type,ll:pl.px.map(p=>px2ll(p[0],p[1]).map(v=>+v.toFixed(6)))}))};
+  document.getElementById('out').value=JSON.stringify(data);
+  document.getElementById('out').select();
+}
+</script>
+</body>
+</html>
