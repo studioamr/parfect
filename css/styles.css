@@ -860,3 +860,9 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .hole-shots { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .hole-shots span { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); }
 .hole-shots i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+/* reel deslizable (manual) para listas pesadas como la última ronda */
+.reel-swipe { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scrollbar-width: none; -ms-overflow-style: none; }
+.reel-swipe::-webkit-scrollbar { display: none; }
+.reel-swipe .reel-track { animation: none; }
+.reel-swipe .reel-card { scroll-snap-align: center; }

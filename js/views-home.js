@@ -213,8 +213,8 @@ function vLastRound(rounds) {
   };
   const set = r.holes.map(card).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu última ronda</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
-    <div class="card" style="padding:14px">${statRow}<p class="note" style="margin:10px 0 0">${s.score} golpes · ${fmtToPar(s.toPar)} en ${s.holes} hoyos · hoyo por hoyo →</p></div>
-    <div class="reel"><div class="reel-track">${set}${set}</div></div>`;
+    <div class="card" style="padding:14px">${statRow}<p class="note" style="margin:10px 0 0">${s.score} golpes · ${fmtToPar(s.toPar)} en ${s.holes} hoyos · desliza los hoyos →</p></div>
+    <div class="reel reel-swipe"><div class="reel-track">${set}</div></div>`;
 }
 
 /* stats en conjunto (radar + tarjetas) para Perfil */

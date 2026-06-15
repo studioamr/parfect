@@ -119,15 +119,21 @@ function vLanding() {
   </div>`;
 }
 
-/* pausa las animaciones SVG mientras se hace scroll → scroll fluido en móvil */
-function setupScrollPause() {
-  if (window.__scrollPauseSet) return;
-  window.__scrollPauseSet = true;
-  let t, paused = false;
-  const all = fn => document.querySelectorAll('svg').forEach(s => { try { s[fn] && s[fn](); } catch (e) {} });
-  const pause = () => { if (paused) return; paused = true; all('pauseAnimations'); document.body.classList.add('is-scrolling'); };
-  const resume = () => { if (!paused) return; paused = false; all('unpauseAnimations'); document.body.classList.remove('is-scrolling'); };
-  addEventListener('scroll', () => { pause(); clearTimeout(t); t = setTimeout(resume, 180); }, { passive: true });
+/* marca el scroll (pausa marquee/CSS por CSS) para fluidez en móvil */
+function setupScrollFlag() {
+  if (window.__scrollFlag) return;
+  window.__scrollFlag = true;
+  let t;
+  addEventListener('scroll', () => { document.body.classList.add('is-scrolling'); clearTimeout(t); t = setTimeout(() => document.body.classList.remove('is-scrolling'), 140); }, { passive: true });
+}
+/* pausa las animaciones SVG fuera de pantalla (clave en móvil): solo lo visible anima */
+function pauseOffscreenSvgs() {
+  if (window.__svgIO) window.__svgIO.disconnect();
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    const s = e.target; try { (e.isIntersecting ? s.unpauseAnimations : s.pauseAnimations).call(s); } catch (err) {}
+  }), { rootMargin: '60px' });
+  document.querySelectorAll('svg').forEach(s => { try { s.pauseAnimations(); } catch (e) {} io.observe(s); });
+  window.__svgIO = io;
 }
 
 /* hook post-render: anima la landing + transiciones entre vistas de la app */
@@ -135,7 +141,8 @@ function afterRender() {
   if (window.__lpClean) { window.__lpClean(); window.__lpClean = null; }
   const lp = document.querySelector('.lp');
   if (lp) { initLanding(lp); window.__lastView = 'landing'; return; }
-  setupScrollPause();
+  setupScrollFlag();
+  requestAnimationFrame(pauseOffscreenSvgs);
   // transición de entrada SOLO al cambiar de vista (no en cada re-render por tap)
   const changed = window.__lastView !== V.view;
   window.__lastView = V.view;
