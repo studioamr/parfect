@@ -800,3 +800,16 @@ button.row { cursor: pointer; }
 .shell::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(85% 42% at 50% 102%, rgba(201, 247, 62, .055), transparent 60%); }
 
 @media (prefers-reduced-motion: reduce) { .app-content.view-in, .app-content.view-in > * { animation: none !important; } }
+
+/* ============ Reel de stats animadas (Inicio) ============ */
+.reel { margin: 10px -18px 0; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.reel-track { display: flex; gap: 12px; width: max-content; padding: 0 18px; animation: reelScroll 34s linear infinite; }
+.reel:hover .reel-track, .reel:active .reel-track { animation-play-state: paused; }
+@keyframes reelScroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 6px)); } }
+.reel-card { flex: 0 0 auto; width: 168px; background: linear-gradient(180deg, var(--card2), var(--card)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.reel-scene { width: 100%; }
+.rscene { display: block; width: 100%; height: 100px; }
+.reel-meta { padding: 10px 13px 13px; }
+.reel-meta b { font-size: 27px; font-weight: 900; color: var(--lime); letter-spacing: -0.02em; line-height: 1; }
+.reel-meta span { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+@media (prefers-reduced-motion: reduce) { .reel-track { animation: none; } .reel { overflow-x: auto; } }

@@ -87,6 +87,70 @@ function upcomingCard(u) {
   return `<div class="card"><span class="label">${golfIcon('card')} Próximos eventos</span>${rows}</div>`;
 }
 
+/* ---- escenas animadas tipo GIF por estadística ---- */
+function statScene(kind) {
+  const bg = `<rect width="170" height="100" rx="12" fill="#0c130a"/><rect x="0.5" y="0.5" width="169" height="99" rx="12" fill="none" stroke="#16210f"/>`;
+  const flag = (x, y) => `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - 16}" stroke="#eef3e6" stroke-width="1.4"/><path d="M${x} ${y - 16} l8 2.4 -8 2.4z" fill="#c9f73e"/>`;
+  if (kind === 'fw') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
+    <path d="M72 100 L98 100 L91 34 L79 34 Z" fill="#2f6b39"/><path d="M78 96 L92 96 L88 40 L82 40 Z" fill="#3a8043" opacity="0.5"/>
+    <ellipse cx="85" cy="30" rx="16" ry="8" fill="#57b15c"/>${flag(85, 30)}
+    <ellipse cx="85" cy="60" rx="3" ry="2" fill="#c9f73e" opacity="0"><animate attributeName="opacity" values="0;0;.8;0" keyTimes="0;.47;.53;1" dur="3s" repeatCount="indefinite"/></ellipse>
+    <circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M16 92 Q 48 -10 85 60" keyPoints="0;1;1;1" keyTimes="0;.5;.9;1" calcMode="linear"/></circle>
+  </svg>`;
+  if (kind === 'gir') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
+    <ellipse cx="85" cy="46" rx="30" ry="16" fill="#2f6b39"/><ellipse cx="85" cy="44" rx="20" ry="10" fill="#57b15c"/>
+    <circle cx="85" cy="42" r="2.4" fill="#0a0f08"/>${flag(85, 42)}
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.2s" repeatCount="indefinite" path="M14 94 Q 38 -8 80 46" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
+    <circle r="3.4" fill="#c9f73e" opacity="0.85"><animateMotion dur="3.2s" begin="1.6s" repeatCount="indefinite" path="M156 92 Q 124 -10 90 47" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
+  </svg>`;
+  if (kind === 'ud') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
+    <ellipse cx="102" cy="50" rx="33" ry="16" fill="#2f6b39"/><ellipse cx="102" cy="48" rx="21" ry="10" fill="#57b15c"/>
+    <ellipse cx="32" cy="72" rx="16" ry="6" fill="#43331a"/>
+    <circle cx="106" cy="46" r="2.6" fill="#0a0f08"/>${flag(106, 46)}
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.4s" repeatCount="indefinite" path="M32 70 Q 64 -6 96 50 L106 46" keyPoints="0;0.85;0.85;1;1" keyTimes="0;.44;.6;.82;1" calcMode="linear"/></circle>
+    <text x="100" y="90" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" text-anchor="middle" opacity="0">¡Salvado!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.82;.86;.96;1" dur="3.4s" repeatCount="indefinite"/></text>
+  </svg>`;
+  if (kind === 'putt') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
+    <ellipse cx="85" cy="52" rx="46" ry="30" fill="#2f6b39"/><ellipse cx="85" cy="52" rx="33" ry="21" fill="#3a8043" opacity="0.55"/>
+    <path d="M85 80 L85 34" stroke="#c9f73e" stroke-width="1" stroke-dasharray="2 4" opacity="0.5"/>
+    <circle cx="85" cy="34" r="5" fill="#0a0f08"/><circle cx="85" cy="34" r="7" fill="none" stroke="#c9f73e" stroke-width="0.8" opacity="0.6"/>${flag(85, 34)}
+    <circle fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="2.6s" repeatCount="indefinite" path="M85 80 L85 34" keyPoints="0;1;1" keyTimes="0;.68;1" calcMode="linear"/><animate attributeName="r" values="3.6;3.6;0;0" keyTimes="0;.64;.7;1" dur="2.6s" repeatCount="indefinite"/></circle>
+  </svg>`;
+  return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
+    <ellipse cx="85" cy="52" rx="48" ry="31" fill="#2f6b39"/><ellipse cx="85" cy="52" rx="34" ry="21" fill="#3a8043" opacity="0.5"/>
+    <circle cx="85" cy="30" r="5" fill="#0a0f08"/>${flag(85, 30)}
+    <circle cx="85" cy="41" r="11" fill="none" stroke="#c9f73e" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55"/>
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M85 84 L85 41" keyPoints="0;1;1" keyTimes="0;.6;1" calcMode="linear"/></circle>
+    <text x="85" y="94" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" text-anchor="middle" opacity="0">dada<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.6;.66;.96;1" dur="3s" repeatCount="indefinite"/></text>
+  </svg>`;
+}
+/* reel horizontal de stats animadas (scroll automático) */
+function vStatReel(rounds, agg) {
+  const holes = rounds.flatMap(r => r.holes);
+  const onePutt = holes.length ? Math.round(holes.filter(h => h.putts != null && h.putts <= 1).length / holes.length * 100) : 0;
+  const noThree = Math.max(0, 100 - Math.round(agg.threePct || 0));
+  const cards = [
+    ['fw', Math.round(agg.fwPct) + '%', 'Fairways'],
+    ['gir', Math.round(agg.girPct) + '%', 'Greens · GIR'],
+    ['ud', Math.round(agg.scrPct) + '%', 'Up & down'],
+    ['putt', onePutt + '%', 'Putts embocados'],
+    ['lag', noThree + '%', 'Sin 3-putt'],
+  ];
+  const set = cards.map(([k, v, t]) => `<div class="reel-card"><div class="reel-scene">${statScene(k)}</div><div class="reel-meta"><b>${v}</b><span>${esc(t)}</span></div></div>`).join('');
+  return `<div class="reel"><div class="reel-track">${set}${set}</div></div>`;
+}
+/* stats en conjunto (radar + tarjetas) para Perfil */
+function vStatsBundle(agg) {
+  const radar = Stats.radarOf(agg);
+  return `<div class="card"><span class="label">Perfil de habilidades</span><div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div></div>
+    <div class="grid2">
+      ${statCard(agg.fwPct.toFixed(0) + '%', 'Fairways', agg.fwPct)}
+      ${statCard(agg.girPct.toFixed(0) + '%', 'GIR', agg.girPct)}
+      ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
+      ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
+    </div>`;
+}
+
 function vDashboard() {
   const u = cur();
   const rounds = myRounds();
@@ -107,19 +171,10 @@ function vDashboard() {
     </div>`;
   }
 
-  const radar = Stats.radarOf(agg);
   return head + `
-    <div class="card">
-      <span class="label">Perfil de habilidades</span>
-      <div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div>
-    </div>
-    <div class="grid2">
-      ${statCard(agg.fwPct.toFixed(0) + '%', 'Fairways', agg.fwPct)}
-      ${statCard(agg.girPct.toFixed(0) + '%', 'GIR', agg.girPct)}
-      ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
-      ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
-    </div>
-    <div class="card">
+    <div class="sec-h" style="margin-top:2px"><h2 style="font-size:16px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
+    ${vStatReel(rounds, agg)}
+    <div class="card" style="margin-top:16px">
       <span class="label">Tarjetas pasadas</span>
       ${rounds.slice(0, 5).map(r => { const s = Stats.roundStats(r); return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
         <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
@@ -207,6 +262,7 @@ function vPerfil() {
   const agg = Stats.aggregate(myRounds());
   return `<div class="sec-h"><h2>Tu perfil</h2></div>
     ${vPerfilHero(u)}
+    ${agg ? `<div class="sec-h" style="margin-top:6px"><h2 style="font-size:16px">Mis números</h2></div>${vStatsBundle(agg)}` : ''}
     ${agg ? vScoreDist(agg) : ''}
     ${vBagEditor(u)}
     ${vLogros()}
