@@ -533,17 +533,38 @@ function vPerfilStats(agg, rounds) {
 }
 
 /* escalafón de rango por hándicap (0–36): tu aura crece al subir */
-function vAvatarPicker(u) {
+/* creador de golfista: persona + outfit + fondo de perfil (algunos por rango) */
+function vAvatarCreator(u) {
   const idx = rankIdx(u.hcp);
+  const curOutfit = (u && u.outfit) || 'rank';
+  const curBg = (u && u.bg) || 'rank';
+  const curAv = (u && u.avatar != null) ? u.avatar : 0;
+  const personas = AVATARS.map((src, i) => `<button class="cre-av${i === curAv ? ' on' : ''}" data-act="set-avatar" data-i="${i}"><img src="${src}" alt="Golfista ${i + 1}" loading="lazy"></button>`).join('');
+  const outfits = OUTFITS.map(o => {
+    const sw = o.sw === 'rank' ? `background:conic-gradient(${RANKS.map(r => r.c).join(',')})` : `background:${o.sw}`;
+    return `<button class="cre-sw${curOutfit === o.k ? ' on' : ''}" data-act="set-outfit" data-k="${o.k}" title="${o.n}"><span style="${sw}"></span></button>`;
+  }).join('');
+  const bgs = PROFILE_BGS.map(b => {
+    const locked = idx < b.min;
+    const grad = b.grad || `linear-gradient(150deg, ${RANKS[idx].c}, #5fa03f)`;
+    return `<button class="cre-bg${curBg === b.k ? ' on' : ''}${locked ? ' lock' : ''}" ${locked ? '' : `data-act="set-pbg" data-k="${b.k}"`} title="${b.n}"><span style="background:${grad}"></span><em>${locked ? '🔒 ' + RANKS[b.min].n : b.n}</em></button>`;
+  }).join('');
   const steps = RANKS.map((r, i) => `<div class="rank-step${i === idx ? ' on' : ''}${i < idx ? ' done' : ''}">
       <span class="rank-dot" style="background:${r.c}"></span>
       <div class="rank-meta"><b>${r.n}</b><span>HCP ${rankRange(i)}</span></div>
       ${i === idx ? '<span class="rank-now">aquí</span>' : ''}
     </div>`).join('');
-  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">Tu rango</h2><span class="small muted">baja tu HCP para subir</span></div>
-    <p class="note" style="margin:0 0 4px">Eres <b>${RANKS[idx].n}</b>. Tu golfista brilla más fuerte con cada rango que subes.</p>
-    <div class="rank-ladder">${steps}</div>`;
+  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">Crea tu golfista</h2><span class="small muted">hazlo tuyo</span></div>
+    <div class="card cre-card">
+      <div class="cre-preview" style="background:${profileBgGrad(u)}">${avatarImg(u, 'cre-hero')}<span class="cre-rank">${RANKS[idx].n}</span></div>
+      <div class="cre-grp"><span class="cre-lab">Golfista</span><div class="cre-row">${personas}</div></div>
+      <div class="cre-grp"><span class="cre-lab">Outfit</span><div class="cre-row cre-sws">${outfits}</div></div>
+      <div class="cre-grp"><span class="cre-lab">Fondo de perfil</span><div class="cre-row cre-bgs">${bgs}</div></div>
+      <p class="note" style="margin:10px 2px 0">Tu golfista brilla más fuerte con cada rango que subes. Algunos fondos se desbloquean al mejorar tu hándicap.</p>
+    </div>
+    <div class="rank-ladder" style="margin-top:12px">${steps}</div>`;
 }
+function vAvatarPicker(u) { return vAvatarCreator(u); }
 
 /* tarjeta de jugador estilo Pokémon: avatar + hándicap (HP) + stats (ataques) */
 function vPlayerCard(u, agg) {
@@ -569,7 +590,7 @@ function vPlayerCard(u, agg) {
   const rowIcon = ic => ic === 'bird' ? `<img src="assets/bird.png" class="pl-rr-img" alt="">` : ic === 'eagle' ? `<img src="assets/eagle.png" class="pl-rr-img" alt="">` : `<span class="pl-rr-ic">${golfIcon(ic)}</span>`;
   const rows = moves.map(([ic, name, val]) => `<div class="pl-rr stat"><span class="pl-rr-lead">${rowIcon(ic)}<b>${esc(name)}</b></span><span class="pl-rr-score">${val}</span></div>`).join('');
   const rk = RANKS[rankIdx(u.hcp)];
-  return `<div class="pl-hero" style="background:linear-gradient(150deg, ${rk.c}, #5fa03f)">
+  return `<div class="pl-hero" style="background:${profileBgGrad(u)}">
       <div class="pl-hero-txt">
         <span class="pl-hero-lab">${esc(u.name)} · ${rk.n}</span>
         <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>

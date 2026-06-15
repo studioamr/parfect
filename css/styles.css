@@ -213,6 +213,30 @@ body.is-scrolling .sky-cloud, body.is-scrolling .hero-bird, body.is-scrolling .h
 .rank-meta span { font-size: 11.5px; color: var(--muted); }
 .rank-now { font-size: 11px; font-weight: 800; color: #16241A; background: #C7EE54; border-radius: 99px; padding: 4px 10px; }
 
+/* ====== Creador de golfista ====== */
+.cre-card { margin-top: 8px; padding: 14px; }
+.cre-preview { position: relative; border-radius: 18px; height: 168px; display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); }
+.cre-preview::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 120%, rgba(255,255,255,0.28), transparent 60%); pointer-events: none; }
+.cre-hero { width: 150px; height: 150px; object-fit: contain; }
+.cre-rank { position: absolute; top: 10px; left: 12px; font-size: 11px; font-weight: 900; letter-spacing: .04em; color: #16241A; background: rgba(255,255,255,0.92); border-radius: 99px; padding: 4px 11px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+.cre-grp { margin-top: 14px; }
+.cre-lab { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cre-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 9px; }
+.cre-av { width: 58px; height: 58px; border-radius: 15px; border: 2px solid var(--line); background: var(--card2); display: grid; place-items: center; padding: 2px; overflow: hidden; }
+.cre-av img { width: 100%; height: 100%; object-fit: contain; }
+.cre-av.on { border-color: #C7EE54; box-shadow: 0 4px 14px rgba(199,238,84,0.45); }
+.cre-sws { gap: 11px; }
+.cre-sw { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--line); padding: 3px; background: var(--card); }
+.cre-sw span { display: block; width: 100%; height: 100%; border-radius: 50%; }
+.cre-sw.on { border-color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.18); transform: scale(1.06); }
+.cre-bgs { gap: 10px; }
+.cre-bg { width: 64px; border: none; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cre-bg span { display: block; width: 100%; height: 40px; border-radius: 12px; border: 2px solid var(--line); box-shadow: 0 3px 9px rgba(20,40,15,0.1); }
+.cre-bg em { font-size: 10px; font-style: normal; font-weight: 700; color: var(--muted); }
+.cre-bg.on span { border-color: #C7EE54; box-shadow: 0 0 0 2px rgba(199,238,84,0.5); }
+.cre-bg.lock span { filter: grayscale(.7) brightness(.92); opacity: .6; }
+.cre-bg.lock em { opacity: .7; }
+
 /* tarjeta de jugador estilo Pokémon */
 .pkc { margin-top: 8px; border-radius: 24px; padding: 8px; background: linear-gradient(140deg, #d6f56c, #7fb85a 50%, #C7EE54); box-shadow: 0 16px 40px rgba(30,50,15,0.28); }
 .pkc-inner { background: #FBF8EC; border-radius: 18px; padding: 12px 12px 10px; }

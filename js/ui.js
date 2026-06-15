@@ -99,13 +99,44 @@ const RANKS = [
 ];
 function rankIdx(hcp) { const h = Math.round(Number(hcp)); if (isNaN(h)) return 0; let best = 0, bm = Infinity; RANKS.forEach((r, i) => { if (r.max >= h && r.max < bm) { bm = r.max; best = i; } }); return best; }
 function rankRange(i) { const lo = i + 1 < RANKS.length ? RANKS[i + 1].max + 1 : 0; return lo === RANKS[i].max ? `${lo}` : `${lo}–${RANKS[i].max}`; }
+/* outfits: el color de tu golfista (lo elige el jugador; por defecto = color de rango) */
+const OUTFITS = [
+  { k: 'rank', n: 'Rango', sw: 'rank', f: null },
+  { k: 'lime', n: 'Lima', sw: '#c9f73e', f: 'hue-rotate(72deg) saturate(1.4) brightness(1.05)' },
+  { k: 'blue', n: 'Azul', sw: '#3a8fe0', f: 'hue-rotate(192deg) saturate(1.35)' },
+  { k: 'red', n: 'Rojo', sw: '#e8483a', f: 'hue-rotate(-22deg) saturate(1.55)' },
+  { k: 'purple', n: 'Morado', sw: '#9a5cd0', f: 'hue-rotate(255deg) saturate(1.35)' },
+  { k: 'teal', n: 'Turquesa', sw: '#23b7a8', f: 'hue-rotate(135deg) saturate(1.3)' },
+  { k: 'pink', n: 'Rosa', sw: '#f061b0', f: 'hue-rotate(300deg) saturate(1.35)' },
+  { k: 'mono', n: 'Plata', sw: '#b9c2c4', f: 'saturate(.28) brightness(1.08)' },
+];
+function outfitOf(u) { const k = (u && u.outfit) || 'rank'; return OUTFITS.find(o => o.k === k) || OUTFITS[0]; }
+/* fondos de perfil: algunos se desbloquean al subir de rango (min = índice de rango) */
+const PROFILE_BGS = [
+  { k: 'rank', n: 'Tu rango', min: 0, grad: null },
+  { k: 'meadow', n: 'Pradera', min: 0, grad: 'linear-gradient(150deg,#7ec850,#3f8f3a)' },
+  { k: 'dawn', n: 'Amanecer', min: 0, grad: 'linear-gradient(150deg,#ffd27a,#ff9e6b 55%,#7ec8e0)' },
+  { k: 'ocean', n: 'Océano', min: 1, grad: 'linear-gradient(150deg,#46b0e0,#1f6aa6)' },
+  { k: 'sunset', n: 'Atardecer', min: 2, grad: 'linear-gradient(150deg,#ff7e5f,#a8407a)' },
+  { k: 'violet', n: 'Violeta', min: 3, grad: 'linear-gradient(150deg,#9a5cd0,#5b2a9a)' },
+  { k: 'gold', n: 'Oro', min: 5, grad: 'linear-gradient(150deg,#f7d04a,#c98a1e)' },
+  { k: 'galaxy', n: 'Galaxia', min: 6, grad: 'linear-gradient(150deg,#3b2f8a,#10183f)' },
+];
+function profileBgGrad(u) {
+  const k = (u && u.bg) || 'rank';
+  const b = PROFILE_BGS.find(x => x.k === k);
+  if (!b || k === 'rank' || !b.grad) { const rk = RANKS[rankIdx(u && u.hcp)] || RANKS[0]; return `linear-gradient(150deg, ${rk.c}, #5fa03f)`; }
+  return b.grad;
+}
 function avatarImg(u, cls) {
   const r = RANKS[rankIdx(u && u.hcp)] || RANKS[0];
+  const o = outfitOf(u);
+  const tint = o.f ? o.f : (r.f && r.f !== 'none' ? r.f : '');
   let glow = '';
   if (r.aura >= 1) glow += ` drop-shadow(0 0 ${3 + r.aura * 2}px ${r.c})`;
   if (r.aura >= 4) glow += ` drop-shadow(0 0 ${7 + r.aura * 3}px ${r.c})`;
-  const fil = `${r.f && r.f !== 'none' ? r.f : ''}${glow}`.trim();
-  return `<img class="golfer ${cls || ''}" src="assets/avatars/a1.png"${fil ? ` style="filter:${fil}"` : ''} alt="" loading="lazy">`;
+  const fil = `${tint}${glow}`.trim();
+  return `<img class="golfer ${cls || ''}" src="${avatarSrc(u)}"${fil ? ` style="filter:${fil}"` : ''} alt="" loading="lazy">`;
 }
 
 /* ============ Íconos de golf (SVG con look 3D + animación sutil) ============ */

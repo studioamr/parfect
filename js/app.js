@@ -213,6 +213,8 @@ const actions = {
   'bag-edit'() { V.bagEdit = true; render(); },
   'bag-close'() { V.bagEdit = false; render(); },
   'set-avatar'(d) { const u = cur(); if (u) { u.avatar = Number(d.i) || 0; commit(); } },
+  'set-outfit'(d) { const u = cur(); if (u) { u.outfit = d.k || 'rank'; commit(); } },
+  'set-pbg'(d) { const u = cur(); if (u && PROFILE_BGS.some(b => b.k === d.k && rankIdx(u.hcp) >= b.min)) { u.bg = d.k; commit(); } },
   'stat-pop'(d, el) {
     if (!el) return;
     el.classList.remove('tapped'); void el.offsetWidth; el.classList.add('tapped');
