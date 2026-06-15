@@ -404,7 +404,8 @@ button.row { cursor: pointer; }
 .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
 
 /* ============ Estrategia · selector de hoyo ============ */
-.hole-strip { display: flex; gap: 7px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; margin: 0 -2px; }
+.hole-strip { display: flex; gap: 7px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0 8px; margin: 0 -2px; scrollbar-width: none; -ms-overflow-style: none; }
+.hole-strip::-webkit-scrollbar { display: none; }
 .hole-chip { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line-soft); background: var(--card); color: var(--text); font-size: 15px; font-weight: 800; }
 .hole-chip.on { background: var(--lime); border-color: var(--lime); color: #0a0f06; }
 .hole-chip.wide { width: auto; min-width: 56px; height: auto; padding: 7px 12px; font-size: 13px; line-height: 1.15; text-align: center; }

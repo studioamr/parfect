@@ -71,12 +71,13 @@ function vStats() {
 /* ---------- Parfect Trainer ---------- */
 function vTrainer() {
   const tab = V.trainerTab || 'diag';
-  const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary() : tab === 'cal' ? vCalendar()
-    : tab === 'estrategia' ? vStrategy() : tab === 'stats' ? vStats() : tab === 'logros' ? vTrophies() : vTracker();
+  const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary()
+    : tab === 'estrategia' ? vStrategy() : tab === 'simulador' ? vSimulator()
+      : tab === 'stats' ? vStats() : tab === 'logros' ? vTrophies() : vTracker();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs" style="flex-wrap:wrap">
-      ${T('diag', 'Diagnóstico IA')}${T('drills', 'Drills')}${T('tracker', 'Tracker')}${T('cal', 'Calendario')}${T('estrategia', 'Estrategia')}${T('stats', 'Stats')}${T('logros', 'Logros')}
+      ${T('diag', 'Diagnóstico IA')}${T('drills', 'Drills')}${T('tracker', 'Tracker')}${T('estrategia', 'Estrategia')}${T('simulador', 'Simulador')}${T('stats', 'Stats')}${T('logros', 'Logros')}
     </div>
     ${body}`;
 }
@@ -405,6 +406,24 @@ function vCalendar() {
 }
 
 /* ---------- Social ---------- */
+/* Tarjeta de Parfect Party (vive en Iniciar ronda) */
+function partyCard() {
+  const u = cur();
+  const act = activeParty();
+  const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
+  return `<div class="card">
+      <span class="label">🎉 Parfect Party · juega con amigos</span>
+      <p class="small muted" style="margin-top:2px">Medal o Match play. Crea la party, comparte el código y cada quien anota desde su celular.</p>
+      ${myActive ? `<button class="btn primary" data-act="party-resume">Continuar party ${esc(act.code)} ${act.status === 'live' ? `· hoyo ${act.idx + 1}` : '· lobby'}</button>`
+        : `<button class="btn primary" data-act="party-new">Crear party</button>`}
+      <div class="join-row" style="margin-top:12px">
+        <input id="join-code" placeholder="Código (ej. K7M2)" maxlength="4" style="text-transform:uppercase">
+        <button class="btn sm ghost" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Buscando…' : 'Unirse'}</button>
+      </div>
+      ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
+    </div>`;
+}
+
 function vSocial() {
   const u = cur();
   const players = S.users.map(p => {
@@ -423,8 +442,6 @@ function vSocial() {
     </div>` };
   });
 
-  const act = activeParty();
-  const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
   const partyFeed = S.parties.filter(p => p.status === 'done').map(p => {
     const ms = p.games && p.games.match ? Party.matchStatus(p) : null;
     let winName = '—';
@@ -438,19 +455,10 @@ function vSocial() {
   });
   const feed = [...partyFeed, ...roundFeed].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14).map(x => x.html).join('');
 
-  return `<div class="sec-h"><h2>Social</h2></div>
-    <div class="card">
-      <span class="label">🎉 Parfect Party · juega con amigos</span>
-      <p class="small muted" style="margin-top:2px">Medal o Match play. Crea la party, comparte el código y cada quien anota desde su celular.</p>
-      ${myActive ? `<button class="btn primary" data-act="party-resume">Continuar party ${esc(act.code)} ${act.status === 'live' ? `· hoyo ${act.idx + 1}` : '· lobby'}</button>`
-        : `<button class="btn primary" data-act="party-new">Crear party</button>`}
-      <div class="join-row" style="margin-top:12px">
-        <input id="join-code" placeholder="Código (ej. K7M2)" maxlength="4" style="text-transform:uppercase">
-        <button class="btn sm ghost" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Buscando…' : 'Unirse'}</button>
-      </div>
-      ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
-    </div>
-    <div class="card">
+  return `<div class="sec-h"><h2>Social</h2><span class="small muted">tu calendario y tus amigos</span></div>
+    <div class="sec-h" style="margin-top:6px"><h2 style="font-size:16px">📅 Calendario</h2></div>
+    ${vCalendar()}
+    <div class="card" style="margin-top:18px">
       <span class="label">Amigos</span>
       <button class="friend-row" data-act="friend" data-id="${u.id}">
         <span class="avatar-btn" style="width:42px;height:42px;font-size:15px">${esc(initials(u.name))}</span>

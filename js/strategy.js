@@ -52,7 +52,11 @@ function dispersionYds(eff) { return Math.round(Math.max(12, Math.min(50, 70 - e
 function teeCandidates(user, hole) {
   const bag = bagInfo(user);
   if (!bag.length) return [];
-  if (hole.par === 3) return bag.slice().sort((a, b) => Math.abs(a.carry - hole.yds) - Math.abs(b.carry - hole.yds)).slice(0, 6).sort((a, b) => b.carry - a.carry);
+  if (hole.par === 3) {
+    let pool = hole.yds < 240 ? bag.filter(c => c.id !== 'dr') : bag;   // sin driver en par 3 salvo que sea larguísimo
+    if (!pool.length) pool = bag;
+    return pool.slice().sort((a, b) => Math.abs(a.carry - hole.yds) - Math.abs(b.carry - hole.yds)).slice(0, 6).sort((a, b) => b.carry - a.carry);
+  }
   return bag.filter(c => ['dr', 'w3', 'w5', 'w7', 'h4', 'h5', 'h6', 'i3', 'i4', 'i5'].includes(c.id)).sort((a, b) => b.carry - a.carry);
 }
 /* ¿alcanzable en 2 en un par 5? (carry de salida + mejor palo no-driver) */
@@ -228,10 +232,20 @@ function simInitHole(s) {
   const hole = COURSES[s.courseId].holes[s.holeIdx];
   s.dist = hole.yds; s.lie = 'tee'; s.strokes = 0; s.putts = 0;
   s.gir = false; s.fw = null; s.puttDist = null; s.log = [];
+  if (s.shadowPr) s.shadowHole = simAutoHole(s.courseId, s.holeIdx, s.shadowPr);  // jugador objetivo (shadow)
+}
+/* juega un hoyo completo en automático con unas probabilidades dadas */
+function simAutoHole(courseId, holeIdx, pr) {
+  const s = { courseId, holeIdx, pr };
+  simInitHole(s);
+  let g = 0;
+  while (s.lie !== 'holed' && g < 40) { simStep(s); g++; }
+  return { log: s.log, score: s.strokes, putts: s.putts, gir: s.gir, fw: s.fw };
 }
 function simNewRound(user, course) {
   if (!Stats.aggregate(myRounds())) return null;   // requiere stats del perfil (rondas)
-  const s = { courseId: course.id, holeIdx: 0, card: [], done: false, pr: statProbs(user) };
+  const goalHcp = (user.goal != null && user.goal < (user.hcp != null ? user.hcp : 99)) ? user.goal : Math.max(0, (user.hcp != null ? user.hcp : 12) - 6);
+  const s = { courseId: course.id, holeIdx: 0, card: [], done: false, pr: statProbs(user), shadowPr: hcpProbs(goalHcp), shadowGoal: goalHcp, shadowCard: [] };
   simInitHole(s);
   return s;
 }
@@ -322,13 +336,14 @@ function simStep(s) {
 function simFinishHole(s) {
   const hole = COURSES[s.courseId].holes[s.holeIdx];
   s.card.push({ n: hole.n, par: hole.par, score: s.strokes, putts: s.putts, gir: s.gir, fw: s.fw });
+  if (s.shadowHole) s.shadowCard.push(s.shadowHole.score);
   s.holeIdx++;
   if (s.holeIdx >= COURSES[s.courseId].holes.length) s.done = true;
   else simInitHole(s);
 }
 
-/* esquema del hoyo con la zona de aterrizaje de cada tiro */
-function simSchematic(hole, shots) {
+/* esquema del hoyo con la zona de aterrizaje de cada tiro (+ ruta del shadow) */
+function simSchematic(hole, shots, shadowShots) {
   const W = 300, H = 430, cx = 150, teeY = 392, greenY = 70, span = teeY - greenY, halfW = 62;
   const P = sh => ({ x: cx + sh.side * halfW, y: teeY - Math.min(1.06, sh.prog) * span });
   const pts = shots.map(P);
@@ -345,6 +360,12 @@ function simSchematic(hole, shots) {
   });
   const last = pts[pts.length - 1];
   const ball = last ? `<circle cx="${last.x.toFixed(0)}" cy="${last.y.toFixed(0)}" r="6" fill="#fff" stroke="#0a0f08" stroke-width="1.5"/>` : '';
+  let shadowG = '';
+  const sh2 = (shadowShots || []).map(P);
+  if (sh2.length) {
+    shadowG = `<path d="M${cx},${teeY} ${sh2.map(q => `L${q.x.toFixed(0)},${q.y.toFixed(0)}`).join(' ')}" fill="none" stroke="#6db3ff" stroke-width="1.6" stroke-dasharray="2 6" opacity="0.55"/>`
+      + sh2.map(q => `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3" fill="none" stroke="#6db3ff" stroke-width="1.4" opacity="0.7"/>`).join('');
+  }
   return `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tiros del hoyo ${hole.n}">
     <rect width="${W}" height="${H}" rx="16" fill="#0a0f08" stroke="#1d2914"/>
     <rect x="${cx - halfW - 4}" y="${greenY - 6}" width="${(halfW + 4) * 2}" height="${teeY - greenY + 14}" rx="${halfW}" fill="#2f6b39"/>
@@ -353,6 +374,7 @@ function simSchematic(hole, shots) {
     <circle cx="${cx}" cy="${greenY}" r="3" fill="#0a0f08"/>
     <line x1="${cx}" y1="${greenY}" x2="${cx}" y2="${greenY - 30}" stroke="#eef3e6" stroke-width="2"/>
     <path d="M${cx},${greenY - 30} l13,4 -13,4z" fill="#c9f73e"/>
+    ${shadowG}
     ${zones}
     <path d="${route}" fill="none" stroke="#c9f73e" stroke-width="2" stroke-dasharray="3 5"/>
     ${dots}${ball}
@@ -361,15 +383,14 @@ function simSchematic(hole, shots) {
   </svg>`;
 }
 
-function vSimulatorPage() {
+function vSimulator() {
   const u = cur();
   const agg = Stats.aggregate(myRounds());
   const course = COURSES[V.courseId] || COURSES.campestre;
-  const back = `<button class="auth-back" data-act="nav" data-view="inicio">← Inicio</button>`;
-  const title = `<div class="sec-h"><h2>🎲 Simulador de ronda</h2><span class="small muted">tiro por tiro</span></div>`;
+  const goalHcp = (u.goal != null && u.goal < (u.hcp != null ? u.hcp : 99)) ? u.goal : Math.max(0, (u.hcp != null ? u.hcp : 12) - 6);
 
   if (!agg) {
-    return back + title + `<div class="card empty"><div class="e-ico">🎲</div><h3>Necesitas tus stats</h3>
+    return `<div class="card empty"><div class="e-ico">🎲</div><h3>Necesitas tus stats</h3>
       <p>El simulador juega con tus <b class="lime">fairways, GIR, up&down y putts</b> del perfil. Registra al menos una ronda.</p>
       <button class="btn primary" data-act="quick-round">Registrar ronda</button>
       <button class="btn ghost" data-act="seed-demo">Cargar datos de ejemplo</button></div>`;
@@ -381,34 +402,41 @@ function vSimulatorPage() {
   const sim = V.sim && V.sim.courseId === course.id ? V.sim : null;
 
   if (!sim) {
-    return back + title + `<div class="card">
+    return `<div class="card">
       <div class="chips">${courseChips}</div>
-      <p class="note">Juega una ronda virtual en <b>${esc(course.name)}</b>, tiro por tiro. Cada golpe cae según tus stats del perfil:</p>
+      <p class="note">Juega una ronda virtual en <b>${esc(course.name)}</b>, tiro por tiro. Cada golpe cae según tus stats del perfil, y compites contra tu <b style="color:#6db3ff">Shadow</b> (tu yo objetivo, HCP ${goalHcp}).</p>
       <div class="grid2">
         ${statCard(Math.round(pr.fw * 100) + '%', 'Fairways', pr.fw * 100)}
         ${statCard(Math.round(pr.gir * 100) + '%', 'GIR', pr.gir * 100)}
         ${statCard(Math.round(pr.ud * 100) + '%', 'Up & down', pr.ud * 100)}
         ${statCard(tp + '%', '3-putts', 100 - tp)}
       </div>
-      <button class="btn primary" data-act="sim-start" style="margin-top:14px">🏌️ Jugar ronda simulada</button>
+      <button class="btn primary" data-act="sim-start" style="margin-top:14px">🏌️ Jugar vs Shadow (HCP ${goalHcp})</button>
     </div>`;
   }
 
   const totScore = sim.card.reduce((a, h) => a + h.score, 0);
   const totPar = sim.card.reduce((a, h) => a + h.par, 0);
+  const shadowDone = (sim.shadowCard || []).reduce((a, b) => a + b, 0);
 
   if (sim.done) {
     const fwT = sim.card.filter(h => h.fw !== null).length, fwH = sim.card.filter(h => h.fw === true).length;
     const girH = sim.card.filter(h => h.gir).length, putts = sim.card.reduce((a, h) => a + h.putts, 0);
-    return back + title + `<div class="card">
+    const diff = totScore - shadowDone;
+    return `<div class="card">
       <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:46px">${totScore}</h1><p class="hcp">${fmtToPar(totScore - totPar)} · ${sim.card.length} hoyos</p></div>
-      <div class="grid2">
+      <div class="sim-vs"><span>Tú <b>${totScore}</b></span><span class="muted">vs</span><span style="color:#6db3ff">Shadow HCP ${sim.shadowGoal} <b>${shadowDone}</b></span></div>
+      <p class="note" style="text-align:center;margin-top:4px">${diff <= 0 ? '¡Le ganaste o empataste a tu objetivo! 🔥' : `Tu Shadow te sacó <b class="lime">${diff}</b> golpe${diff > 1 ? 's' : ''} — ese es el camino.`}</p>
+      <div class="grid2" style="margin-top:8px">
         ${statCard((fwT ? Math.round(fwH / fwT * 100) : 0) + '%', 'Fairways', fwT ? fwH / fwT * 100 : 0)}
         ${statCard(Math.round(girH / sim.card.length * 100) + '%', 'GIR', girH / sim.card.length * 100)}
       </div>
       <p class="note" style="text-align:center">${putts} putts en la ronda</p>
-      <div class="card" style="margin-top:12px"><span class="label">Tarjeta simulada</span>
-        ${scorecardTable(sim.card.length, i => sim.card[i].par, [{ name: esc(u.name.split(' ')[0]), scoreOf: i => sim.card[i].score }], -1)}
+      <div class="card" style="margin-top:12px"><span class="label">Tarjeta · Tú vs Shadow</span>
+        ${scorecardTable(sim.card.length, i => sim.card[i].par, [
+          { name: esc(u.name.split(' ')[0]), scoreOf: i => sim.card[i].score },
+          { name: 'Shadow', scoreOf: i => sim.shadowCard[i] }
+        ], -1)}
       </div>
       <button class="btn primary" data-act="sim-start">Jugar otra vez</button>
       <button class="btn" data-act="sim-reset">Salir</button>
@@ -420,12 +448,16 @@ function vSimulatorPage() {
   const toParNow = sim.card.length ? fmtToPar(totScore - totPar) : 'E';
   const logHtml = sim.log.map(l => `<div class="sim-shot ${l.ok ? 'ok' : 'bad'}">${esc(l.t)}</div>`).join('');
   const holeToPar = sim.strokes - hole.par;
+  const shHole = sim.shadowHole ? sim.shadowHole.score : null;
+  const shTP = shHole != null ? shHole - hole.par : null;
 
-  return back + title + `
+  return `
     <div class="card" style="padding-bottom:8px">
       <div class="ph-head"><div class="r-main" style="flex:1"><b>Hoyo ${hole.n} · Par ${hole.par}</b><span class="muted">${hole.yds} yds · hoyo ${sim.holeIdx + 1}/${course.holes.length}</span></div>
         <div class="r-side"><b style="color:var(--lime)">${totScore || 0}</b><span>${toParNow}</span></div></div>
-      <div style="margin-top:8px">${simSchematic(hole, sim.log)}</div>
+      <div class="sim-vs" style="margin-top:8px"><span>🟢 Tú</span><span style="color:#6db3ff">🔵 Shadow HCP ${sim.shadowGoal} · ${shadowDone || 0}</span></div>
+      <div style="margin-top:6px">${simSchematic(hole, sim.log, sim.shadowHole ? sim.shadowHole.log : [])}</div>
+      ${shHole != null ? `<p class="note" style="margin:6px 0 0;text-align:center">🔵 Tu Shadow hizo <b>${shHole}</b> (${shTP === 0 ? 'par' : shTP > 0 ? '+' + shTP : shTP}) en este hoyo</p>` : ''}
     </div>
     <div class="card">
       <div class="sim-log">${logHtml || '<div class="sim-shot muted">Toca “Tirar” para tu golpe de salida.</div>'}</div>
@@ -439,6 +471,15 @@ function vSimulatorPage() {
 }
 
 /* ---- objetivo realista por % del jugador + plan de mejora semanal ---- */
+/* probabilidades de un jugador de un HCP dado (para el shadow / fallback) */
+function hcpProbs(h) {
+  const cl = v => Math.max(0.02, Math.min(0.98, v));
+  const pg = Math.min(2.35, 1.82 + h * 0.012);
+  return {
+    fw: cl(0.62 - h * 0.012), gir: cl(0.6 - h * 0.022), ud: cl(0.55 - h * 0.011),
+    puttsGIR: pg, threePutt: cl(0.05 + h * 0.006), onePutt: cl((2.1 - pg) * 0.7), from: 'hcp'
+  };
+}
 function statProbs(user) {
   const cl = v => Math.max(0.02, Math.min(0.98, v));
   const agg = Stats.aggregate(myRounds());
@@ -450,12 +491,7 @@ function statProbs(user) {
       onePutt: cl((2.1 - pg) * 0.7), from: 'stats'
     };
   }
-  const h = user.hcp != null ? user.hcp : 18;
-  const pg = Math.min(2.35, 1.82 + h * 0.012);
-  return {
-    fw: cl(0.62 - h * 0.012), gir: cl(0.6 - h * 0.022), ud: cl(0.55 - h * 0.011),
-    puttsGIR: pg, threePutt: cl(0.05 + h * 0.006), onePutt: cl((2.1 - pg) * 0.7), from: 'hcp'
-  };
+  return hcpProbs(user.hcp != null ? user.hcp : 18);
 }
 function weeklyPlan(user) {
   const agg = Stats.aggregate(myRounds());
@@ -557,30 +593,32 @@ function vStrategy() {
   const idx = V.holeIdx || 0, hole = course.holes[idx];
   const reachable = reachableIn2(u, hole);
   const attack = reachable && V.attack2;
-  const cands = teeCandidates(u, hole);
-  const defaultTee = hole.par === 3 ? cands.slice().sort((a, b) => Math.abs(a.carry - hole.yds) - Math.abs(b.carry - hole.yds))[0] : cands[0];
-  const tee = cands.find(c => c.id === V.teeClubId) || defaultTee || null;
-  const landings = computeLandings(hole, tee, attack);
 
   const agg = Stats.aggregate(myRounds());
-  const prNow = statProbs(u), prGoal = goalProbs(u);
-  const wp = weeklyPlan(u);
-  const avgCourse = agg ? Math.round(agg.avgScore18 * course.holes.length / 18) : null;
+  const prGoal = goalProbs(u);
+  const N = course.holes.length;
+  const driveHoles = course.holes.filter(h => h.par >= 4).length;
   const par = course.holes.reduce((a, h) => a + h.par, 0);
-  const stretch = course.holes.length >= 18 ? 2 : 1;
+  const avgCourse = agg ? Math.round(agg.avgScore18 * N / 18) : null;
+  const stretch = N >= 18 ? 2 : 1;
   const anchor = avgCourse != null ? Math.max(par - 1, avgCourse - stretch) : null;
   const rt = realisticTargets(course, prGoal, anchor);
   const target = rt.targets[idx];
   const improve = avgCourse != null ? avgCourse - rt.total : null;
   const stance = holeStance(hole, u.hcp, reachable);
-  const ideal = idealPath(u, hole, tee, attack);
+  const ideal = idealPath(u, hole, null, attack);          // la IA elige los palos
+  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
+  const landings = computeLandings(hole, teeClub, attack);
+
+  // conteos del plan de la semana
+  const fwTarget = Math.round(prGoal.fw * driveHoles);
+  const girTarget = Math.round(prGoal.gir * N);
+  const udPct = Math.round(prGoal.ud * 100);
+  const puttsTarget = agg ? Math.round(agg.putts18 * N / 18 * 0.96) : Math.round(1.9 * N);
 
   const relTarget = t => { const d = t - hole.par; return d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === -1 ? 'Birdie' : d > 0 ? '+' + d : String(d); };
   const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
   const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="sel-hole" data-i="${i}">${h.n}</button>`).join('');
-  const teeChips = cands.map(c => `<button class="hole-chip wide ${tee && c.id === tee.id ? 'on' : ''}" data-act="sel-tee" data-id="${c.id}">${esc(c.name.split(' ')[0])}<br><span>${c.carry}y</span></button>`).join('');
-  const hazards = (hole.risks || []).map(r => `${r.kind === 'water' ? '💧 Agua' : '🟡 Bunker'} a la ${r.side === 'left' ? 'izquierda' : 'derecha'}${r.at === 'green' ? ' del green' : ' en la zona de caída'}`);
-
   const shotRows = ideal.shots.map((s, i) => {
     const nm = s.club ? s.club.name : '—';
     const eff = s.club ? ` · ${s.club.eff}%` : '';
@@ -588,38 +626,31 @@ function vStrategy() {
     return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(nm)}${eff}</b><span>vuela ~${s.carry}y ${leaveTxt}</span></div></div>`;
   }).join('');
 
-  let teeInfo;
-  if (!tee) teeInfo = 'Carga tu bolsa en Perfil → Mis palos para personalizar el plan.';
-  else if (hole.par === 3) teeInfo = tee.carry >= hole.yds - 5 ? `Con ${tee.name} (${tee.carry}y) llegas al green de ${hole.yds}y.` : `${tee.name} vuela ${tee.carry}y — ~${hole.yds - tee.carry}y corto; considera un palo más.`;
-  else {
-    const rem = Math.max(0, hole.yds - tee.carry);
-    const s2 = ideal.shots[1];
-    teeInfo = s2 && s2.club
-      ? `Salida con ${tee.name} (${tee.carry}y) → te deja ${rem}y. 2° tiro ideal: <b style="color:var(--text)">${esc(s2.club.name)}</b> (${s2.club.eff}% · ~${s2.club.carry}y)${s2.to === 'green' ? ' al green' : ', lay-up'}.`
-      : `Salida a ${tee.carry}y; te deja ~${rem}y al green.`;
-  }
-
-  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">camino ideal a tu objetivo</span></div>
+  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">tu objetivo y camino ideal</span></div>
     <div class="chips" style="margin-top:8px">${courseChips}</div>
 
     <div class="card">
       <span class="label">🎯 Objetivo de tu próxima ronda</span>
       <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:42px">${rt.total}</h1><p class="hcp">${fmtToPar(rt.total - rt.par)} · ${esc(course.name.split(' · ')[0].replace('Club ', ''))}</p></div>
       ${avgCourse != null
-        ? `<p class="note" style="text-align:center;margin-bottom:0">${improve > 0 ? `<b class="lime">${improve} golpe${improve > 1 ? 's' : ''} mejor</b> que tu promedio (${avgCourse}) — tu meta de esta semana.` : `a tu nivel actual (promedio ${avgCourse}).`}</p>`
-        : `<p class="note" style="text-align:center;margin-bottom:0">Calculado con tu HCP. Registra rondas para afinarlo a tus %.</p>`}
-      ${wp && wp.items.length ? `<div style="border-top:1px solid var(--line-soft);margin-top:12px;padding-top:10px">
-        <span class="label">Tu plan de esta semana</span>
-        ${wp.items.map(it => `<div class="row" style="padding:6px 0"><div class="r-main"><b>${esc(it.label)}</b></div><div class="r-side"><b>${it.from}% → <span class="lime">${it.to}%</span></b></div></div>`).join('')}
-        <p class="note" style="margin-bottom:0">Mejora esto y bajas a tu objetivo de ronda.</p>
-      </div>` : ''}
+        ? `<p class="note" style="text-align:center;margin-bottom:10px">${improve > 0 ? `<b class="lime">${improve} golpe${improve > 1 ? 's' : ''} mejor</b> que tu promedio (${avgCourse})` : `a tu nivel actual (promedio ${avgCourse})`}</p>`
+        : `<p class="note" style="text-align:center;margin-bottom:10px">Calculado con tu HCP. Registra rondas para afinarlo a tus %.</p>`}
+      <span class="label">Tu plan de esta semana</span>
+      <div class="grid2" style="margin-top:6px">
+        ${statCard(`${fwTarget}/${driveHoles}`, 'Fairways', prGoal.fw * 100)}
+        ${statCard(`${girTarget}/${N}`, 'Greens (GIR)', prGoal.gir * 100)}
+        ${statCard(`${udPct}%`, 'Up & down', prGoal.ud * 100)}
+        ${statCard(`≤${puttsTarget}`, 'Putts', 72)}
+      </div>
+      <p class="note" style="margin-bottom:0">Pega <b class="lime">${fwTarget} de ${driveHoles}</b> calles y <b class="lime">${girTarget} de ${N}</b> greens, salva el ${udPct}% de tus up&downs y deja los putts en ${puttsTarget}.</p>
     </div>
 
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">🤖 Camino ideal por hoyo</h2><span class="small muted">IA · según tu perfil</span></div>
     <div class="hole-strip">${holeChips}</div>
     <div class="card" style="padding:12px">${holeSchematic(hole, landings)}</div>
 
     <div class="card">
-      <span class="label">Camino ideal · Hoyo ${hole.n} (Par ${hole.par} · ${hole.yds}y)</span>
+      <span class="label">Hoyo ${hole.n} · Par ${hole.par} · ${hole.yds}y</span>
       <div class="path-list" style="margin-top:8px">${shotRows}
         <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar ${ideal.idealScore}</span></div></div>
       </div>
@@ -627,24 +658,12 @@ function vStrategy() {
         ${statCard(relTarget(target), 'Objetivo realista', 100)}
         <div class="card"><div class="stat-num" style="font-size:20px">${esc(stance.k)}</div><div class="stat-cap">cómo jugarlo</div></div>
       </div>
-      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">¿Por qué ${relTarget(target).toLowerCase()}?</b> ${esc(realisticWhy(hole, target, prGoal))}</p>
+      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">🤖 La IA dice:</b> ${esc(realisticWhy(hole, target, prGoal))}</p>
       <p class="tip">${esc(stance.t)}</p>
-    </div>
-
-    <div class="card">
-      <span class="label">${hole.par === 3 ? 'Tu tiro al green' : 'Tu salida'} · elige palo</span>
-      ${cands.length ? `<div class="hole-strip" style="margin-top:8px">${teeChips}</div>` : ''}
-      <p class="tip">${teeInfo}</p>
       ${reachable ? `<div style="border-top:1px solid var(--line-soft);margin-top:10px;padding-top:12px">
         <button class="chip ${attack ? 'on' : ''}" data-act="toggle-attack">🎯 Atacar el green en 2 ${attack ? '✓' : ''}</button>
         <p class="tip" style="margin-top:8px">${esc(attackWhy(u, hole, attack))}</p>
       </div>` : ''}
     </div>
-
-    <div class="card">
-      <span class="label">Data del hoyo</span>
-      ${hazards.length ? hazards.map(h => `<p class="tip">${esc(h)}</p>`).join('') : '<p class="tip">Sin obstáculos marcados.</p>'}
-      ${(hole.tips || []).map(t => `<p class="tip">${esc(t)}</p>`).join('')}
-    </div>
-    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala). El <b class="lime">simulador de ronda</b> vive en Tracker.</p>`;
+    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala). El <b class="lime">simulador</b> está en la pestaña Simulador.</p>`;
 }
