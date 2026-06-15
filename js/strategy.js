@@ -89,6 +89,19 @@ function holeSchematic(hole, landings) {
   const fair = `M${tee[0]},${tee[1]} Q ${ctrl[0]},${ctrl[1]} ${gx},${gy}`;
   const pts = landings.map(l => ({ ...l, p: [bez(l.f, tee[0], ctrl[0], gx), bez(l.f, tee[1], ctrl[1], gy)] }));
   const route = `M${tee[0]},${tee[1]} ` + pts.map(q => `L${q.p[0].toFixed(0)},${q.p[1].toFixed(0)}`).join(' ') + ` L${gx},${gy}`;
+  // ---- línea de tiempo: la bola vuela tramo a tramo y se detiene en cada caída ----
+  const nodePts = [tee, ...pts.map(q => q.p), [gx, gy]];
+  const segLen = []; let totLen = 0;
+  for (let i = 1; i < nodePts.length; i++) { const l = Math.hypot(nodePts[i][0] - nodePts[i - 1][0], nodePts[i][1] - nodePts[i - 1][1]); segLen.push(l); totLen += l || 1; }
+  const nodeFrac = [0]; { let a = 0; for (const l of segLen) { a += l; nodeFrac.push(a / totLen); } }
+  const ev = [{ p: 0, d: 0 }];
+  for (let i = 1; i < nodeFrac.length; i++) { ev.push({ p: nodeFrac[i], d: 1 }); if (i < nodeFrac.length - 1) ev.push({ p: nodeFrac[i], d: 0.55 }); }
+  ev.push({ p: 1, d: 1.1 });
+  const totT = ev.reduce((a, e) => a + e.d, 0);
+  let accT = 0; const keyP = [], keyT = [];
+  ev.forEach(e => { accT += e.d; keyP.push(e.p.toFixed(3)); keyT.push((accT / totT).toFixed(3)); });
+  const animDur = (1 + (nodeFrac.length - 1) * 1.25).toFixed(1);
+  const arriveT = n => { const idx = keyP.indexOf(nodeFrac[n].toFixed(3)); return idx >= 0 ? Number(keyT[idx]) : (n / (nodeFrac.length - 1)); };
   let risks = '', labels = '';
   (hole.risks || []).forEach(r => {
     let rx, ry;
@@ -101,8 +114,10 @@ function holeSchematic(hole, landings) {
   let lands = '';
   pts.forEach((q, i) => {
     const rx = Math.max(13, Math.min(32, q.disp * 0.7)), ry = rx * 0.7;
-    lands += `<ellipse cx="${q.p[0].toFixed(0)}" cy="${q.p[1].toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="#c9f73e" opacity="0.16" stroke="#c9f73e" stroke-width="1.5" stroke-dasharray="4 4"><animate attributeName="opacity" values="0.1;0.24;0.1" dur="2.2s" repeatCount="indefinite"/></ellipse>
-      <text x="${q.p[0].toFixed(0)}" y="${(q.p[1] - ry - 5).toFixed(0)}" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="900" text-anchor="middle">${i === 0 ? q.dist + 'y' : '2°'}</text>`;
+    const t = arriveT(i + 1);
+    const tb = Math.max(0.001, t - 0.03).toFixed(3), ta = Math.max(0.002, t).toFixed(3), tm = Math.min(0.999, (t + 1) / 2).toFixed(3);
+    lands += `<ellipse cx="${q.p[0].toFixed(0)}" cy="${q.p[1].toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="#c9f73e" stroke="#c9f73e" stroke-width="1.5" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" values="0;0;0.26;0.14;0.22" keyTimes="0;${tb};${ta};${tm};1" dur="${animDur}s" repeatCount="indefinite"/></ellipse>
+      <text x="${q.p[0].toFixed(0)}" y="${(q.p[1] - ry - 5).toFixed(0)}" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="11.5" font-weight="900" text-anchor="middle" opacity="0">${q.dist}y<animate attributeName="opacity" values="0;0;1;1" keyTimes="0;${tb};${ta};1" dur="${animDur}s" repeatCount="indefinite"/></text>`;
   });
   return `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Esquema hoyo ${hole.n}">
     <rect x="0" y="0" width="${W}" height="${H}" rx="16" fill="#0a0f08" stroke="#1d2914"/>
@@ -114,7 +129,7 @@ function holeSchematic(hole, landings) {
     <path d="M${gx + 5},${gy - 32} L${gx + 18},${gy - 28} L${gx + 5},${gy - 24} Z" fill="#c9f73e"/>
     ${risks}${lands}
     <path d="${route}" fill="none" stroke="#c9f73e" stroke-width="2.5" stroke-dasharray="3 6"/>
-    <circle r="5" fill="#fff"><animateMotion dur="${(hole.par * 1.1).toFixed(1)}s" repeatCount="indefinite" path="${route}"/><animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.85;1" dur="${(hole.par * 1.1).toFixed(1)}s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#fff" stroke="#0a0f08" stroke-width="1"><animateMotion dur="${animDur}s" repeatCount="indefinite" path="${route}" keyPoints="${keyP.join(';')}" keyTimes="${keyT.join(';')}" calcMode="linear"/></circle>
     ${labels}
     <rect x="161" y="412" width="18" height="7" rx="2" fill="#9ab07f"/><text x="170" y="${H - 5}" fill="#9ab07f" font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="700" text-anchor="middle">TEE</text>
   </svg>`;
@@ -694,5 +709,6 @@ function vCampos() {
         <p class="tip" style="margin-top:8px">${esc(attackWhy(u, hole, attack))}</p>
       </div>` : ''}
     </div>
+    ${vHcpReference(u)}
     <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala).</p>`;
 }

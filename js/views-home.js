@@ -98,7 +98,6 @@ function vDashboard() {
   }
 
   const radar = Stats.radarOf(agg);
-  const cont = S.active && S.active.userId === u.id;
   return head + `
     <div class="card">
       <span class="label">Perfil de habilidades</span>
@@ -109,51 +108,7 @@ function vDashboard() {
       ${statCard(agg.girPct.toFixed(0) + '%', 'GIR', agg.girPct)}
       ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
       ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
-    </div>
-    ${(() => {
-      const c0 = COURSES[V.courseId] || COURSES.campestre;
-      const prG = goalProbs(u);
-      const N0 = c0.holes.length, par0 = c0.holes.reduce((a, h) => a + h.par, 0);
-      const avg0 = Math.round(agg.avgScore18 * N0 / 18);
-      const anc = Math.max(par0 - 1, avg0 - (N0 >= 18 ? 2 : 1));
-      const rt0 = realisticTargets(c0, prG, anc);
-      return `<button class="card" data-act="go-estrategia" style="display:block;width:100%;text-align:left;cursor:pointer">
-        <span class="label">🎯 Objetivo de tu próxima ronda</span>
-        <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px">
-          <span style="font-size:34px;font-weight:900;color:var(--lime)">${rt0.total}</span>
-          <span class="muted">${fmtToPar(rt0.total - rt0.par)} · ${esc(c0.name.split(' · ')[0].replace('Club ', ''))}</span>
-        </div>
-        <p class="note" style="margin-bottom:0">Ver tu plan de la semana →</p>
-      </button>`;
-    })()}
-    ${(() => {
-      const f = (Trainer.analyze(agg, u).focus || [])[0];
-      if (!f) return '';
-      return `<button class="card" data-act="go-diag" style="display:block;width:100%;text-align:left;cursor:pointer">
-        <span class="label">🧠 Tu prioridad ahora</span>
-        <h3 style="font-size:17px;font-weight:900;margin-top:6px;color:var(--text)">${esc(f.titulo)}</h3>
-        <p class="note" style="margin-bottom:0">~${f.lost.toFixed(1)} golpes/ronda en juego · ver diagnóstico y drills →</p>
-      </button>`;
-    })()}
-    ${(() => {
-      const tl = todayLocal();
-      const ev = (u.events || []).filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date))[0];
-      return `<button class="card" data-act="nav" data-view="social" style="display:block;width:100%;text-align:left;cursor:pointer">
-        <span class="label">📅 Próxima actividad</span>
-        ${ev ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">
-            <b style="font-size:15px">${EV_ICON[ev.type]} ${esc(ev.title || EV_LABEL[ev.type])}</b>
-            <span class="muted small">${calDateLabel(ev.date)}</span>
-          </div>` : `<p class="note" style="margin:6px 0 0">Nada agendado — planea tu semana en Calendario →</p>`}
-      </button>`;
-    })()}
-    ${progressCard(u, rounds)}
-    ${vHcpReference(u)}
-    <button class="btn ghost" data-act="quick-round">${logoMark(15)} ${cont ? `Continuar ronda · hoyo ${S.active.idx + 1}` : 'Iniciar ronda'}</button>
-    <div class="btn-row">
-      <button class="btn" data-act="go-stats">Avatar Stats →</button>
-      <button class="btn" data-act="go-trofeos">🏆 Trofeos</button>
-    </div>
-  `;
+    </div>`;
 }
 
 /* ============ Perfil (sheet) ============ */

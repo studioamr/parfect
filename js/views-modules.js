@@ -23,6 +23,8 @@ function vStats() {
       ${statCard(agg.bestScore != null ? String(agg.bestScore) : fmtToPar(agg.bestToPar), 'Mejor ronda', 100)}
     </div>
 
+    ${progressCard(cur(), rounds)}
+
     <div class="card">
       <span class="label">Perfil de habilidades</span>
       <div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div>
@@ -76,8 +78,8 @@ function vTrainer() {
       : tab === 'stats' ? vStats() : tab === 'logros' ? vTrophies() : vTracker();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs" style="flex-wrap:wrap">
-      ${T('diag', 'Diagnóstico IA')}${T('drills', 'Drills')}${T('tracker', 'Práctica')}${T('estrategia', 'Estrategia')}${T('campos', 'Campos')}${T('simulador', 'Simulador')}${T('stats', 'Stats')}${T('logros', 'Logros')}
+    <div class="tabs scroll">
+      ${T('diag', 'Diagnóstico')}${T('drills', 'Drills')}${T('tracker', 'Práctica')}${T('estrategia', 'Estrategia')}${T('campos', 'Campos')}${T('simulador', 'Simulador')}${T('stats', 'Stats')}${T('logros', 'Logros')}
     </div>
     ${body}`;
 }
