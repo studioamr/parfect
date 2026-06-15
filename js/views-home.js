@@ -110,23 +110,42 @@ function vDashboard() {
       ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
       ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
     </div>
-    <div class="card">
-      <span class="label">Historial de tarjetas</span>
-      ${rounds.slice(0, 5).map(r => {
-        const s = Stats.roundStats(r);
-        return `<button class="hist-row" data-act="round-detail" data-id="${r.id}">
-          <div class="r-main"><b>${esc(r.course)}${r.partyId ? ' 🎉' : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
-          <div class="r-side"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
-        </button>`;
-      }).join('')}
-      <div class="avg-strip">
-        <div><b>${agg.avgScore18.toFixed(1)}</b><span>Score prom.</span></div>
-        <div><b>${agg.putts18.toFixed(1)}</b><span>Putts prom.</span></div>
-        <div><b>${agg.fwPct.toFixed(0)}%</b><span>FW prom.</span></div>
-        <div><b>${agg.girPct.toFixed(0)}%</b><span>GIR prom.</span></div>
-      </div>
-      <button class="btn sm ghost" data-act="nav" data-view="ronda" style="margin-top:14px">Ver todas las tarjetas →</button>
-    </div>
+    ${(() => {
+      const c0 = COURSES[V.courseId] || COURSES.campestre;
+      const prG = goalProbs(u);
+      const N0 = c0.holes.length, par0 = c0.holes.reduce((a, h) => a + h.par, 0);
+      const avg0 = Math.round(agg.avgScore18 * N0 / 18);
+      const anc = Math.max(par0 - 1, avg0 - (N0 >= 18 ? 2 : 1));
+      const rt0 = realisticTargets(c0, prG, anc);
+      return `<button class="card" data-act="go-estrategia" style="display:block;width:100%;text-align:left;cursor:pointer">
+        <span class="label">🎯 Objetivo de tu próxima ronda</span>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px">
+          <span style="font-size:34px;font-weight:900;color:var(--lime)">${rt0.total}</span>
+          <span class="muted">${fmtToPar(rt0.total - rt0.par)} · ${esc(c0.name.split(' · ')[0].replace('Club ', ''))}</span>
+        </div>
+        <p class="note" style="margin-bottom:0">Ver tu plan de la semana →</p>
+      </button>`;
+    })()}
+    ${(() => {
+      const f = (Trainer.analyze(agg, u).focus || [])[0];
+      if (!f) return '';
+      return `<button class="card" data-act="go-diag" style="display:block;width:100%;text-align:left;cursor:pointer">
+        <span class="label">🧠 Tu prioridad ahora</span>
+        <h3 style="font-size:17px;font-weight:900;margin-top:6px;color:var(--text)">${esc(f.titulo)}</h3>
+        <p class="note" style="margin-bottom:0">~${f.lost.toFixed(1)} golpes/ronda en juego · ver diagnóstico y drills →</p>
+      </button>`;
+    })()}
+    ${(() => {
+      const tl = todayLocal();
+      const ev = (u.events || []).filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date))[0];
+      return `<button class="card" data-act="nav" data-view="social" style="display:block;width:100%;text-align:left;cursor:pointer">
+        <span class="label">📅 Próxima actividad</span>
+        ${ev ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">
+            <b style="font-size:15px">${EV_ICON[ev.type]} ${esc(ev.title || EV_LABEL[ev.type])}</b>
+            <span class="muted small">${calDateLabel(ev.date)}</span>
+          </div>` : `<p class="note" style="margin:6px 0 0">Nada agendado — planea tu semana en Calendario →</p>`}
+      </button>`;
+    })()}
     ${progressCard(u, rounds)}
     ${vHcpReference(u)}
     <button class="btn ghost" data-act="quick-round">${logoMark(15)} ${cont ? `Continuar ronda · hoyo ${S.active.idx + 1}` : 'Iniciar ronda'}</button>

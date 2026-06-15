@@ -11,7 +11,7 @@ let V = {
   trainerTab: 'diag', diag: null, diagBusy: false,
   trackVals: null, trkTab: 'plan', drillLog: null, drillCat: 'fw',
   calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null, holeIdx: 0,
-  courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null,
+  courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null, camposHcp: null,
   partyDraft: null, showMoney: false, partyView: null,
 };
 
@@ -321,6 +321,8 @@ const actions = {
   'toggle-attack'() { V.attack2 = !V.attack2; render(); },
   'go-sim'() { V.profileOpen = false; V.trainerTab = 'simulador'; go('trainer'); },
   'sim-shadow'(d) { V.shadowHcp = Number(d.h); render(); },
+  'campos-hcp'(d) { V.camposHcp = Number(d.h); render(); },
+  'go-campos'() { V.profileOpen = false; V.trainerTab = 'campos'; go('trainer'); },
   'sim-start'() {
     const c = COURSES[V.courseId] || COURSES.campestre;
     V.sim = simNewRound(cur(), c, V.shadowHcp);

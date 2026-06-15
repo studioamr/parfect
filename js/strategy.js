@@ -596,14 +596,10 @@ function realisticWhy(hole, target, pr) {
   return `Tu green es ~${gir}% y up&down ~${ud}%, así que lo realista aquí es ${target}: date chance de ${d >= 2 ? 'un doble' : '1 bogey'} y recupéralo en los hoyos fáciles. No fuerces el milagro.`;
 }
 
+/* ESTRATEGIA → solo el panel de objetivos de tu próxima ronda */
 function vStrategy() {
   const u = cur();
   const course = COURSES[V.courseId] || COURSES.campestre;
-  if (V.holeIdx >= course.holes.length) V.holeIdx = 0;
-  const idx = V.holeIdx || 0, hole = course.holes[idx];
-  const reachable = reachableIn2(u, hole);
-  const attack = reachable && V.attack2;
-
   const agg = Stats.aggregate(myRounds());
   const prGoal = goalProbs(u);
   const N = course.holes.length;
@@ -613,32 +609,15 @@ function vStrategy() {
   const stretch = N >= 18 ? 2 : 1;
   const anchor = avgCourse != null ? Math.max(par - 1, avgCourse - stretch) : null;
   const rt = realisticTargets(course, prGoal, anchor);
-  const target = rt.targets[idx];
   const improve = avgCourse != null ? avgCourse - rt.total : null;
-  const stance = holeStance(hole, u.hcp, reachable);
-  const ideal = idealPath(u, hole, null, attack);          // la IA elige los palos
-  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
-  const landings = computeLandings(hole, teeClub, attack);
-
-  // conteos del plan de la semana
   const fwTarget = Math.round(prGoal.fw * driveHoles);
   const girTarget = Math.round(prGoal.gir * N);
   const udPct = Math.round(prGoal.ud * 100);
   const puttsTarget = agg ? Math.round(agg.putts18 * N / 18 * 0.96) : Math.round(1.9 * N);
-
-  const relTarget = t => { const d = t - hole.par; return d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === -1 ? 'Birdie' : d > 0 ? '+' + d : String(d); };
   const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
-  const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="sel-hole" data-i="${i}">${h.n}</button>`).join('');
-  const shotRows = ideal.shots.map((s, i) => {
-    const nm = s.club ? s.club.name : '—';
-    const eff = s.club ? ` · ${s.club.eff}%` : '';
-    const leaveTxt = s.to === 'green' ? '→ al green' : `→ deja ${s.leaves}y en ${s.to}`;
-    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(nm)}${eff}</b><span>vuela ~${s.carry}y ${leaveTxt}</span></div></div>`;
-  }).join('');
 
-  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">tu objetivo y camino ideal</span></div>
+  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">tu objetivo de ronda</span></div>
     <div class="chips" style="margin-top:8px">${courseChips}</div>
-
     <div class="card">
       <span class="label">🎯 Objetivo de tu próxima ronda</span>
       <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:42px">${rt.total}</h1><p class="hcp">${fmtToPar(rt.total - rt.par)} · ${esc(course.name.split(' · ')[0].replace('Club ', ''))}</p></div>
@@ -654,8 +633,48 @@ function vStrategy() {
       </div>
       <p class="note" style="margin-bottom:0">Pega <b class="lime">${fwTarget} de ${driveHoles}</b> calles y <b class="lime">${girTarget} de ${N}</b> greens, salva el ${udPct}% de tus up&downs y deja los putts en ${puttsTarget}.</p>
     </div>
+    <p class="note" style="margin-bottom:24px">Tu <b class="lime">camino ideal hoyo por hoyo</b> está en la pestaña <b class="lime">Campos</b>.</p>`;
+}
 
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">🤖 Camino ideal por hoyo</h2><span class="small muted">IA · según tu perfil</span></div>
+/* CAMPOS → camino ideal por hoyo, analizable por hándicap */
+function vCampos() {
+  const u = cur();
+  const course = COURSES[V.courseId] || COURSES.campestre;
+  if (V.holeIdx >= course.holes.length) V.holeIdx = 0;
+  const idx = V.holeIdx || 0, hole = course.holes[idx];
+  const reachable = reachableIn2(u, hole);
+  const attack = reachable && V.attack2;
+  const analyzeHcp = V.camposHcp != null ? V.camposHcp : (u.hcp != null ? u.hcp : 12);
+  const pr = hcpProbs(analyzeHcp);
+  const rt = realisticTargets(course, pr);
+  const target = rt.targets[idx];
+  const stance = holeStance(hole, analyzeHcp, reachable);
+  const ideal = idealPath(u, hole, null, attack);
+  const teeClub = ideal.shots[0] ? ideal.shots[0].club : null;
+  const landings = computeLandings(hole, teeClub, attack);
+
+  const relTarget = t => { const d = t - hole.par; return d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === -1 ? 'Birdie' : d > 0 ? '+' + d : String(d); };
+  const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
+  const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="sel-hole" data-i="${i}">${h.n}</button>`).join('');
+  const shotRows = ideal.shots.map((s, i) => {
+    const nm = s.club ? s.club.name : '—';
+    const eff = s.club ? ` · ${s.club.eff}%` : '';
+    const leaveTxt = s.to === 'green' ? '→ al green' : `→ deja ${s.leaves}y en ${s.to}`;
+    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(nm)}${eff}</b><span>vuela ~${s.carry}y ${leaveTxt}</span></div></div>`;
+  }).join('');
+  const hset = new Map();
+  hset.set(u.hcp != null ? u.hcp : 12, `Tú · ${fmtHcp(u.hcp != null ? u.hcp : 12)}`);
+  [0, 5, 10, 15, 20].forEach(h => { if (!hset.has(h)) hset.set(h, h === 0 ? 'Scratch' : 'HCP ' + h); });
+  const hcpChips = [...hset.keys()].sort((a, b) => a - b).map(h => `<button class="chip sm ${h === analyzeHcp ? 'on' : ''}" data-act="campos-hcp" data-h="${h}">${esc(hset.get(h))}</button>`).join('');
+
+  return `<div class="sec-h"><h2>Campos</h2><span class="small muted">camino ideal por hoyo</span></div>
+    <div class="chips" style="margin-top:8px">${courseChips}</div>
+    <div class="card">
+      <span class="label">Analiza el track de un hándicap</span>
+      <div class="chips" style="margin-top:6px">${hcpChips}</div>
+      <p class="note" style="margin-bottom:0">Objetivo de ronda para ${analyzeHcp === 0 ? 'scratch' : 'HCP ' + analyzeHcp} en ${esc(course.name.split(' · ')[0].replace('Club ', ''))}: <b class="lime">${rt.total}</b> (${fmtToPar(rt.total - rt.par)}).</p>
+    </div>
+
     <div class="hole-strip">${holeChips}</div>
     <div class="card" style="padding:12px">${holeSchematic(hole, landings)}</div>
 
@@ -668,12 +687,12 @@ function vStrategy() {
         ${statCard(relTarget(target), 'Objetivo realista', 100)}
         <div class="card"><div class="stat-num" style="font-size:20px">${esc(stance.k)}</div><div class="stat-cap">cómo jugarlo</div></div>
       </div>
-      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">🤖 La IA dice:</b> ${esc(realisticWhy(hole, target, prGoal))}</p>
+      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">🤖 La IA dice:</b> ${esc(realisticWhy(hole, target, pr))}</p>
       <p class="tip">${esc(stance.t)}</p>
       ${reachable ? `<div style="border-top:1px solid var(--line-soft);margin-top:10px;padding-top:12px">
         <button class="chip ${attack ? 'on' : ''}" data-act="toggle-attack">🎯 Atacar el green en 2 ${attack ? '✓' : ''}</button>
         <p class="tip" style="margin-top:8px">${esc(attackWhy(u, hole, attack))}</p>
       </div>` : ''}
     </div>
-    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala). El <b class="lime">simulador</b> está en la pestaña Simulador.</p>`;
+    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala).</p>`;
 }

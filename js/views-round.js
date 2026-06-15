@@ -68,7 +68,6 @@ function vRondaTab() {
       <div class="r-side"><b>→</b><span>continuar</span></div>
     </button>`;
   }
-  html += `<button class="btn primary" data-act="go-setup">${logoMark(15)} Nueva ronda</button>`;
   html += partyCard();
   if (!rounds.length) {
     html += `<div class="card empty"><div class="e-ico">🏌️</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p></div>`;
