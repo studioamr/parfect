@@ -28,6 +28,7 @@ function vShell(content) {
     </nav>
     ${V.profileOpen ? vProfile() : ''}
     ${V.drillLog ? vDrillSheet() : ''}
+    ${V.bagEdit ? vBagSheet() : ''}
   </div>`;
 }
 
@@ -306,7 +307,7 @@ function vMisNumeros(u, agg) {
       <div class="card bag-card"><span class="label">${golfIcon('club')} ${t('driver_carry')}</span><b class="bag-big">${driverY}<em> yds</em></b></div>
       <div class="card bag-card"><span class="label">${golfIcon('flag')} ${t('most_accurate')}</span><b class="bag-name">${esc(best.name)}</b><span class="bag-sub">${best.e}% ${t('accuracy')}</span></div>
     </div>
-    <div class="sec-h" style="margin-top:16px"><h2 style="font-size:18px">${t('sec_bag')}</h2><span class="small muted">${t('sub_bag')}</span></div>
+    <div class="sec-h" style="margin-top:16px"><h2 style="font-size:18px">${t('sec_bag')}</h2><button class="sec-edit" data-act="bag-edit">${t('edit')} →</button></div>
     <div class="reel bag-reel"><div class="reel-track">${tiles}${tiles}</div></div>`;
 }
 
@@ -414,7 +415,7 @@ function vScoreDist(agg) {
 /* ---- carry de cada bastón de mi bolsa (editable aquí mismo) ---- */
 function vBagEditor(u) {
   const clubs = u.clubs || {};
-  const groupName = { largo: 'Maderas e híbridos', hierros: 'Hierros', wedges: 'Wedges' };
+  const groupName = { largo: t('grp_woods'), hierros: t('grp_irons'), wedges: t('grp_wedges') };
   const groupIc = { largo: 'club', hierros: 'tee', wedges: 'green' };
   const sections = ['largo', 'hierros', 'wedges'].map(g => {
     const tiles = CLUBS.filter(c => c.group === g).map(c => {
@@ -427,10 +428,22 @@ function vBagEditor(u) {
     return `<p class="sd-sub">${golfIcon(groupIc[g])} ${groupName[g]}</p><div class="carry-grid">${tiles}</div>`;
   }).join('');
   return `<div class="card">
-    <span class="label">${golfIcon('club')} Mi bolsa · carry por palo</span>
-    <p class="note" style="margin-top:0;margin-bottom:6px">Define el carry real de cada palo en yardas. Deja en blanco los que no lleves.</p>
+    <span class="label">${golfIcon('club')} ${t('bag_title')}</span>
+    <p class="note" style="margin-top:0;margin-bottom:6px">${t('bag_note')}</p>
     ${sections}
-    <button class="btn primary" data-act="save-clubs" style="margin-top:14px">Guardar carries</button>
+    <button class="btn primary" data-act="save-clubs" style="margin-top:14px">${t('bag_save')}</button>
+  </div>`;
+}
+
+/* hoja para editar la bolsa desde Inicio */
+function vBagSheet() {
+  return `<div class="overlay" data-act="bag-close">
+    <div class="sheet" data-act="noop">
+      <div class="grab"></div>
+      <h2>${t('sec_bag')}</h2>
+      ${vBagEditor(cur())}
+      <button class="btn" data-act="bag-close">${t('close')}</button>
+    </div>
   </div>`;
 }
 
@@ -462,7 +475,6 @@ function vPerfil() {
   const u = cur();
   return `<div class="sec-h"><h2>Tu perfil</h2></div>
     ${vPerfilHero(u)}
-    ${vBagEditor(u)}
     ${vLogros()}
     <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('settings')}</h2></div>
     <div class="card">

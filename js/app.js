@@ -15,7 +15,7 @@ let V = {
   courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null, camposHcp: null,
   partyDraft: null, showMoney: false, partyView: null, capPid: null,
   stratCid: null, stratIdx: null, stratTeeId: null, stratLie: 'fw', stratMiss: null, histRound: null, histHole: null,
-  homeCid: null, homeRid: null,
+  homeCid: null, homeRid: null, bagEdit: false,
 };
 
 const cur = () => S.users.find(u => u.id === S.session) || null;
@@ -209,6 +209,8 @@ const actions = {
   'home-round'(d) { V.homeRid = d.id; render(); },
   'set-lang'(d) { S.settings = S.settings || {}; S.settings.lang = d.v === 'en' ? 'en' : 'es'; commit(); },
   'set-theme'(d) { S.settings = S.settings || {}; S.settings.theme = d.v === 'light' ? 'light' : 'dark'; commit(); },
+  'bag-edit'() { V.bagEdit = true; render(); },
+  'bag-close'() { V.bagEdit = false; render(); },
   'stat-pop'(d, el) {
     if (!el) return;
     el.classList.remove('tapped'); void el.offsetWidth; el.classList.add('tapped');
@@ -403,13 +405,16 @@ const actions = {
     for (const c of CLUBS) {
       const cv = val('club-c-' + c.id);
       if (cv === '' || isNaN(Number(cv))) continue;
-      const ev = val('club-e-' + c.id);
-      const e = (ev !== '' && !isNaN(Number(ev))) ? Math.max(0, Math.min(100, Math.round(Number(ev)))) : CLUB_EFF_DEFAULT;
+      const evEl = document.getElementById('club-e-' + c.id);
+      let e;
+      if (evEl) { const ev = evEl.value.trim(); e = (ev !== '' && !isNaN(Number(ev))) ? Math.max(0, Math.min(100, Math.round(Number(ev)))) : CLUB_EFF_DEFAULT; }
+      else { const prev = clubE(u.clubs, c.id); e = prev != null ? prev : CLUB_EFF_DEFAULT; }
       clubs[c.id] = { c: Math.round(Number(cv)), e };
     }
     u.clubs = clubs;
-    V.view = 'perfil';
-    commit(); window.scrollTo(0, 0);
+    V.bagEdit = false;
+    if (V.view === 'clubs') V.view = 'perfil';
+    commit();
   },
   'practice-add'() {
     const area = val('t-area'), drill = val('t-drill');
