@@ -148,6 +148,14 @@ const actions = {
   'profile-open'() { V.profileOpen = true; V.wipeArm = false; render(); },
   'go-trofeos'() { V.profileOpen = false; V.trainerTab = 'logros'; go('trainer'); },
   'profile-close'() { V.profileOpen = false; V.wipeArm = false; render(); },
+  'prof-campo'(d) {
+    const u = cur();
+    const n = val('p-name'); if (n) u.name = n;
+    const h = val('p-hcp'); if (h !== '') u.hcp = Math.round(Number(h));
+    const g = val('p-goal'); if (g !== '') u.goal = Math.round(Number(g));
+    u.homeCourse = d.c;
+    commit();
+  },
   'profile-save'() {
     const u = cur();
     u.name = val('p-name') || u.name;

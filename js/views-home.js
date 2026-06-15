@@ -123,10 +123,13 @@ function vProfile() {
         <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
         <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
       </div>
+      <div class="field"><label>Campo de casa</label>
+        <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>
+      </div>
       <button class="btn primary" data-act="profile-save">Guardar cambios</button>
-      <button class="btn" data-act="go-clubs">🎒 Mis palos y distancias</button>
-      <button class="btn" data-act="go-trofeos">🏆 Ver mis trofeos</button>
-      <button class="btn ghost" data-act="seed-demo">Cargar datos de ejemplo</button>
+      <button class="btn" data-act="go-clubs">🎒 Mis bastones y distancias</button>
+      <div style="margin-top:18px">${vLogros()}</div>
+      <button class="btn ghost" data-act="seed-demo" style="margin-top:14px">Cargar datos de ejemplo</button>
       <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? '¿Seguro? Toca otra vez para borrar tus rondas' : 'Borrar mis rondas y prácticas'}</button>
       <button class="btn" data-act="logout">Cerrar sesión</button>
       <p class="note">Cuenta local: ${esc(u.email)} · Tus datos viven solo en este dispositivo.</p>
