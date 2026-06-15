@@ -60,6 +60,9 @@ input, select, textarea { font-family: var(--font); }
 [data-theme="dark"] .app-bg { background: linear-gradient(180deg, #0a1230 0%, #111d40 46%, #0a1124 100%); }
 .app-bg .bg-orb { position: absolute; top: 5%; right: 9%; width: 72px; height: 72px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff7cc, #ffd86b 70%); box-shadow: 0 0 60px 18px rgba(255,216,107,0.38); }
 [data-theme="dark"] .app-bg .bg-orb { background: radial-gradient(circle at 42% 36%, #ffffff, #cfd6ea 72%); box-shadow: 0 0 46px 12px rgba(200,210,240,0.16); }
+[data-theme="light"] .app-bg.dawn { background: linear-gradient(180deg, #ffd8a6 0%, #ffe7b4 28%, #d9efbf 60%, #b6dd86 100%); }
+[data-theme="light"] .app-bg.dusk { background: linear-gradient(180deg, #ffbe86 0%, #ff9f93 26%, #d8d49a 58%, #a9cf84 100%); }
+[data-theme="light"] .app-bg.dawn .bg-orb, [data-theme="light"] .app-bg.dusk .bg-orb { background: radial-gradient(circle at 40% 38%, #fff0c4, #ff9c45 72%); box-shadow: 0 0 70px 22px rgba(255,140,60,0.42); }
 .bg-stars { position: absolute; inset: 0; opacity: 0; background-repeat: no-repeat; background-image:
   radial-gradient(1.5px 1.5px at 10% 14%, #fff, transparent), radial-gradient(1.5px 1.5px at 24% 8%, #fff, transparent),
   radial-gradient(2px 2px at 38% 17%, #fff, transparent), radial-gradient(1.5px 1.5px at 52% 6%, #fff, transparent),
@@ -199,6 +202,14 @@ body.is-scrolling .sky-cloud, body.is-scrolling .hero-bird, body.is-scrolling .h
 .pl-av-opt.on { border-color: #9ccb35; background: var(--lime-faint); }
 .pl-av-opt img { width: 62px; height: 62px; object-fit: contain; }
 
+/* selector de cinta (kung-fu) */
+.belt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.belt-opt { display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 10px 11px; cursor: pointer; box-shadow: 0 4px 12px rgba(40,60,25,0.05); }
+.belt-opt.on { border-color: #C7EE54; box-shadow: 0 0 0 2px rgba(199,238,84,0.45); }
+.belt-opt.locked { opacity: 0.38; }
+.belt-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.18); flex: none; }
+.belt-n { font-size: 12px; font-weight: 800; color: var(--text); }
+
 /* tarjeta de jugador estilo Pokémon */
 .pkc { margin-top: 8px; border-radius: 24px; padding: 8px; background: linear-gradient(140deg, #d6f56c, #7fb85a 50%, #C7EE54); box-shadow: 0 16px 40px rgba(30,50,15,0.28); }
 .pkc-inner { background: #FBF8EC; border-radius: 18px; padding: 12px 12px 10px; }
@@ -245,7 +256,7 @@ body.is-scrolling .sky-cloud, body.is-scrolling .hero-bird, body.is-scrolling .h
 .drillc p { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
 .drillc-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 9px; font-size: 12px; font-weight: 700; color: var(--muted); }
 .drillc-meta .gi { width: 15px; height: 15px; vertical-align: -3px; }
-.drillc-go { display: inline-block; margin-top: 9px; font-size: 12.5px; font-weight: 800; color: var(--lime); }
+.drillc-go { display: inline-block; margin-top: 10px; background: #C7EE54; color: #16241A; font-size: 12.5px; font-weight: 800; padding: 6px 13px; border-radius: 99px; }
 
 /* escenas con pájaro/águila 3D volando */
 .fly-scene { position: relative; height: 200px; overflow: hidden; background: radial-gradient(120% 90% at 50% 18%, #1a3f29, #0a130c 72%); }
@@ -468,7 +479,7 @@ button.row { cursor: pointer; }
   border: 1px solid var(--line-soft); background: rgba(255, 255, 255, 0.03);
   color: var(--muted); font-weight: 800; font-size: 13.5px;
 }
-.tab.on { background: var(--lime-dim); border-color: var(--lime); color: var(--lime); }
+.tab.on { background: rgba(199, 238, 84, 0.2); border-color: #C7EE54; color: var(--text); }
 .tabs.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin: 16px -2px 0; padding: 0 2px 2px; }
 .tabs.scroll::-webkit-scrollbar { display: none; }
 .tabs.scroll .tab { flex: 0 0 auto; white-space: nowrap; padding: 10px 14px; }

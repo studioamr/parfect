@@ -97,7 +97,7 @@ function vTrainer() {
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs scroll">
-      ${T('diag', 'Resumen')}${T('objetivos', 'Objetivos')}${T('entreno', 'Entrenamiento')}
+      ${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('objetivos', 'Objetivos')}
     </div>
     ${body}`;
 }

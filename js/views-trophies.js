@@ -68,18 +68,18 @@ function vKeyTargets(u) {
   const goal = u.goal != null ? u.goal : Math.max(0, (u.hcp != null ? u.hcp : 12) - 5);
   const b = Stats.benchFor(goal);
   const cur = agg ? { fw: Math.round(agg.fwPct), gir: Math.round(agg.girPct), ud: Math.round(agg.scrPct), putts: Math.round(agg.putts18) } : null;
-  const row = (label, c, t, sfx) => `<div class="row" style="padding:9px 0">
-      <div class="r-main"><b>${label}</b>${cur ? `<span>ahora ${c}${sfx}</span>` : ''}</div>
-      <div class="r-side"><b class="lime">${t}${sfx}</b><span>meta</span></div>
+  const row = (label, c, t, sfx) => `<div class="pl-rr stat">
+      <div class="pl-rr-id"><b>${label}</b>${cur ? `<span>ahora ${c}${sfx}</span>` : ''}</div>
+      <span class="pl-rr-score">${t}${sfx}</span>
     </div>`;
-  return `<div class="card">
-    <span class="label">${golfIcon('green')} Números clave para tu meta (HCP ${fmtHcp(goal)})</span>
-    <p class="note" style="margin-top:0;margin-bottom:6px">Lo que juega un HCP ${fmtHcp(goal)}. Apunta a estos números.</p>
+  return `<div class="sec-h" style="margin-top:6px"><h2 style="font-size:16px">${golfIcon('green')} Números clave · meta HCP ${fmtHcp(goal)}</h2></div>
+    <p class="note" style="margin:0 0 4px">Lo que juega un HCP ${fmtHcp(goal)}. El badge lima es tu objetivo.</p>
+    <div class="pl-rr-list">
     ${row('Fairways', cur ? cur.fw : '', Math.round(b.fwPct), '%')}
     ${row('Greens (GIR)', cur ? cur.gir : '', Math.round(b.girPct), '%')}
     ${row('Up & down', cur ? cur.ud : '', Math.round(b.scrPct), '%')}
     ${row('Putts / ronda', cur ? cur.putts : '', Math.round(b.putts18), '')}
-  </div>`;
+    </div>`;
 }
 
 /* Tabla de referencia: qué stats tiene cada nivel de hándicap */

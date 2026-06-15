@@ -64,9 +64,51 @@ function applyTheme() {
   document.documentElement.setAttribute('data-theme', th);
 }
 
-/* avatares 3D (monitos) — Fluent Emoji 3D (MIT) descargados en assets/avatars */
+/* sol/luna: se mueven por el cielo según la hora (amanecer→mediodía→atardecer) */
+function positionOrb() {
+  const orb = document.querySelector('.bg-orb');
+  const bg = document.querySelector('.app-bg');
+  if (!orb) return;
+  const now = new Date();
+  const h = now.getHours() + now.getMinutes() / 60;
+  const f = Math.min(1, Math.max(0, (h - 6) / 14));      // 0 a las 6:00, 1 a las 20:00
+  const elev = Math.sin(f * Math.PI);                     // 0 en extremos, 1 al mediodía
+  orb.style.left = (6 + f * 84).toFixed(1) + '%';
+  orb.style.right = 'auto';
+  orb.style.top = (30 - elev * 25).toFixed(1) + '%';
+  if (bg) {
+    bg.classList.remove('dawn', 'dusk');
+    if (h >= 5.5 && h < 8.5) bg.classList.add('dawn');
+    else if (h >= 17 && h < 20.5) bg.classList.add('dusk');
+  }
+}
+
+/* avatares 3D (monitos) — Fluent Emoji 3D (MIT) */
 const AVATARS = ['assets/avatars/a1.png', 'assets/avatars/a2.png', 'assets/avatars/a3.png', 'assets/avatars/a4.png', 'assets/avatars/a5.png', 'assets/avatars/a6.png'];
 function avatarSrc(u) { const i = (u && u.avatar != null) ? u.avatar : 0; return AVATARS[i] || AVATARS[0]; }
+
+/* cintas estilo kung-fu por hándicap (1 = negra/maestro, >11 = blanca) */
+const BELTS = [
+  { n: 'Blanca', c: '#e6ebee', f: 'saturate(.18) brightness(1.22)' },
+  { n: 'Amarilla', c: '#f3d33a', f: 'hue-rotate(20deg) saturate(1.4)' },
+  { n: 'Naranja', c: '#ef8b3c', f: 'none' },
+  { n: 'Dorada', c: '#e0b020', f: 'hue-rotate(12deg) saturate(1.3) brightness(.96)' },
+  { n: 'Verde', c: '#57a83e', f: 'hue-rotate(95deg) saturate(1.3)' },
+  { n: 'Turquesa', c: '#2fb6a6', f: 'hue-rotate(140deg) saturate(1.3)' },
+  { n: 'Azul', c: '#3a7fd4', f: 'hue-rotate(195deg) saturate(1.4)' },
+  { n: 'Índigo', c: '#5a52c8', f: 'hue-rotate(225deg) saturate(1.3)' },
+  { n: 'Morada', c: '#8a4fc0', f: 'hue-rotate(258deg) saturate(1.3)' },
+  { n: 'Café', c: '#7a5230', f: 'hue-rotate(6deg) saturate(.6) brightness(.68)' },
+  { n: 'Roja', c: '#d8423a', f: 'hue-rotate(-26deg) saturate(1.55)' },
+  { n: 'Negra', c: '#23272c', f: 'brightness(.5) saturate(.85)' },
+];
+function beltEarned(hcp) { const h = Math.round(Number(hcp) || 20); return h > 11 ? 0 : (12 - h); }
+function beltIdx(u) { const e = beltEarned(u && u.hcp); let b = (u && u.belt != null) ? u.belt : e; return Math.max(0, Math.min(e, b)); }
+function avatarImg(u, cls) {
+  const b = BELTS[beltIdx(u)] || BELTS[0];
+  const f = (b.f && b.f !== 'none') ? ` style="filter:${b.f}"` : '';
+  return `<img class="golfer ${cls || ''}" src="assets/avatars/a1.png"${f} alt="" loading="lazy">`;
+}
 
 /* ============ Íconos de golf (SVG con look 3D + animación sutil) ============ */
 const GOLF_ICONS = {
