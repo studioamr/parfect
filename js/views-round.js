@@ -162,23 +162,31 @@ function captureSchematic(h, chole, noZoom, clean) {
     const water = r.kind === 'water';
     return `<ellipse cx="${rx.toFixed(0)}" cy="${ry.toFixed(0)}" rx="${water ? 22 : 16}" ry="${water ? 13 : 9}" fill="${water ? 'url(#g3dWater)' : 'url(#g3dSand)'}"/>`;
   }).join('');
-  // campo claro tipo mapa VR (fondo blanco-verde, con profundidad, sin texto)
-  const field = `<rect width="${W}" height="${H}" rx="16" fill="#e9f2d8"/>
-    <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="15" fill="none" stroke="rgba(40,80,20,0.10)"/>
-    <path d="${fair}" fill="none" stroke="#86c860" stroke-width="${par3 ? 46 : 62}" stroke-linecap="round"/>
-    <path d="${fair}" fill="none" stroke="#a6dd78" stroke-width="${par3 ? 26 : 36}" stroke-linecap="round" opacity="0.55"/>
-    ${haz}
-    <ellipse cx="${gx}" cy="${gy + 4}" rx="35" ry="23" fill="#2f6b39" opacity="0.22"/>
-    <ellipse cx="${gx}" cy="${gy}" rx="34" ry="22" fill="#54ad58" stroke="#3a8043" stroke-width="2"/>
-    <ellipse cx="${gx - 9}" cy="${gy - 6}" rx="15" ry="8" fill="#76c66f" opacity="0.5"/>
-    <circle cx="${gx}" cy="${gy}" r="4.6" fill="#0a2e16"/>
-    <line x1="${gx}" y1="${gy}" x2="${gx}" y2="${gy - 24}" stroke="#2c4a1c" stroke-width="2"/><path d="M${gx},${gy - 24} l12,3.6 -12,3.6z" fill="#c9f73e"/>
-    <rect x="${tee[0] - 9}" y="${tee[1]}" width="18" height="6" rx="2" fill="#8aa56b"/>`;
+  // árbol estilizado 3D (copa + tronco + sombra)
+  const tree = (x, y, s) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s.toFixed(2)})"><ellipse cx="0" cy="4" rx="10" ry="3.2" fill="#16401c" opacity="0.32"/><rect x="-2.2" y="-5" width="4.4" height="11" rx="1.6" fill="#6b4a2a"/><circle cx="0" cy="-13" r="11.5" fill="#39863a"/><circle cx="-7" cy="-8" r="8.5" fill="#479a44"/><circle cx="7" cy="-9" r="8.5" fill="#479a44"/><circle cx="-3" cy="-17" r="7.5" fill="#57ad50"/><circle cx="4" cy="-15" r="6.5" fill="#57ad50"/></g>`;
+  let trees = '';
+  for (let i = 0; i < 6; i++) { const ty = 252 - i * 40; const s = 0.42 + (ty / 296) * 0.72; trees += tree(20, ty, s) + tree(280, ty, s); }
+  // campo con profundidad (cielo lejano arriba, pasto que aclara al frente, árboles a los lados)
+  const green3d = `${haz}
+    <ellipse cx="${gx}" cy="${gy + 5}" rx="35" ry="23" fill="#16401c" opacity="0.3"/>
+    <ellipse cx="${gx}" cy="${gy}" rx="34" ry="22" fill="#54ad58" stroke="#2f7a38" stroke-width="2"/>
+    <ellipse cx="${gx - 9}" cy="${gy - 6}" rx="15" ry="8" fill="#79c970" opacity="0.6"/>
+    <circle cx="${gx}" cy="${gy}" r="4.6" fill="#08260f"/>
+    <line x1="${gx}" y1="${gy}" x2="${gx}" y2="${gy - 24}" stroke="#ffffff" stroke-width="2"/><path d="M${gx},${gy - 24} l12,3.6 -12,3.6z" fill="#c9f73e"/>
+    <rect x="${tee[0] - 9}" y="${tee[1]}" width="18" height="6" rx="2" fill="#caa15e"/>`;
+  const field = `<rect width="${W}" height="${H}" fill="url(#g3dGrass)"/>
+    <rect width="${W}" height="72" fill="url(#g3dHorizon)"/>
+    ${trees}
+    <path d="${fair}" fill="none" stroke="#347029" stroke-width="${par3 ? 52 : 70}" stroke-linecap="round" opacity="0.45"/>
+    <path d="${fair}" fill="none" stroke="#86c860" stroke-width="${par3 ? 44 : 60}" stroke-linecap="round"/>
+    <path d="${fair}" fill="none" stroke="#a6dd78" stroke-width="${par3 ? 24 : 34}" stroke-linecap="round" opacity="0.55"/>
+    ${green3d}`;
   // historial (clean): campo + línea de regulación (sin trazo de tiros)
   if (clean) {
     return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hoyo">
-      ${field}
-      <path d="${fair}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round" opacity="0.92"/>
+      <g clip-path="url(#capClip)">${field}
+      <path d="${fair}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round" opacity="0.92"/></g>
+      <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="16" fill="none" stroke="rgba(20,50,15,0.18)"/>
     </svg></div>`;
   }
   const P = s => {
@@ -216,7 +224,7 @@ function captureSchematic(h, chole, noZoom, clean) {
     const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; const nodeT = {};
     ev.forEach(e => { ac += e.d; const t = ac / TT; kp.push(e.p.toFixed(3)); kt.push(t.toFixed(3)); if (e.node != null) nodeT[e.node] = t; });
     const dur = Math.min(9, 1.2 + (nf.length - 1) * 1.25).toFixed(1);
-    ball = `<circle r="4.6" fill="#fff" stroke="#16301a" stroke-width="0.8"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+    ball = `<circle r="4.8" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 2.5px 1.6px rgba(0,0,0,.4))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
     if (!noZoom && nPutts > 0 && lagNode >= 0) {
       const bw = 178, bh = 176;
       const bx = Math.max(0, Math.min(W - bw, gx - bw / 2)).toFixed(0);
@@ -231,9 +239,12 @@ function captureSchematic(h, chole, noZoom, clean) {
   }
   return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vuelo de la bola">
     ${vbAnim}
+    <g clip-path="url(#capClip)">
     ${field}
-    <path d="${route}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="3 5" opacity="0.85"/>
+    <path d="${route}" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-dasharray="3 5" stroke-linecap="round" opacity="0.9"/>
     ${dots}${ball}
+    </g>
+    <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="16" fill="none" stroke="rgba(20,50,15,0.18)"/>
   </svg></div>`;
 }
 
@@ -271,33 +282,35 @@ function vPlay() {
       <p class="note" style="text-align:center;margin:6px 0 0">${sl.length ? esc(sl.join('  ·  ')) : 'Registra tu hoyo y míralo tiro por tiro.'}</p>
     </div>
 
+    <div class="reg-card">
     ${h.par !== 3 ? `<div class="group">
-      <div class="g-lab"><span class="label">1 · Salida</span></div>
-      ${chipRow([['fw', 'Fairway'], ['izq', '← Izq'], ['der', 'Der →'], ['penal', 'Penal']], 'tee', h.tee)}
+      <div class="g-lab"><span class="g-num">1</span><span class="label">Salida</span>${h.tee ? '<span class="g-ok">✓</span>' : ''}</div>
+      ${chipRow([['fw', '🏌 Fairway'], ['izq', '← Izq'], ['der', 'Der →'], ['penal', 'Penal']], 'tee', h.tee)}
     </div>` : ''}
 
     <div class="group">
-      <div class="g-lab"><span class="label">2 · Approach</span></div>
+      <div class="g-lab"><span class="g-num">${h.par !== 3 ? 2 : 1}</span><span class="label">Approach</span>${h.app ? '<span class="g-ok">✓</span>' : ''}</div>
       ${chipRow([['gir', 'GIR ✓'], ['corto', 'Corto'], ['largo', 'Largo'], ['izq', '← Izq'], ['der', 'Der →']], 'app', h.app)}
     </div>
 
     ${h.app && h.app !== 'gir' ? `<div class="group">
-      <div class="g-lab"><span class="label">3 · Alrededor del green</span><span class="small muted">¿Up & down?</span></div>
+      <div class="g-lab"><span class="g-num">${h.par !== 3 ? 3 : 2}</span><span class="label">Alrededor del green</span><span class="small muted">¿Up & down?</span></div>
       ${chipRow([['si', 'Salvé el par'], ['no', 'No lo salvé']], 'upDown', h.upDown === true ? 'si' : h.upDown === false ? 'no' : null)}
     </div>` : ''}
 
     <div class="group">
-      <div class="g-lab"><span class="label">4 · Putts</span></div>
+      <div class="g-lab"><span class="g-num">${h.par !== 3 ? (h.app && h.app !== 'gir' ? 4 : 3) : (h.app && h.app !== 'gir' ? 3 : 2)}</span><span class="label">Putts</span>${h.putts != null ? '<span class="g-ok">✓</span>' : ''}</div>
       ${chipRow([[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']], 'putts', h.putts)}
     </div>
 
     <div class="group">
-      <div class="g-lab"><span class="label">Distancia 1er putt</span><span class="small muted">opcional</span></div>
+      <div class="g-lab"><span class="g-num g-num-opt">·</span><span class="label">Distancia 1er putt</span><span class="small muted">opcional</span></div>
       ${chipRow([['0-3', '0–3 ft'], ['3-8', '3–8 ft'], ['8-20', '8–20 ft'], ['20+', '+20 ft']], 'dist', h.dist)}
     </div>
+    </div>
 
-    <div class="group">
-      <div class="g-lab"><span class="label">Score del hoyo</span><span class="small muted">${score != null ? 'auto · ajústalo si hace falta' : 'completa los toques'}</span></div>
+    <div class="score-card">
+      <div class="sc-lab"><span class="label">Score del hoyo</span><span class="small muted">${score != null ? 'auto · ajústalo' : 'completa los toques'}</span></div>
       <div class="score-row">
         <div class="sc-val">
           <span class="sc-num">${score != null ? score : '–'}</span>
@@ -311,8 +324,8 @@ function vPlay() {
     </div>
 
     <div class="btn-row">
-      ${a.idx > 0 ? `<button class="btn" style="flex:0 0 30%" data-act="h-prev">←</button>` : ''}
-      <button class="btn primary" data-act="h-next" ${ready ? '' : 'disabled'}>
+      ${a.idx > 0 ? `<button class="btn" style="flex:0 0 26%" data-act="h-prev">←</button>` : ''}
+      <button class="btn primary big" data-act="h-next" ${ready ? '' : 'disabled'}>
         ${a.idx + 1 === a.holesCount ? 'Finalizar ronda ✓' : 'Siguiente hoyo →'}
       </button>
     </div>

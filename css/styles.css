@@ -312,13 +312,13 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 /* ============ Chips ============ */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  padding: 11px 15px; border-radius: 13px;
+  padding: 12px 15px; border-radius: 14px;
   border: 1px solid var(--line-soft); background: rgba(255, 255, 255, 0.03);
   color: var(--text); font-size: 14px; font-weight: 700;
   flex: 1 1 auto; text-align: center; min-width: 56px;
   transition: all 0.12s;
 }
-.chip.on { background: var(--lime-dim); border-color: var(--lime); color: var(--lime); }
+.chip.on { background: #C7EE54; border-color: #C7EE54; color: #16241A; font-weight: 900; box-shadow: 0 5px 16px rgba(199, 247, 84, 0.4); transform: translateY(-1px); }
 .chip.sm { padding: 8px 11px; font-size: 12.5px; min-width: 44px; }
 
 /* ============ Forms ============ */
@@ -434,18 +434,32 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .hole-head .hof { color: var(--muted); font-weight: 700; }
 .progress { height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.08); margin-top: 12px; }
 .progress > i { display: block; height: 100%; border-radius: 99px; background: var(--lime); }
-.group { margin-top: 18px; }
-.group .g-lab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; }
+/* ====== Registro de hoyo (concepto juguetón) ====== */
+.reg-card { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 6px 16px 16px; box-shadow: 0 10px 30px rgba(20, 40, 15, 0.07); }
+.reg-card .group:first-child { margin-top: 12px; }
+.reg-card .group + .group { border-top: 1px dashed var(--line-soft); padding-top: 14px; }
+.group { margin-top: 14px; }
+.group .g-lab { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.group .g-lab .small { margin-left: auto; }
+.g-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #C7EE54; color: #16241A; font-size: 13px; font-weight: 900; box-shadow: 0 2px 8px rgba(199, 247, 84, 0.45); flex: 0 0 auto; }
+.g-num-opt { background: var(--lime-faint); color: var(--lime); box-shadow: none; }
+.g-ok { margin-left: auto; color: var(--lime); font-weight: 900; font-size: 15px; }
+
+.score-card { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(20, 40, 15, 0.07); }
+.score-card .sc-lab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
 .score-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
 .score-row .sc-val { display: flex; align-items: baseline; gap: 10px; }
-.score-row .sc-num { font-size: 44px; font-weight: 900; color: var(--lime); }
-.score-row .sc-rel { font-size: 14px; font-weight: 800; color: var(--muted); }
+.score-row .sc-num { font-size: 50px; font-weight: 900; color: var(--lime); line-height: 1; }
+.score-row .sc-rel { font-size: 15px; font-weight: 800; color: var(--muted); }
 .stepper { display: flex; gap: 10px; }
 .stepper button {
-  width: 46px; height: 46px; border-radius: 50%;
-  border: 1px solid var(--line); background: var(--lime-faint);
-  color: var(--lime); font-size: 22px; font-weight: 800;
+  width: 50px; height: 50px; border-radius: 50%;
+  border: none; background: #C7EE54;
+  color: #16241A; font-size: 24px; font-weight: 900;
+  box-shadow: 0 4px 14px rgba(199, 247, 84, 0.4);
 }
+.stepper button:disabled { background: var(--lime-faint); color: var(--lime); box-shadow: none; opacity: 0.5; }
+.btn.primary.big { padding: 17px 18px; font-size: 16.5px; border-radius: 18px; }
 
 /* scorecard */
 .sc-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; margin-top: 10px; }
