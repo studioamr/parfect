@@ -159,6 +159,7 @@ function vScoreDist(agg) {
 function vBagEditor(u) {
   const clubs = u.clubs || {};
   const groupName = { largo: 'Maderas e híbridos', hierros: 'Hierros', wedges: 'Wedges' };
+  const groupIc = { largo: 'club', hierros: 'tee', wedges: 'green' };
   const sections = ['largo', 'hierros', 'wedges'].map(g => {
     const tiles = CLUBS.filter(c => c.group === g).map(c => {
       const cc = clubC(clubs, c.id);
@@ -167,13 +168,35 @@ function vBagEditor(u) {
         <span>${esc(c.name)}</span>
       </div>`;
     }).join('');
-    return `<p class="sd-sub">${GROUP_META[g].icon} ${groupName[g]}</p><div class="carry-grid">${tiles}</div>`;
+    return `<p class="sd-sub">${golfIcon(groupIc[g])} ${groupName[g]}</p><div class="carry-grid">${tiles}</div>`;
   }).join('');
   return `<div class="card">
-    <span class="label">🎒 Mi bolsa · carry por bastón</span>
+    <span class="label">${golfIcon('club')} Mi bolsa · carry por bastón</span>
     <p class="note" style="margin-top:0;margin-bottom:6px">Ajusta el carry de cada bastón (en yardas). Deja en blanco los que no uses.</p>
     ${sections}
     <button class="btn primary" data-act="save-clubs" style="margin-top:14px">Guardar carries</button>
+  </div>`;
+}
+
+/* cabecera grande del perfil: nombre + hándicap + campo de casa */
+function vPerfilHero(u) {
+  const ini = String(u.name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const home = (u.homeCourse && COURSES[u.homeCourse]) ? COURSES[u.homeCourse] : COURSES.campestre;
+  const homeName = home.name.split(' · ')[0];
+  const nRounds = myRounds().length;
+  return `<div class="card phero">
+    <div class="phero-row">
+      <div class="phero-av">${esc(ini)}</div>
+      <div class="phero-id">
+        <h1 class="phero-name">${esc(u.name)}</h1>
+        <p class="phero-course">${golfIcon('flag')} ${esc(homeName)}</p>
+      </div>
+    </div>
+    <div class="phero-stats">
+      <div><b>${fmtHcp(u.hcp)}</b><span>Hándicap</span></div>
+      <div><b>${fmtHcp(u.goal)}</b><span>Meta</span></div>
+      <div><b>${nRounds}</b><span>Rondas</span></div>
+    </div>
   </div>`;
 }
 
@@ -182,10 +205,12 @@ function vPerfil() {
   const u = cur();
   const agg = Stats.aggregate(myRounds());
   return `<div class="sec-h"><h2>Tu perfil</h2></div>
+    ${vPerfilHero(u)}
     ${agg ? vScoreDist(agg) : ''}
     ${vBagEditor(u)}
     <div class="card">
-      <div class="field" style="margin-top:0"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
+      <span class="label">Editar perfil</span>
+      <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
       <div class="field-row">
         <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
         <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
@@ -196,7 +221,7 @@ function vPerfil() {
       <button class="btn primary" data-act="profile-save">Guardar cambios</button>
     </div>
     ${vLogros()}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">🏷️ Patrocinadores y ofertas</h2></div>
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('flag')} Patrocinadores y ofertas</h2></div>
     <div class="card">
       <p class="note" style="margin-top:0;margin-bottom:8px">Ofertas de aliados (próximamente). Espacio para patrocinadores.</p>
       <div class="club-grid">
@@ -206,7 +231,7 @@ function vPerfil() {
         <div class="club-tile"><b>Anúnciate</b><span class="ct-goal">Tu marca aquí</span></div>
       </div>
     </div>
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">⚙️ Configuración</h2></div>
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">Configuración</h2></div>
     <div class="card">
       <button class="btn ghost" data-act="seed-demo">Cargar datos de ejemplo</button>
       <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? '¿Seguro? Toca otra vez para borrar tus rondas' : 'Borrar mis rondas y prácticas'}</button>

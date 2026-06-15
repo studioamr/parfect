@@ -19,7 +19,7 @@ function vTrophies() {
   }).join('');
 
   const cards = list.map(a => `<div class="trophy ${a.done ? 'on' : ''}">
-    <div class="t-ic">${a.ic}</div>
+    <div class="t-ic">${golfIcon(a.ic, a.done ? 'gi-spin' : '')}</div>
     <div class="t-body">
       <b>${esc(a.t)}</b>
       <span>${esc(a.d)}</span>
@@ -48,7 +48,7 @@ function vLogros() {
   const list = Trophies.evaluate();
   const unlocked = list.filter(a => a.done).length;
   const cards = list.map(a => `<div class="trophy ${a.done ? 'on' : ''}">
-    <div class="t-ic">${a.ic}</div>
+    <div class="t-ic">${golfIcon(a.ic, a.done ? 'gi-spin' : '')}</div>
     <div class="t-body">
       <b>${esc(a.t)}</b>
       <span>${esc(a.d)}</span>
@@ -73,7 +73,7 @@ function vKeyTargets(u) {
       <div class="r-side"><b class="lime">${t}${sfx}</b><span>meta</span></div>
     </div>`;
   return `<div class="card">
-    <span class="label">🎯 Números clave para tu meta (HCP ${fmtHcp(goal)})</span>
+    <span class="label">${golfIcon('green')} Números clave para tu meta (HCP ${fmtHcp(goal)})</span>
     <p class="note" style="margin-top:0;margin-bottom:6px">Lo que juega un HCP ${fmtHcp(goal)}. Apunta a estos números.</p>
     ${row('Fairways', cur ? cur.fw : '', Math.round(b.fwPct), '%')}
     ${row('Greens (GIR)', cur ? cur.gir : '', Math.round(b.girPct), '%')}

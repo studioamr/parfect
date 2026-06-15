@@ -6,6 +6,27 @@ function esc(s) {
   }[c]));
 }
 
+/* ============ Íconos de golf (SVG con look 3D + animación sutil) ============ */
+const GOLF_ICONS = {
+  ball: `<ellipse cx="16" cy="28" rx="8" ry="2" fill="#000" opacity=".28"/><circle cx="16" cy="15" r="11" fill="#cdd5d7"/><circle cx="16" cy="15" r="11" fill="#fff" opacity=".25"/><circle cx="12" cy="11" r="4" fill="#fff" opacity=".85"/><g fill="#aab4b6"><circle cx="16" cy="15" r="1"/><circle cx="20" cy="13" r="1"/><circle cx="20" cy="18" r="1"/><circle cx="13" cy="18" r="1"/><circle cx="16" cy="20" r="1"/></g>`,
+  flag: `<ellipse cx="16" cy="28" rx="11" ry="2.6" fill="#2f6b39"/><ellipse cx="16" cy="27.4" rx="7" ry="1.6" fill="#57b15c"/><rect x="14.7" y="5" width="1.8" height="22" rx=".9" fill="#cdd6c2"/><g class="gi-wave" style="transform-origin:15.6px 6px"><path d="M16.2 5 L27 8.6 L16.2 12.2 Z" fill="#c9f73e"/></g><circle cx="15.6" cy="5" r="1.8" fill="#eef3e6"/>`,
+  tee: `<ellipse cx="16" cy="29" rx="8" ry="2" fill="#000" opacity=".25"/><circle cx="16" cy="9" r="6.5" fill="#cdd5d7"/><circle cx="13.5" cy="6.5" r="2.2" fill="#fff" opacity=".85"/><path d="M11.5 16 L20.5 16 L17.5 22 L16.8 28 L15.2 28 L14.5 22 Z" fill="#c9f73e"/>`,
+  club: `<ellipse cx="17" cy="29" rx="8" ry="2" fill="#000" opacity=".22"/><rect x="14.5" y="4" width="2" height="18" rx="1" fill="#b9c2c4" transform="rotate(8 15.5 13)"/><path d="M9 21 q-1 6 6 6 q7 0 7-5 l-2 0 q0 3 -5 3 q-4 0 -4-4 Z" fill="#9aa6a8"/><ellipse cx="11" cy="22.5" rx="2.4" ry="3.2" fill="#cdd5d7"/>`,
+  green: `<ellipse cx="16" cy="18" rx="13" ry="9" fill="#2f6b39"/><ellipse cx="16" cy="17" rx="9" ry="6" fill="#57b15c"/><ellipse cx="16" cy="16.5" rx="4.5" ry="3" fill="#6cc471"/><rect x="15.3" y="4" width="1.5" height="13" rx=".7" fill="#cdd6c2"/><g class="gi-wave" style="transform-origin:16px 5px"><path d="M16.6 4 L24 6.4 L16.6 9 Z" fill="#c9f73e"/></g>`,
+  trophy: `<rect x="12" y="23" width="8" height="3" rx="1" fill="#b98a2e"/><rect x="10" y="26" width="12" height="2.6" rx="1.2" fill="#cf9a36"/><path d="M10 6 h12 v5 a6 6 0 0 1 -12 0 Z" fill="#ffcf5a"/><path d="M10 6 h12 v5 a6 6 0 0 1 -12 0 Z" fill="#fff" opacity=".0"/><path d="M10 7 q-4 0 -4 3 q0 4 5 4" fill="none" stroke="#cf9a36" stroke-width="1.6"/><path d="M22 7 q4 0 4 3 q0 4 -5 4" fill="none" stroke="#cf9a36" stroke-width="1.6"/><rect x="15" y="17" width="2" height="6" fill="#cf9a36"/><path class="gi-glint" d="M13 7 l1.5 0 -3 7 -1.5 0 Z" fill="#fff" opacity=".5"/>`,
+  medal: `<path d="M11 4 L14 14 L10 14 Z" fill="#5aa9e0"/><path d="M21 4 L22 14 L18 14 Z" fill="#ff7a6b"/><circle cx="16" cy="21" r="8" fill="#ffcf5a"/><circle cx="16" cy="21" r="5.4" fill="#e7b23e"/><path class="gi-glint" d="M13 16 l1.6 0 -4 9 -1.6 0 Z" fill="#fff" opacity=".55"/><text x="16" y="24.5" font-size="7" font-weight="900" text-anchor="middle" fill="#7a5a13">★</text>`,
+  bucket: `<ellipse cx="16" cy="28" rx="9" ry="2" fill="#000" opacity=".22"/><g fill="#cdd5d7"><circle cx="12" cy="11" r="3"/><circle cx="19" cy="10" r="3"/><circle cx="16" cy="13" r="3"/></g><path d="M8 15 h16 l-2 12 a2 2 0 0 1 -2 2 h-8 a2 2 0 0 1 -2 -2 Z" fill="#9aa6a8"/><path d="M9 18 h14" stroke="#7f8b8d" stroke-width="1.4"/>`,
+  putter: `<ellipse cx="16" cy="29" rx="8" ry="1.8" fill="#000" opacity=".2"/><rect x="18" y="4" width="2" height="16" rx="1" fill="#b9c2c4"/><rect x="8" y="19" width="13" height="3" rx="1.5" fill="#9aa6a8"/><circle cx="9" cy="26" r="3" fill="#cdd5d7"/><ellipse cx="20" cy="27" rx="5" ry="2" fill="#2f6b39"/><ellipse cx="20" cy="26.6" rx="2.4" ry="1" fill="#0a0f08"/>`,
+  card: `<rect x="7" y="6" width="18" height="20" rx="2.5" fill="#e9eef0"/><rect x="7" y="6" width="18" height="5" rx="2.5" fill="#c9f73e"/><g stroke="#9aa6a8" stroke-width="1.4"><path d="M10 15 h12"/><path d="M10 19 h12"/><path d="M10 23 h8"/></g>`,
+  bird: `<ellipse cx="16" cy="27" rx="8" ry="2" fill="#000" opacity=".2"/><path d="M6 16 q4 -3 8 -1 q5 -8 12 -7 q-3 3 -3 6 q3 1 3 4 q-5 5 -12 4 q-6 -1 -8 -10 Z" fill="#c9f73e"/><circle cx="22" cy="13" r="1.2" fill="#0a0f08"/><path d="M26 13 l3 -1 -3 -1 Z" fill="#ffcf5a"/>`,
+  peak: `<path d="M3 27 L13 9 L17 17 L21 11 L29 27 Z" fill="#3a4a30"/><path d="M13 9 L9.5 16 L16.5 16 Z" fill="#eef3e6"/><rect x="20.5" y="4" width="1.5" height="9" rx=".7" fill="#cdd6c2"/><g class="gi-wave" style="transform-origin:21px 5px"><path d="M21.8 4 L28 6 L21.8 8.4 Z" fill="#c9f73e"/></g>`,
+  hand: `<path d="M11 16 V8 a1.6 1.6 0 0 1 3.2 0 v6 m0 -1 V6.5 a1.6 1.6 0 0 1 3.2 0 V14 m0 -1 V7.5 a1.6 1.6 0 0 1 3.2 0 V15 m0 -2 a1.6 1.6 0 0 1 3.2 0 v5 a7 7 0 0 1 -7 7 h-2 a7 7 0 0 1 -6 -4 l-2.5 -4 a1.7 1.7 0 0 1 2.8 -1.8 L11 18 Z" fill="#ddcb8c"/>`,
+};
+function golfIcon(name, cls = '') {
+  const body = GOLF_ICONS[name] || GOLF_ICONS.flag;
+  return `<span class="gi ${cls}"><svg viewBox="0 0 32 32" aria-hidden="true">${body}</svg></span>`;
+}
+
 function fmtDate(iso) {
   const d = new Date(iso + 'T12:00:00');
   return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });

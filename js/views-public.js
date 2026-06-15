@@ -11,11 +11,12 @@ function vLanding() {
     </div>
 
     <div class="land-hero">
-      <span class="badge">⛳ Golf más fácil</span>
+      <span class="badge">${golfIcon('flag')} Golf más fácil</span>
       <h1 class="land-h1">Juega golf.<br/><span class="lime">Mejora de verdad.</span></h1>
       <p class="land-sub">Apunta cada hoyo en segundos. La app te muestra en qué fallas y qué practicar para bajar tu hándicap. ¿Juegas con amigos? Ella lleva la cuenta sola.</p>
       <button class="btn primary" data-act="go" data-view="signup">Crear mi cuenta gratis</button>
       <button class="btn ghost" data-act="go" data-view="login">Ya tengo cuenta</button>
+      <button class="btn ghost" data-act="demo-account">Ver demo (HCP 7) con datos de ejemplo</button>
       <div class="mini-stats">
         <div class="mini-stat"><b>Fácil</b><span>4 toques por hoyo</span></div>
         <div class="mini-stat"><b>Con amigos</b><span>y torneos</span></div>

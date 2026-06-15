@@ -177,6 +177,7 @@ const actions = {
     V.profileOpen = false; V.diag = null;
     commit();
   },
+  'demo-account'() { seedDemoAccount(); },
   'wipe-mine'() {
     if (!V.wipeArm) { V.wipeArm = true; render(); return; }
     S.rounds = S.rounds.filter(r => r.userId !== S.session);

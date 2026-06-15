@@ -25,7 +25,7 @@ const Store = (() => {
 
 /* ============ Demo data generator ============ */
 const Demo = (() => {
-  const COURSES = [
+  const DEMO_COURSES = [
     'Newport Beach Golf Course', 'Club de Golf Chapultepec', 'La Loma Golf',
     'El Camaleón Mayakoba', 'Bosque Real CC'
   ];
@@ -68,7 +68,7 @@ const Demo = (() => {
       out.push({
         id: Store.uid(),
         userId,
-        course: pick(COURSES),
+        course: pick(DEMO_COURSES),
         date: new Date(now - (n - 1 - i) * 8 * 864e5).toISOString().slice(0, 10),
         holes,
       });
@@ -107,5 +107,39 @@ const Demo = (() => {
     return out.sort((a, b) => a.date.localeCompare(b.date));
   }
 
-  return { rounds, practices };
+  /* rondas individuales sobre los 3 campos reales (pares reales) */
+  function realRounds(userId, n = 5) {
+    const ids = (typeof COURSE_ORDER !== 'undefined') ? COURSE_ORDER : ['campestre'];
+    const distGir = ['3-8', '8-20', '8-20', '20+', '20+'];
+    const distMiss = ['0-3', '0-3', '3-8', '3-8', '8-20'];
+    const out = [];
+    const now = Date.now();
+    for (let i = 0; i < n; i++) {
+      const cid = ids[i % ids.length];
+      const course = COURSES[cid];
+      const skill = n <= 1 ? 0.6 : i / (n - 1);
+      const p = { fw: 0.55 + 0.12 * skill, gir: 0.45 + 0.15 * skill, scr: 0.45 + 0.2 * skill };
+      const holes = course.holes.map(ch => {
+        const par = ch.par;
+        const tee = par === 3 ? null : (Math.random() < p.fw ? 'fw' : pick(['izq', 'der', 'izq', 'der', 'penal']));
+        const penal = tee === 'penal' ? 1 : 0;
+        const gir = Math.random() < p.gir;
+        const app = gir ? 'gir' : pick(['corto', 'corto', 'largo', 'izq', 'der']);
+        let putts, upDown = null, score;
+        if (gir) { const r = Math.random(); putts = r < 0.18 ? 1 : r < 0.82 ? 2 : 3; score = par - 2 + putts + penal; }
+        else { const saved = Math.random() < p.scr; upDown = saved; putts = saved ? 1 : (Math.random() < 0.82 ? 2 : 3); score = par - 1 + putts + penal; }
+        const dist = gir ? pick(distGir) : pick(distMiss);
+        return { par, score: Math.max(2, score), tee, app, upDown, putts, dist };
+      });
+      out.push({
+        id: Store.uid(), userId, courseId: cid,
+        course: course.name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''),
+        date: new Date(now - (n - 1 - i) * 6 * 864e5).toISOString().slice(0, 10),
+        holes,
+      });
+    }
+    return out;
+  }
+
+  return { rounds, practices, realRounds };
 })();
