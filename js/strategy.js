@@ -211,14 +211,18 @@ function simulateRound(user, course) {
   return { courseId: course.id, holes, score, par, toPar: score - par, fwHit, fwTot, girHit: holes.filter(h => h.gir).length, girTot: holes.length, putts: holes.reduce((a, h) => a + h.putts, 0) };
 }
 
-/* ============ Simulador TIRO POR TIRO (vive en Parfect Tracker) ============ */
-const SIM_LIE_ES = { tee: 'Tee', fw: 'Fairway', rough: 'Rough', bunker: 'Bunker', green: 'Green', holed: 'Embocada' };
-const SIM_LIE_F = { tee: 1, fw: 1, rough: 0.82, bunker: 0.6, green: 1 };
+/* ============ Simulador TIRO POR TIRO — usa las STATS DEL PERFIL ============ */
+const SIM_LIE_ES = { tee: 'Tee', fw: 'Fairway', rough: 'Rough', bunker: 'Bunker', green: 'Green', water: 'Penal', holed: 'Embocada' };
 function simClubFor(user, dist, lie, isTee, hole) {
-  const bag = bagInfo(user);
+  let bag = bagInfo(user);
+  if (!isTee) { const nd = bag.filter(c => c.id !== 'dr'); if (nd.length) bag = nd; }  // sin driver fuera del tee
   if (!bag.length) return null;
   if (isTee && hole.par !== 3 && dist > 235) return bag.slice().sort((a, b) => b.carry - a.carry)[0];
   return bag.slice().sort((a, b) => Math.abs(a.carry - dist) - Math.abs(b.carry - dist))[0];
+}
+/* registra un tiro con su posición de aterrizaje (prog 0=tee..1=green, side -1..1) */
+function simPush(s, prog, side, lie, ok, text) {
+  s.log.push({ t: text, ok, lie, prog: Math.max(0, Math.min(1.06, prog)), side: Math.max(-1, Math.min(1, side)) });
 }
 function simInitHole(s) {
   const hole = COURSES[s.courseId].holes[s.holeIdx];
@@ -226,69 +230,93 @@ function simInitHole(s) {
   s.gir = false; s.fw = null; s.puttDist = null; s.log = [];
 }
 function simNewRound(user, course) {
-  if (!trackerReadiness().ready) return null;
-  const s = { courseId: course.id, holeIdx: 0, card: [], done: false };
+  if (!Stats.aggregate(myRounds())) return null;   // requiere stats del perfil (rondas)
+  const s = { courseId: course.id, holeIdx: 0, card: [], done: false, pr: statProbs(user) };
   simInitHole(s);
   return s;
 }
 function simStepPutt(s) {
-  const pe = (avgTrackerEff(['Putt 3 ft', 'Putt 5 ft', 'Putt 7 ft']) || 60) / 100;
+  const pr = s.pr;
   s.strokes++; s.putts++;
   const d = s.puttDist || 12;
-  const make = Math.max(0.04, Math.min(0.98, pe * (d <= 4 ? 1.35 : d <= 8 ? 0.85 : d <= 15 ? 0.42 : 0.18)));
+  let make = d <= 3 ? 0.93 : d <= 6 ? 0.5 : d <= 12 ? 0.26 : d <= 20 ? 0.12 : 0.05;
+  make *= 1 + (0.10 - (pr.threePutt || 0.1));     // putters con pocos 3-putts embocan más
+  make = Math.max(0.03, Math.min(0.98, make));
   if (Math.random() < make || s.putts >= 4) {
-    s.log.push({ t: `Putt ${d} ft → ¡adentro!`, ok: true });
     s.lie = 'holed';
+    simPush(s, 1, (Math.random() - 0.5) * 0.06, 'green', true, `Putt ${d} ft → ¡adentro!`);
   } else {
-    const left = Math.max(2, Math.round(d * (0.12 + Math.random() * 0.25)));
+    const left = Math.max(2, Math.round(d * (0.12 + Math.random() * 0.22)));
     s.puttDist = left;
-    s.log.push({ t: `Putt ${d} ft → se queda corto, a ${left} ft`, ok: false });
+    simPush(s, 1, (Math.random() - 0.5) * 0.1, 'green', false, `Putt ${d} ft → corto, a ${left} ft`);
   }
 }
-function simStep(s, user) {
+function simStep(s) {
   const hole = COURSES[s.courseId].holes[s.holeIdx];
   if (s.lie === 'green') return simStepPutt(s);
+  const pr = s.pr, user = cur();
   const isTee = s.lie === 'tee';
-  const club = simClubFor(user, s.dist, s.lie, isTee, hole);
-  const eff = club ? club.eff : 60;
-  const good = Math.random() < (eff / 100) * (SIM_LIE_F[s.lie] || 0.85);
-  s.strokes++;
-  const cname = club ? club.name : 'Palo';
-  let carry = Math.round((club ? club.carry : 150) * (0.88 + Math.random() * 0.18));
-  if (s.lie === 'rough') carry = Math.round(carry * 0.9);
-  if (s.lie === 'bunker') carry = Math.round(carry * 0.82);
 
-  if (carry >= s.dist - 8) {
-    if (good) {
-      const reg = s.strokes <= (hole.par - 2);
+  /* juego corto (chip/pitch ≤35y) → probabilidad = Up & down del perfil */
+  if (!isTee && s.dist <= 35) {
+    s.strokes++;
+    const ud = Math.random() < pr.ud * (s.lie === 'bunker' ? 0.8 : 1);
+    const dleft = s.dist;
+    s.puttDist = ud ? (2 + Math.round(Math.random() * 4)) : (8 + Math.round(Math.random() * 18));
+    s.lie = 'green'; s.dist = 0;
+    simPush(s, 0.99, (Math.random() - 0.5) * 0.18, 'green', ud, `Chip ${dleft}y → ${ud ? 'pegado, a' : 'a'} ${s.puttDist} ft`);
+    return;
+  }
+
+  const bag = bagInfo(user);
+  const maxReach = bag.filter(c => isTee || c.id !== 'dr').reduce((m, c) => Math.max(m, c.carry), 0);
+  const goForGreen = s.dist <= 230 && maxReach >= s.dist - 8;
+
+  if (goForGreen) {
+    /* aproximación al green → probabilidad = GIR del perfil (ajustada por lie) */
+    const club = simClubFor(user, s.dist, s.lie, isTee, hole);
+    const cname = club ? club.name : 'Palo';
+    s.strokes++;
+    const lieAdj = (s.lie === 'fw' || s.lie === 'tee') ? 1 : s.lie === 'rough' ? 0.8 : 0.62;
+    const pGreen = (isTee && hole.par === 3 ? pr.gir * 1.05 : pr.gir) * lieAdj;
+    if (Math.random() < Math.min(0.97, pGreen)) {
+      const reg = s.strokes <= hole.par - 2;
       s.gir = s.gir || reg;
-      s.puttDist = reg ? (8 + Math.round(Math.random() * 26)) : (3 + Math.round(Math.random() * 10));
-      s.lie = 'green';
-      s.log.push({ t: `${cname} → Green${reg ? ' ✓ (GIR)' : ''}, a ${s.puttDist} ft`, ok: true });
+      s.puttDist = reg ? (10 + Math.round(Math.random() * 26)) : (4 + Math.round(Math.random() * 8));
+      s.lie = 'green'; s.dist = 0;
+      simPush(s, 1, (Math.random() - 0.5) * 0.22, 'green', true, `${cname} → Green${reg ? ' ✓ (GIR)' : ''}, a ${s.puttDist} ft`);
     } else {
       const water = (hole.risks || []).some(r => r.kind === 'water');
-      if (water && Math.random() < 0.22) {
-        s.strokes++;
-        s.lie = 'rough'; s.dist = Math.max(8, Math.round(s.dist * 0.3));
-        s.log.push({ t: `${cname} → 💧 al agua (+1), dropas a ${s.dist}y`, ok: false });
+      const dir = ['corto', 'largo', 'izq', 'der'][Math.floor(Math.random() * 4)];
+      const side = dir === 'izq' ? -0.72 : dir === 'der' ? 0.72 : (Math.random() - 0.5) * 0.4;
+      if (water && Math.random() < 0.2) {
+        s.strokes++; s.lie = 'rough'; s.dist = Math.max(10, Math.round(s.dist * 0.35));
+        simPush(s, 1 - s.dist / hole.yds, side, 'water', false, `${cname} → 💧 al agua (+1), dropas a ${s.dist}y`);
       } else {
-        const miss = ['corto', 'largo', 'a la izq.', 'a la der.'][Math.floor(Math.random() * 4)];
         s.lie = Math.random() < 0.4 ? 'bunker' : 'rough';
-        s.dist = Math.max(5, Math.round(8 + Math.random() * 16));
-        s.log.push({ t: `${cname} → falló ${miss} (${SIM_LIE_ES[s.lie].toLowerCase()}), a ${s.dist}y`, ok: false });
+        s.dist = Math.max(6, Math.round(10 + Math.random() * 18));
+        const prog = dir === 'largo' ? 1.03 : 1 - s.dist / hole.yds;
+        simPush(s, prog, side, s.lie, false, `${cname} → falló ${dir} (${SIM_LIE_ES[s.lie].toLowerCase()}), a ${s.dist}y`);
       }
     }
   } else {
-    const adv = good ? carry : Math.round(carry * 0.78);
+    /* salida (par4/5) o lay-up para dejar ~100y → probabilidad = Fairways del perfil */
+    const layTarget = (isTee && hole.par >= 4) ? null : Math.max(60, s.dist - 100);
+    const club = layTarget == null ? simClubFor(user, s.dist, true, true, hole) : bestClubForDist(user, layTarget, true);
+    const cname = club ? club.name : 'Palo';
+    let carry = Math.round((club ? club.carry : 200) * (0.9 + Math.random() * 0.14));
+    if (s.lie === 'rough') carry = Math.round(carry * 0.9);
+    if (s.lie === 'bunker') carry = Math.round(carry * 0.82);
+    s.strokes++;
+    const good = isTee ? (Math.random() < pr.fw) : (Math.random() < pr.fw * 0.55 + 0.35);
+    const adv = good ? carry : Math.round(carry * 0.82);
     s.dist = Math.max(0, s.dist - adv);
-    if (isTee && hole.par >= 4) {
-      s.fw = good;
-      s.lie = good ? 'fw' : (Math.random() < 0.35 ? 'bunker' : 'rough');
-      s.log.push({ t: `${cname} → ${good ? 'Fairway ✓' : 'fuera de calle'}, quedan ${s.dist}y`, ok: good });
-    } else {
-      s.lie = good ? 'fw' : (Math.random() < 0.3 ? 'bunker' : 'rough');
-      s.log.push({ t: `${cname} → ${good ? 'buen tiro' : 'no salió bien'}, quedan ${s.dist}y`, ok: good });
-    }
+    if (isTee && hole.par >= 4) s.fw = good;
+    s.lie = good ? 'fw' : (Math.random() < 0.35 ? 'bunker' : 'rough');
+    const prog = 1 - s.dist / hole.yds;
+    const side = good ? (Math.random() - 0.5) * 0.3 : (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.3);
+    const lbl = (isTee && hole.par >= 4) ? (good ? 'Fairway ✓' : 'fuera de calle') : (good ? 'buen lay-up' : 'lay-up corto');
+    simPush(s, prog, side, s.lie, good, `${cname} → ${lbl}, quedan ${s.dist}y`);
   }
 }
 function simFinishHole(s) {
@@ -299,27 +327,70 @@ function simFinishHole(s) {
   else simInitHole(s);
 }
 
-function vSimulator() {
-  const u = cur();
-  const ready = trackerReadiness();
-  const course = COURSES[V.courseId] || COURSES.campestre;
-  const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
-  const head = `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:16px">🎲 Simulador de ronda</h2><span class="small muted">tiro por tiro</span></div>`;
+/* esquema del hoyo con la zona de aterrizaje de cada tiro */
+function simSchematic(hole, shots) {
+  const W = 300, H = 430, cx = 150, teeY = 392, greenY = 70, span = teeY - greenY, halfW = 62;
+  const P = sh => ({ x: cx + sh.side * halfW, y: teeY - Math.min(1.06, sh.prog) * span });
+  const pts = shots.map(P);
+  const route = `M${cx},${teeY} ` + pts.map(q => `L${q.x.toFixed(0)},${q.y.toFixed(0)}`).join(' ');
+  const colOf = sh => sh.ok ? '#c9f73e' : (sh.lie === 'water' ? '#2f7fa6' : '#ff9f43');
+  let zones = '', dots = '';
+  shots.forEach((sh, i) => {
+    if (sh.lie === 'green') return;
+    const q = pts[i], rx = sh.ok ? 15 : 24, c = colOf(sh);
+    zones += `<ellipse cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" rx="${rx}" ry="${(rx * 0.7).toFixed(0)}" fill="${c}" opacity="0.15" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  });
+  pts.forEach((q, i) => {
+    dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="4" fill="${colOf(shots[i])}"/><text x="${q.x.toFixed(0)}" y="${(q.y - 9).toFixed(0)}" fill="#eef3e6" font-family="Inter,system-ui" font-size="10" font-weight="800" text-anchor="middle">${i + 1}</text>`;
+  });
+  const last = pts[pts.length - 1];
+  const ball = last ? `<circle cx="${last.x.toFixed(0)}" cy="${last.y.toFixed(0)}" r="6" fill="#fff" stroke="#0a0f08" stroke-width="1.5"/>` : '';
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tiros del hoyo ${hole.n}">
+    <rect width="${W}" height="${H}" rx="16" fill="#0a0f08" stroke="#1d2914"/>
+    <rect x="${cx - halfW - 4}" y="${greenY - 6}" width="${(halfW + 4) * 2}" height="${teeY - greenY + 14}" rx="${halfW}" fill="#2f6b39"/>
+    <rect x="${cx - halfW + 14}" y="${greenY}" width="${(halfW - 14) * 2}" height="${teeY - greenY}" rx="${halfW - 14}" fill="#3a8043" opacity="0.45"/>
+    <ellipse cx="${cx}" cy="${greenY}" rx="40" ry="27" fill="#57b15c" stroke="#2f6b39" stroke-width="2"/>
+    <circle cx="${cx}" cy="${greenY}" r="3" fill="#0a0f08"/>
+    <line x1="${cx}" y1="${greenY}" x2="${cx}" y2="${greenY - 30}" stroke="#eef3e6" stroke-width="2"/>
+    <path d="M${cx},${greenY - 30} l13,4 -13,4z" fill="#c9f73e"/>
+    ${zones}
+    <path d="${route}" fill="none" stroke="#c9f73e" stroke-width="2" stroke-dasharray="3 5"/>
+    ${dots}${ball}
+    <rect x="${cx - 9}" y="${teeY}" width="18" height="7" rx="2" fill="#9ab07f"/>
+    <text x="${cx}" y="${teeY + 22}" fill="#9ab07f" font-family="Inter,system-ui" font-size="10" font-weight="700" text-anchor="middle">TEE</text>
+  </svg>`;
+}
 
-  if (!ready.ready) {
-    return head + `<div class="card">
-      <p class="note" style="margin-top:0;margin-bottom:10px">Juega una ronda virtual <b class="lime">tiro por tiro</b>: cada golpe cae según tu <b class="lime">efectividad real</b> del Tracker. Primero registra al menos un drill de cada área:</p>
-      ${ready.areas.map(a => `<div class="row" style="padding:7px 0"><div class="r-main"><b>${a.v != null ? '✅' : '⬜️'} ${esc(a.label)}</b><span>${esc(a.hint)}</span></div><div class="r-side"><b class="${a.v != null ? 'lime' : 'muted'}">${a.v != null ? a.v + '%' : 'falta'}</b></div></div>`).join('')}
-    </div>`;
+function vSimulatorPage() {
+  const u = cur();
+  const agg = Stats.aggregate(myRounds());
+  const course = COURSES[V.courseId] || COURSES.campestre;
+  const back = `<button class="auth-back" data-act="nav" data-view="inicio">← Inicio</button>`;
+  const title = `<div class="sec-h"><h2>🎲 Simulador de ronda</h2><span class="small muted">tiro por tiro</span></div>`;
+
+  if (!agg) {
+    return back + title + `<div class="card empty"><div class="e-ico">🎲</div><h3>Necesitas tus stats</h3>
+      <p>El simulador juega con tus <b class="lime">fairways, GIR, up&down y putts</b> del perfil. Registra al menos una ronda.</p>
+      <button class="btn primary" data-act="quick-round">Registrar ronda</button>
+      <button class="btn ghost" data-act="seed-demo">Cargar datos de ejemplo</button></div>`;
   }
 
+  const pr = statProbs(u);
+  const tp = Math.round((pr.threePutt != null ? pr.threePutt : 0.1) * 100);
+  const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
   const sim = V.sim && V.sim.courseId === course.id ? V.sim : null;
 
   if (!sim) {
-    return head + `<div class="card">
+    return back + title + `<div class="card">
       <div class="chips">${courseChips}</div>
-      <p class="note">Simula una ronda completa en <b>${esc(course.name)}</b>. Tú tiras hoyo por hoyo; cada palo cae según tus % del Tracker (salida ${ready.have.fw}% · hierros ${ready.have.gir}% · approach ${ready.have.ud}% · putt ${ready.have.putt}%).</p>
-      <button class="btn primary" data-act="sim-start">🏌️ Jugar ronda simulada</button>
+      <p class="note">Juega una ronda virtual en <b>${esc(course.name)}</b>, tiro por tiro. Cada golpe cae según tus stats del perfil:</p>
+      <div class="grid2">
+        ${statCard(Math.round(pr.fw * 100) + '%', 'Fairways', pr.fw * 100)}
+        ${statCard(Math.round(pr.gir * 100) + '%', 'GIR', pr.gir * 100)}
+        ${statCard(Math.round(pr.ud * 100) + '%', 'Up & down', pr.ud * 100)}
+        ${statCard(tp + '%', '3-putts', 100 - tp)}
+      </div>
+      <button class="btn primary" data-act="sim-start" style="margin-top:14px">🏌️ Jugar ronda simulada</button>
     </div>`;
   }
 
@@ -329,8 +400,8 @@ function vSimulator() {
   if (sim.done) {
     const fwT = sim.card.filter(h => h.fw !== null).length, fwH = sim.card.filter(h => h.fw === true).length;
     const girH = sim.card.filter(h => h.gir).length, putts = sim.card.reduce((a, h) => a + h.putts, 0);
-    return head + `<div class="card">
-      <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:44px">${totScore}</h1><p class="hcp">${fmtToPar(totScore - totPar)} · ${sim.card.length} hoyos</p></div>
+    return back + title + `<div class="card">
+      <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:46px">${totScore}</h1><p class="hcp">${fmtToPar(totScore - totPar)} · ${sim.card.length} hoyos</p></div>
       <div class="grid2">
         ${statCard((fwT ? Math.round(fwH / fwT * 100) : 0) + '%', 'Fairways', fwT ? fwH / fwT * 100 : 0)}
         ${statCard(Math.round(girH / sim.card.length * 100) + '%', 'GIR', girH / sim.card.length * 100)}
@@ -340,7 +411,7 @@ function vSimulator() {
         ${scorecardTable(sim.card.length, i => sim.card[i].par, [{ name: esc(u.name.split(' ')[0]), scoreOf: i => sim.card[i].score }], -1)}
       </div>
       <button class="btn primary" data-act="sim-start">Jugar otra vez</button>
-      <button class="btn" data-act="sim-reset">Salir del simulador</button>
+      <button class="btn" data-act="sim-reset">Salir</button>
     </div>`;
   }
 
@@ -350,29 +421,41 @@ function vSimulator() {
   const logHtml = sim.log.map(l => `<div class="sim-shot ${l.ok ? 'ok' : 'bad'}">${esc(l.t)}</div>`).join('');
   const holeToPar = sim.strokes - hole.par;
 
-  return head + `<div class="card">
-    <div class="ph-head"><div class="r-main" style="flex:1"><b>Hoyo ${hole.n} · Par ${hole.par}</b><span class="muted">${hole.yds} yds · hoyo ${sim.holeIdx + 1}/${course.holes.length}</span></div>
-      <div class="r-side"><b style="color:var(--lime)">${totScore || 0}</b><span>${toParNow}</span></div></div>
-    <div class="sim-log">${logHtml || '<div class="sim-shot muted">Toca “Tirar” para tu golpe de salida.</div>'}</div>
-    ${holed
-      ? `<div class="sim-status">✅ Hoyo ${hole.n}: <b>${sim.strokes}</b> (${holeToPar === 0 ? 'par' : holeToPar > 0 ? '+' + holeToPar : holeToPar})</div>
-         <button class="btn primary" data-act="sim-shot">${sim.holeIdx + 1 >= course.holes.length ? 'Ver tarjeta final →' : 'Siguiente hoyo →'}</button>`
-      : `<div class="sim-status">${SIM_LIE_ES[sim.lie]} · quedan <b>${sim.lie === 'green' ? (sim.puttDist + ' ft') : (sim.dist + ' yds')}</b> · golpe ${sim.strokes + 1}</div>
-         <button class="btn primary" data-act="sim-shot">🏌️ Tirar</button>`}
-    <button class="btn sm ghost" data-act="sim-reset">Reiniciar</button>
-  </div>`;
+  return back + title + `
+    <div class="card" style="padding-bottom:8px">
+      <div class="ph-head"><div class="r-main" style="flex:1"><b>Hoyo ${hole.n} · Par ${hole.par}</b><span class="muted">${hole.yds} yds · hoyo ${sim.holeIdx + 1}/${course.holes.length}</span></div>
+        <div class="r-side"><b style="color:var(--lime)">${totScore || 0}</b><span>${toParNow}</span></div></div>
+      <div style="margin-top:8px">${simSchematic(hole, sim.log)}</div>
+    </div>
+    <div class="card">
+      <div class="sim-log">${logHtml || '<div class="sim-shot muted">Toca “Tirar” para tu golpe de salida.</div>'}</div>
+      ${holed
+        ? `<div class="sim-status">✅ Hoyo ${hole.n}: <b>${sim.strokes}</b> (${holeToPar === 0 ? 'par' : holeToPar > 0 ? '+' + holeToPar : holeToPar})</div>
+           <button class="btn primary" data-act="sim-shot">${sim.holeIdx + 1 >= course.holes.length ? 'Ver tarjeta final →' : 'Siguiente hoyo →'}</button>`
+        : `<div class="sim-status">${SIM_LIE_ES[sim.lie]} · quedan <b>${sim.lie === 'green' ? (sim.puttDist + ' ft') : (sim.dist + ' yds')}</b> · golpe ${sim.strokes + 1}</div>
+           <button class="btn primary" data-act="sim-shot">🏌️ Tirar</button>`}
+      <button class="btn sm ghost" data-act="sim-reset">Reiniciar</button>
+    </div>`;
 }
 
 /* ---- objetivo realista por % del jugador + plan de mejora semanal ---- */
 function statProbs(user) {
   const cl = v => Math.max(0.02, Math.min(0.98, v));
   const agg = Stats.aggregate(myRounds());
-  if (agg) return {
-    fw: cl(agg.fwPct / 100), gir: cl(agg.girPct / 100), ud: cl(agg.scrPct / 100),
-    puttsGIR: Math.max(1.55, Math.min(2.4, agg.puttsPerGir || 2)), from: 'stats'
-  };
+  if (agg) {
+    const pg = Math.max(1.55, Math.min(2.4, agg.puttsPerGir || 2));
+    return {
+      fw: cl(agg.fwPct / 100), gir: cl(agg.girPct / 100), ud: cl(agg.scrPct / 100),
+      puttsGIR: pg, threePutt: cl((agg.threePct != null ? agg.threePct : 10) / 100),
+      onePutt: cl((2.1 - pg) * 0.7), from: 'stats'
+    };
+  }
   const h = user.hcp != null ? user.hcp : 18;
-  return { fw: cl(0.62 - h * 0.012), gir: cl(0.6 - h * 0.022), ud: cl(0.55 - h * 0.011), puttsGIR: Math.min(2.35, 1.82 + h * 0.012), from: 'hcp' };
+  const pg = Math.min(2.35, 1.82 + h * 0.012);
+  return {
+    fw: cl(0.62 - h * 0.012), gir: cl(0.6 - h * 0.022), ud: cl(0.55 - h * 0.011),
+    puttsGIR: pg, threePutt: cl(0.05 + h * 0.006), onePutt: cl((2.1 - pg) * 0.7), from: 'hcp'
+  };
 }
 function weeklyPlan(user) {
   const agg = Stats.aggregate(myRounds());

@@ -79,6 +79,7 @@ function App() {
     friend: vFriend,
     strategy: vStrategy,
     trainer: vTrainer,
+    simulator: vSimulatorPage,
     social: vSocial,
   }[V.view] || vDashboard;
   return vShell(content());
@@ -319,16 +320,17 @@ const actions = {
   'sel-course'(d) { V.courseId = d.c; V.holeIdx = 0; V.teeClubId = null; V.attack2 = false; V.sim = null; render(); window.scrollTo(0, 0); },
   'sel-tee'(d) { V.teeClubId = d.id; render(); },
   'toggle-attack'() { V.attack2 = !V.attack2; render(); },
+  'go-sim'() { V.profileOpen = false; go('simulator'); },
   'sim-start'() {
-    if (!trackerReadiness().ready) { V.trainerTab = 'tracker'; go('trainer'); return; }
     const c = COURSES[V.courseId] || COURSES.campestre;
     V.sim = simNewRound(cur(), c);
+    V.view = 'simulator';
     render();
   },
   'sim-shot'() {
     if (!V.sim || V.sim.done) return;
     if (V.sim.lie === 'holed') simFinishHole(V.sim);
-    else simStep(V.sim, cur());
+    else simStep(V.sim);
     render();
   },
   'sim-reset'() { V.sim = null; render(); },
