@@ -363,6 +363,110 @@ function vSimulator() {
   </div>`;
 }
 
+/* ---- objetivo realista por % del jugador + plan de mejora semanal ---- */
+function statProbs(user) {
+  const cl = v => Math.max(0.02, Math.min(0.98, v));
+  const agg = Stats.aggregate(myRounds());
+  if (agg) return {
+    fw: cl(agg.fwPct / 100), gir: cl(agg.girPct / 100), ud: cl(agg.scrPct / 100),
+    puttsGIR: Math.max(1.55, Math.min(2.4, agg.puttsPerGir || 2)), from: 'stats'
+  };
+  const h = user.hcp != null ? user.hcp : 18;
+  return { fw: cl(0.62 - h * 0.012), gir: cl(0.6 - h * 0.022), ud: cl(0.55 - h * 0.011), puttsGIR: Math.min(2.35, 1.82 + h * 0.012), from: 'hcp' };
+}
+function weeklyPlan(user) {
+  const agg = Stats.aggregate(myRounds());
+  if (!agg) return null;
+  const cand = [
+    { label: 'Fairways', val: agg.fwPct, good: 62, step: 6, dir: 1 },
+    { label: 'GIR', val: agg.girPct, good: 52, step: 6, dir: 1 },
+    { label: 'Up & down', val: agg.scrPct, good: 52, step: 7, dir: 1 },
+    { label: '3-putts', val: agg.threePct, good: 8, step: 4, dir: -1 },
+  ];
+  cand.forEach(c => c.gap = c.dir > 0 ? c.good - c.val : c.val - c.good);
+  const weak = cand.filter(c => c.gap > 1).sort((a, b) => b.gap - a.gap).slice(0, 2);
+  return {
+    avg: agg.avgScore18,
+    items: weak.map(c => ({
+      label: c.label, from: Math.round(c.val),
+      to: c.dir > 0 ? Math.min(c.good, Math.round(c.val + c.step)) : Math.max(c.good, Math.round(c.val - c.step))
+    }))
+  };
+}
+function goalProbs(user) {
+  const pr = statProbs(user), wp = weeklyPlan(user);
+  if (!wp) return pr;
+  const g = Object.assign({}, pr);
+  wp.items.forEach(it => {
+    if (it.label === 'Fairways') g.fw = it.to / 100;
+    if (it.label === 'GIR') g.gir = it.to / 100;
+    if (it.label === 'Up & down') g.ud = it.to / 100;
+    if (it.label === '3-putts') g.puttsGIR = Math.max(1.55, pr.puttsGIR - 0.08);
+  });
+  return g;
+}
+/* valor esperado de golpes en el hoyo dadas tus probabilidades */
+function expectedHole(hole, pr) {
+  const P = hole.par, reg = P - 2;
+  const scoreGIR = reg + pr.puttsGIR;
+  const scoreMiss = reg + 1 + pr.ud * 1 + (1 - pr.ud) * 2.25;
+  let e = pr.gir * scoreGIR + (1 - pr.gir) * scoreMiss;
+  if (P >= 4) e += (1 - pr.fw) * 0.22;
+  if (P === 5) e -= 0.04;
+  return e;
+}
+/* reparte un total objetivo entre los hoyos según su dificultad esperada */
+function realisticTargets(course, prGoal, total) {
+  const exp = course.holes.map(h => expectedHole(h, prGoal));
+  const sum = exp.reduce((a, b) => a + b, 0);
+  const tot = total != null ? total : Math.round(sum);
+  const scaled = exp.map(e => e * (tot / sum));
+  const targets = scaled.map(x => Math.floor(x));
+  let rem = tot - targets.reduce((a, b) => a + b, 0);
+  scaled.map((x, i) => ({ i, f: x - Math.floor(x) })).sort((a, b) => b.f - a.f).forEach(o => { if (rem > 0) { targets[o.i]++; rem--; } });
+  course.holes.forEach((h, i) => { targets[i] = Math.max(h.par - 1, Math.min(h.par + 3, targets[i])); });
+  return { targets, total: targets.reduce((a, b) => a + b, 0), par: course.holes.reduce((a, h) => a + h.par, 0) };
+}
+/* palo con mejor % para una distancia (control + efectividad) */
+function bestClubForDist(user, dist, noDriver) {
+  let bag = bagInfo(user);
+  if (noDriver) bag = bag.filter(c => c.id !== 'dr');
+  if (!bag.length) return null;
+  const near = bag.filter(c => Math.abs(c.carry - dist) <= 18 && c.carry >= dist - 14);
+  if (near.length) return near.sort((a, b) => b.eff - a.eff || Math.abs(a.carry - dist) - Math.abs(b.carry - dist))[0];
+  const reach = bag.filter(c => c.carry >= dist - 8);
+  return (reach.length ? reach : bag).slice().sort((a, b) => Math.abs(a.carry - dist) - Math.abs(b.carry - dist) || b.eff - a.eff)[0];
+}
+/* secuencia ideal de tiros (se ajusta al palo de salida elegido) */
+function idealPath(user, hole, tee, attack) {
+  const shots = [];
+  if (hole.par === 3) {
+    const c = tee || bestClubForDist(user, hole.yds, false);
+    shots.push({ club: c, carry: c ? c.carry : hole.yds, leaves: 0, to: 'green' });
+  } else {
+    const t = tee || (hole.yds > 240 ? bagInfo(user).slice().sort((a, b) => b.carry - a.carry)[0] : bestClubForDist(user, hole.yds, false));
+    const tc = t ? t.carry : 235;
+    let rem = Math.max(0, hole.yds - tc);
+    shots.push({ club: t, carry: tc, leaves: rem, to: rem <= 5 ? 'green' : 'la calle' });
+    if (hole.par === 4) {
+      if (rem > 5) { const c2 = bestClubForDist(user, rem, true); shots.push({ club: c2, carry: c2 ? c2.carry : rem, leaves: 0, to: 'green' }); }
+    } else if (attack && rem > 5) {
+      const c2 = bestClubForDist(user, rem, true); shots.push({ club: c2, carry: c2 ? c2.carry : rem, leaves: 0, to: 'green' });
+    } else {
+      let lay = rem - 100;
+      if (lay > 30) { const c2 = bestClubForDist(user, lay, true); const cc = c2 ? c2.carry : lay; rem = Math.max(0, rem - cc); shots.push({ club: c2, carry: cc, leaves: rem, to: 'la calle' }); }
+      const c3 = bestClubForDist(user, rem, true); shots.push({ club: c3, carry: c3 ? c3.carry : rem, leaves: 0, to: 'green' });
+    }
+  }
+  return { shots, idealScore: shots.length + 2 };
+}
+function realisticWhy(hole, target, pr) {
+  const gir = Math.round(pr.gir * 100), ud = Math.round(pr.ud * 100);
+  const d = target - hole.par;
+  if (d <= 0) return `Das green ~${gir}% y este hoyo entra en tu rango: ve por el par.`;
+  return `Tu green es ~${gir}% y up&down ~${ud}%, así que lo realista aquí es ${target}: date chance de ${d >= 2 ? 'un doble' : '1 bogey'} y recupéralo en los hoyos fáciles. No fuerces el milagro.`;
+}
+
 function vStrategy() {
   const u = cur();
   const course = COURSES[V.courseId] || COURSES.campestre;
@@ -374,43 +478,80 @@ function vStrategy() {
   const defaultTee = hole.par === 3 ? cands.slice().sort((a, b) => Math.abs(a.carry - hole.yds) - Math.abs(b.carry - hole.yds))[0] : cands[0];
   const tee = cands.find(c => c.id === V.teeClubId) || defaultTee || null;
   const landings = computeLandings(hole, tee, attack);
-  const carry = tee ? tee.carry : null, leave = carry ? Math.max(hole.yds - carry, 0) : null;
-  const objs = courseObjectives(course, u.hcp);
-  const target = objs[idx], stance = holeStance(hole, u.hcp, reachable);
-  const roundTarget = objs.reduce((a, b) => a + b, 0);
 
+  const agg = Stats.aggregate(myRounds());
+  const prNow = statProbs(u), prGoal = goalProbs(u);
+  const wp = weeklyPlan(u);
+  const avgCourse = agg ? Math.round(agg.avgScore18 * course.holes.length / 18) : null;
+  const par = course.holes.reduce((a, h) => a + h.par, 0);
+  const stretch = course.holes.length >= 18 ? 2 : 1;
+  const anchor = avgCourse != null ? Math.max(par - 1, avgCourse - stretch) : null;
+  const rt = realisticTargets(course, prGoal, anchor);
+  const target = rt.targets[idx];
+  const improve = avgCourse != null ? avgCourse - rt.total : null;
+  const stance = holeStance(hole, u.hcp, reachable);
+  const ideal = idealPath(u, hole, tee, attack);
+
+  const relTarget = t => { const d = t - hole.par; return d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === -1 ? 'Birdie' : d > 0 ? '+' + d : String(d); };
   const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
   const holeChips = course.holes.map((h, i) => `<button class="hole-chip ${i === idx ? 'on' : ''}" data-act="sel-hole" data-i="${i}">${h.n}</button>`).join('');
   const teeChips = cands.map(c => `<button class="hole-chip wide ${tee && c.id === tee.id ? 'on' : ''}" data-act="sel-tee" data-id="${c.id}">${esc(c.name.split(' ')[0])}<br><span>${c.carry}y</span></button>`).join('');
   const hazards = (hole.risks || []).map(r => `${r.kind === 'water' ? '💧 Agua' : '🟡 Bunker'} a la ${r.side === 'left' ? 'izquierda' : 'derecha'}${r.at === 'green' ? ' del green' : ' en la zona de caída'}`);
-  const teeInfo = !tee ? 'Carga tu bolsa en Perfil → Mis palos.'
-    : hole.par === 3 ? (carry >= hole.yds - 5 ? `Con tu ${tee.name} (${carry}y) llegas al green de ${hole.yds}y.` : `Tu ${tee.name} vuela ${carry}y — ~${hole.yds - carry}y corto.`)
-      : attack ? `Atacando: salida ${carry}y y vas por el green (~${leave}y) en 2.` : `Salida a ${carry}y; te deja ~${leave}y al green.`;
 
-  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">tu plan según tu HCP</span></div>
+  const shotRows = ideal.shots.map((s, i) => {
+    const nm = s.club ? s.club.name : '—';
+    const eff = s.club ? ` · ${s.club.eff}%` : '';
+    const leaveTxt = s.to === 'green' ? '→ al green' : `→ deja ${s.leaves}y en ${s.to}`;
+    return `<div class="path-row"><span class="path-n">${i + 1}</span><div class="r-main"><b>${esc(nm)}${eff}</b><span>vuela ~${s.carry}y ${leaveTxt}</span></div></div>`;
+  }).join('');
+
+  let teeInfo;
+  if (!tee) teeInfo = 'Carga tu bolsa en Perfil → Mis palos para personalizar el plan.';
+  else if (hole.par === 3) teeInfo = tee.carry >= hole.yds - 5 ? `Con ${tee.name} (${tee.carry}y) llegas al green de ${hole.yds}y.` : `${tee.name} vuela ${tee.carry}y — ~${hole.yds - tee.carry}y corto; considera un palo más.`;
+  else {
+    const rem = Math.max(0, hole.yds - tee.carry);
+    const s2 = ideal.shots[1];
+    teeInfo = s2 && s2.club
+      ? `Salida con ${tee.name} (${tee.carry}y) → te deja ${rem}y. 2° tiro ideal: <b style="color:var(--text)">${esc(s2.club.name)}</b> (${s2.club.eff}% · ~${s2.club.carry}y)${s2.to === 'green' ? ' al green' : ', lay-up'}.`
+      : `Salida a ${tee.carry}y; te deja ~${rem}y al green.`;
+  }
+
+  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">camino ideal a tu objetivo</span></div>
     <div class="chips" style="margin-top:8px">${courseChips}</div>
-    <div class="greet" style="padding-top:10px">
-      <p class="hi">${esc(course.name)}${course.approx ? ' · yardas aprox.' : ''}</p>
-      <h1 style="font-size:23px">Hoyo ${hole.n} · Par ${hole.par} · ${hole.yds} yds</h1>
-      <p class="hcp">Objetivo de ronda (HCP ${fmtHcp(u.hcp)}): ~${roundTarget} golpes</p>
+
+    <div class="card">
+      <span class="label">🎯 Objetivo de tu próxima ronda</span>
+      <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:42px">${rt.total}</h1><p class="hcp">${fmtToPar(rt.total - rt.par)} · ${esc(course.name.split(' · ')[0].replace('Club ', ''))}</p></div>
+      ${avgCourse != null
+        ? `<p class="note" style="text-align:center;margin-bottom:0">${improve > 0 ? `<b class="lime">${improve} golpe${improve > 1 ? 's' : ''} mejor</b> que tu promedio (${avgCourse}) — tu meta de esta semana.` : `a tu nivel actual (promedio ${avgCourse}).`}</p>`
+        : `<p class="note" style="text-align:center;margin-bottom:0">Calculado con tu HCP. Registra rondas para afinarlo a tus %.</p>`}
+      ${wp && wp.items.length ? `<div style="border-top:1px solid var(--line-soft);margin-top:12px;padding-top:10px">
+        <span class="label">Tu plan de esta semana</span>
+        ${wp.items.map(it => `<div class="row" style="padding:6px 0"><div class="r-main"><b>${esc(it.label)}</b></div><div class="r-side"><b>${it.from}% → <span class="lime">${it.to}%</span></b></div></div>`).join('')}
+        <p class="note" style="margin-bottom:0">Mejora esto y bajas a tu objetivo de ronda.</p>
+      </div>` : ''}
     </div>
+
     <div class="hole-strip">${holeChips}</div>
     <div class="card" style="padding:12px">${holeSchematic(hole, landings)}</div>
 
     <div class="card">
-      <span class="label">Plan del hoyo</span>
-      <div class="grid2" style="margin-top:8px">
-        ${statCard(target === hole.par ? 'Par' : target === hole.par + 1 ? 'Bogey' : '+' + (target - hole.par), 'Tu objetivo', 100)}
+      <span class="label">Camino ideal · Hoyo ${hole.n} (Par ${hole.par} · ${hole.yds}y)</span>
+      <div class="path-list" style="margin-top:8px">${shotRows}
+        <div class="path-row"><span class="path-n">P</span><div class="r-main"><b>2 putts</b><span>para anotar ${ideal.idealScore}</span></div></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        ${statCard(relTarget(target), 'Objetivo realista', 100)}
         <div class="card"><div class="stat-num" style="font-size:20px">${esc(stance.k)}</div><div class="stat-cap">cómo jugarlo</div></div>
       </div>
-      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">¿Por qué?</b> ${esc(objectiveWhy(hole, target, u.hcp))}</p>
+      <p class="tip" style="margin-top:10px"><b style="color:var(--text)">¿Por qué ${relTarget(target).toLowerCase()}?</b> ${esc(realisticWhy(hole, target, prGoal))}</p>
       <p class="tip">${esc(stance.t)}</p>
     </div>
 
     <div class="card">
       <span class="label">${hole.par === 3 ? 'Tu tiro al green' : 'Tu salida'} · elige palo</span>
       ${cands.length ? `<div class="hole-strip" style="margin-top:8px">${teeChips}</div>` : ''}
-      <p class="tip">${esc(teeInfo)}</p>
+      <p class="tip">${teeInfo}</p>
       ${reachable ? `<div style="border-top:1px solid var(--line-soft);margin-top:10px;padding-top:12px">
         <button class="chip ${attack ? 'on' : ''}" data-act="toggle-attack">🎯 Atacar el green en 2 ${attack ? '✓' : ''}</button>
         <p class="tip" style="margin-top:8px">${esc(attackWhy(u, hole, attack))}</p>
@@ -422,5 +563,5 @@ function vStrategy() {
       ${hazards.length ? hazards.map(h => `<p class="tip">${esc(h)}</p>`).join('') : '<p class="tip">Sin obstáculos marcados.</p>'}
       ${(hole.tips || []).map(t => `<p class="tip">${esc(t)}</p>`).join('')}
     </div>
-    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala). El <b class="lime">simulador de ronda</b> ahora vive en Tracker.</p>`;
+    <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala). El <b class="lime">simulador de ronda</b> vive en Tracker.</p>`;
 }

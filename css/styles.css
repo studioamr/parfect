@@ -471,6 +471,19 @@ button.row { cursor: pointer; }
 .sim-status { font-size: 13.5px; color: var(--text); margin: 4px 0 12px; font-weight: 700; }
 .sim-status b { color: var(--lime); }
 
+/* ---- Estrategia: camino ideal de tiros ---- */
+.path-list { display: flex; flex-direction: column; gap: 2px; }
+.path-row { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--line-soft); }
+.path-row:last-child { border-bottom: none; }
+.path-row .r-main { flex: 1; }
+.path-row .r-main b { display: block; font-size: 14px; font-weight: 800; }
+.path-row .r-main span { font-size: 12px; color: var(--muted); }
+.path-n {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--lime-faint); color: var(--lime);
+  font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center;
+}
+
 /* ============ Parfect Party ============ */
 .code-box {
   border: 1px dashed var(--lime); border-radius: var(--radius);
