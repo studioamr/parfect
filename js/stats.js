@@ -12,14 +12,14 @@ const Stats = (() => {
     const h = round.holes;
     const par = sum(h.map(x => x.par));
     const score = sum(h.map(x => x.score));
-    const teeHoles = h.filter(x => x.tee);
-    const fw = teeHoles.filter(x => x.tee === 'fw').length;
+    const teeHoles = h.filter(x => x.tee || x.teeLie);
+    const fw = teeHoles.filter(x => teeIsFairway(x)).length;
     const gir = h.filter(x => x.app === 'gir').length;
     const putts = sum(h.map(x => x.putts));
     const missG = h.filter(x => x.app && x.app !== 'gir');
     const scr = missG.filter(x => x.score <= x.par).length;
     const threeP = h.filter(x => x.putts >= 3).length;
-    const penals = h.filter(x => x.tee === 'penal').length;
+    const penals = h.filter(x => teeIsPenal(x)).length;
     return {
       holes: h.length, par, score, toPar: score - par,
       fw, fwTot: teeHoles.length,
@@ -49,7 +49,10 @@ const Stats = (() => {
     const missTee = { izq: 0, der: 0, penal: 0 };
     const missApp = { corto: 0, largo: 0, izq: 0, der: 0 };
     for (const h of holes) {
-      if (h.tee && h.tee !== 'fw') missTee[h.tee] = (missTee[h.tee] || 0) + 1;
+      if ((h.teeLie || h.tee) && !teeIsFairway(h)) {
+        const bucket = teeIsPenal(h) ? 'penal' : (h.tee === 'izq' ? 'izq' : h.tee === 'der' ? 'der' : 'izq');
+        missTee[bucket] = (missTee[bucket] || 0) + 1;
+      }
       if (h.app && h.app !== 'gir') missApp[h.app] = (missApp[h.app] || 0) + 1;
     }
 

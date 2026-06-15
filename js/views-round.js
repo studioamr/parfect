@@ -119,148 +119,197 @@ function chipRow(items, key, current) {
   ).join('') + `</div>`;
 }
 
-/* tiros de campo (sin putts) — se construyen SOLO con lo que ya registraste */
+/* árbol 3D reutilizable (copa + tronco + sombra) */
+function capTree(x, y, s) {
+  return `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s.toFixed(2)})"><ellipse cx="0" cy="4" rx="10" ry="3.2" fill="#16401c" opacity="0.3"/><rect x="-2.2" y="-5" width="4.4" height="11" rx="1.6" fill="#6b4a2a"/><circle cx="0" cy="-13" r="11.5" fill="#39863a"/><circle cx="-7" cy="-8" r="8.5" fill="#479a44"/><circle cx="7" cy="-9" r="8.5" fill="#479a44"/><circle cx="-3" cy="-17" r="7.5" fill="#57ad50"/><circle cx="4" cy="-15" r="6.5" fill="#57ad50"/></g>`;
+}
+/* posición de bunkers relativa al centro del green (x,y como fracción de gw,gh) */
+const CAP_BPOS = { fl: [-0.78, 0.9], fr: [0.78, 0.9], f: [0, 1.12], l: [-1.08, 0.05], r: [1.08, 0.05], bl: [-0.78, -0.82], br: [0.78, -0.82], b: [0, -1.0] };
+
+/* tiros de campo (sin putts): salida (dirección h.tee + resultado h.teeLie) + approach */
 function captureShots(h) {
   const shots = [];
   const par = h.par;
-  if (par >= 4 && h.tee) {
-    const side = h.tee === 'izq' ? -0.62 : h.tee === 'der' ? 0.62 : h.tee === 'penal' ? -0.82 : 0;
-    const ok = h.tee === 'fw';
-    shots.push({ role: 'tee', prog: par === 5 ? 0.33 : 0.5, side, ok, lie: h.tee === 'penal' ? 'water' : (ok ? 'fw' : 'rough') });
+  if (par >= 4 && (h.teeLie || h.tee)) {
+    const dir = h.tee === 'izq' ? -1 : h.tee === 'der' ? 1 : 0;
+    const lie = h.teeLie || (h.tee === 'fw' ? 'calle' : h.tee === 'penal' ? 'ob' : (h.tee === 'izq' || h.tee === 'der') ? 'rough' : 'calle');
+    let side, lk, prog = par === 5 ? 0.34 : 0.52;
+    if (lie === 'calle') { side = dir * 0.16; lk = 'fw'; }
+    else if (lie === 'ob') { side = (dir || 1) * 0.95; lk = 'water'; prog *= 0.82; }
+    else if (lie === 'bunker') { side = (dir || (par % 2 ? 1 : -1)) * 0.92; lk = 'sand'; }
+    else { side = (dir || (par % 2 ? 1 : -1)) * 0.74; lk = 'rough'; }
+    shots.push({ role: 'tee', prog, side, ok: lie === 'calle', lie: lk });
   }
   if (h.app) {
-    if (par === 5 && h.tee) shots.push({ role: 'advance', prog: 0.72, side: 0, ok: true, lie: 'fw' });
+    if (par === 5 && (h.teeLie || h.tee)) shots.push({ role: 'advance', prog: 0.72, side: 0, ok: true, lie: 'fw' });
     if (h.app === 'gir') shots.push({ role: 'approach', prog: 1, side: 0, ok: true, lie: 'green' });
     else {
-      const side = h.app === 'izq' ? -0.6 : h.app === 'der' ? 0.6 : 0;
-      const prog = h.app === 'largo' ? 1.13 : h.app === 'corto' ? 0.82 : 1;
+      const side = h.app === 'izq' ? -0.55 : h.app === 'der' ? 0.55 : 0;
+      const prog = h.app === 'largo' ? 1.12 : h.app === 'corto' ? 0.82 : 1;
       shots.push({ role: 'approach', prog, side, ok: false, lie: 'rough' });
-      if (h.upDown != null) shots.push({ role: 'chip', prog: 0.99, side: 0.1, ok: h.upDown === true, lie: 'green', ud: true });
+      if (h.upDown != null) shots.push({ role: 'chip', prog: 0.99, side: 0.08, ok: h.upDown === true, lie: 'green', ud: true });
     }
   }
   return shots;
 }
-/* un solo color para los tiros (lima); rojo solo para penal/agua */
+/* color de los puntos de tiro: rojo penal/agua, arena bunker, lima el resto */
 function shotColor(s) {
   if (s && s.lie === 'water') return '#ff7a6b';
+  if (s && s.lie === 'sand') return '#e3c887';
   return '#c9f73e';
+}
+/* vista de SOLO el green (putting): la bola se coloca según su distancia al pin */
+function greenCloseup(h, G, pf, px) {
+  const W = 300, H = 296, cx = 150, cy = 164;
+  let rx = 112, ry = 80;
+  if (G) { if (G.sh === 'wide') { rx = 128; ry = 68; } else if (G.sh === 'tall') { rx = 94; ry = 96; } }
+  const pin = { x: cx + px * rx * 0.42, y: cy + (0.5 - pf) * ry * 0.78 };
+  const distFrac = { '0-3': 0.18, '3-8': 0.36, '8-20': 0.6, '20+': 0.86 };
+  const fr = distFrac[h.dist] != null ? distFrac[h.dist] : 0.45;
+  const ball = { x: pin.x - fr * rx * 0.22, y: Math.min(cy + ry * 0.84, pin.y + fr * ry * 0.95) };
+  const nPutts = h.putts != null ? Math.max(1, h.putts) : 1;
+  const stops = [];
+  for (let i = 1; i <= nPutts; i++) { const f = i === nPutts ? 1 : (i === 1 ? 0.8 : 0.8 + 0.16 * (i - 1)); stops.push({ x: ball.x + (pin.x - ball.x) * f, y: ball.y + (pin.y - ball.y) * f }); }
+  const pp = [ball, ...stops];
+  const seg = []; let tot = 0;
+  for (let i = 1; i < pp.length; i++) { const l = Math.hypot(pp[i].x - pp[i - 1].x, pp[i].y - pp[i - 1].y) || 1; seg.push(l); tot += l; }
+  const nf = [0]; { let a = 0; for (const l of seg) { a += l; nf.push(a / tot); } }
+  const ev = [{ p: 0, d: 0 }]; for (let i = 1; i < nf.length; i++) { ev.push({ p: nf[i], d: 1 }); if (i < nf.length - 1) ev.push({ p: nf[i], d: 0.55 }); } ev.push({ p: 1, d: 0.8 });
+  const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; ev.forEach(e => { ac += e.d; kp.push(e.p.toFixed(3)); kt.push((ac / TT).toFixed(3)); });
+  const dur = (1.0 + nPutts * 1.1).toFixed(1);
+  const puttPath = `M${ball.x.toFixed(1)},${ball.y.toFixed(1)} ` + stops.map(s => `L${s.x.toFixed(1)},${s.y.toFixed(1)}`).join(' ');
+  const bunkers = (G ? G.bk : []).map(code => { const o = CAP_BPOS[code]; if (!o) return ''; const bx = (cx + o[0] * rx * 0.92).toFixed(0), by = cy + o[1] * ry * 0.92; return `<ellipse cx="${bx}" cy="${(by + 3).toFixed(0)}" rx="26" ry="15" fill="#16401c" opacity="0.22"/><ellipse cx="${bx}" cy="${by.toFixed(0)}" rx="24" ry="13" fill="url(#g3dSand)"/>`; }).join('');
+  let rings = ''; for (let i = 1; i <= 3; i++) { rings += `<ellipse cx="${pin.x.toFixed(0)}" cy="${pin.y.toFixed(0)}" rx="${(rx * 0.26 * i).toFixed(0)}" ry="${(ry * 0.26 * i).toFixed(0)}" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.16"/>`; }
+  const field = `<rect width="${W}" height="${H}" fill="url(#g3dGrass)"/>
+    <ellipse cx="${cx}" cy="${(cy + 9).toFixed(0)}" rx="${(rx + 20).toFixed(0)}" ry="${(ry + 18).toFixed(0)}" fill="#3f8f3a" opacity="0.5"/>
+    ${bunkers}
+    <ellipse cx="${cx}" cy="${(cy + 7).toFixed(0)}" rx="${(rx + 2).toFixed(0)}" ry="${(ry + 2).toFixed(0)}" fill="#16401c" opacity="0.3"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#54ad58" stroke="#2f7a38" stroke-width="2.5"/>
+    <ellipse cx="${(cx - rx * 0.24).toFixed(0)}" cy="${(cy - ry * 0.26).toFixed(0)}" rx="${(rx * 0.42).toFixed(0)}" ry="${(ry * 0.34).toFixed(0)}" fill="#79c970" opacity="0.5"/>
+    ${rings}
+    <circle cx="${pin.x.toFixed(0)}" cy="${pin.y.toFixed(0)}" r="5.5" fill="#08260f"/>
+    <line x1="${pin.x.toFixed(0)}" y1="${pin.y.toFixed(0)}" x2="${pin.x.toFixed(0)}" y2="${(pin.y - 42).toFixed(0)}" stroke="#ffffff" stroke-width="2.5"/><path d="M${pin.x.toFixed(0)},${(pin.y - 42).toFixed(0)} l16,5 -16,5z" fill="#c9f73e"/>`;
+  const ballEl = `<path d="${puttPath}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="3 5" stroke-linecap="round" opacity="0.9"/>
+    <ellipse rx="5" ry="2" fill="#000" opacity="0.2"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${puttPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></ellipse>
+    <circle r="6" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${puttPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+  return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Green y putt">
+    <g clip-path="url(#capClip)">${field}${ballEl}</g>
+    <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="16" fill="none" stroke="rgba(20,50,15,0.18)"/>
+  </svg></div>`;
 }
 function captureSchematic(h, chole, noZoom, clean) {
   const shots = captureShots(h);
   const dog = (chole && chole.dog) || 'straight';
-  const par3 = (chole ? chole.par : h.par) === 3;
-  const W = 300, H = 296, tee = [150, 266];
-  const green = dog === 'left' ? [104, 52] : dog === 'right' ? [196, 52] : [150, 50];
-  const ctrl = par3 ? [150, 165] : (dog === 'left' ? [198, 158] : dog === 'right' ? [102, 158] : [150, 158]);
-  const gx = green[0], gy = green[1], halfW = 50;
-  const fair = `M${tee[0]},${tee[1]} Q ${ctrl[0]},${ctrl[1]} ${gx},${gy}`;
-  // green real del hoyo (forma + bunkers + pin) si el campo lo trae (Altozano)
+  const parV = chole ? chole.par : h.par;
+  const par3 = parV === 3;
+  const W = 300, H = 296;
   const G = (chole && chole.g) || null;
-  let gw = 33, gh = 23;
-  if (G) {
-    if (G.sh === 'wide') { gw = 40; gh = 19; }
-    else if (G.sh === 'tall') { gw = 27; gh = 28; }
-    const sc = Math.max(0.85, Math.min(1.16, G.d / 33));
-    gw = Math.min(42, gw * sc * 0.94); gh = Math.min(29, gh * sc);
-  }
   const pf = G ? G.pf : 0.5, px = G ? G.px : 0;
-  const pin = { x: gx + px * gw * 0.55, y: gy + (0.5 - pf) * gh * 1.5 };
-  // peligros del campo (agua/arena, sin etiquetas). Con green real, los bunkers del green los pone G.bk
-  const haz = ((chole && chole.risks) || []).filter(r => !G || r.at === 'drive' || r.kind === 'water').map(r => {
-    let rx, ry;
-    if (r.at === 'drive') { rx = bez(0.5, tee[0], ctrl[0], gx) + (r.side === 'left' ? -40 : 40); ry = bez(0.5, tee[1], ctrl[1], gy); }
-    else { rx = gx + (r.side === 'left' ? -44 : 44); ry = gy + 10; }
-    const water = r.kind === 'water';
-    return `<ellipse cx="${rx.toFixed(0)}" cy="${ry.toFixed(0)}" rx="${water ? 22 : 16}" ry="${water ? 13 : 9}" fill="${water ? 'url(#g3dWater)' : 'url(#g3dSand)'}"/>`;
-  }).join('');
-  // bunkers alrededor del green (posición relativa al green, según hoja de banderas)
-  const BPOS = { fl: [-0.72, 0.85], fr: [0.72, 0.85], f: [0, 1.06], l: [-1.04, 0.05], r: [1.04, 0.05], bl: [-0.72, -0.8], br: [0.72, -0.8], b: [0, -0.95] };
-  const bunkers = (G ? G.bk : []).map(code => {
-    const o = BPOS[code]; if (!o) return '';
-    const bx = (gx + o[0] * gw).toFixed(0), by = gy + o[1] * gh;
-    return `<ellipse cx="${bx}" cy="${(by + 2).toFixed(0)}" rx="13" ry="8.6" fill="#16401c" opacity="0.24"/><ellipse cx="${bx}" cy="${by.toFixed(0)}" rx="12" ry="7.6" fill="url(#g3dSand)"/>`;
-  }).join('');
-  // árbol estilizado 3D (copa + tronco + sombra)
-  const tree = (x, y, s) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s.toFixed(2)})"><ellipse cx="0" cy="4" rx="10" ry="3.2" fill="#16401c" opacity="0.32"/><rect x="-2.2" y="-5" width="4.4" height="11" rx="1.6" fill="#6b4a2a"/><circle cx="0" cy="-13" r="11.5" fill="#39863a"/><circle cx="-7" cy="-8" r="8.5" fill="#479a44"/><circle cx="7" cy="-9" r="8.5" fill="#479a44"/><circle cx="-3" cy="-17" r="7.5" fill="#57ad50"/><circle cx="4" cy="-15" r="6.5" fill="#57ad50"/></g>`;
+  // ¿vista de SOLO el green? (ya estás en green y registras la distancia/putts)
+  const last = shots[shots.length - 1];
+  const onGreen = !!last && last.lie === 'green';
+  if (!clean && onGreen && (h.putts != null || h.dist != null)) return greenCloseup(h, G, pf, px);
+
+  // ===== proyección en perspectiva (diorama 3D profundo) =====
+  const yNear = 270, yFar = 88;
+  const dir = dog === 'left' ? -1 : dog === 'right' ? 1 : 0;
+  const bend = par3 ? 0 : 52;
+  const fy = t => t * (2 - t);
+  const scl = t => 1 - 0.66 * fy(t);
+  const cxAt = t => 150 + dir * bend * Math.pow(fy(t), 1.45);
+  const yAt = t => yNear + (yFar - yNear) * fy(t);
+  const fwHalf = t => (par3 ? 58 : 74) * scl(t);
+  const proj = (t, side) => ({ x: cxAt(t) + side * fwHalf(t), y: yAt(t) });
+  const gpt = proj(1, 0), gx = gpt.x, gy = gpt.y;
+  let gw = 30, gh = 13;
+  if (G) { if (G.sh === 'wide') { gw = 36; gh = 12; } else if (G.sh === 'tall') { gw = 25; gh = 15; } const s = Math.max(0.85, Math.min(1.16, G.d / 33)); gw *= s; gh *= s; }
+  const pin = { x: gx + px * gw * 0.5, y: gy + (0.5 - pf) * gh };
+
+  // fairway en perspectiva (polígonos)
+  const STEPS = 16, L = [], R = [], Li = [], Ri = [];
+  for (let i = 0; i <= STEPS; i++) { const t = i / STEPS; L.push(proj(t, -1)); R.push(proj(t, 1)); Li.push(proj(t, -0.5)); Ri.push(proj(t, 0.5)); }
+  const poly = a => a.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const fairPoly = poly(L) + ' ' + poly(R.slice().reverse());
+  const fairInPoly = poly(Li) + ' ' + poly(Ri.slice().reverse());
+
+  // árboles a los lados (más chicos al fondo = profundidad)
   let trees = '';
-  for (let i = 0; i < 6; i++) { const ty = 252 - i * 40; const s = 0.42 + (ty / 296) * 0.72; trees += tree(20, ty, s) + tree(280, ty, s); }
-  // campo con profundidad (cielo lejano arriba, pasto que aclara al frente, árboles a los lados)
-  const green3d = `${haz}${bunkers}
-    <ellipse cx="${gx}" cy="${(gy + 5).toFixed(0)}" rx="${(gw + 1).toFixed(0)}" ry="${(gh + 1).toFixed(0)}" fill="#16401c" opacity="0.3"/>
-    <ellipse cx="${gx}" cy="${gy}" rx="${gw.toFixed(0)}" ry="${gh.toFixed(0)}" fill="#54ad58" stroke="#2f7a38" stroke-width="2"/>
-    <ellipse cx="${(gx - gw * 0.26).toFixed(0)}" cy="${(gy - gh * 0.28).toFixed(0)}" rx="${(gw * 0.44).toFixed(0)}" ry="${(gh * 0.34).toFixed(0)}" fill="#79c970" opacity="0.55"/>
-    <circle cx="${pin.x.toFixed(0)}" cy="${pin.y.toFixed(0)}" r="4.6" fill="#08260f"/>
-    <line x1="${pin.x.toFixed(0)}" y1="${pin.y.toFixed(0)}" x2="${pin.x.toFixed(0)}" y2="${(pin.y - 24).toFixed(0)}" stroke="#ffffff" stroke-width="2"/><path d="M${pin.x.toFixed(0)},${(pin.y - 24).toFixed(0)} l12,3.6 -12,3.6z" fill="#c9f73e"/>
-    <rect x="${tee[0] - 9}" y="${tee[1]}" width="18" height="6" rx="2" fill="#caa15e"/>`;
+  for (let i = 0; i < 7; i++) { const t = 0.04 + i * 0.135; const s = scl(t) * 1.2; const lp = proj(t, -1.5), rp = proj(t, 1.5); trees += capTree(lp.x, lp.y, s) + capTree(rp.x, rp.y, s); }
+
+  // hazards de agua/arena (de los riesgos del campo)
+  const haz = ((chole && chole.risks) || []).filter(r => !G || r.kind === 'water' || r.at === 'drive').map(r => {
+    const t = r.at === 'drive' ? 0.5 : 0.9; const p = proj(t, r.side === 'left' ? -1.12 : 1.12); const water = r.kind === 'water'; const sc = scl(t);
+    return `<ellipse cx="${p.x.toFixed(0)}" cy="${p.y.toFixed(0)}" rx="${((water ? 24 : 17) * sc + 5).toFixed(0)}" ry="${((water ? 13 : 9) * sc + 3).toFixed(0)}" fill="${water ? 'url(#g3dWater)' : 'url(#g3dSand)'}"/>`;
+  }).join('');
+
+  // bunkers del green (de la hoja de banderas)
+  const bunkers = (G ? G.bk : []).map(code => { const o = CAP_BPOS[code]; if (!o) return ''; const bx = (gx + o[0] * gw * 1.15).toFixed(0), by = gy + o[1] * gh * 1.15; return `<ellipse cx="${bx}" cy="${(by + 2).toFixed(0)}" rx="${(gw * 0.4).toFixed(0)}" ry="${(gh * 0.5).toFixed(0)}" fill="#16401c" opacity="0.22"/><ellipse cx="${bx}" cy="${by.toFixed(0)}" rx="${(gw * 0.36).toFixed(0)}" ry="${(gh * 0.42).toFixed(0)}" fill="url(#g3dSand)"/>`; }).join('');
+
+  const flagH = 22;
+  const greenG = `${haz}${bunkers}
+    <ellipse cx="${gx.toFixed(0)}" cy="${(gy + 3).toFixed(0)}" rx="${(gw + 1).toFixed(0)}" ry="${(gh + 1).toFixed(0)}" fill="#16401c" opacity="0.3"/>
+    <ellipse cx="${gx.toFixed(0)}" cy="${gy.toFixed(0)}" rx="${gw.toFixed(0)}" ry="${gh.toFixed(0)}" fill="#54ad58" stroke="#2f7a38" stroke-width="1.6"/>
+    <ellipse cx="${(gx - gw * 0.25).toFixed(0)}" cy="${(gy - gh * 0.28).toFixed(0)}" rx="${(gw * 0.42).toFixed(0)}" ry="${(gh * 0.34).toFixed(0)}" fill="#79c970" opacity="0.55"/>
+    <circle cx="${pin.x.toFixed(0)}" cy="${pin.y.toFixed(0)}" r="3.2" fill="#08260f"/>
+    <line x1="${pin.x.toFixed(0)}" y1="${pin.y.toFixed(0)}" x2="${pin.x.toFixed(0)}" y2="${(pin.y - flagH).toFixed(0)}" stroke="#ffffff" stroke-width="1.8"/><path d="M${pin.x.toFixed(0)},${(pin.y - flagH).toFixed(0)} l11,3.2 -11,3.2z" fill="#c9f73e"/>`;
+
+  const teeBox = `<ellipse cx="150" cy="${(yNear + 5).toFixed(0)}" rx="20" ry="6" fill="#16401c" opacity="0.18"/><rect x="139" y="${(yNear - 1).toFixed(0)}" width="22" height="7" rx="2.5" fill="#caa15e"/>`;
+
   const field = `<rect width="${W}" height="${H}" fill="url(#g3dGrass)"/>
-    <rect width="${W}" height="72" fill="url(#g3dHorizon)"/>
+    <rect width="${W}" height="${(yFar + 6).toFixed(0)}" fill="url(#capSky)"/>
+    <polygon points="${fairPoly}" fill="#5fa83f"/>
+    <polygon points="${fairPoly}" fill="none" stroke="#3a7d2c" stroke-width="1.6" opacity="0.45"/>
+    <polygon points="${fairInPoly}" fill="#86c860" opacity="0.85"/>
     ${trees}
-    <path d="${fair}" fill="none" stroke="#347029" stroke-width="${par3 ? 52 : 70}" stroke-linecap="round" opacity="0.45"/>
-    <path d="${fair}" fill="none" stroke="#86c860" stroke-width="${par3 ? 44 : 60}" stroke-linecap="round"/>
-    <path d="${fair}" fill="none" stroke="#a6dd78" stroke-width="${par3 ? 24 : 34}" stroke-linecap="round" opacity="0.55"/>
-    ${green3d}`;
-  // historial (clean): campo + línea de regulación (sin trazo de tiros)
+    ${teeBox}
+    ${greenG}`;
+
   if (clean) {
+    let reg = `M${proj(0, 0).x.toFixed(1)},${proj(0, 0).y.toFixed(1)}`;
+    for (let i = 1; i <= 8; i++) { const p = proj(i / 8, 0); reg += ` L${p.x.toFixed(1)},${p.y.toFixed(1)}`; }
     return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hoyo">
-      <g clip-path="url(#capClip)">${field}
-      <path d="${fair}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="2 7" stroke-linecap="round" opacity="0.92"/></g>
+      <g clip-path="url(#capClip)">${field}<path d="${reg}" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-dasharray="2 7" stroke-linecap="round" opacity="0.9"/></g>
       <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="16" fill="none" stroke="rgba(20,50,15,0.18)"/>
     </svg></div>`;
   }
-  const P = s => {
+
+  // vuelo de la bola (arco con sombra)
+  const nodePt = s => {
     const t = Math.min(1, s.prog);
-    let x = bez(t, tee[0], ctrl[0], gx), y = bez(t, tee[1], ctrl[1], gy);
-    if (s.prog > 1) y = Math.max(16, gy - 24 - (s.prog - 1) * 90);   // "largo": claramente pasado el green (arriba)
-    return { x: x + s.side * halfW, y };
+    if (s.prog > 1) return { x: gx + s.side * fwHalf(1), y: Math.max(yFar - 30, gy - (s.prog - 1) * 110) };
+    return proj(t, s.side);
   };
-  const fpts = shots.map(P);
-  const nPutts = h.putts != null ? h.putts : 0;
-  const dyOf = { '0-3': 16, '3-8': 26, '8-20': 40, '20+': 56 };
-  const lagDy = nPutts > 0 ? (dyOf[h.dist] != null ? dyOf[h.dist] : 28) : 0;
-  let lagIdx = -1, lag = { x: pin.x, y: pin.y };
-  if (nPutts > 0) {
-    lagIdx = shots.findIndex(s => s.lie === 'green');
-    lag = { x: pin.x + 2, y: pin.y + lagDy };
-    if (lagIdx >= 0) fpts[lagIdx] = { x: lag.x, y: lag.y };
+  const gnodes = [proj(0, 0), ...shots.map(nodePt)];
+  if (onGreen) gnodes[gnodes.length - 1] = { x: pin.x, y: pin.y };
+
+  let shadowPath = `M${gnodes[0].x.toFixed(1)},${gnodes[0].y.toFixed(1)}`, ballPath = shadowPath;
+  for (let i = 1; i < gnodes.length; i++) {
+    const a = gnodes[i - 1], b = gnodes[i];
+    shadowPath += ` L${b.x.toFixed(1)},${b.y.toFixed(1)}`;
+    const segLen = Math.hypot(b.x - a.x, b.y - a.y);
+    const peak = Math.max(6, Math.min(62, segLen * 0.34));
+    ballPath += ` Q${((a.x + b.x) / 2).toFixed(1)},${((a.y + b.y) / 2 - peak).toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}`;
   }
-  const pputts = [];
-  for (let i = 0; i < nPutts; i++) { const f = (i + 1) / nPutts; pputts.push({ x: lag.x + (pin.x - lag.x) * f, y: lag.y + (pin.y - lag.y) * f }); }
-  const pts = [...fpts, ...pputts];
-  const lagNode = lagIdx >= 0 ? lagIdx + 1 : (nPutts > 0 ? fpts.length + 1 : -1);
-  const seq = shots.concat(Array.from({ length: nPutts }, () => ({ role: 'putt', ok: true })));
-  const route = `M${tee[0]},${tee[1]} ` + pts.map(q => `L${q.x.toFixed(0)},${q.y.toFixed(0)}`).join(' ');
   let dots = '';
-  pts.forEach((q, i) => { const c = shotColor(seq[i]); dots += `<circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.8" fill="${c}" stroke="#16301a" stroke-width="0.7"/>`; });
-  let ball = '', vbAnim = '';
-  if (pts.length) {
-    const allP = [{ x: tee[0], y: tee[1] }, ...pts], seg = []; let tot = 0;
-    for (let i = 1; i < allP.length; i++) { const l = Math.hypot(allP[i].x - allP[i - 1].x, allP[i].y - allP[i - 1].y); seg.push(l); tot += l || 1; }
-    const nf = [0]; { let aa = 0; for (const l of seg) { aa += l; nf.push(aa / tot); } }
-    const ev = [{ p: 0, d: 0, node: 0 }];
-    for (let i = 1; i < nf.length; i++) { ev.push({ p: nf[i], d: 1, node: i }); if (i < nf.length - 1) ev.push({ p: nf[i], d: 0.5 }); }
-    ev.push({ p: 1, d: 1 });
-    const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; const nodeT = {};
-    ev.forEach(e => { ac += e.d; const t = ac / TT; kp.push(e.p.toFixed(3)); kt.push(t.toFixed(3)); if (e.node != null) nodeT[e.node] = t; });
-    const dur = Math.min(9, 1.2 + (nf.length - 1) * 1.25).toFixed(1);
-    ball = `<circle r="4.8" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 2.5px 1.6px rgba(0,0,0,.4))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${route}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
-    if (!noZoom && nPutts > 0 && lagNode >= 0) {
-      const bw = 178, bh = 176;
-      const bx = Math.max(0, Math.min(W - bw, gx - bw / 2)).toFixed(0);
-      const by = Math.max(0, Math.min(H - bh, gy + lagDy / 2 - bh / 2)).toFixed(0);
-      const box = `${bx} ${by} ${bw} ${bh}`;
-      const tA = nodeT[lagNode] != null ? nodeT[lagNode] : 0.55;
-      let k = [0, Math.max(0.05, tA - 0.03), Math.min(0.9, tA + 0.06), 0.96, 1];
-      for (let i = 1; i < k.length; i++) if (k[i] <= k[i - 1]) k[i] = Math.min(1, k[i - 1] + 0.005);
-      const vals = `0 0 ${W} ${H};0 0 ${W} ${H};${box};${box};0 0 ${W} ${H}`;
-      vbAnim = `<animate attributeName="viewBox" dur="${dur}s" repeatCount="indefinite" values="${vals}" keyTimes="${k.map(x => x.toFixed(3)).join(';')}" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1"/>`;
-    }
+  shots.forEach((s, i) => { const q = gnodes[i + 1]; dots += `<ellipse cx="${q.x.toFixed(0)}" cy="${(q.y + 2).toFixed(0)}" rx="4" ry="1.6" fill="#000" opacity="0.18"/><circle cx="${q.x.toFixed(0)}" cy="${q.y.toFixed(0)}" r="3.6" fill="${shotColor(s)}" stroke="#16301a" stroke-width="0.7"/>`; });
+
+  let ball = '', shadow = '';
+  if (gnodes.length > 1) {
+    const seg = []; let tot = 0;
+    for (let i = 1; i < gnodes.length; i++) { const l = Math.hypot(gnodes[i].x - gnodes[i - 1].x, gnodes[i].y - gnodes[i - 1].y) || 1; seg.push(l); tot += l; }
+    const nf = [0]; { let a = 0; for (const l of seg) { a += l; nf.push(a / tot); } }
+    const ev = [{ p: 0, d: 0 }]; for (let i = 1; i < nf.length; i++) { ev.push({ p: nf[i], d: 1 }); if (i < nf.length - 1) ev.push({ p: nf[i], d: 0.5 }); } ev.push({ p: 1, d: 0.7 });
+    const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; ev.forEach(e => { ac += e.d; kp.push(e.p.toFixed(3)); kt.push((ac / TT).toFixed(3)); });
+    const dur = Math.min(9, 1.1 + (gnodes.length - 1) * 1.2).toFixed(1);
+    ball = `<circle r="4.6" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 2px 1.4px rgba(0,0,0,.35))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${ballPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+    shadow = `<ellipse rx="4.2" ry="1.6" fill="#000" opacity="0.22"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${shadowPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></ellipse>`;
   }
+
   return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vuelo de la bola">
-    ${vbAnim}
     <g clip-path="url(#capClip)">
     ${field}
-    <path d="${route}" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-dasharray="3 5" stroke-linecap="round" opacity="0.9"/>
-    ${dots}${ball}
+    <path d="${shadowPath}" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-dasharray="3 5" stroke-linecap="round" opacity="0.85"/>
+    ${dots}${shadow}${ball}
     </g>
     <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="16" fill="none" stroke="rgba(20,50,15,0.18)"/>
   </svg></div>`;
@@ -275,10 +324,15 @@ function vPlay() {
   const sugg = suggestScore(h);
   const score = V.scoreTouched ? h.score : sugg;
   const pct = (a.idx / a.holesCount) * 100;
-  const ready = h.app && h.putts != null && (h.par === 3 || h.tee);
+  const ready = h.app && h.putts != null && teeDone(h);
 
+  const lieLbl = { calle: 'Calle ✓', rough: 'Rough', bunker: 'Bunker', ob: 'OB/Penal' };
+  const dirLbl = { izq: ' izq', der: ' der', c: '' };
   const sl = [];
-  if (h.par >= 4 && h.tee) sl.push(h.tee === 'fw' ? 'Fairway ✓' : h.tee === 'penal' ? 'OB/Penal' : h.tee === 'izq' ? 'Salida izq' : 'Salida der');
+  if (h.par >= 4 && (h.teeLie || h.tee)) {
+    if (h.teeLie) sl.push((lieLbl[h.teeLie] || 'Salida') + (h.teeLie !== 'calle' && dirLbl[h.tee] ? dirLbl[h.tee] : ''));
+    else sl.push(h.tee === 'fw' ? 'Calle ✓' : h.tee === 'penal' ? 'OB/Penal' : h.tee === 'izq' ? 'Salida izq' : 'Salida der');
+  }
   if (h.app) sl.push(h.app === 'gir' ? 'Green ✓' : h.app === 'corto' ? 'Corto' : h.app === 'largo' ? 'Largo' : h.app === 'izq' ? 'Falló izq' : 'Falló der');
   if (h.app && h.app !== 'gir' && h.upDown != null) sl.push(h.upDown ? 'Up & down ✓' : 'Chip');
   if (h.putts != null) sl.push(h.putts + ' putt' + (h.putts !== 1 ? 's' : ''));
@@ -302,8 +356,10 @@ function vPlay() {
 
     <div class="reg-card">
     ${h.par !== 3 ? `<div class="group">
-      <div class="g-lab"><span class="g-num">1</span><span class="label">Salida</span>${h.tee ? '<span class="g-ok">✓</span>' : ''}</div>
-      ${chipRow([['fw', '🏌 Fairway'], ['izq', '← Izq'], ['der', 'Der →'], ['penal', 'Penal']], 'tee', h.tee)}
+      <div class="g-lab"><span class="g-num">1</span><span class="label">Salida</span><span class="small muted">¿a dónde fue?</span>${h.teeLie ? '<span class="g-ok">✓</span>' : ''}</div>
+      ${chipRow([['izq', '← Izq'], ['c', 'Centro'], ['der', 'Der →']], 'tee', h.tee)}
+      <div style="height:8px"></div>
+      ${chipRow([['calle', 'Calle ✓'], ['rough', 'Rough'], ['bunker', 'Bunker'], ['ob', 'OB·Penal']], 'teeLie', h.teeLie)}
     </div>` : ''}
 
     <div class="group">

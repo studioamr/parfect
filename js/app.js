@@ -37,12 +37,12 @@ async function hashPass(pass) {
 }
 
 function newHole(par) {
-  return { par, tee: null, app: null, upDown: null, putts: null, dist: null, score: null };
+  return { par, tee: null, teeLie: null, app: null, upDown: null, putts: null, dist: null, score: null };
 }
 
 function suggestScore(h) {
   if (h.putts == null || !h.app) return null;
-  const penal = h.tee === 'penal' ? 1 : 0;
+  const penal = teeIsPenal(h) ? 1 : 0;
   if (h.app === 'gir') return Math.max(1, h.par - 2 + h.putts + penal);
   return Math.max(1, h.par - 1 + h.putts + penal); // regulación fallada + chip + putts
 }
@@ -245,8 +245,10 @@ const actions = {
     // toggle off para campos opcionales
     if ((k === 'dist' && h.dist === v) || (k === 'upDown' && h.upDown === v)) v = null;
     h[k] = v;
-    if (k === 'par' && v === 3) h.tee = null;
+    if (k === 'par' && v === 3) { h.tee = null; h.teeLie = null; }
     if (k === 'app' && v === 'gir') h.upDown = null;
+    // si eliges el resultado de la salida sin dirección, asume centro
+    if (k === 'teeLie' && v && !h.tee) h.tee = 'c';
     // up & down salvado = chip + 1 putt → llena los putts en automático
     if (k === 'upDown' && v === true) h.putts = 1;
     render();
@@ -261,7 +263,7 @@ const actions = {
   },
   'h-next'() {
     const a = S.active, h = V.hole;
-    const ready = h.app && h.putts != null && (h.par === 3 || h.tee);
+    const ready = h.app && h.putts != null && teeDone(h);
     if (!ready) return;
     const score = V.scoreTouched && h.score != null ? h.score : suggestScore(h);
     const done = { ...h, score };
