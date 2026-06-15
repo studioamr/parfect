@@ -88,48 +88,65 @@ function upcomingCard(u) {
   return `<div class="card"><span class="label">${golfIcon('card')} Próximos eventos</span>${rows}</div>`;
 }
 
-/* ---- escenas animadas tipo GIF por estadística ---- */
+/* ---- escenas animadas tipo GIF por estadística (con bandera ondeando, estela y rebote) ---- */
 function statScene(kind) {
   const bg = `<rect width="170" height="100" rx="12" fill="#0c130a"/><rect x="0.5" y="0.5" width="169" height="99" rx="12" fill="none" stroke="#16210f"/>`;
-  const flag = (x, y) => `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - 16}" stroke="#eef3e6" stroke-width="1.4"/><path d="M${x} ${y - 16} l8 2.4 -8 2.4z" fill="#c9f73e"/>`;
+  // bandera con asta y banderín que ondea
+  const flag = (x, y, h) => {
+    h = h || 16; const t = y - h;
+    return `<line x1="${x}" y1="${y}" x2="${x}" y2="${t}" stroke="#eef3e6" stroke-width="1.4"/><circle cx="${x}" cy="${t}" r="1.2" fill="#eef3e6"/>`
+      + `<path fill="#c9f73e"><animate attributeName="d" dur="1.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" values="M${x} ${t} L${x + 11} ${t + 1.4} L${x} ${t + 5} Z;M${x} ${t} L${x + 11} ${t + 3.8} L${x} ${t + 5} Z;M${x} ${t} L${x + 11} ${t + 1.4} L${x} ${t + 5} Z"/></path>`;
+  };
   if (kind === 'fw') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <path d="M72 100 L98 100 L91 34 L79 34 Z" fill="#2f6b39"/><path d="M78 96 L92 96 L88 40 L82 40 Z" fill="#3a8043" opacity="0.5"/>
-    <ellipse cx="85" cy="30" rx="16" ry="8" fill="#57b15c"/>${flag(85, 30)}
-    <ellipse cx="85" cy="60" rx="3" ry="2" fill="#c9f73e" opacity="0"><animate attributeName="opacity" values="0;0;.8;0" keyTimes="0;.47;.53;1" dur="3s" repeatCount="indefinite"/></ellipse>
-    <circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M16 92 Q 48 -10 85 60" keyPoints="0;1;1;1" keyTimes="0;.5;.9;1" calcMode="linear"/></circle>
+    <path d="M68 100 L102 100 L93 32 L77 32 Z" fill="#2f6b39"/><path d="M77 32 L93 32 L92.4 28 L77.6 28 Z" fill="#3a8043"/>
+    <path d="M74.6 58 L95.4 58 L94.7 50 L75.3 50 Z" fill="#357a3d" opacity="0.5"/><path d="M72.6 78 L97.4 78 L96.6 70 L73.4 70 Z" fill="#357a3d" opacity="0.38"/>
+    <ellipse cx="85" cy="28" rx="16" ry="7.5" fill="#57b15c"/><ellipse cx="85" cy="27" rx="9" ry="3.6" fill="#6cc471" opacity="0.65"/>
+    <circle cx="85" cy="26" r="1.8" fill="#06120a"/>${flag(85, 26, 14)}
+    <ellipse cx="85" cy="62" rx="2" ry="1" fill="#c9f73e" opacity="0"><animate attributeName="rx" values="2;2;9;12" keyTimes="0;.5;.62;.7" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.8;0" keyTimes="0;.5;.56;.7" dur="3s" repeatCount="indefinite"/></ellipse>
+    <circle cx="20" cy="90" r="2" fill="#7c8a70" opacity="0"><animate attributeName="opacity" values="0;.6;0;0" keyTimes="0;.05;.18;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="90;83;81;81" keyTimes="0;.07;.18;1" dur="3s" repeatCount="indefinite"/></circle>
+    <circle r="2.4" fill="#fff" opacity="0.22"><animateMotion dur="3s" begin="-0.07s" repeatCount="indefinite" path="M16 92 Q 48 -10 85 62" keyPoints="0;1;1;1" keyTimes="0;.5;.9;1" calcMode="linear"/></circle>
+    <circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M16 92 Q 48 -10 85 62" keyPoints="0;1;1;1" keyTimes="0;.5;.9;1" calcMode="linear"/></circle>
   </svg>`;
   if (kind === 'gir') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <ellipse cx="85" cy="46" rx="30" ry="16" fill="#2f6b39"/><ellipse cx="85" cy="44" rx="20" ry="10" fill="#57b15c"/>
-    <circle cx="85" cy="42" r="2.4" fill="#0a0f08"/>${flag(85, 42)}
-    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.2s" repeatCount="indefinite" path="M14 94 Q 38 -8 80 46" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
-    <circle r="3.4" fill="#c9f73e" opacity="0.85"><animateMotion dur="3.2s" begin="1.6s" repeatCount="indefinite" path="M156 92 Q 124 -10 90 47" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
+    <ellipse cx="85" cy="50" rx="36" ry="19" fill="#2f6b39"/><ellipse cx="85" cy="48" rx="24" ry="11.5" fill="#57b15c"/><ellipse cx="80" cy="45" rx="12" ry="5" fill="#6cc471" opacity="0.5"/>
+    <circle cx="85" cy="44" r="2.2" fill="#06120a"/>${flag(85, 44, 15)}
+    <ellipse cx="78" cy="50" rx="2" ry="1" fill="#c9f73e" opacity="0"><animate attributeName="rx" values="2;2;8;11" keyTimes="0;.44;.56;.66" dur="3.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.8;0" keyTimes="0;.44;.5;.66" dur="3.2s" repeatCount="indefinite"/></ellipse>
+    <circle r="3.4" fill="#c9f73e" opacity="0.85"><animateMotion dur="3.2s" begin="1.5s" repeatCount="indefinite" path="M156 92 Q 124 -10 92 50" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
+    <circle r="2.3" fill="#fff" opacity="0.2"><animateMotion dur="3.2s" begin="-0.06s" repeatCount="indefinite" path="M14 94 Q 38 -8 78 50" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
+    <circle r="3.8" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.2s" repeatCount="indefinite" path="M14 94 Q 38 -8 78 50" keyPoints="0;1;1;1" keyTimes="0;.44;.9;1" calcMode="linear"/></circle>
   </svg>`;
   if (kind === 'ud') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <ellipse cx="102" cy="50" rx="33" ry="16" fill="#2f6b39"/><ellipse cx="102" cy="48" rx="21" ry="10" fill="#57b15c"/>
-    <ellipse cx="32" cy="72" rx="16" ry="6" fill="#43331a"/>
-    <circle cx="106" cy="46" r="2.6" fill="#0a0f08"/>${flag(106, 46)}
-    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.4s" repeatCount="indefinite" path="M32 70 Q 64 -6 96 50 L106 46" keyPoints="0;0.85;0.85;1;1" keyTimes="0;.44;.6;.82;1" calcMode="linear"/></circle>
-    <text x="100" y="90" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" text-anchor="middle" opacity="0">¡Salvado!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.82;.86;.96;1" dur="3.4s" repeatCount="indefinite"/></text>
+    <ellipse cx="106" cy="52" rx="34" ry="16" fill="#2f6b39"/><ellipse cx="106" cy="50" rx="22" ry="10" fill="#57b15c"/><ellipse cx="103" cy="48" rx="11" ry="4" fill="#6cc471" opacity="0.45"/>
+    <circle cx="108" cy="46" r="2.2" fill="#06120a"/>${flag(108, 46, 15)}
+    <ellipse cx="30" cy="76" rx="20" ry="8" fill="#cdb985"/><ellipse cx="30" cy="74" rx="14" ry="5" fill="#e2d09b" opacity="0.7"/><path d="M18 74 q5 -3 10 -1 q6 2 12 -1" fill="none" stroke="#b9a36a" stroke-width="0.8" opacity="0.6"/>
+    <g opacity="0"><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;.07;.22;1" dur="3.4s" repeatCount="indefinite"/><circle cx="26" cy="70" r="1.3" fill="#e2d09b"/><circle cx="32" cy="68" r="1.1" fill="#e2d09b"/><circle cx="29" cy="66" r="1" fill="#e2d09b"/><circle cx="35" cy="71" r="1" fill="#e2d09b"/></g>
+    <circle cx="108" cy="46" r="3" fill="none" stroke="#c9f73e" stroke-width="1.2" opacity="0"><animate attributeName="r" values="3;3;11" keyTimes="0;.82;.96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.9;0" keyTimes="0;.82;.88;.96" dur="3.4s" repeatCount="indefinite"/></circle>
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3.4s" repeatCount="indefinite" path="M30 72 Q 64 -6 100 52 L108 46" keyPoints="0;0.85;0.85;1;1" keyTimes="0;.44;.6;.82;1" calcMode="linear"/></circle>
+    <text x="100" y="92" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9.5" font-weight="800" text-anchor="middle" opacity="0">¡Salvado!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.82;.86;.96;1" dur="3.4s" repeatCount="indefinite"/></text>
   </svg>`;
   if (kind === 'putt') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <ellipse cx="85" cy="52" rx="46" ry="30" fill="#2f6b39"/><ellipse cx="85" cy="52" rx="33" ry="21" fill="#3a8043" opacity="0.55"/>
-    <path d="M85 80 L85 34" stroke="#c9f73e" stroke-width="1" stroke-dasharray="2 4" opacity="0.5"/>
-    <circle cx="85" cy="34" r="5" fill="#0a0f08"/><circle cx="85" cy="34" r="7" fill="none" stroke="#c9f73e" stroke-width="0.8" opacity="0.6"/>${flag(85, 34)}
-    <circle fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="2.6s" repeatCount="indefinite" path="M85 80 L85 34" keyPoints="0;1;1" keyTimes="0;.68;1" calcMode="linear"/><animate attributeName="r" values="3.6;3.6;0;0" keyTimes="0;.64;.7;1" dur="2.6s" repeatCount="indefinite"/></circle>
+    <ellipse cx="85" cy="54" rx="48" ry="31" fill="#2f6b39"/><ellipse cx="85" cy="54" rx="34" ry="21" fill="#357a3d" opacity="0.5"/><ellipse cx="80" cy="46" rx="16" ry="8" fill="#6cc471" opacity="0.3"/>
+    <path d="M85 82 L85 34" stroke="#c9f73e" stroke-width="1" stroke-dasharray="2 4" opacity="0.45"/>
+    <ellipse cx="85" cy="34" rx="5" ry="2.4" fill="#000" opacity="0.55"/><circle cx="85" cy="34" r="5" fill="#06120a"/>${flag(85, 34, 16)}
+    <circle cx="85" cy="34" r="5" fill="none" stroke="#c9f73e" stroke-width="1.3" opacity="0"><animate attributeName="r" values="5;5;13" keyTimes="0;.7;.86" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.85;0" keyTimes="0;.7;.76;.86" dur="2.8s" repeatCount="indefinite"/></circle>
+    <circle fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="2.8s" repeatCount="indefinite" path="M85 82 L85 34" keyPoints="0;1;1" keyTimes="0;.7;1" calcMode="linear"/><animate attributeName="r" values="3.6;3.6;0;0" keyTimes="0;.68;.74;1" dur="2.8s" repeatCount="indefinite"/></circle>
   </svg>`;
   if (kind === 'drive') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <path d="M0 88 Q 85 80 170 70 L170 100 L0 100 Z" fill="#2f6b39" opacity="0.55"/>
-    <ellipse cx="150" cy="44" rx="15" ry="7" fill="#57b15c"/>${flag(150, 44)}
+    <path d="M0 88 Q 85 80 170 70 L170 100 L0 100 Z" fill="#2f6b39" opacity="0.55"/><path d="M0 92 Q 85 85 170 76" fill="none" stroke="#357a3d" stroke-width="3" opacity="0.4"/>
+    <ellipse cx="150" cy="44" rx="15" ry="7" fill="#57b15c"/><ellipse cx="150" cy="43" rx="8" ry="3.2" fill="#6cc471" opacity="0.6"/>${flag(150, 44, 14)}
     <line x1="20" y1="84" x2="20" y2="76" stroke="#6b7a5a" stroke-width="1.4"/><ellipse cx="20" cy="85" rx="6" ry="2" fill="#3a8043"/>
-    <circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M20 76 Q 86 -22 150 44" keyPoints="0;1;1" keyTimes="0;.55;1" calcMode="linear"/></circle>
-    <circle r="2" fill="#c9f73e" opacity="0"><animateMotion dur="3s" repeatCount="indefinite" path="M20 76 Q 86 -22 150 44" keyPoints="0;1;1" keyTimes="0;.55;1" calcMode="linear"/><animate attributeName="opacity" values="0;.5;0;0" keyTimes="0;.3;.55;1" dur="3s" repeatCount="indefinite"/></circle>
+    <ellipse cx="150" cy="50" rx="2" ry="1" fill="#c9f73e" opacity="0"><animate attributeName="rx" values="2;2;9;12" keyTimes="0;.55;.66;.74" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.8;0" keyTimes="0;.55;.6;.74" dur="3s" repeatCount="indefinite"/></ellipse>
+    <circle r="2.2" fill="#fff" opacity="0.22"><animateMotion dur="3s" begin="-0.06s" repeatCount="indefinite" path="M20 76 Q 86 -22 150 50" keyPoints="0;1;1" keyTimes="0;.55;1" calcMode="linear"/></circle>
+    <circle r="4" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M20 76 Q 86 -22 150 50" keyPoints="0;1;1" keyTimes="0;.55;1" calcMode="linear"/></circle>
   </svg>`;
   if (kind === 'bird') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <ellipse cx="85" cy="56" rx="34" ry="17" fill="#2f6b39"/><ellipse cx="85" cy="54" rx="22" ry="11" fill="#57b15c"/>
-    <circle cx="85" cy="52" r="2.4" fill="#0a0f08"/>${flag(85, 52)}
-    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M16 92 Q 50 -12 85 52" keyPoints="0;1;1;1" keyTimes="0;.5;.92;1" calcMode="linear"/><animate attributeName="r" values="3.6;3.6;0;0" keyTimes="0;.5;.56;1" dur="3s" repeatCount="indefinite"/></circle>
-    <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.5;.58;.92;1" dur="3s" repeatCount="indefinite"/>
-      <circle cx="85" cy="26" r="11" fill="#c9f73e"/><text x="85" y="30" fill="#0a0f06" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="900" text-anchor="middle">−1</text></g>
+    <ellipse cx="85" cy="58" rx="36" ry="17" fill="#2f6b39"/><ellipse cx="85" cy="56" rx="23" ry="11" fill="#57b15c"/><ellipse cx="81" cy="53" rx="11" ry="4.5" fill="#6cc471" opacity="0.45"/>
+    <circle cx="85" cy="52" r="2.2" fill="#06120a"/>${flag(85, 52, 15)}
+    <circle cx="85" cy="52" r="3" fill="none" stroke="#c9f73e" stroke-width="1.2" opacity="0"><animate attributeName="r" values="3;3;11" keyTimes="0;.52;.66" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0;.85;0" keyTimes="0;.52;.58;.66" dur="3s" repeatCount="indefinite"/></circle>
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M16 92 Q 50 -14 85 52" keyPoints="0;1;1;1" keyTimes="0;.5;.92;1" calcMode="linear"/><animate attributeName="r" values="3.6;3.6;0;0" keyTimes="0;.5;.56;1" dur="3s" repeatCount="indefinite"/></circle>
+    <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.56;.62;.92;1" dur="3s" repeatCount="indefinite"/>
+      <circle cx="85" cy="24" r="11" fill="#c9f73e"/><text x="85" y="28" fill="#0a0f06" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="900" text-anchor="middle">−1</text>
+      <path d="M69 19 l1.6 0 M69.8 17.5 l0 1.6" stroke="#c9f73e" stroke-width="1.4" stroke-linecap="round"/><path d="M100 28 l1.6 0 M100.8 26.5 l0 1.6" stroke="#c9f73e" stroke-width="1.4" stroke-linecap="round"/></g>
   </svg>`;
   if (kind === 'score') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
     <line x1="18" y1="78" x2="152" y2="78" stroke="#16210f" stroke-width="1"/>
@@ -138,11 +155,11 @@ function statScene(kind) {
     <path d="M134 80 l12 0 0 -12" fill="none" stroke="#c9f73e" stroke-width="1.6" opacity="0"><animate attributeName="opacity" values="0;0;.9;.9;0" keyTimes="0;.7;.76;.94;1" dur="3s" repeatCount="indefinite"/></path>
   </svg>`;
   return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
-    <ellipse cx="85" cy="52" rx="48" ry="31" fill="#2f6b39"/><ellipse cx="85" cy="52" rx="34" ry="21" fill="#3a8043" opacity="0.5"/>
-    <circle cx="85" cy="30" r="5" fill="#0a0f08"/>${flag(85, 30)}
-    <circle cx="85" cy="41" r="11" fill="none" stroke="#c9f73e" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55"/>
-    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M85 84 L85 41" keyPoints="0;1;1" keyTimes="0;.6;1" calcMode="linear"/></circle>
-    <text x="85" y="94" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" text-anchor="middle" opacity="0">dada<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.6;.66;.96;1" dur="3s" repeatCount="indefinite"/></text>
+    <ellipse cx="85" cy="54" rx="48" ry="31" fill="#2f6b39"/><ellipse cx="85" cy="54" rx="34" ry="21" fill="#357a3d" opacity="0.5"/><ellipse cx="80" cy="46" rx="15" ry="7" fill="#6cc471" opacity="0.28"/>
+    <circle cx="85" cy="32" r="5" fill="#06120a"/>${flag(85, 32, 16)}
+    <circle cx="85" cy="40" r="12" fill="none" stroke="#c9f73e" stroke-width="0.9" stroke-dasharray="3 3" opacity="0.55"/>
+    <circle r="3.6" fill="#fff" stroke="#0a0f08" stroke-width="0.8"><animateMotion dur="3s" repeatCount="indefinite" path="M85 86 L85 41" keyPoints="0;1;1" keyTimes="0;.62;1" calcMode="linear"/></circle>
+    <text x="85" y="94" fill="#c9f73e" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="800" text-anchor="middle" opacity="0">dada<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.62;.68;.96;1" dur="3s" repeatCount="indefinite"/></text>
   </svg>`;
 }
 /* reel horizontal de stats animadas (scroll automático) */
@@ -150,26 +167,16 @@ function statReel(cards) {
   const set = cards.map(([k, v, t]) => `<div class="reel-card"><div class="reel-scene">${statScene(k)}</div><div class="reel-meta"><b>${v}</b><span>${esc(t)}</span></div></div>`).join('');
   return `<div class="reel"><div class="reel-track">${set}${set}</div></div>`;
 }
-/* sección 1 — de tee a green (juego largo) */
-function reelTeeToGreen(rounds, agg) {
-  const holes = rounds.flatMap(r => r.holes);
-  const teeHoles = holes.filter(h => h.tee);
-  const inPlay = teeHoles.length ? Math.round(teeHoles.filter(h => h.tee !== 'penal').length / teeHoles.length * 100) : 0;
-  return statReel([
-    ['fw', Math.round(agg.fwPct) + '%', 'Fairways'],
-    ['gir', Math.round(agg.girPct) + '%', 'Greens · GIR'],
-    ['drive', inPlay + '%', 'Salidas en juego'],
-    ['score', fmtToPar(agg.bestToPar), 'Mejor vuelta'],
-  ]);
-}
-/* sección 2 — juego corto y scoring */
-function reelShortScoring(rounds, agg) {
+/* reel infinito de stats con gifs: fairways, gir, up&down, putts (+sin 3-putt, birdies) */
+function vStatReel(rounds, agg) {
   const holes = rounds.flatMap(r => r.holes);
   const onePutt = holes.length ? Math.round(holes.filter(h => h.putts != null && h.putts <= 1).length / holes.length * 100) : 0;
   const noThree = Math.max(0, 100 - Math.round(agg.threePct || 0));
   const sd = agg.scoreDist || { total: 0, eagle: 0, birdie: 0 };
   const birdie = sd.total ? Math.round((sd.eagle + sd.birdie) / sd.total * 100) : 0;
   return statReel([
+    ['fw', Math.round(agg.fwPct) + '%', 'Fairways'],
+    ['gir', Math.round(agg.girPct) + '%', 'Greens · GIR'],
     ['ud', Math.round(agg.scrPct) + '%', 'Up & down'],
     ['putt', onePutt + '%', 'Putts embocados'],
     ['lag', noThree + '%', 'Sin 3-putt'],
@@ -234,14 +241,29 @@ function holeShotList(hh) {
   return `<div class="hole-shots">${rows.join('')}</div>`;
 }
 
-/* banda de KPIs (resumen rápido del jugador) */
-function vKpiBand(agg, u) {
-  const tiles = [
-    [String(agg.rounds), 'Rondas'],
+/* mis números: KPIs de juego + mi bolsa (carries por bastón) */
+function vMisNumeros(u, agg) {
+  const clubs = u.clubs || {};
+  const carry = id => (clubC(clubs, id) != null ? clubC(clubs, id) : CLUB_DEFAULT[id]);
+  const hasBag = clubs && Object.keys(clubs).length;
+  const ids = (hasBag ? CLUBS.filter(c => clubs[c.id] != null).map(c => c.id) : DEFAULT_BAG).filter(id => CLUB_DEFAULT[id] != null);
+  const sorted = ids.map(id => ({ id, name: (CLUBS.find(c => c.id === id) || {}).name || id, y: carry(id) })).sort((a, b) => b.y - a.y);
+  const driverY = carry('dr');
+  const longest = sorted[0] || { name: 'Driver', y: driverY };
+  const tiles = sorted.map(c => `<div class="bag-tile${c.id === 'dr' ? ' dr' : ''}"><b>${c.y}</b><span>${esc(c.name)}</span></div>`).join('');
+  const kpis = [
     [fmtToPar(agg.bestToPar), 'Mejor vuelta'],
     [fmtToPar(Math.round(agg.avgToPar)), 'Promedio'],
+    [agg.putts18.toFixed(0), 'Putts/ronda'],
   ];
-  return `<div class="kpi-band">${tiles.map(([v, t]) => `<div class="kpi"><b>${v}</b><span>${t}</span></div>`).join('')}</div>`;
+  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Mis números</h2><span class="small muted">tu juego y tu bolsa</span></div>
+    <div class="kpi-band">${kpis.map(([v, t]) => `<div class="kpi"><b>${v}</b><span>${t}</span></div>`).join('')}</div>
+    <div class="bag-feat">
+      <div class="card bag-card"><span class="label">${golfIcon('club')} Carry de driver</span><b class="bag-big">${driverY}<em> yds</em></b></div>
+      <div class="card bag-card"><span class="label">${golfIcon('flag')} Bastón más largo</span><b class="bag-name">${esc(longest.name)}</b><span class="bag-sub">${longest.y} yds de carry</span></div>
+    </div>
+    <div class="sec-h" style="margin-top:14px"><h2 style="font-size:15px">Mi bolsa</h2><span class="small muted">carry por bastón · desliza →</span></div>
+    <div class="bag-strip">${tiles}</div>`;
 }
 
 /* tus rondas por campo: elige campo (3) y tarjeta guardada del historial */
@@ -333,15 +355,10 @@ function vDashboard() {
   }
 
   return head + `
-    ${vKpiBand(agg, u)}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">de tee a green →</span></div>
-    ${reelTeeToGreen(rounds, agg)}
-    <div class="sec-h" style="margin-top:14px"><h2 style="font-size:15px">Juego corto y scoring</h2><span class="small muted">desliza →</span></div>
-    ${reelShortScoring(rounds, agg)}
-    ${progressCard(u, rounds)}
-    ${vTrainingCard(u)}
-    ${vLastRound(rounds)}
-    ${upcomingCard(u)}`;
+    <div class="sec-h" style="margin-top:16px"><h2 style="font-size:18px">Tu juego en movimiento</h2><span class="small muted">desliza →</span></div>
+    ${vStatReel(rounds, agg)}
+    ${vMisNumeros(u, agg)}
+    ${vLastRound(rounds)}`;
 }
 
 /* ---- reparto de score: birdies / pares / bogeys… ---- */
