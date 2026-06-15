@@ -1,6 +1,7 @@
 /* ============ PARFECT app: estado, router, acciones ============ */
 
 let S = Store.load();
+S.settings = S.settings || { lang: 'es', theme: 'dark' };
 let V = {
   view: S.session ? 'inicio' : 'landing',
   err: null, authVals: null,
@@ -90,6 +91,7 @@ function App() {
 }
 
 function render() {
+  if (typeof applyTheme === 'function') applyTheme();
   document.getElementById('root').innerHTML = App();
   if (typeof afterRender === 'function') afterRender();
 }
@@ -205,6 +207,8 @@ const actions = {
   'hist-hole'(d) { V.histHole = Number(d.i); render(); },
   'home-course'(d) { if (COURSES[d.c]) { V.homeCid = d.c; V.homeRid = null; } render(); },
   'home-round'(d) { V.homeRid = d.id; render(); },
+  'set-lang'(d) { S.settings = S.settings || {}; S.settings.lang = d.v === 'en' ? 'en' : 'es'; commit(); },
+  'set-theme'(d) { S.settings = S.settings || {}; S.settings.theme = d.v === 'light' ? 'light' : 'dark'; commit(); },
   'stat-pop'(d, el) {
     if (!el) return;
     el.classList.remove('tapped'); void el.offsetWidth; el.classList.add('tapped');

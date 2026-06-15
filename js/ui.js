@@ -6,6 +6,56 @@ function esc(s) {
   }[c]));
 }
 
+/* ============ i18n (Español / English) + tema (oscuro / claro) ============ */
+const I18N = {
+  es: {
+    greet_morning: 'Buenos días', greet_afternoon: 'Buenas tardes', greet_evening: 'Buenas noches',
+    hi: 'Hola', handicap: 'Hándicap', goal: 'meta',
+    qa_round: 'Empezar ronda', qa_drills: 'Drills', qa_stats: 'Estadísticas', qa_trophies: 'Trofeos', qa_bag: 'Mi bolsa', qa_profile: 'Mi perfil',
+    sec_stats: 'Tus estadísticas', sub_stats: '% sobre 18 hoyos →',
+    st_fw: 'Fairways', st_gir: 'Greens · GIR', st_ud: 'Up & down', st_putts9: 'Putts · 9 hoyos', st_3putts: '3-putts · 9 hoyos', st_birdie: 'Birdie o mejor', st_par: 'Pares', st_bogey: 'Bogeys', st_double: 'Dobles o peor',
+    of: 'de', average: 'promedio',
+    sec_numbers: 'Mis números', sub_numbers: 'tu juego y tu equipo',
+    best_round: 'Mejor vuelta', average_k: 'Promedio', putts_round: 'Putts/ronda',
+    driver_carry: 'Carry de driver', most_accurate: 'Tu palo más certero', accuracy: 'de efectividad',
+    sec_bag: 'Mi bolsa', sub_bag: 'carry y efectividad por palo',
+    sec_practice: 'Entrena', sub_practice: 'toca un drill →', practice_cta: 'Entrenar →',
+    nav_home: 'Inicio', nav_round: 'Ronda', nav_trainer: 'Trainer', nav_profile: 'Perfil',
+    settings: 'Configuración', language: 'Idioma', theme: 'Tema', dark: 'Oscuro', light: 'Claro',
+    load_demo: 'Cargar datos de ejemplo', wipe: 'Borrar mis rondas y prácticas', wipe_confirm: '¿Seguro? Toca otra vez para borrar', logout: 'Cerrar sesión', local_note: 'Cuenta local · tus datos viven solo en este dispositivo',
+    dr_gate: 'Gate drill', dr_ladder: 'Escalera de distancias', dr_ud: 'Up & down', dr_14: '14 calles a presión', dr_splash: 'Splash de bunker', dr_lag: 'Lag putting',
+    drd_gate: 'Centra la cara del putter', drd_ladder: 'Controla tus carries', drd_ud: 'Salva el par', drd_14: 'Encuentra la calle', drd_splash: 'Sal de la arena', drd_lag: 'Evita los 3-putts',
+    tag_putt: 'Putt', tag_approach: 'Approach', tag_short: 'Juego corto', tag_drive: 'Salida', tag_bunker: 'Bunker', tag_lagputt: 'Putt largo',
+    empty_h: 'Aquí empieza tu cuaderno de juego', empty_p: 'Registra una ronda y PARFECT analiza cada tiro: calles, greens, putts y dónde estás ganando o dejando golpes.', empty_cta: 'Registrar mi primera ronda', empty_demo: 'Ver con datos de ejemplo',
+  },
+  en: {
+    greet_morning: 'Good morning', greet_afternoon: 'Good afternoon', greet_evening: 'Good evening',
+    hi: 'Hi', handicap: 'Handicap', goal: 'goal',
+    qa_round: 'Start round', qa_drills: 'Drills', qa_stats: 'Stats', qa_trophies: 'Trophies', qa_bag: 'My bag', qa_profile: 'My profile',
+    sec_stats: 'Your stats', sub_stats: '% over 18 holes →',
+    st_fw: 'Fairways', st_gir: 'Greens · GIR', st_ud: 'Up & down', st_putts9: 'Putts · 9 holes', st_3putts: '3-putts · 9 holes', st_birdie: 'Birdie or better', st_par: 'Pars', st_bogey: 'Bogeys', st_double: 'Doubles or worse',
+    of: 'of', average: 'average',
+    sec_numbers: 'My numbers', sub_numbers: 'your game & gear',
+    best_round: 'Best round', average_k: 'Average', putts_round: 'Putts/round',
+    driver_carry: 'Driver carry', most_accurate: 'Your most accurate club', accuracy: 'accuracy',
+    sec_bag: 'My bag', sub_bag: 'carry & accuracy per club',
+    sec_practice: 'Practice', sub_practice: 'tap a drill →', practice_cta: 'Practice →',
+    nav_home: 'Home', nav_round: 'Round', nav_trainer: 'Trainer', nav_profile: 'Profile',
+    settings: 'Settings', language: 'Language', theme: 'Theme', dark: 'Dark', light: 'Light',
+    load_demo: 'Load sample data', wipe: 'Delete my rounds & practice', wipe_confirm: 'Sure? Tap again to delete', logout: 'Log out', local_note: 'Local account · your data stays on this device only',
+    dr_gate: 'Gate drill', dr_ladder: 'Distance ladder', dr_ud: 'Up & down', dr_14: '14 fairways under pressure', dr_splash: 'Bunker splash', dr_lag: 'Lag putting',
+    drd_gate: 'Square the putter face', drd_ladder: 'Own your carry distances', drd_ud: 'Save par', drd_14: 'Find the fairway', drd_splash: 'Escape the sand', drd_lag: 'Kill 3-putts',
+    tag_putt: 'Putt', tag_approach: 'Approach', tag_short: 'Short game', tag_drive: 'Tee', tag_bunker: 'Bunker', tag_lagputt: 'Long putt',
+    empty_h: 'Your game journal starts here', empty_p: 'Log a round and PARFECT breaks down every shot: fairways, greens, putts and where you are gaining or leaking strokes.', empty_cta: 'Log my first round', empty_demo: 'Explore with sample data',
+  },
+};
+function curLang() { return (typeof S !== 'undefined' && S.settings && S.settings.lang) || 'es'; }
+function t(k) { const d = I18N[curLang()] || I18N.es; return d[k] != null ? d[k] : (I18N.es[k] != null ? I18N.es[k] : k); }
+function applyTheme() {
+  const th = (typeof S !== 'undefined' && S.settings && S.settings.theme) || 'dark';
+  document.documentElement.setAttribute('data-theme', th);
+}
+
 /* ============ Íconos de golf (SVG con look 3D + animación sutil) ============ */
 const GOLF_ICONS = {
   ball: `<ellipse cx="16" cy="28" rx="8" ry="2" fill="#000" opacity=".28"/><circle cx="16" cy="15" r="11" fill="#cdd5d7"/><circle cx="16" cy="15" r="11" fill="#fff" opacity=".25"/><circle cx="12" cy="11" r="4" fill="#fff" opacity=".85"/><g fill="#aab4b6"><circle cx="16" cy="15" r="1"/><circle cx="20" cy="13" r="1"/><circle cx="20" cy="18" r="1"/><circle cx="13" cy="18" r="1"/><circle cx="16" cy="20" r="1"/></g>`,
