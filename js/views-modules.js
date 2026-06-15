@@ -71,13 +71,14 @@ function vStats() {
 /* ---------- Parfect Trainer ---------- */
 function vTrainer() {
   const tab = V.trainerTab || 'diag';
-  const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary() : tab === 'cal' ? vCalendar() : vTracker();
+  const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary() : tab === 'cal' ? vCalendar() : tab === 'estrategia' ? vStrategy() : vTracker();
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs" style="flex-wrap:wrap">
       <button class="tab ${tab === 'diag' ? 'on' : ''}" data-act="trainer-tab" data-t="diag">Diagnóstico IA</button>
       <button class="tab ${tab === 'drills' ? 'on' : ''}" data-act="trainer-tab" data-t="drills">Drills</button>
       <button class="tab ${tab === 'tracker' ? 'on' : ''}" data-act="trainer-tab" data-t="tracker">Tracker</button>
       <button class="tab ${tab === 'cal' ? 'on' : ''}" data-act="trainer-tab" data-t="cal">Calendario</button>
+      <button class="tab ${tab === 'estrategia' ? 'on' : ''}" data-act="trainer-tab" data-t="estrategia">Estrategia</button>
     </div>
     ${body}`;
 }
@@ -463,8 +464,21 @@ function vSocial() {
         <div class="r-main" style="flex:1"><b>${esc(x.p.name)}</b><span>HCP ${fmtHcp(x.p.hcp)} · ${x.agg ? x.agg.rounds + ' rondas' : 'sin rondas'}</span></div>
         <div class="r-side"><b>${x.agg ? fmtToPar(Math.round(x.agg.avgToPar)) : '—'}</b><span>prom/18 ›</span></div>
       </button>`).join('')}
+      <button class="btn sm ghost" data-act="friend-add" style="margin-top:12px">➕ Agregar amigo</button>
       <p class="note">Toca a un amigo para ver su perfil y stats. Con la nube podrás agregar amigos de otros dispositivos.</p>
     </div>
+    ${V.addFriend ? `<div class="overlay" data-act="friend-add-close"><div class="sheet" data-act="noop">
+      <div class="grab"></div><h2>Agregar amigo</h2>
+      <p class="auth-sub">Crea el perfil de un amigo para llevar sus stats y meterlo a tus parties.</p>
+      <div class="field"><label>Nombre</label><input id="fr-name" placeholder="Nombre del amigo"></div>
+      <div class="field-row">
+        <div class="field"><label>Hándicap</label><input id="fr-hcp" type="number" step="1" placeholder="ej. 15"></div>
+        <div class="field"><label>Meta</label><input id="fr-goal" type="number" step="1" placeholder="ej. 10"></div>
+      </div>
+      ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
+      <button class="btn primary" data-act="friend-save">Guardar amigo</button>
+      <button class="btn" data-act="friend-add-close">Cancelar</button>
+    </div></div>` : ''}
     <div class="sec-h"><h2>Actividad</h2></div>
     ${feed || `<div class="card empty"><div class="e-ico">🏆</div><h3>Nada por aquí aún</h3><p>Las rondas guardadas aparecen en este feed.</p></div>`}`;
 }
