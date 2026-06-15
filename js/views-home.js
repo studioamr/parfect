@@ -99,6 +99,7 @@ function vDashboard() {
 
   const radar = Stats.radarOf(agg);
   return head + `
+    ${objetivosCard(u)}
     <div class="card">
       <span class="label">Perfil de habilidades</span>
       <div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div>

@@ -74,12 +74,12 @@ function vStats() {
 function vTrainer() {
   const tab = V.trainerTab || 'diag';
   const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary()
-    : tab === 'estrategia' ? vStrategy() : tab === 'campos' ? vCampos() : tab === 'simulador' ? vSimulator()
+    : tab === 'campos' ? vCampos() : tab === 'simulador' ? vSimulator()
       : tab === 'stats' ? vStats() : tab === 'logros' ? vTrophies() : vTracker();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs scroll">
-      ${T('diag', 'Diagnóstico')}${T('drills', 'Drills')}${T('tracker', 'Práctica')}${T('estrategia', 'Estrategia')}${T('campos', 'Campos')}${T('simulador', 'Simulador')}${T('stats', 'Stats')}${T('logros', 'Logros')}
+      ${T('diag', 'Diagnóstico')}${T('drills', 'Drills')}${T('tracker', 'Práctica')}${T('campos', 'Campos')}${T('simulador', 'Simulador')}${T('stats', 'Stats')}${T('logros', 'Logros')}
     </div>
     ${body}`;
 }

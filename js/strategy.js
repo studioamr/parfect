@@ -611,44 +611,27 @@ function realisticWhy(hole, target, pr) {
   return `Tu green es ~${gir}% y up&down ~${ud}%, así que lo realista aquí es ${target}: date chance de ${d >= 2 ? 'un doble' : '1 bogey'} y recupéralo en los hoyos fáciles. No fuerces el milagro.`;
 }
 
-/* ESTRATEGIA → solo el panel de objetivos de tu próxima ronda */
-function vStrategy() {
-  const u = cur();
-  const course = COURSES[V.courseId] || COURSES.campestre;
+/* OBJETIVOS → solo los números objetivo de la semana (vive en Inicio, sin curso) */
+function objetivosCard(u) {
   const agg = Stats.aggregate(myRounds());
-  const prGoal = goalProbs(u);
-  const N = course.holes.length;
-  const driveHoles = course.holes.filter(h => h.par >= 4).length;
-  const par = course.holes.reduce((a, h) => a + h.par, 0);
-  const avgCourse = agg ? Math.round(agg.avgScore18 * N / 18) : null;
-  const stretch = N >= 18 ? 2 : 1;
-  const anchor = avgCourse != null ? Math.max(par - 1, avgCourse - stretch) : null;
-  const rt = realisticTargets(course, prGoal, anchor);
-  const improve = avgCourse != null ? avgCourse - rt.total : null;
-  const fwTarget = Math.round(prGoal.fw * driveHoles);
-  const girTarget = Math.round(prGoal.gir * N);
-  const udPct = Math.round(prGoal.ud * 100);
-  const puttsTarget = agg ? Math.round(agg.putts18 * N / 18 * 0.96) : Math.round(1.9 * N);
-  const courseChips = COURSE_ORDER.map(id => `<button class="chip sm ${id === course.id ? 'on' : ''}" data-act="sel-course" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('');
-
-  return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">tu objetivo de ronda</span></div>
-    <div class="chips" style="margin-top:8px">${courseChips}</div>
-    <div class="card">
-      <span class="label">🎯 Objetivo de tu próxima ronda</span>
-      <div class="greet" style="text-align:center;padding-top:6px"><h1 style="font-size:42px">${rt.total}</h1><p class="hcp">${fmtToPar(rt.total - rt.par)} · ${esc(course.name.split(' · ')[0].replace('Club ', ''))}</p></div>
-      ${avgCourse != null
-        ? `<p class="note" style="text-align:center;margin-bottom:10px">${improve > 0 ? `<b class="lime">${improve} golpe${improve > 1 ? 's' : ''} mejor</b> que tu promedio (${avgCourse})` : `a tu nivel actual (promedio ${avgCourse})`}</p>`
-        : `<p class="note" style="text-align:center;margin-bottom:10px">Calculado con tu HCP. Registra rondas para afinarlo a tus %.</p>`}
-      <span class="label">Tu plan de esta semana</span>
+  const pr = goalProbs(u);
+  const N = 18, driveHoles = 14;            // ronda estándar de 18 (14 hoyos con salida)
+  const fwT = Math.round(pr.fw * driveHoles);
+  const girT = Math.round(pr.gir * N);
+  const udPct = Math.round(pr.ud * 100);
+  const puttsT = agg ? Math.round(agg.putts18 * 0.96) : 34;
+  const scoreT = agg ? Math.round(agg.avgScore18 - 2) : null;
+  return `<div class="card">
+      <span class="label">🎯 Tu objetivo de esta semana</span>
+      ${scoreT != null ? `<div class="greet" style="text-align:center;padding-top:4px"><h1 style="font-size:40px">${scoreT}</h1><p class="hcp">${fmtToPar(scoreT - 72)} · meta de score (18)</p></div>` : ''}
       <div class="grid2" style="margin-top:6px">
-        ${statCard(`${fwTarget}/${driveHoles}`, 'Fairways', prGoal.fw * 100)}
-        ${statCard(`${girTarget}/${N}`, 'Greens (GIR)', prGoal.gir * 100)}
-        ${statCard(`${udPct}%`, 'Up & down', prGoal.ud * 100)}
-        ${statCard(`≤${puttsTarget}`, 'Putts', 72)}
+        ${statCard(`${fwT}/${driveHoles}`, 'Fairways', pr.fw * 100)}
+        ${statCard(`${girT}/${N}`, 'Greens (GIR)', pr.gir * 100)}
+        ${statCard(`${udPct}%`, 'Up & down', pr.ud * 100)}
+        ${statCard(`≤${puttsT}`, 'Putts', 72)}
       </div>
-      <p class="note" style="margin-bottom:0">Pega <b class="lime">${fwTarget} de ${driveHoles}</b> calles y <b class="lime">${girTarget} de ${N}</b> greens, salva el ${udPct}% de tus up&downs y deja los putts en ${puttsTarget}.</p>
-    </div>
-    <p class="note" style="margin-bottom:24px">Tu <b class="lime">camino ideal hoyo por hoyo</b> está en la pestaña <b class="lime">Campos</b>.</p>`;
+      <p class="note" style="margin-bottom:0">Pega <b class="lime">${fwT} de ${driveHoles}</b> calles y <b class="lime">${girT} de ${N}</b> greens, salva el ${udPct}% y deja los putts en ${puttsT}.</p>
+    </div>`;
 }
 
 /* CAMPOS → camino ideal por hoyo, analizable por hándicap */
