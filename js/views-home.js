@@ -360,11 +360,15 @@ function vStatsBundle(agg) {
     </div>`;
 }
 
-/* héroe: tarjeta verde con hándicap grande + golfista 3D */
+/* héroe: escena divertida (cielo, nubes, pájaro, bola, árboles) + hándicap + golfista 3D */
 function vHcpHero(u) {
   const gap = Math.max(0, Math.round(u.hcp - u.goal));
   const sub = gap > 0 ? `${t('goal')} ${fmtHcp(u.goal)} · ${t('to_go')} ${gap}` : t('goal_reached');
-  return `<div class="pl-hero">
+  return `<div class="pl-hero scene">
+    <span class="sky-cloud sc1"></span><span class="sky-cloud sc2"></span><span class="sky-cloud sc3"></span>
+    <img class="hero-bird" src="assets/bird.png" alt="" aria-hidden="true">
+    <span class="hero-ball"></span>
+    <span class="hero-tree t-left"><span class="leaves"></span><span class="trunk"></span></span>
     <div class="pl-hero-txt">
       <span class="pl-hero-lab">${t('hcp_label')}</span>
       <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>
@@ -550,15 +554,15 @@ function vPlayerCard(u, agg) {
   const holesTot = rs.reduce((a, r) => a + r.holes, 0) || 1;
   const threeP = (rs.reduce((a, r) => a + r.threeP, 0) / holesTot * 18).toFixed(1);
   const moves = agg ? [
-    ['eagle', 'Águilas', String(sd.eagle)],
-    ['bird', 'Birdies', String(sd.birdie)],
-    ['flag', 'Pares', Math.round((sd.par || 0) / tot * 100) + '%'],
-    ['card', 'Bogeys o peor', Math.round(((sd.bogey || 0) + (sd.dbl || 0)) / tot * 100) + '%'],
     ['tee', 'Fairways', Math.round(agg.fwPct) + '%'],
     ['green', 'Greens · GIR', Math.round(agg.girPct) + '%'],
     ['hand', 'Up & down', Math.round(agg.scrPct) + '%'],
     ['putter', 'Putts / ronda', agg.putts18.toFixed(0)],
     ['bucket', '3-putts / ronda', threeP],
+    ['eagle', 'Águilas', String(sd.eagle)],
+    ['bird', 'Birdies', String(sd.birdie)],
+    ['flag', 'Pares', Math.round((sd.par || 0) / tot * 100) + '%'],
+    ['card', 'Bogeys o peor', Math.round(((sd.bogey || 0) + (sd.dbl || 0)) / tot * 100) + '%'],
     ['trophy', 'Mejor vuelta', fmtToPar(agg.bestToPar)],
   ] : [];
   const moveRow = ([ic, name, val]) => {
