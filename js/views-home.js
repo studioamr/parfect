@@ -185,6 +185,7 @@ function vPerfilHero(u) {
   const homeName = home.name.split(' · ')[0];
   const nRounds = myRounds().length;
   return `<div class="card phero">
+    <button class="phero-edit" data-act="profile-edit" aria-label="Editar perfil">Editar</button>
     <div class="phero-row">
       <div class="phero-av">${esc(ini)}</div>
       <div class="phero-id">
@@ -208,18 +209,6 @@ function vPerfil() {
     ${vPerfilHero(u)}
     ${agg ? vScoreDist(agg) : ''}
     ${vBagEditor(u)}
-    <div class="card">
-      <span class="label">Editar perfil</span>
-      <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
-      <div class="field-row">
-        <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
-        <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
-      </div>
-      <div class="field"><label>Campo de casa</label>
-        <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>
-      </div>
-      <button class="btn primary" data-act="profile-save">Guardar cambios</button>
-    </div>
     ${vLogros()}
     <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('flag')} Patrocinadores y ofertas</h2></div>
     <div class="card">
@@ -237,7 +226,8 @@ function vPerfil() {
       <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? '¿Seguro? Toca otra vez para borrar tus rondas' : 'Borrar mis rondas y prácticas'}</button>
       <button class="btn" data-act="logout">Cerrar sesión</button>
       <p class="note">Cuenta local: ${esc(u.email)} · Tus datos viven solo en este dispositivo.</p>
-    </div>`;
+    </div>
+    ${V.profileOpen ? vProfile() : ''}`;
 }
 
 /* ============ Perfil (sheet) ============ */
@@ -246,7 +236,7 @@ function vProfile() {
   return `<div class="overlay" data-act="profile-close">
     <div class="sheet" data-act="noop">
       <div class="grab"></div>
-      <h2>Tu perfil</h2>
+      <h2>Editar perfil</h2>
       <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
       <div class="field-row">
         <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
@@ -256,12 +246,7 @@ function vProfile() {
         <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>
       </div>
       <button class="btn primary" data-act="profile-save">Guardar cambios</button>
-      <button class="btn" data-act="go-clubs">🎒 Mis bastones y distancias</button>
-      <div style="margin-top:18px">${vLogros()}</div>
-      <button class="btn ghost" data-act="seed-demo" style="margin-top:14px">Cargar datos de ejemplo</button>
-      <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? '¿Seguro? Toca otra vez para borrar tus rondas' : 'Borrar mis rondas y prácticas'}</button>
-      <button class="btn" data-act="logout">Cerrar sesión</button>
-      <p class="note">Cuenta local: ${esc(u.email)} · Tus datos viven solo en este dispositivo.</p>
+      <button class="btn" data-act="profile-close">Cerrar</button>
     </div>
   </div>`;
 }

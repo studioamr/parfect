@@ -152,6 +152,7 @@ const actions = {
 
   /* ---- perfil ---- */
   'profile-open'() { V.wipeArm = false; go('perfil'); },
+  'profile-edit'() { V.profileOpen = true; render(); },
   'go-trofeos'() { V.profileOpen = false; V.trainerTab = 'logros'; go('trainer'); },
   'profile-close'() { V.profileOpen = false; V.wipeArm = false; render(); },
   'prof-campo'(d) {

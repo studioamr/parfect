@@ -505,7 +505,9 @@ button.row { cursor: pointer; }
 
 /* ---- Práctica: rejilla de bastones ---- */
 /* cabecera grande del perfil */
-.phero { background: linear-gradient(150deg, rgba(201, 247, 62, 0.14), var(--card2) 55%, var(--card)); border-color: var(--line); }
+.phero { position: relative; background: linear-gradient(150deg, rgba(201, 247, 62, 0.14), var(--card2) 55%, var(--card)); border-color: var(--line); }
+.phero-edit { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line-soft); color: var(--muted); font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 99px; }
+.phero-edit:active { transform: scale(0.96); }
 .phero-row { display: flex; align-items: center; gap: 14px; }
 .phero-av { width: 60px; height: 60px; border-radius: 18px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #0a0f06; background: var(--lime); box-shadow: 0 4px 14px rgba(201, 247, 62, 0.3); }
 .phero-id { min-width: 0; }
