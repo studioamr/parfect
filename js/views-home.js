@@ -193,9 +193,22 @@ function statReel(cards) {
   return `<div class="reel"><div class="reel-track">${set}${set}</div></div>`;
 }
 /* reel infinito de stats con gifs: precisión, juego corto y scoring */
+/* tarjeta de stat amigable e interactiva: pelotas que se llenan (toca para repetir) */
+const STAT_ICON = { par: 'flag', bird: 'bird', bogey: 'card', threeputt: 'putter', gir: 'green', fw: 'tee', ud: 'hand' };
+function statIntCard(kind, made, total, label, warn) {
+  total = Math.max(1, Math.round(total));
+  made = Math.min(total, Math.max(0, Math.round(made)));
+  let pips = '';
+  for (let i = 0; i < total; i++) pips += `<span class="pip ${i < made ? 'on' : ''}" style="--d:${(i * 0.06).toFixed(2)}s"></span>`;
+  return `<button type="button" class="reel-card stat-int${warn ? ' warn' : ''}" data-act="stat-pop">
+    <div class="si-head"><span class="si-ic">${golfIcon(STAT_ICON[kind] || 'flag')}</span><b class="si-count">${made}<i>/${total}</i></b></div>
+    <span class="si-label">${esc(label)}</span>
+    <div class="pips">${pips}</div>
+    <span class="si-hint">${golfIcon('ball')} toca para repetir</span>
+  </button>`;
+}
+/* tus estadísticas por cada 9 hoyos (hechos / total) */
 function vStatReel(rounds, agg) {
-  // promedio por ronda, en formato hechos/total (ej. 9/18) — no porcentajes
-  const nR = rounds.length || 1;
   const rs = rounds.map(Stats.roundStats);
   const sum = f => rs.reduce((a, r) => a + f(r), 0);
   const sd = agg.scoreDist || { total: 0, eagle: 0, birdie: 0, par: 0, bogey: 0, dbl: 0 };
@@ -203,16 +216,18 @@ function vStatReel(rounds, agg) {
   const gir = sum(r => r.gir), girTot = sum(r => r.girTot);
   const scr = sum(r => r.scr), scrTot = sum(r => r.scrTot);
   const threeP = sum(r => r.threeP);
-  const fr = (made, tot) => `${Math.round(made / nR)}<i>/${Math.max(1, Math.round(tot / nR))}</i>`;
-  return statReel([
-    ['par', fr(sd.par, sd.total), 'Pares por ronda'],
-    ['bird', fr(sd.eagle + sd.birdie, sd.total), 'Birdies o mejor'],
-    ['bogey', fr(sd.bogey + sd.dbl, sd.total), 'Bogeys o peor', 'warn'],
-    ['threeputt', fr(threeP, girTot), '3-putts'],
-    ['gir', fr(gir, girTot), 'Greens · GIR'],
-    ['fw', fr(fw, fwTot), 'Fairways'],
-    ['ud', fr(scr, scrTot), 'Up & down'],
-  ]);
+  const allHoles = girTot || 1;
+  const n9 = x => Math.round(x * 9 / allHoles);   // normaliza a 9 hoyos
+  const cards = [
+    statIntCard('par', n9(sd.par), 9, 'Pares'),
+    statIntCard('bird', n9(sd.eagle + sd.birdie), 9, 'Birdies o mejor'),
+    statIntCard('bogey', n9(sd.bogey + sd.dbl), 9, 'Bogeys o peor', true),
+    statIntCard('threeputt', n9(threeP), 9, '3-putts', true),
+    statIntCard('gir', n9(gir), 9, 'Greens · GIR'),
+    statIntCard('fw', n9(fw), n9(fwTot), 'Fairways'),
+    statIntCard('ud', n9(scr), n9(scrTot), 'Up & down'),
+  ].join('');
+  return `<div class="reel reel-swipe stat-reel"><div class="reel-track">${cards}</div></div>`;
 }
 /* área (texto del plan) → llave de drillArt */
 function areaKey(a) {
@@ -278,13 +293,13 @@ function vMisNumeros(u, agg) {
     [fmtToPar(Math.round(agg.avgToPar)), 'Promedio'],
     [agg.putts18.toFixed(0), 'Putts/ronda'],
   ];
-  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Mis números</h2><span class="small muted">tu juego y tu equipo</span></div>
+  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Mis números</h2><span class="small muted">tu juego y tu equipo</span></div>
     <div class="kpi-band">${kpis.map(([v, t]) => `<div class="kpi"><b>${v}</b><span>${t}</span></div>`).join('')}</div>
     <div class="bag-feat">
       <div class="card bag-card"><span class="label">${golfIcon('club')} Carry de driver</span><b class="bag-big">${driverY}<em> yds</em></b></div>
       <div class="card bag-card"><span class="label">${golfIcon('flag')} Tu palo más certero</span><b class="bag-name">${esc(best.name)}</b><span class="bag-sub">${best.e}% de efectividad</span></div>
     </div>
-    <div class="sec-h" style="margin-top:14px"><h2 style="font-size:15px">Mi bolsa</h2><span class="small muted">carry y efectividad por palo</span></div>
+    <div class="sec-h" style="margin-top:16px"><h2 style="font-size:18px">Mi bolsa</h2><span class="small muted">carry y efectividad por palo</span></div>
     <div class="reel bag-reel"><div class="reel-track">${tiles}${tiles}</div></div>`;
 }
 
@@ -303,7 +318,7 @@ function vLastRound(rounds) {
     const r = rounds[0];
     if (!r) return '';
     const set = r.holes.map((hh, i) => lrHoleCard(hh, i, null)).join('');
-    return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Historial</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
+    return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Historial</h2><span class="small muted">${esc(r.course)} · ${fmtDate(r.date)}</span></div>
       <div class="reel reel-swipe"><div class="reel-track">${set}</div></div>`;
   }
 
@@ -331,7 +346,7 @@ function vLastRound(rounds) {
   const card = (hh, i) => lrHoleCard(hh, i, (COURSES[cid] && COURSES[cid].holes[i]) ? COURSES[cid].holes[i] : null);
   const set = r.holes.map(card).join('');
 
-  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Historial</h2><span class="small muted">elige campo y tarjeta</span></div>
+  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">Historial</h2><span class="small muted">elige campo y tarjeta</span></div>
     <div class="chips lr-chips">${chips}</div>
     <div class="card lr-pick">
       <div class="lr-pick-head"><b>${esc(courseName)}</b><span class="small muted">${fmtDate(r.date)} · desliza los hoyos →</span></div>
@@ -350,12 +365,6 @@ function vStatsBundle(agg) {
       ${statCard(agg.scrPct.toFixed(0) + '%', 'Up/Down', agg.scrPct)}
       ${statCard(agg.putts18.toFixed(0), 'Putts / Ronda', Stats.clamp((38 - agg.putts18) / 11 * 100, 0, 100))}
     </div>`;
-}
-
-/* radar de habilidades (stat de perfil, también en Inicio) */
-function vRadarCard(agg) {
-  const r = Stats.radarOf(agg);
-  return `<div class="card" style="margin-top:12px"><span class="label">Perfil de habilidades</span><div class="radar-wrap">${radarSVG(r.labels, r.values)}</div></div>`;
 }
 
 function vDashboard() {
@@ -379,9 +388,8 @@ function vDashboard() {
   }
 
   return head + `
-    <div class="sec-h" style="margin-top:16px"><h2 style="font-size:18px">Tus estadísticas</h2><span class="small muted">promedio por ronda →</span></div>
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:25px">Tus estadísticas</h2><span class="small muted">cada 9 hoyos →</span></div>
     ${vStatReel(rounds, agg)}
-    ${vRadarCard(agg)}
     ${vMisNumeros(u, agg)}
     ${vLastRound(rounds)}`;
 }

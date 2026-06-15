@@ -205,6 +205,11 @@ const actions = {
   'hist-hole'(d) { V.histHole = Number(d.i); render(); },
   'home-course'(d) { if (COURSES[d.c]) { V.homeCid = d.c; V.homeRid = null; } render(); },
   'home-round'(d) { V.homeRid = d.id; render(); },
+  'stat-pop'(d, el) {
+    if (!el) return;
+    el.classList.remove('tapped'); void el.offsetWidth; el.classList.add('tapped');
+    el.querySelectorAll('.pip.on').forEach(p => { p.style.animation = 'none'; void p.offsetWidth; p.style.animation = ''; });
+  },
   'quick-round'() {
     if (S.active && S.active.userId === S.session) { loadHole(); go('play'); }
     else actions['go-setup']();
