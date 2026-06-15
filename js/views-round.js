@@ -184,7 +184,7 @@ function captureSchematic(h, chole, noZoom, clean) {
   const P = s => {
     const t = Math.min(1, s.prog);
     let x = bez(t, tee[0], ctrl[0], gx), y = bez(t, tee[1], ctrl[1], gy);
-    if (s.prog > 1) y -= (s.prog - 1) * 72;
+    if (s.prog > 1) y = Math.max(16, gy - 24 - (s.prog - 1) * 90);   // "largo": claramente pasado el green (arriba)
     return { x: x + s.side * halfW, y };
   };
   const fpts = shots.map(P);
