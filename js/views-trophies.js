@@ -43,6 +43,25 @@ function vTrophies() {
   `;
 }
 
+/* Solo logros (sin metas) — su propia sección */
+function vLogros() {
+  const list = Trophies.evaluate();
+  const unlocked = list.filter(a => a.done).length;
+  const cards = list.map(a => `<div class="trophy ${a.done ? 'on' : ''}">
+    <div class="t-ic">${a.ic}</div>
+    <div class="t-body">
+      <b>${esc(a.t)}</b>
+      <span>${esc(a.d)}</span>
+      ${!a.done && a.prog > 0 && a.prog < 1 ? `<div class="bar mini"><i style="width:${Math.round(a.prog * 100)}%"></i></div>` : ''}
+      ${a.sub ? `<span class="t-sub">${esc(a.sub)}</span>` : ''}
+    </div>
+    <div class="t-state">${a.done ? '✓' : ''}</div>
+  </div>`).join('');
+  return `<div class="sec-h"><h2>Logros</h2><span class="small muted">${unlocked}/${list.length} desbloqueados</span></div>
+    <div class="trophy-grid">${cards}</div>
+    ${unlocked === 0 ? `<p class="note">Registra rondas y prácticas para empezar a desbloquear logros.</p>` : ''}`;
+}
+
 /* Tabla de referencia: qué stats tiene cada nivel de hándicap */
 function vHcpReference(u) {
   const levels = [0, 5, 10, 15, 20, 25];

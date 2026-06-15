@@ -146,7 +146,7 @@ const actions = {
 
   /* ---- perfil ---- */
   'profile-open'() { V.profileOpen = true; V.wipeArm = false; render(); },
-  'go-trofeos'() { V.profileOpen = false; V.trainerTab = 'diag'; go('trainer'); },
+  'go-trofeos'() { V.profileOpen = false; V.trainerTab = 'logros'; go('trainer'); },
   'profile-close'() { V.profileOpen = false; V.wipeArm = false; render(); },
   'profile-save'() {
     const u = cur();
