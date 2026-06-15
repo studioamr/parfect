@@ -91,7 +91,7 @@ function vTrainer() {
   const u = cur();
   const tab = V.trainerTab || 'diag';
   const mainPage = vKeyTargets(u) + vDiag();
-  const entreno = vRecommendedDrills(u, Stats.aggregate(myRounds())) + vTracker()
+  const entreno = vTracker()
     + `<div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Biblioteca de drills</h2></div>`
     + vDrillsLibrary();
   const body = tab === 'entreno' ? entreno : mainPage;
