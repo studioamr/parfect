@@ -364,11 +364,7 @@ function vStatsBundle(agg) {
 function vHcpHero(u) {
   const gap = Math.max(0, Math.round(u.hcp - u.goal));
   const sub = gap > 0 ? `${t('goal')} ${fmtHcp(u.goal)} · ${t('to_go')} ${gap}` : t('goal_reached');
-  return `<div class="pl-hero scene">
-    <span class="sky-cloud sc1"></span><span class="sky-cloud sc2"></span><span class="sky-cloud sc3"></span>
-    <img class="hero-bird" src="assets/bird.png" alt="" aria-hidden="true">
-    <span class="hero-ball"></span>
-    <span class="hero-tree t-left"><span class="leaves"></span><span class="trunk"></span></span>
+  return `<div class="pl-hero">
     <div class="pl-hero-txt">
       <span class="pl-hero-lab">${t('hcp_label')}</span>
       <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>
@@ -565,21 +561,17 @@ function vPlayerCard(u, agg) {
     ['card', 'Bogeys o peor', Math.round(((sd.bogey || 0) + (sd.dbl || 0)) / tot * 100) + '%'],
     ['trophy', 'Mejor vuelta', fmtToPar(agg.bestToPar)],
   ] : [];
-  const moveRow = ([ic, name, val]) => {
-    const icon = ic === 'bird' ? `<img src="assets/bird.png" class="pkc-mi" alt="">` : ic === 'eagle' ? `<img src="assets/eagle.png" class="pkc-mi" alt="">` : `<span class="pkc-mic">${golfIcon(ic)}</span>`;
-    return `<div class="pkc-move">${icon}<b>${name}</b><span>${val}</span></div>`;
-  };
-  const best = agg ? fmtToPar(agg.bestToPar) : '—';
-  return `<div class="pkc"><div class="pkc-inner">
-    <div class="pkc-top"><span class="pkc-name">${esc(u.name)}</span><span class="pkc-hp"><i>HCP</i>${fmtHcp(u.hcp)}</span></div>
-    <div class="pkc-art">
-      <span class="pkc-stage">${esc(homeName)}</span>
-      <img class="pkc-av" src="${avatarSrc(u)}" alt="" loading="lazy">
+  const rowIcon = ic => ic === 'bird' ? `<img src="assets/bird.png" class="pl-rr-img" alt="">` : ic === 'eagle' ? `<img src="assets/eagle.png" class="pl-rr-img" alt="">` : `<span class="pl-rr-ic">${golfIcon(ic)}</span>`;
+  const rows = moves.map(([ic, name, val]) => `<div class="pl-rr stat"><span class="pl-rr-lead">${rowIcon(ic)}<b>${esc(name)}</b></span><span class="pl-rr-score">${val}</span></div>`).join('');
+  return `<div class="pl-hero">
+      <div class="pl-hero-txt">
+        <span class="pl-hero-lab">${t('hcp_label')}</span>
+        <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>
+        <span class="pl-hero-sub">${esc(u.name)} · ${esc(homeName)}</span>
+      </div>
+      <img class="pl-hero-av" src="${avatarSrc(u)}" alt="" loading="lazy">
     </div>
-    <div class="pkc-sub">Golfista · ${t('goal')} ${fmtHcp(u.goal)}</div>
-    <div class="pkc-moves">${moves.map(moveRow).join('')}</div>
-    <div class="pkc-foot"><span class="pkc-stars">★★★★☆</span><span>${t('best_round')} ${best} · PARFECT 2026</span></div>
-  </div></div>`;
+    <div class="pl-rr-list" style="margin-top:12px">${rows}</div>`;
 }
 
 /* ============ Perfil (página) ============ */
