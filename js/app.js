@@ -319,7 +319,12 @@ const actions = {
   'sel-course'(d) { V.courseId = d.c; V.holeIdx = 0; V.teeClubId = null; V.attack2 = false; render(); window.scrollTo(0, 0); },
   'sel-tee'(d) { V.teeClubId = d.id; render(); },
   'toggle-attack'() { V.attack2 = !V.attack2; render(); },
-  'sim-run'() { const c = COURSES[V.courseId] || COURSES.campestre; V.simResult = simulateRound(cur(), c); render(); },
+  'sim-run'() {
+    if (!trackerReadiness().ready) { V.trainerTab = 'tracker'; go('trainer'); return; }
+    const c = COURSES[V.courseId] || COURSES.campestre;
+    V.simResult = simulateRound(cur(), c);
+    render();
+  },
   'go-estrategia'() { V.trainerTab = 'estrategia'; go('trainer'); },
   'go-clubs'() { V.profileOpen = false; go('clubs'); },
   'save-clubs'() {

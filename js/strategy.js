@@ -135,17 +135,33 @@ function holeStance(hole, hcp, reachable) {
   return { k: 'Equilibrado', t: 'Juego estándar: calle y centro del green.' };
 }
 
-/* ---- simulador de ronda tiro por tiro (probabilidades por palo) ---- */
-function playerProbs(user, agg) {
+/* ---- simulador de ronda tiro por tiro — SOLO con datos reales del Tracker ---- */
+const SIM_FW_CLUBS = ['Driver', 'Madera 3', 'Madera 5', 'Madera 7', 'Híbrido 4', 'Híbrido 5', 'Híbrido 6'];
+const SIM_IRON_CLUBS = ['Fierro 3', 'Fierro 4', 'Fierro 5', 'Fierro 6', 'Fierro 7', 'Fierro 8', 'Fierro 9'];
+const SIM_UD_DRILLS = ['Up & down 40 yds', 'Up & down 30 yds', 'Up & down 10 yds'];
+const SIM_PUTT_DRILLS = ['Putt 3 ft', 'Putt 5 ft', 'Putt 7 ft', 'Putt 10 ft', 'Putt 15 ft'];
+function avgTrackerEff(names) {
+  const vals = names.map(n => trackerEff(n)).filter(v => v != null);
+  return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+}
+/* ¿está el Tracker lo bastante lleno para simular? (una área de cada parte del juego) */
+function trackerReadiness() {
+  const areas = [
+    { key: 'fw', label: 'Juego largo', hint: 'Driver / maderas', v: avgTrackerEff(SIM_FW_CLUBS) },
+    { key: 'gir', label: 'Hierros', hint: 'Fierros', v: avgTrackerEff(SIM_IRON_CLUBS) },
+    { key: 'ud', label: 'Approach', hint: 'Up & down', v: avgTrackerEff(SIM_UD_DRILLS) },
+    { key: 'putt', label: 'Putt', hint: 'Putts cortos', v: avgTrackerEff(SIM_PUTT_DRILLS) },
+  ];
+  const have = {}; areas.forEach(a => (have[a.key] = a.v));
+  return { ready: areas.every(a => a.v != null), areas, have };
+}
+function playerProbs() {
   const cl = v => Math.max(0, Math.min(1, v));
-  const bag = bagInfo(user);
-  const dr = bag.find(c => c.id === 'dr');
-  const irons = bag.filter(c => ['i4', 'i5', 'i6', 'i7', 'i8', 'i9', 'w3', 'h4', 'h5', 'h6'].includes(c.id));
-  const avgIron = irons.length ? irons.reduce((a, c) => a + c.eff, 0) / irons.length : 70;
-  const fw = cl(((dr ? dr.eff : 65) / 100) * 0.95);
-  const gir = cl((avgIron / 100) * 0.72);
-  const ud = cl((trackerEff('Up & down 30 yds') || trackerEff('Up & down 40 yds') || (agg ? agg.scrPct : 40)) / 100);
-  const onePutt = cl(((trackerEff('Putt 5 ft') || trackerEff('Putt 3 ft') || 55) / 100) * 0.32);
+  const r = trackerReadiness().have;
+  const fw = cl((r.fw / 100) * 0.95);
+  const gir = cl((r.gir / 100) * 0.72);
+  const ud = cl(r.ud / 100);
+  const onePutt = cl((r.putt / 100) * 0.32);
   const threePutt = cl(0.20 - onePutt * 0.25);
   return { fw, gir, ud, onePutt, threePutt };
 }
@@ -164,7 +180,8 @@ function simHole(hole, p) {
   return { n: hole.n, par: hole.par, score: strokes, gir, fw, putts };
 }
 function simulateRound(user, course) {
-  const p = playerProbs(user, Stats.aggregate(myRounds()));
+  if (!trackerReadiness().ready) return null;
+  const p = playerProbs();
   const holes = course.holes.map(h => simHole(h, p));
   const score = holes.reduce((a, h) => a + h.score, 0);
   const par = course.holes.reduce((a, h) => a + h.par, 0);
@@ -196,6 +213,7 @@ function vStrategy() {
     : hole.par === 3 ? (carry >= hole.yds - 5 ? `Con tu ${tee.name} (${carry}y) llegas al green de ${hole.yds}y.` : `Tu ${tee.name} vuela ${carry}y — ~${hole.yds - carry}y corto.`)
       : attack ? `Atacando: salida ${carry}y y vas por el green (~${leave}y) en 2.` : `Salida a ${carry}y; te deja ~${leave}y al green.`;
   const sim = V.simResult && V.simResult.courseId === course.id ? V.simResult : null;
+  const ready = trackerReadiness();
 
   return `<div class="sec-h"><h2>Estrategia</h2><span class="small muted">objetivo y track según tu HCP</span></div>
     <div class="chips" style="margin-top:8px">${courseChips}</div>
@@ -228,19 +246,28 @@ function vStrategy() {
 
     <div class="card">
       <span class="label">🎲 Simulador de ronda</span>
-      <p class="note" style="margin-top:0;margin-bottom:8px">Juega ${course.holes.length} hoyos tiro por tiro con tus % de acierto por palo y genera tu tarjeta.</p>
-      <button class="btn primary" data-act="sim-run">${sim ? 'Simular otra vez' : 'Simular mi ronda aquí'}</button>
-      ${sim ? `
-        <div class="greet" style="text-align:center;padding-top:12px"><h1 style="font-size:40px">${sim.score}</h1><p class="hcp">${fmtToPar(sim.toPar)} · ${sim.holes.length} hoyos</p></div>
-        <div class="grid2">
-          ${statCard((sim.fwTot ? Math.round(sim.fwHit / sim.fwTot * 100) : 0) + '%', 'Fairways', sim.fwTot ? sim.fwHit / sim.fwTot * 100 : 0)}
-          ${statCard(Math.round(sim.girHit / sim.girTot * 100) + '%', 'GIR', sim.girHit / sim.girTot * 100)}
-        </div>
-        <div class="card" style="margin-top:12px"><span class="label">Tarjeta simulada</span>
-          ${scorecardTable(course.holes.length, i => course.holes[i].par, [{ name: esc(u.name.split(' ')[0]), scoreOf: i => sim.holes[i].score }], -1)}
-        </div>
-        <p class="note">Simulación basada en tu efectividad por palo (Tracker / Mis palos). Cada simulación varía, como en el golf real.</p>
-      ` : ''}
+      ${ready.ready ? `
+        <p class="note" style="margin-top:0;margin-bottom:8px">Juega ${course.holes.length} hoyos tiro por tiro con tus <b class="lime">porcentajes reales del Tracker</b> y genera tu tarjeta.</p>
+        <button class="btn primary" data-act="sim-run">${sim ? 'Simular otra vez' : 'Simular mi ronda aquí'}</button>
+        ${sim ? `
+          <div class="greet" style="text-align:center;padding-top:12px"><h1 style="font-size:40px">${sim.score}</h1><p class="hcp">${fmtToPar(sim.toPar)} · ${sim.holes.length} hoyos</p></div>
+          <div class="grid2">
+            ${statCard((sim.fwTot ? Math.round(sim.fwHit / sim.fwTot * 100) : 0) + '%', 'Fairways', sim.fwTot ? sim.fwHit / sim.fwTot * 100 : 0)}
+            ${statCard(Math.round(sim.girHit / sim.girTot * 100) + '%', 'GIR', sim.girHit / sim.girTot * 100)}
+          </div>
+          <div class="card" style="margin-top:12px"><span class="label">Tarjeta simulada</span>
+            ${scorecardTable(course.holes.length, i => course.holes[i].par, [{ name: esc(u.name.split(' ')[0]), scoreOf: i => sim.holes[i].score }], -1)}
+          </div>
+          <p class="note">Basado en tus % del Tracker: salida ${ready.have.fw}% · hierros ${ready.have.gir}% · approach ${ready.have.ud}% · putt ${ready.have.putt}%. Cada simulación varía, como en el golf real.</p>
+        ` : ''}
+      ` : `
+        <p class="note" style="margin-top:0;margin-bottom:10px">El simulador usa tus <b class="lime">porcentajes reales de práctica</b>. Primero registra en el Tracker al menos un drill de cada área:</p>
+        ${ready.areas.map(a => `<div class="row" style="padding:7px 0">
+          <div class="r-main"><b>${a.v != null ? '✅' : '⬜️'} ${esc(a.label)}</b><span>${esc(a.hint)}</span></div>
+          <div class="r-side"><b class="${a.v != null ? 'lime' : 'muted'}">${a.v != null ? a.v + '%' : 'falta'}</b></div>
+        </div>`).join('')}
+        <button class="btn primary" data-act="trainer-tab" data-t="tracker" style="margin-top:12px">Ir al Tracker →</button>
+      `}
     </div>
     <p class="note" style="margin-bottom:24px">${course.approx ? 'Pares reales; yardas por hoyo aproximadas.' : 'Par y yardas reales.'} Esquema genérico (no a escala).</p>`;
 }
