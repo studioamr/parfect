@@ -1,7 +1,7 @@
 /* ============ PARFECT app: estado, router, acciones ============ */
 
 let S = Store.load();
-S.settings = S.settings || { lang: 'es', theme: 'dark' };
+S.settings = S.settings || { lang: 'es', theme: 'light' };
 let V = {
   view: S.session ? 'inicio' : 'landing',
   err: null, authVals: null,
@@ -211,6 +211,7 @@ const actions = {
   'set-theme'(d) { S.settings = S.settings || {}; S.settings.theme = d.v === 'light' ? 'light' : 'dark'; commit(); },
   'bag-edit'() { V.bagEdit = true; render(); },
   'bag-close'() { V.bagEdit = false; render(); },
+  'set-avatar'(d) { const u = cur(); if (u) { u.avatar = Number(d.i) || 0; commit(); } },
   'stat-pop'(d, el) {
     if (!el) return;
     el.classList.remove('tapped'); void el.offsetWidth; el.classList.add('tapped');

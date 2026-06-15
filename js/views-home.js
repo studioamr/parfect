@@ -16,7 +16,7 @@ function vShell(content) {
     <div class="hdr">
       <span style="width:40px"></span>
       <span class="logo-word">${logoMark(16)} PARFECT</span>
-      <button class="avatar-btn" data-act="profile-open" aria-label="Perfil">${esc(initials(u.name))}</button>
+      <button class="avatar-btn" data-act="profile-open" aria-label="Perfil"><img src="${avatarSrc(u)}" alt=""></button>
     </div>
     <div class="app-content">${content}</div>
     <nav class="nav">
@@ -360,14 +360,17 @@ function vStatsBundle(agg) {
     </div>`;
 }
 
-/* hándicap en grande (héroe del Inicio) */
+/* héroe: tarjeta verde con hándicap grande + golfista 3D */
 function vHcpHero(u) {
   const gap = Math.max(0, Math.round(u.hcp - u.goal));
-  const sub = gap > 0 ? `${t('goal')} ${fmtHcp(u.goal)} · ${t('to_go')} <b class="lime">${gap}</b>` : `${t('goal_reached')}`;
-  return `<div class="card hcp-hero">
-    <span class="label">${t('hcp_label')}</span>
-    <div class="hcp-big">${fmtHcp(u.hcp)}</div>
-    <p class="hcp-sub">${sub}</p>
+  const sub = gap > 0 ? `${t('goal')} ${fmtHcp(u.goal)} · ${t('to_go')} ${gap}` : t('goal_reached');
+  return `<div class="pl-hero">
+    <div class="pl-hero-txt">
+      <span class="pl-hero-lab">${t('hcp_label')}</span>
+      <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>
+      <span class="pl-hero-sub">${sub}</span>
+    </div>
+    <img class="pl-hero-av" src="${avatarSrc(u)}" alt="" loading="lazy">
   </div>`;
 }
 
@@ -378,21 +381,21 @@ function vKeyStats(agg) {
     [agg.putts18.toFixed(0), t('putts_round')],
     [Math.round(agg.girPct) + '%', 'GIR'],
   ];
-  return `<div class="kpi-band" style="margin-top:12px">${tiles.map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
+  return `<div class="pl-chips">${tiles.map(([v, l]) => `<div class="pl-chip"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
 }
 
-/* rondas recientes (lista tocable) */
+/* rondas recientes (tarjetas redondeadas tocables) */
 function vRecentRounds(rounds) {
   const list = rounds.slice(0, 6);
   const rows = list.map(r => {
     const s = Stats.roundStats(r);
     const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
-    return `<button class="rr-row" data-act="round-detail" data-id="${r.id}">
-      <div class="rr-id"><b>${esc(course)}</b><span>${fmtDate(r.date)} · ${r.holes.length} ${t('holes')}</span></div>
-      <div class="rr-score"><b>${s.score}</b><em>${fmtToPar(s.toPar)}</em><i class="rr-go">›</i></div>
+    return `<button class="pl-rr" data-act="round-detail" data-id="${r.id}">
+      <div class="pl-rr-id"><b>${esc(course)}</b><span>${fmtDate(r.date)} · ${r.holes.length} ${t('holes')}</span></div>
+      <span class="pl-rr-score">${s.score}<em>${fmtToPar(s.toPar)}</em></span>
     </button>`;
   }).join('');
-  return `<div class="sec-h" style="margin-top:24px"><h2 style="font-size:20px">${t('recent')}</h2></div><div class="rr-list">${rows}</div>`;
+  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:20px">${t('recent')}</h2></div><div class="pl-rr-list">${rows}</div>`;
 }
 
 function vDashboard() {
@@ -417,7 +420,7 @@ function vDashboard() {
   return head + `
     ${vHcpHero(u)}
     ${vKeyStats(agg)}
-    <button class="btn primary" data-act="quick-round" style="margin-top:14px">${logoMark(15)} ${t('start_round')}</button>
+    <button class="pl-cta" data-act="quick-round">${t('start_round')} <i class="pl-cta-arrow">→</i></button>
     ${vRecentRounds(rounds)}`;
 }
 
@@ -482,27 +485,30 @@ function vBagSheet() {
   </div>`;
 }
 
-/* cabecera grande del perfil: nombre + hándicap + campo de casa */
+/* cabecera del perfil: golfista 3D grande + nombre + hándicap (estilo playful) */
 function vPerfilHero(u) {
-  const ini = String(u.name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
   const home = (u.homeCourse && COURSES[u.homeCourse]) ? COURSES[u.homeCourse] : COURSES.campestre;
   const homeName = home.name.split(' · ')[0];
   const nRounds = myRounds().length;
-  return `<div class="card phero">
-    <button class="phero-edit" data-act="profile-edit" aria-label="Editar perfil">Editar</button>
-    <div class="phero-row">
-      <div class="phero-av">${esc(ini)}</div>
-      <div class="phero-id">
-        <h1 class="phero-name">${esc(u.name)}</h1>
-        <p class="phero-course">${golfIcon('flag')} ${esc(homeName)}</p>
-      </div>
-    </div>
-    <div class="phero-stats">
-      <div><b>${fmtHcp(u.hcp)}</b><span>Hándicap</span></div>
-      <div><b>${fmtHcp(u.goal)}</b><span>Meta</span></div>
-      <div><b>${nRounds}</b><span>Rondas</span></div>
+  return `<div class="pl-phero">
+    <button class="pl-phero-edit" data-act="profile-edit" aria-label="Editar perfil">${t('edit')}</button>
+    <img class="pl-phero-av" src="${avatarSrc(u)}" alt="" loading="lazy">
+    <h1 class="pl-phero-name">${esc(u.name)}</h1>
+    <p class="pl-phero-sub">${t('handicap')} ${fmtHcp(u.hcp)} · ${esc(homeName)}</p>
+    <div class="pl-phero-stats">
+      <div><b>${fmtHcp(u.hcp)}</b><span>${t('handicap')}</span></div>
+      <div><b>${fmtHcp(u.goal)}</b><span>${t('goal')}</span></div>
+      <div><b>${nRounds}</b><span>${t('rounds')}</span></div>
     </div>
   </div>`;
+}
+
+/* selector de avatar (monitos 3D) */
+function vAvatarPicker(u) {
+  const sel = (u.avatar != null) ? u.avatar : 0;
+  const opts = AVATARS.map((src, i) => `<button class="pl-av-opt${i === sel ? ' on' : ''}" data-act="set-avatar" data-i="${i}" aria-label="Avatar ${i + 1}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
+  return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('choose_avatar')}</h2></div>
+    <div class="pl-av-grid">${opts}</div>`;
 }
 
 /* ============ Perfil (página) ============ */
@@ -511,6 +517,7 @@ function vPerfil() {
   const agg = Stats.aggregate(myRounds());
   return `<div class="sec-h"><h2>Tu perfil</h2></div>
     ${vPerfilHero(u)}
+    ${vAvatarPicker(u)}
     ${agg ? `<div class="sec-h" style="margin-top:8px"><h2 style="font-size:16px">${t('sec_stats')}</h2></div>${vStatsBundle(agg)}${vScoreDist(agg)}` : ''}
     ${vBagEditor(u)}
     ${vLogros()}

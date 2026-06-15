@@ -11,7 +11,7 @@ const I18N = {
   es: {
     greet_morning: 'Buenos días', greet_afternoon: 'Buenas tardes', greet_evening: 'Buenas noches',
     hi: 'Hola', handicap: 'Hándicap', goal: 'meta',
-    hcp_label: 'Tu hándicap', rounds: 'Rondas', holes: 'hoyos', recent: 'Rondas recientes', to_go: 'te faltan', goal_reached: '¡meta alcanzada!', start_round: 'Empezar ronda',
+    hcp_label: 'Tu hándicap', rounds: 'Rondas', holes: 'hoyos', recent: 'Rondas recientes', to_go: 'te faltan', goal_reached: '¡meta alcanzada!', start_round: 'Empezar ronda', choose_avatar: 'Elige tu golfista',
     qa_round: 'Empezar ronda', qa_drills: 'Drills', qa_stats: 'Estadísticas', qa_trophies: 'Trofeos', qa_bag: 'Mi bolsa', qa_profile: 'Mi perfil',
     sec_stats: 'Tus estadísticas', sub_stats: '% sobre 18 hoyos →',
     st_fw: 'Fairways', st_gir: 'Greens · GIR', st_ud: 'Up & down', st_putts9: 'Putts · 9 hoyos', st_3putts: '3-putts · 9 hoyos', st_birdie: 'Birdie o mejor', st_par: 'Pares', st_bogey: 'Bogeys', st_double: 'Dobles o peor',
@@ -35,7 +35,7 @@ const I18N = {
   en: {
     greet_morning: 'Good morning', greet_afternoon: 'Good afternoon', greet_evening: 'Good evening',
     hi: 'Hi', handicap: 'Handicap', goal: 'goal',
-    hcp_label: 'Your handicap', rounds: 'Rounds', holes: 'holes', recent: 'Recent rounds', to_go: 'to go', goal_reached: 'goal reached!', start_round: 'Start round',
+    hcp_label: 'Your handicap', rounds: 'Rounds', holes: 'holes', recent: 'Recent rounds', to_go: 'to go', goal_reached: 'goal reached!', start_round: 'Start round', choose_avatar: 'Choose your golfer',
     qa_round: 'Start round', qa_drills: 'Drills', qa_stats: 'Stats', qa_trophies: 'Trophies', qa_bag: 'My bag', qa_profile: 'My profile',
     sec_stats: 'Your stats', sub_stats: '% over 18 holes →',
     st_fw: 'Fairways', st_gir: 'Greens · GIR', st_ud: 'Up & down', st_putts9: 'Putts · 9 holes', st_3putts: '3-putts · 9 holes', st_birdie: 'Birdie or better', st_par: 'Pars', st_bogey: 'Bogeys', st_double: 'Doubles or worse',
@@ -60,9 +60,13 @@ const I18N = {
 function curLang() { return (typeof S !== 'undefined' && S.settings && S.settings.lang) || 'es'; }
 function t(k) { const d = I18N[curLang()] || I18N.es; return d[k] != null ? d[k] : (I18N.es[k] != null ? I18N.es[k] : k); }
 function applyTheme() {
-  const th = (typeof S !== 'undefined' && S.settings && S.settings.theme) || 'dark';
+  const th = (typeof S !== 'undefined' && S.settings && S.settings.theme) || 'light';
   document.documentElement.setAttribute('data-theme', th);
 }
+
+/* avatares 3D (monitos) — Fluent Emoji 3D (MIT) descargados en assets/avatars */
+const AVATARS = ['assets/avatars/a1.png', 'assets/avatars/a2.png', 'assets/avatars/a3.png', 'assets/avatars/a4.png', 'assets/avatars/a5.png', 'assets/avatars/a6.png'];
+function avatarSrc(u) { const i = (u && u.avatar != null) ? u.avatar : 0; return AVATARS[i] || AVATARS[0]; }
 
 /* ============ Íconos de golf (SVG con look 3D + animación sutil) ============ */
 const GOLF_ICONS = {
