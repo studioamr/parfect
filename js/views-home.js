@@ -301,8 +301,7 @@ function vMisNumeros(u, agg) {
     [fmtToPar(Math.round(agg.avgToPar)), t('average_k')],
     [agg.putts18.toFixed(0), t('putts_round')],
   ];
-  return `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:25px">${t('sec_numbers')}</h2><span class="small muted">${t('sub_numbers')}</span></div>
-    <div class="kpi-band">${kpis.map(([v, lab]) => `<div class="kpi"><b>${v}</b><span>${lab}</span></div>`).join('')}</div>
+  return `<div class="kpi-band" style="margin-top:22px">${kpis.map(([v, lab]) => `<div class="kpi"><b>${v}</b><span>${lab}</span></div>`).join('')}</div>
     <div class="bag-feat">
       <div class="card bag-card"><span class="label">${golfIcon('club')} ${t('driver_carry')}</span><b class="bag-big">${driverY}<em> yds</em></b></div>
       <div class="card bag-card"><span class="label">${golfIcon('flag')} ${t('most_accurate')}</span><b class="bag-name">${esc(best.name)}</b><span class="bag-sub">${best.e}% ${t('accuracy')}</span></div>
@@ -461,25 +460,10 @@ function vPerfilHero(u) {
 /* ============ Perfil (página) ============ */
 function vPerfil() {
   const u = cur();
-  const agg = Stats.aggregate(myRounds());
   return `<div class="sec-h"><h2>Tu perfil</h2></div>
     ${vPerfilHero(u)}
-    ${agg ? `<div class="sec-h" style="margin-top:6px"><h2 style="font-size:16px">Mis números</h2></div>${vStatsBundle(agg)}` : ''}
-    ${agg ? vScoreDist(agg) : ''}
     ${vBagEditor(u)}
     ${vLogros()}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('card')} Calendario</h2></div>
-    ${vCalendar()}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('flag')} Beneficios y aliados</h2></div>
-    <div class="card">
-      <p class="note" style="margin-top:0;margin-bottom:8px">Próximamente: ofertas exclusivas de clubes, tiendas y profesionales para jugadores PARFECT.</p>
-      <div class="club-grid">
-        <div class="club-tile"><b>Tu club</b><span class="ct-goal">Reserva tu tee time</span></div>
-        <div class="club-tile"><b>Equipo</b><span class="ct-goal">Palos, bolas y más</span></div>
-        <div class="club-tile"><b>Clases</b><span class="ct-goal">Encuentra un PRO</span></div>
-        <div class="club-tile"><b>Anúnciate</b><span class="ct-goal">Tu marca aquí</span></div>
-      </div>
-    </div>
     <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('settings')}</h2></div>
     <div class="card">
       <div class="set-row"><span class="set-lab">${t('language')}</span><div class="chips">
