@@ -380,18 +380,37 @@ button.row { cursor: pointer; }
 .ref-table tr.hcp-goal .hcp-h { color: var(--lime); }
 .hcp-tag { font-size: 9px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; color: var(--lime); border: 1px solid var(--line); border-radius: 6px; padding: 1px 4px; }
 
-/* ============ Calendario de entrenamientos ============ */
+/* ============ Calendario (estilo Apple, mensual) ============ */
 .ph-head .r-main b { display: block; font-size: 14.5px; font-weight: 800; }
 .ph-head .r-main span { font-size: 12px; }
-.cal-day { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
-.cal-day:last-child { border-bottom: none; }
-.cal-day.on { }
-.cal-day.on .cal-d { background: var(--lime); color: #0a0f06; border-color: var(--lime); }
-.cal-d { flex: none; width: 42px; text-align: center; font-size: 12px; font-weight: 800; color: var(--muted); padding: 5px 0; border: 1px solid var(--line-soft); border-radius: 9px; }
-.cal-items { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
-.cal-chip { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 9px; background: var(--lime-faint); border: 1px solid var(--line); color: var(--lime); }
-.cal-chip.ronda { background: var(--lime-dim); }
-.cal-chip.rest { background: transparent; border-color: var(--line-soft); color: var(--muted2); }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-month { font-size: 17px; font-weight: 900; }
+.cal-nav { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--lime-faint); color: var(--lime); font-size: 20px; font-weight: 800; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-wd { text-align: center; font-size: 11px; font-weight: 800; color: var(--muted2); padding-bottom: 4px; }
+.cal-cell { aspect-ratio: 1; border: none; background: transparent; border-radius: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text); padding: 0; }
+.cal-cell.empty { visibility: hidden; }
+.cal-cell .cal-n { font-size: 14px; font-weight: 700; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.cal-cell.closed .cal-n { color: var(--muted2); }
+.cal-cell.today .cal-n { background: rgba(201, 247, 62, 0.16); color: var(--lime); }
+.cal-cell.sel { background: var(--card2); border: 1px solid var(--line); }
+.cal-cell.sel .cal-n { background: var(--lime); color: #0a0f06; }
+.cal-dots { display: flex; gap: 3px; height: 6px; }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.cal-dot.ronda { background: var(--lime); }
+.cal-dot.entreno { background: #cfd8c2; }
+.cal-dot.descanso { background: var(--muted2); }
+.cal-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ============ Amigos (Social) ============ */
+.friend-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 11px 2px; background: none; border: none; border-bottom: 1px solid var(--line-soft); color: var(--text); }
+.friend-row:last-of-type { border-bottom: none; }
+.friend-row .r-main b { display: block; font-size: 15px; font-weight: 800; }
+.friend-row .r-main span { font-size: 12.5px; color: var(--muted); }
+.friend-row .r-side { text-align: right; flex: none; }
+.friend-row .r-side b { display: block; font-size: 17px; font-weight: 900; color: var(--lime); }
+.friend-row .r-side span { font-size: 11px; color: var(--muted); font-weight: 700; }
 
 /* ============ Drill art (animaciones SVG) ============ */
 .drill-art { width: 100%; height: auto; display: block; border-radius: 12px; margin: 6px 0 2px; }

@@ -10,6 +10,7 @@ let V = {
   detail: null, delArm: null,
   trainerTab: 'diag', diag: null, diagBusy: false,
   trackVals: null, trkTab: 'plan', drillLog: null, drillCat: 'fw',
+  calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null,
   partyDraft: null, showMoney: false, partyView: null,
 };
 
@@ -286,13 +287,24 @@ const actions = {
   friend(d) { V.friendId = d.id; go('friend'); },
   'cal-train'(d) { const u = cur(); u.trainPerWeek = Stats.clamp((u.trainPerWeek != null ? u.trainPerWeek : 3) + Number(d.d), 0, 14); commit(); },
   'cal-rounds'(d) { const u = cur(); u.roundsPerWeek = Stats.clamp((u.roundsPerWeek != null ? u.roundsPerWeek : 1) + Number(d.d), 0, 7); commit(); },
-  'cal-add-round'() {
+  'cal-prev'() { if (--V.calM < 0) { V.calM = 11; V.calY--; } render(); },
+  'cal-next'() { if (++V.calM > 11) { V.calM = 0; V.calY++; } render(); },
+  'cal-day-sel'(d) { V.calSel = d.date; render(); window.scrollTo(0, document.querySelector('.cal-grid') ? 0 : 0); },
+  'cal-addtype'(d) { V.calAddType = d.t; render(); },
+  'cal-closed'(d) { const u = cur(); u.closedDay = Number(d.d); commit(); },
+  'cal-add'() {
     const u = cur();
-    const date = val('cal-date'), course = val('cal-course');
-    if (!date) { V.err = 'Elige la fecha de la ronda.'; render(); return; }
+    const type = V.calAddType || 'entreno';
+    const title = val('cal-title');
     u.events = u.events || [];
-    u.events.push({ id: Store.uid(), type: 'ronda', date, course: course || 'Ronda' });
-    V.err = null;
+    u.events.push({ id: Store.uid(), date: V.calSel, type, title: title || EV_LABEL[type], ai: false });
+    commit();
+  },
+  'cal-ai'() {
+    const u = cur();
+    const tl = todayLocal();
+    u.events = (u.events || []).filter(e => !(e.ai && e.date >= tl));
+    u.events.push(...generateAIPlan(u));
     commit();
   },
   'cal-del'(d) {

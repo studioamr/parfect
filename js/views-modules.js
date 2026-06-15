@@ -74,7 +74,7 @@ function vTrainer() {
   const body = tab === 'diag' ? vDiag() : tab === 'drills' ? vDrillsLibrary() : tab === 'cal' ? vCalendar() : vTracker();
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs" style="flex-wrap:wrap">
-      <button class="tab ${tab === 'diag' ? 'on' : ''}" data-act="trainer-tab" data-t="diag">Diagnóstico</button>
+      <button class="tab ${tab === 'diag' ? 'on' : ''}" data-act="trainer-tab" data-t="diag">Diagnóstico IA</button>
       <button class="tab ${tab === 'drills' ? 'on' : ''}" data-act="trainer-tab" data-t="drills">Drills</button>
       <button class="tab ${tab === 'tracker' ? 'on' : ''}" data-act="trainer-tab" data-t="tracker">Tracker</button>
       <button class="tab ${tab === 'cal' ? 'on' : ''}" data-act="trainer-tab" data-t="cal">Calendario</button>
@@ -94,8 +94,8 @@ function vDiag() {
       <p>Correlacionando ${agg.holesPlayed} hoyos, ${agg.rounds} rondas y 12+ métricas.</p></div>`;
   }
   if (!V.diag) {
-    return `<div class="card empty"><div class="e-ico">🧠</div><h3>Diagnóstico de causa raíz</h3>
-      <p>La IA cruza tus ${agg.rounds} rondas (${agg.holesPlayed} hoyos) para detectar exactamente dónde se van los golpes de más — y qué practicar.</p>
+    return `<div class="card empty"><div class="e-ico">🧠</div><h3>Diagnóstico IA</h3>
+      <p>La IA cruza tus ${agg.rounds} rondas (${agg.holesPlayed} hoyos) para detectar dónde se van los golpes de más — y qué practicar.</p>
       <button class="btn primary" data-act="diagnose">Generar diagnóstico IA</button></div>`;
   }
   const d = V.diag;
@@ -276,93 +276,129 @@ function vClubs() {
     <button class="btn" data-act="nav" data-view="trainer">Cancelar</button>`;
 }
 
-/* ---------- Calendario de entrenamientos ---------- */
-const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+/* ---------- Calendario (estilo Apple, mensual) ---------- */
 const FOCUS_LABEL = { driving: 'Driving', approach: 'Hierros', short: 'Juego corto', putting: 'Putting' };
+const CAL_WD = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+const CAL_WD_FULL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const EV_LABEL = { ronda: 'Ronda', entreno: 'Entreno', descanso: 'Descanso' };
+const EV_ICON = { ronda: '⛳', entreno: '🛠️', descanso: '😴' };
+
+function isoLocal(d) { const z = new Date(d); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString().slice(0, 10); }
+function todayLocal() { return isoLocal(new Date()); }
 
 function calDateLabel(iso) {
-  const dd = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const d = new Date(iso + 'T12:00:00');
-  const base = new Date(today() + 'T12:00:00');
+  const base = new Date(todayLocal() + 'T12:00:00');
   const diff = Math.round((d - base) / 864e5);
   const rel = diff <= 0 ? 'hoy' : diff === 1 ? 'mañana' : `en ${diff} días`;
-  return `${dd[d.getDay()]} ${d.getDate()} ${d.toLocaleDateString('es-MX', { month: 'short' })} · ${rel}`;
+  return `${CAL_WD_FULL[(d.getDay() + 6) % 7]} ${d.getDate()} ${d.toLocaleDateString('es-MX', { month: 'short' })} · ${rel}`;
 }
 
-function weekPlan(n, m, focuses) {
-  const roundPriority = [6, 5, 2, 3, 1, 4, 0];   // Dom, Sáb, Mié...
-  const trainPriority = [0, 1, 3, 4, 2, 5, 6];   // Lun, Mar, Jue...
-  const days = WEEKDAYS.map(() => []);
-  const roundDays = roundPriority.slice(0, Math.min(m, 7));
-  roundDays.forEach(d => days[d].push({ type: 'ronda' }));
-  const avail = trainPriority.filter(d => !roundDays.includes(d));
-  let fi = 0;
-  const place = d => { days[d].push({ type: 'train', focus: focuses.length ? focuses[fi % focuses.length] : 'General' }); fi++; };
-  for (let k = 0; k < Math.min(n, avail.length); k++) place(avail[k]);
-  let extra = n - avail.length, idx = 0;
-  while (extra > 0 && avail.length) { place(avail[idx % avail.length]); extra--; idx++; }
-  return days;
+/* IA: arma la próxima semana respetando el día de cierre del club */
+function generateAIPlan(u) {
+  const closedDay = u.closedDay != null ? u.closedDay : 0; // Lun por defecto
+  const agg = Stats.aggregate(myRounds());
+  let focuses = ['Putting', 'Juego corto', 'Hierros', 'Driving'];
+  if (agg) focuses = Trainer.analyze(agg, u).focus.map(f => FOCUS_LABEL[f.key] || f.titulo);
+  let rounds = u.roundsPerWeek != null ? u.roundsPerWeek : 1;
+  let trains = u.trainPerWeek != null ? u.trainPerWeek : 3;
+  const start = new Date(); start.setHours(12, 0, 0, 0);
+  const days = []; for (let i = 0; i < 7; i++) { const d = new Date(start); d.setDate(d.getDate() + i); days.push(d); }
+  const open = days.filter(d => ((d.getDay() + 6) % 7) !== closedDay);
+  const out = [], used = new Set(); let fi = 0;
+  const weekendFirst = [...open].sort((a, b) => (((a.getDay() + 6) % 7) >= 5 ? 0 : 1) - (((b.getDay() + 6) % 7) >= 5 ? 0 : 1));
+  for (const d of weekendFirst) { if (rounds <= 0) break; const iso = isoLocal(d); if (used.has(iso)) continue; out.push({ id: Store.uid(), date: iso, type: 'ronda', title: 'Ronda', ai: true }); used.add(iso); rounds--; }
+  for (const d of open) { if (trains <= 0) break; const iso = isoLocal(d); if (used.has(iso)) continue; out.push({ id: Store.uid(), date: iso, type: 'entreno', title: focuses[fi % focuses.length], ai: true }); used.add(iso); fi++; trains--; }
+  let idx = 0; while (trains > 0 && open.length && idx < 30) { const iso = isoLocal(open[idx % open.length]); out.push({ id: Store.uid(), date: iso, type: 'entreno', title: focuses[fi % focuses.length], ai: true }); fi++; trains--; idx++; }
+  return out;
 }
 
 function vCalendar() {
   const u = cur();
-  const tn = u.trainPerWeek != null ? u.trainPerWeek : 3;
-  const rn = u.roundsPerWeek != null ? u.roundsPerWeek : 1;
-  const agg = Stats.aggregate(myRounds());
-  let focuses = ['Putting', 'Juego corto', 'Hierros', 'Driving'];
-  if (agg) focuses = Trainer.analyze(agg, u).focus.map(f => FOCUS_LABEL[f.key] || f.titulo);
-  const days = weekPlan(tn, rn, focuses);
-  const todayIdx = (new Date().getDay() + 6) % 7;
+  const now = new Date();
+  if (V.calY == null) { V.calY = now.getFullYear(); V.calM = now.getMonth(); }
+  if (!V.calSel) V.calSel = todayLocal();
+  const y = V.calY, m = V.calM;
+  const closedDay = u.closedDay != null ? u.closedDay : 0;
+  const events = u.events || [];
+  const byDate = {};
+  for (const e of events) (byDate[e.date] = byDate[e.date] || []).push(e);
 
-  const planRows = WEEKDAYS.map((d, i) => {
-    const items = days[i];
-    const chips = items.length
-      ? items.map(it => it.type === 'ronda'
-        ? `<span class="cal-chip ronda">⛳ Ronda</span>`
-        : `<span class="cal-chip">🛠️ ${esc(it.focus)}</span>`).join('')
-      : `<span class="cal-chip rest">Descanso</span>`;
-    return `<div class="cal-day ${i === todayIdx ? 'on' : ''}"><span class="cal-d">${d}</span><div class="cal-items">${chips}</div></div>`;
-  }).join('');
+  const first = new Date(y, m, 1);
+  const pad = (first.getDay() + 6) % 7;
+  const dim = new Date(y, m + 1, 0).getDate();
+  const tl = todayLocal();
+  let cells = '';
+  for (let i = 0; i < pad; i++) cells += `<div class="cal-cell empty"></div>`;
+  for (let day = 1; day <= dim; day++) {
+    const iso = isoLocal(new Date(y, m, day));
+    const wd = (new Date(y, m, day).getDay() + 6) % 7;
+    const dots = (byDate[iso] || []).slice(0, 3).map(e => `<i class="cal-dot ${e.type}"></i>`).join('');
+    const cls = [iso === tl ? 'today' : '', iso === V.calSel ? 'sel' : '', wd === closedDay ? 'closed' : ''].join(' ');
+    cells += `<button class="cal-cell ${cls}" data-act="cal-day-sel" data-date="${iso}"><span class="cal-n">${day}</span><div class="cal-dots">${dots}</div></button>`;
+  }
+  const ml = first.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+  const monthLabel = ml.charAt(0).toUpperCase() + ml.slice(1);
 
-  const events = (u.events || []).filter(e => e.type === 'ronda' && e.date >= today()).sort((a, b) => a.date.localeCompare(b.date));
-  const evRows = events.length
-    ? events.map(e => `<div class="row">
-        <div class="r-main"><b>⛳ ${esc(e.course || 'Ronda')}</b><span>${calDateLabel(e.date)}</span></div>
+  const selD = new Date(V.calSel + 'T12:00:00');
+  const selWd = (selD.getDay() + 6) % 7;
+  const selHead = `${CAL_WD_FULL[selWd]} ${selD.getDate()} ${selD.toLocaleDateString('es-MX', { month: 'short' })}`;
+  const selEvs = byDate[V.calSel] || [];
+  const selList = selEvs.length
+    ? selEvs.map(e => `<div class="row">
+        <div class="r-main"><b>${EV_ICON[e.type]} ${esc(e.title || EV_LABEL[e.type])}</b><span>${EV_LABEL[e.type]}${e.ai ? ' · sugerido IA' : ''}</span></div>
         <button class="pl-x" data-act="cal-del" data-id="${e.id}">✕</button>
       </div>`).join('')
-    : `<p class="note">Aún no tienes rondas agendadas.</p>`;
+    : `<p class="note">Sin eventos${selWd === closedDay ? ' · club cerrado' : ''}.</p>`;
+  const addType = V.calAddType || 'entreno';
+  const typeChips = ['entreno', 'ronda', 'descanso'].map(t => `<button class="chip sm ${addType === t ? 'on' : ''}" data-act="cal-addtype" data-t="${t}">${EV_LABEL[t]}</button>`).join('');
+
+  const upcoming = events.filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+  const agenda = upcoming.length
+    ? upcoming.map(e => `<button class="row" data-act="cal-day-sel" data-date="${e.date}">
+        <div class="r-main"><b>${EV_ICON[e.type]} ${esc(e.title || EV_LABEL[e.type])}</b><span>${calDateLabel(e.date)}</span></div>
+        <span class="muted">›</span>
+      </button>`).join('')
+    : `<p class="note">Nada agendado. Usa "Planear mi semana" o agrega un evento.</p>`;
 
   return `
     <div class="card">
-      <span class="label">Mi ritmo semanal</span>
-      <div class="ph-head" style="margin-top:10px">
-        <div class="r-main" style="flex:1"><b>Entrenamientos</b><span class="muted">por semana</span></div>
-        <div class="stepper sm"><button data-act="cal-train" data-d="-1">−</button><span class="pl-score">${tn}</span><button data-act="cal-train" data-d="1">+</button></div>
+      <div class="cal-head">
+        <button class="cal-nav" data-act="cal-prev">‹</button>
+        <span class="cal-month">${monthLabel}</span>
+        <button class="cal-nav" data-act="cal-next">›</button>
       </div>
-      <div class="ph-head" style="margin-top:12px;border-top:1px solid var(--line-soft);padding-top:12px">
-        <div class="r-main" style="flex:1"><b>Rondas</b><span class="muted">por semana</span></div>
-        <div class="stepper sm"><button data-act="cal-rounds" data-d="-1">−</button><span class="pl-score">${rn}</span><button data-act="cal-rounds" data-d="1">+</button></div>
+      <div class="cal-grid">
+        ${CAL_WD.map(w => `<div class="cal-wd">${w}</div>`).join('')}
+        ${cells}
+      </div>
+      <div class="cal-legend"><span><i class="cal-dot ronda"></i>Ronda</span><span><i class="cal-dot entreno"></i>Entreno</span><span><i class="cal-dot descanso"></i>Descanso</span></div>
+    </div>
+
+    <div class="card">
+      <span class="label">${selHead}</span>
+      ${selList}
+      <div class="chips" style="margin-top:12px">${typeChips}</div>
+      <div class="join-row" style="margin-top:10px">
+        <input id="cal-title" placeholder="${addType === 'ronda' ? 'Campo' : addType === 'entreno' ? 'Enfoque (ej. Putting)' : 'Nota'}">
+        <button class="btn sm primary" data-act="cal-add">Agregar</button>
       </div>
     </div>
 
     <div class="card">
-      <span class="label">Plan de la semana</span>
-      <p class="note" style="margin-top:0;margin-bottom:10px">${agg ? 'Entrenamientos enfocados en lo que más golpes te cuesta.' : 'Registra rondas y enfocaremos tus entrenamientos.'}</p>
-      ${planRows}
+      <span class="label">Planear con IA</span>
+      <p class="note" style="margin-top:0;margin-bottom:8px">Arma tu semana según tu ritmo. El club cierra los ${CAL_WD_FULL[closedDay].toLowerCase()}.</p>
+      <div class="ph-head"><div class="r-main" style="flex:1"><b>Entrenamientos</b><span class="muted">por semana</span></div>
+        <div class="stepper sm"><button data-act="cal-train" data-d="-1">−</button><span class="pl-score">${u.trainPerWeek != null ? u.trainPerWeek : 3}</span><button data-act="cal-train" data-d="1">+</button></div></div>
+      <div class="ph-head" style="margin-top:10px;border-top:1px solid var(--line-soft);padding-top:10px"><div class="r-main" style="flex:1"><b>Rondas</b><span class="muted">por semana</span></div>
+        <div class="stepper sm"><button data-act="cal-rounds" data-d="-1">−</button><span class="pl-score">${u.roundsPerWeek != null ? u.roundsPerWeek : 1}</span><button data-act="cal-rounds" data-d="1">+</button></div></div>
+      <p class="label" style="margin-top:14px">El club cierra los</p>
+      <div class="chips">${CAL_WD_FULL.map((w, i) => `<button class="chip sm ${closedDay === i ? 'on' : ''}" data-act="cal-closed" data-d="${i}">${w}</button>`).join('')}</div>
+      <button class="btn primary" data-act="cal-ai" style="margin-top:14px">✨ Planear mi semana</button>
     </div>
 
-    <div class="card">
-      <span class="label">Próximas rondas</span>
-      ${evRows}
-      <div class="field" style="margin-top:12px"><label>Agendar una ronda</label>
-        <div class="field-row">
-          <input id="cal-date" type="date" min="${today()}">
-          <input id="cal-course" placeholder="Campo">
-        </div>
-      </div>
-      ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
-      <button class="btn primary" data-act="cal-add-round">Agregar al calendario</button>
-    </div>`;
+    <div class="sec-h"><h2 style="font-size:16px">Próximos eventos</h2></div>
+    ${agenda}`;
 }
 
 /* ---------- Social ---------- */
@@ -412,16 +448,18 @@ function vSocial() {
       ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
     </div>
     <div class="card">
-      <span class="label">Leaderboard · este dispositivo</span>
-      ${players.map((x, i) => `<button class="row" style="border:none;background:transparent;padding:10px 2px;margin-top:0;width:100%;text-align:left" data-act="friend" data-id="${x.p.id}">
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
-          <span class="rank">${i + 1}</span>
-          <div class="r-main"><b>${esc(x.p.name)}${x.p.id === u.id ? ' (tú)' : ''}</b>
-          <span>HCP ${fmtHcp(x.p.hcp)} · ${x.agg ? x.agg.rounds + ' rondas' : 'sin rondas'}</span></div>
-        </div>
+      <span class="label">Amigos</span>
+      <button class="friend-row" data-act="friend" data-id="${u.id}">
+        <span class="avatar-btn" style="width:42px;height:42px;font-size:15px">${esc(initials(u.name))}</span>
+        <div class="r-main" style="flex:1"><b>${esc(u.name)} (tú)</b><span>HCP ${fmtHcp(u.hcp)} · tu perfil</span></div>
+        <span class="muted">›</span>
+      </button>
+      ${players.filter(x => x.p.id !== u.id).map(x => `<button class="friend-row" data-act="friend" data-id="${x.p.id}">
+        <span class="avatar-btn" style="width:42px;height:42px;font-size:15px;background:var(--lime-faint)">${esc(initials(x.p.name))}</span>
+        <div class="r-main" style="flex:1"><b>${esc(x.p.name)}</b><span>HCP ${fmtHcp(x.p.hcp)} · ${x.agg ? x.agg.rounds + ' rondas' : 'sin rondas'}</span></div>
         <div class="r-side"><b>${x.agg ? fmtToPar(Math.round(x.agg.avgToPar)) : '—'}</b><span>prom/18 ›</span></div>
       </button>`).join('')}
-      <p class="note">Toca a un jugador para ver su perfil. Crea más cuentas para competir cara a cara.</p>
+      <p class="note">Toca a un amigo para ver su perfil y stats. Con la nube podrás agregar amigos de otros dispositivos.</p>
     </div>
     <div class="sec-h"><h2>Actividad</h2></div>
     ${feed || `<div class="card empty"><div class="e-ico">🏆</div><h3>Nada por aquí aún</h3><p>Las rondas guardadas aparecen en este feed.</p></div>`}`;
