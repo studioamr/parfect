@@ -58,6 +58,7 @@ function loadHole() {
   V.hole = ex ? { ...ex } : newHole(parForActive(a, a.idx));
   V.scoreTouched = !!ex;
   V.confirmExit = false;
+  V.fastStep = null;
 }
 
 /* ============ Router ============ */
@@ -299,6 +300,23 @@ const actions = {
     if (k === 'teeLie' && v && !h.tee) h.tee = 'c';
     // up & down salvado = chip + 1 putt → llena los putts en automático
     if (k === 'upDown' && v === true) h.putts = 1;
+    render();
+  },
+  'fast'(d) {
+    const h = V.hole; if (!h) return;
+    const k = d.k;
+    if (k === 'tee') { h.teeLie = d.lie; h.tee = d.dir || 'c'; }
+    else if (k === 'app') { h.app = d.v; if (d.v === 'gir') h.upDown = null; }
+    else if (k === 'ud') { h.upDown = (d.v === 'si'); if (h.upDown) h.putts = 1; }
+    else if (k === 'putts') { h.putts = Number(d.v); }
+    V.fastStep = null; // re-deriva el paso → auto-avanza al siguiente
+    render();
+  },
+  'fast-back'() {
+    const h = V.hole; if (!h) return;
+    const steps = playSteps(h);
+    const ci = (V.fastStep != null) ? V.fastStep : fastDerivedIndex(h, steps);
+    V.fastStep = Math.max(0, ci - 1);
     render();
   },
   'h-score'(d) {

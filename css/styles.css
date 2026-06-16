@@ -485,6 +485,48 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .hv-res { font-size: 10.5px; font-weight: 700; color: rgba(20,50,10,0.64); min-height: 13px; }
 .hv-conn { flex: 0 0 8px; height: 2.5px; background: rgba(255,255,255,0.55); margin-top: 21px; border-radius: 2px; }
 
+/* ====== Registro tipo historia (pantalla completa) ====== */
+.play-story { display: flex; flex-direction: column; min-height: 100dvh; padding: calc(12px + env(safe-area-inset-top)) 18px calc(16px + env(safe-area-inset-bottom)); }
+.ps-top { display: flex; align-items: center; gap: 10px; }
+.ps-top .x { background: var(--card); border: 1px solid var(--line); border-radius: 50%; width: 34px; height: 34px; font-size: 14px; font-weight: 800; color: var(--text); flex: none; }
+.ps-segs { flex: 1; display: flex; gap: 5px; }
+.ps-seg { flex: 1; height: 4px; border-radius: 2px; background: rgba(20,50,15,0.16); }
+[data-theme="dark"] .ps-seg { background: rgba(150,175,255,0.2); }
+.ps-seg.on { background: #C7EE54; }
+.ps-seg.now { background: var(--text); }
+.ps-hole { font-size: 12px; font-weight: 800; color: var(--muted); flex: none; }
+.ps-stage { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+.ps-stage.ps-anim { animation: stageIn .34s cubic-bezier(.2,.85,.25,1) both; }
+@keyframes stageIn { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: none; } }
+.ps-kicker { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--lime); }
+.ps-q { font-size: clamp(28px, 7.5vw, 40px); font-weight: 900; letter-spacing: -.02em; line-height: 1.02; margin: 8px 0 0; color: var(--text); }
+.ps-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.ps-opt { width: 100%; padding: 18px 20px; border-radius: 18px; background: var(--card); border: 1.5px solid var(--line); font-size: 18px; font-weight: 800; color: var(--text); text-align: left; box-shadow: 0 6px 18px rgba(20,40,15,0.07); transition: transform .12s, box-shadow .2s, background .15s; }
+.ps-opt:active { transform: scale(.97); }
+.ps-opt.on { background: #C7EE54; border-color: #C7EE54; color: #16241A; box-shadow: 0 10px 24px rgba(199,247,84,0.45); }
+.ps-stage[data-step="putts"] .ps-opts { flex-direction: row; gap: 9px; }
+.ps-stage[data-step="putts"] .ps-opt { flex: 1; text-align: center; padding: 22px 0; font-size: 22px; }
+/* score step */
+.ps-opts-score { align-items: center; }
+.ps-scorebox { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 6px; }
+.ps-sbtn { width: 56px; height: 56px; border-radius: 50%; border: none; background: #C7EE54; color: #16241A; font-size: 28px; font-weight: 900; box-shadow: 0 6px 16px rgba(199,247,84,0.45); }
+.ps-sbtn:active { transform: scale(.92); }
+.ps-scoremid { text-align: center; min-width: 90px; }
+.ps-scoremid b { display: block; font-size: 72px; font-weight: 900; line-height: 1; color: var(--text); }
+.ps-scoremid span { font-size: 15px; font-weight: 800; color: var(--muted); }
+.ps-scorebox.good .ps-scoremid b { color: var(--lime); }
+.ps-scorebox.over .ps-scoremid b { color: #e0922e; }
+.ps-scorebox.bad .ps-scoremid b { color: var(--danger); }
+.ps-next { margin-top: 26px; width: 100%; }
+/* pie: caddie + atrás */
+.ps-foot { margin-top: auto; padding-top: 14px; }
+.ps-caddie { display: flex; align-items: flex-end; gap: 8px; }
+.ps-cad-av { width: 62px; height: 62px; object-fit: contain; flex: none; }
+.ps-bubble { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 16px 5px; padding: 11px 14px; font-size: 14px; font-weight: 700; color: var(--text); box-shadow: 0 6px 16px rgba(20,40,15,0.08); animation: bubbleIn .36s cubic-bezier(.2,.9,.3,1.25) both; }
+@keyframes bubbleIn { from { opacity: 0; transform: translateY(8px) scale(.92); } to { opacity: 1; transform: none; } }
+.ps-back { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 9px 16px; font-weight: 800; color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .ps-stage.ps-anim, .ps-bubble { animation: none !important; } }
+
 /* ====== Registro de hoyo (concepto juguetón) ====== */
 .reg-card { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 6px 16px 16px; box-shadow: 0 10px 30px rgba(20, 40, 15, 0.07); }
 .reg-card .group:first-child { margin-top: 12px; }

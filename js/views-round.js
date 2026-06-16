@@ -405,6 +405,27 @@ function captureSchematic(h, chole, noZoom, clean) {
   </svg></div>`;
 }
 
+/* pasos del registro tipo historia */
+function playSteps(h) {
+  const s = [];
+  if (h.par !== 3) s.push('tee');
+  s.push('app');
+  if (h.app && h.app !== 'gir') s.push('ud');
+  s.push('putts');
+  s.push('score');
+  return s;
+}
+function fastDerivedIndex(h, steps) {
+  let key;
+  if (h.par !== 3 && !(h.teeLie || h.tee)) key = 'tee';
+  else if (!h.app) key = 'app';
+  else if (h.app !== 'gir' && h.upDown == null) key = 'ud';
+  else if (h.putts == null) key = 'putts';
+  else key = 'score';
+  const i = steps.indexOf(key);
+  return i < 0 ? steps.length - 1 : i;
+}
+
 /* tracker de tiros del hoyo: limpio, confiable y bonito (reemplaza el mapa del hoyo) */
 function holeViz(h, chole, holeNum, teeF) {
   const par = h.par;
@@ -445,94 +466,90 @@ function vPlay() {
   if (a.idx >= a.holesCount) return vSummary(a);
   const h = V.hole;
   const chole = (a.courseId && COURSES[a.courseId] && COURSES[a.courseId].holes[a.idx]) ? COURSES[a.courseId].holes[a.idx] : null;
-  const sugg = suggestScore(h);
-  const score = V.scoreTouched ? h.score : sugg;
-  const pct = (a.idx / a.holesCount) * 100;
-  const ready = h.app && h.putts != null && teeDone(h);
+  const yds = chole && chole.yds ? Math.round(chole.yds * (a.teeF || 1)) : null;
+  const steps = playSteps(h);
+  const derived = fastDerivedIndex(h, steps);
+  const ci = (V.fastStep != null) ? Math.min(Math.max(0, V.fastStep), steps.length - 1) : derived;
+  const stepKey = steps[ci];
+  const lastHole = a.idx + 1 === a.holesCount;
+  const sc = (V.scoreTouched && h.score != null) ? h.score : suggestScore(h);
+  const rel = sc != null ? sc - h.par : null;
+  const scoreCls = rel == null ? '' : rel <= -1 ? 'good' : rel === 0 ? 'par' : rel === 1 ? 'over' : 'bad';
 
-  const lieLbl = { calle: 'Calle ✓', rough: 'Rough', bunker: 'Bunker', ob: 'OB/Penal' };
-  const dirLbl = { izq: ' izq', der: ' der', c: '' };
-  const sl = [];
-  if (h.par >= 4 && (h.teeLie || h.tee)) {
-    if (h.teeLie) sl.push((lieLbl[h.teeLie] || 'Salida') + (h.teeLie !== 'calle' && dirLbl[h.tee] ? dirLbl[h.tee] : ''));
-    else sl.push(h.tee === 'fw' ? 'Calle ✓' : h.tee === 'penal' ? 'OB/Penal' : h.tee === 'izq' ? 'Salida izq' : 'Salida der');
-  }
-  if (h.app) sl.push(h.app === 'gir' ? 'Green ✓' : h.app === 'corto' ? 'Corto' : h.app === 'largo' ? 'Largo' : h.app === 'izq' ? 'Falló izq' : 'Falló der');
-  if (h.app && h.app !== 'gir' && h.upDown != null) sl.push(h.upDown ? 'Up & down ✓' : 'Chip');
-  if (h.putts != null) sl.push(h.putts + ' putt' + (h.putts !== 1 ? 's' : ''));
+  // segmentos de progreso (estilo historias)
+  const segs = steps.filter(s => s !== 'score').map((s, i) => `<span class="ps-seg ${i < ci ? 'on' : (i === ci ? 'now' : '')}"></span>`).join('');
 
-  return `<div class="shell no-nav fade-in">
-    <div class="play-top">
-      <button class="x" data-act="play-exit">✕ Salir</button>
-      <span class="label">${esc(a.course)}</span>
-      <span class="small muted">${a.idx + 1}/${a.holesCount}</span>
-    </div>
-    <div class="progress"><i style="width:${pct}%"></i></div>
-    <div class="hole-head">
-      <span class="hnum">Hoyo ${a.idx + 1}</span>
-      <span class="hof">Par ${h.par}${chole && chole.yds ? ` · ${Math.round(chole.yds * (a.teeF || 1))} yds` : ''}${a.teeName ? ` · ${esc(a.teeName)}` : ''}</span>
-    </div>
+  // botón grande de opción
+  const opt = (on, attrs, label, sub) => `<button class="ps-opt ${on ? 'on' : ''}" ${attrs}>${label}${sub ? `<span>${sub}</span>` : ''}</button>`;
 
-    ${holeViz(h, chole, a.idx + 1, a.teeF)}
-
-    <div class="reg-card">
-    ${h.par !== 3 ? `<div class="group">
-      <div class="g-lab"><span class="g-num">1</span><span class="label">Salida</span><span class="small muted">¿a dónde fue?</span>${h.teeLie ? '<span class="g-ok">✓</span>' : ''}</div>
-      ${chipRow([['izq', '← Izq'], ['c', 'Centro'], ['der', 'Der →']], 'tee', h.tee)}
-      <div style="height:8px"></div>
-      ${chipRow([['calle', 'Calle ✓'], ['rough', 'Rough'], ['bunker', 'Bunker'], ['ob', 'OB·Penal']], 'teeLie', h.teeLie)}
-    </div>` : ''}
-
-    <div class="group">
-      <div class="g-lab"><span class="g-num">${h.par !== 3 ? 2 : 1}</span><span class="label">Approach</span>${h.app ? '<span class="g-ok">✓</span>' : ''}</div>
-      ${chipRow([['gir', 'GIR ✓'], ['corto', 'Corto'], ['largo', 'Largo'], ['izq', '← Izq'], ['der', 'Der →']], 'app', h.app)}
-    </div>
-
-    ${h.app && h.app !== 'gir' ? `<div class="group">
-      <div class="g-lab"><span class="g-num">${h.par !== 3 ? 3 : 2}</span><span class="label">Alrededor del green</span><span class="small muted">¿Up & down?</span></div>
-      ${chipRow([['si', 'Salvé el par'], ['no', 'No lo salvé']], 'upDown', h.upDown === true ? 'si' : h.upDown === false ? 'no' : null)}
-    </div>` : ''}
-
-    <div class="group">
-      <div class="g-lab"><span class="g-num">${h.par !== 3 ? (h.app && h.app !== 'gir' ? 4 : 3) : (h.app && h.app !== 'gir' ? 3 : 2)}</span><span class="label">Putts</span>${h.putts != null ? '<span class="g-ok">✓</span>' : ''}</div>
-      ${chipRow([[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']], 'putts', h.putts)}
-    </div>
-
-    <div class="group">
-      <div class="g-lab"><span class="g-num g-num-opt">·</span><span class="label">Distancia 1er putt</span><span class="small muted">opcional</span></div>
-      ${chipRow([['0-3', '0–3 ft'], ['3-8', '3–8 ft'], ['8-20', '8–20 ft'], ['20+', '+20 ft']], 'dist', h.dist)}
-    </div>
-    </div>
-
-    <div class="score-card">
-      <div class="sc-lab"><span class="label">Score del hoyo</span><span class="small muted">${score != null ? 'auto · ajústalo' : 'completa los toques'}</span></div>
-      <div class="score-row">
-        <div class="sc-val">
-          <span class="sc-num">${score != null ? score : '–'}</span>
-          <span class="sc-rel">${score != null ? relScore(score - h.par) : ''}</span>
-        </div>
-        <div class="stepper">
-          <button data-act="h-score" data-d="-1" ${score == null ? 'disabled' : ''}>−</button>
-          <button data-act="h-score" data-d="1" ${score == null ? 'disabled' : ''}>+</button>
-        </div>
+  let q = '', opts = '', caddie = '';
+  const n = a.idx + 1;
+  if (stepKey === 'tee') {
+    q = '¿Cómo fue tu salida?';
+    caddie = `Hoyo ${n} · Par ${h.par}${yds ? ` · ${yds} yds` : ''}. ¡Vamos con todo! 🏌️`;
+    opts = [
+      opt(h.teeLie === 'calle', 'data-act="fast" data-k="tee" data-lie="calle" data-dir="c"', '🎯 A la calle'),
+      opt(h.teeLie === 'rough' && h.tee === 'izq', 'data-act="fast" data-k="tee" data-lie="rough" data-dir="izq"', 'Rough ←'),
+      opt(h.teeLie === 'rough' && h.tee === 'der', 'data-act="fast" data-k="tee" data-lie="rough" data-dir="der"', 'Rough →'),
+      opt(h.teeLie === 'bunker', 'data-act="fast" data-k="tee" data-lie="bunker" data-dir="c"', '🏖️ Bunker'),
+      opt(h.teeLie === 'ob', 'data-act="fast" data-k="tee" data-lie="ob" data-dir="c"', '💦 OB · Penal'),
+    ].join('');
+  } else if (stepKey === 'app') {
+    q = h.par === 3 ? '¿Pegaste al green?' : 'Tu tiro al green';
+    caddie = h.par === 3 ? `Par 3 de ${yds || '—'} yds. A pegarle fino. 🎯`
+      : (h.teeLie === 'calle' ? '¡A la calle! 🔥 Ahora al green.'
+        : h.teeLie === 'bunker' ? 'Saliste del bunker, a buscar green.'
+          : h.teeLie === 'ob' ? 'OB… respira, este cuenta.'
+            : 'Al rough, tú puedes. ¿Y el green?');
+    opts = [
+      opt(h.app === 'gir', 'data-act="fast" data-k="app" data-v="gir"', '⛳ Green ✓'),
+      opt(h.app === 'corto', 'data-act="fast" data-k="app" data-v="corto"', 'Corto'),
+      opt(h.app === 'largo', 'data-act="fast" data-k="app" data-v="largo"', 'Largo'),
+      opt(h.app === 'izq', 'data-act="fast" data-k="app" data-v="izq"', '← Izq'),
+      opt(h.app === 'der', 'data-act="fast" data-k="app" data-v="der"', 'Der →'),
+    ].join('');
+  } else if (stepKey === 'ud') {
+    q = '¿Salvaste el par?';
+    caddie = 'Fallaste el green. El juego corto define al jugador. 🙌';
+    opts = [
+      opt(h.upDown === true, 'data-act="fast" data-k="ud" data-v="si"', '🙌 ¡Sí, salvé!'),
+      opt(h.upDown === false, 'data-act="fast" data-k="ud" data-v="no"', 'No la salvé'),
+    ].join('');
+  } else if (stepKey === 'putts') {
+    q = '¿Cuántos putts?';
+    caddie = h.app === 'gir' ? '¡GREEN en regulación! 💚 A rodar el putt.' : h.upDown === true ? '¡Gran salvada! Cierra el hoyo.' : 'A terminar el hoyo.';
+    opts = [0, 1, 2, 3, 4].map(p => opt(h.putts === p, `data-act="fast" data-k="putts" data-v="${p}"`, p === 4 ? '4+' : String(p))).join('');
+  } else {
+    // score: confirmación + reacción del caddie
+    q = 'Tu score';
+    caddie = rel == null ? 'Completa tu hoyo.' : rel <= -2 ? '🦅 ¡ÁGUILA! Brutal.' : rel === -1 ? '🐦 ¡BIRDIE! Estás encendido.' : rel === 0 ? '✅ Par. Así se juega.' : rel === 1 ? 'Bogey. Lo recuperas. 💪' : 'Hoyo bravo… ¡al siguiente!';
+    opts = `<div class="ps-scorebox ${scoreCls}">
+        <button class="ps-sbtn" data-act="h-score" data-d="-1">−</button>
+        <div class="ps-scoremid"><b>${sc != null ? sc : '–'}</b><span>${sc != null ? relScore(sc - h.par) : ''}</span></div>
+        <button class="ps-sbtn" data-act="h-score" data-d="1">+</button>
       </div>
+      <button class="btn primary big ps-next" data-act="h-next">${lastHole ? 'Finalizar ronda ✓' : 'Siguiente hoyo →'}</button>`;
+  }
+
+  return `<div class="shell no-nav play-story fade-in">
+    <div class="ps-top">
+      <button class="x" data-act="play-exit">✕</button>
+      <div class="ps-segs">${segs}</div>
+      <span class="ps-hole">${n}/${a.holesCount}</span>
     </div>
 
-    <div class="btn-row">
-      ${a.idx > 0 ? `<button class="btn" style="flex:0 0 26%" data-act="h-prev">←</button>` : ''}
-      <button class="btn primary big" data-act="h-next" ${ready ? '' : 'disabled'}>
-        ${a.idx + 1 === a.holesCount ? 'Finalizar ronda ✓' : 'Siguiente hoyo →'}
-      </button>
+    <div class="ps-stage ${stepKey !== 'score' ? 'ps-anim' : ''}" data-step="${stepKey}">
+      <p class="ps-kicker">Hoyo ${n} · Par ${h.par}</p>
+      <h2 class="ps-q">${q}</h2>
+      <div class="ps-opts ${stepKey === 'score' ? 'ps-opts-score' : ''}">${opts}</div>
     </div>
 
-    <div class="card" style="margin-top:18px">
-      <span class="label">Tarjeta</span>
-      ${scorecardTable(
-        a.holesCount,
-        i => (i === a.idx ? h.par : (a.holes[i] ? a.holes[i].par : parForActive(a, i))),
-        [{ name: cur().name.split(' ')[0], scoreOf: i => (a.holes[i] ? a.holes[i].score : null) }],
-        a.idx
-      )}
+    <div class="ps-foot">
+      <div class="ps-caddie">
+        ${avatarImg(cur(), 'ps-cad-av', scoreCls === 'good')}
+        <div class="ps-bubble">${caddie}</div>
+      </div>
+      ${ci > 0 ? `<button class="ps-back" data-act="fast-back">← Atrás</button>` : '<span></span>'}
     </div>
     ${V.confirmExit ? vExitSheet() : ''}
   </div>`;
