@@ -80,17 +80,39 @@ function vRondaTab() {
     return html;
   }
   const myHcp = u.hcp;
-  rows += rounds.map(r => {
-    const s = Stats.roundStats(r);
-    const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
-    const vibe = roundVibe(s, myHcp);
-    return `<button class="pl-rr ${vibe ? 'vibe-' + vibe.k : ''}" data-act="round-detail" data-id="${r.id}">
-      ${vibe ? `<span class="rr-vibe">${vibe.ic}</span>` : ''}
-      <div class="pl-rr-id"><b>${esc(course)}${r.partyId ? ' ' + golfIcon('flag') : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos · ${s.putts} putts</span></div>
-      <span class="pl-rr-score">${s.score}<em>${fmtToPar(s.toPar)}</em></span>
-    </button>`;
-  }).join('');
-  return html + `<div class="pl-rr-list">${rows}</div>`;
+  rows += rounds.map(r => vRoundStatCard(r, myHcp)).join('');
+  return html + `<div class="rc-list">${rows}</div>`;
+}
+
+/* Tarjeta de ronda con stats de todo tipo */
+function vRoundStatCard(r, hcp) {
+  const s = Stats.roundStats(r);
+  const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
+  const vibe = roundVibe(s, hcp);
+  const holes = (r.holes || []).filter(Boolean);
+  const birdies = holes.filter(x => x.score != null && x.score - x.par <= -1).length;
+  const pct = (n, d) => d ? Math.round((n / d) * 100) : 0;
+  const scoreCls = s.toPar <= 0 ? 'good' : s.toPar <= Math.round(s.holes * 0.33) ? 'par' : 'over';
+  const putts18 = s.holes ? (s.putts / s.holes * 18).toFixed(0) : s.putts;
+  const st = (label, val, sub) => `<div class="rc-st"><b>${val}</b><span>${label}</span>${sub ? `<i>${sub}</i>` : ''}</div>`;
+  return `<button class="rc ${vibe ? 'vibe-' + vibe.k : ''}" data-act="round-detail" data-id="${r.id}">
+    ${vibe ? `<span class="rc-vibe">${vibe.ic}</span>` : ''}
+    <div class="rc-top">
+      <div class="rc-id">
+        <b>${esc(course)}${r.partyId ? ` <span class="rc-party">${golfIcon('flag')}</span>` : ''}</b>
+        <span>${fmtDate(r.date)} · ${s.holes} hoyos</span>
+      </div>
+      <div class="rc-score ${scoreCls}"><span class="rc-num">${s.score}</span><span class="rc-par">${fmtToPar(s.toPar)}</span></div>
+    </div>
+    <div class="rc-stats">
+      ${st('Calles', pct(s.fw, s.fwTot) + '%', `${s.fw}/${s.fwTot}`)}
+      ${st('GIR', pct(s.gir, s.girTot) + '%', `${s.gir}/${s.girTot}`)}
+      ${st('Up&down', pct(s.scr, s.scrTot) + '%', `${s.scr}/${s.scrTot}`)}
+      ${st('Putts', s.putts, `${putts18}/18`)}
+      ${st('Birdies', birdies, birdies === 1 ? '1 hoyo' : birdies + ' hoyos')}
+      ${st('Penales', s.penals, s.threeP + ' × 3-putt')}
+    </div>
+  </button>`;
 }
 
 /* ---------- Setup de ronda ---------- */
@@ -515,11 +537,12 @@ function vPlay() {
     <div class="progress"><i style="width:${pct}%"></i></div>
 
     <div class="hole-banner">
-      <div class="hb-art">${holeScene(h.par)}</div>
       <div class="hb-info">
         <span class="hb-course">${esc(a.course)}${a.teeName ? ` · ${esc(a.teeName)}` : ''}</span>
-        <div class="hb-num">Hoyo ${a.idx + 1}</div>
-        <div class="hb-meta"><span class="hb-par">Par ${h.par}</span>${yds ? `<span class="hb-yds">${yds} yds</span>` : ''}</div>
+        <div class="hb-head">
+          <span class="hb-num">Hoyo ${a.idx + 1}</span>
+          <div class="hb-meta"><span class="hb-par">Par ${h.par}</span>${yds ? `<span class="hb-yds">${yds} yds</span>` : ''}</div>
+        </div>
       </div>
     </div>
 

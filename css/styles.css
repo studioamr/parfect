@@ -1704,16 +1704,13 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .reel-swipe .reel-card { scroll-snap-align: center; }
 
 /* ===== Banner del hoyo en registro de ronda ===== */
-.hole-banner { --hb-sky1:#cdeefb; --hb-sky2:#a9def0; --hb-sun:#ffe48a; --hb-far:#9fd97a; --hb-grass:#6ec24f; --hb-grass2:#3f8f3a; --hb-fair:#bde878; --hb-green:#d9f3ad; --hb-flag:#ff5a4d;
-  position: relative; display: flex; align-items: stretch; gap: 0; margin-top: 12px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 28px rgba(30,60,20,.16); min-height: 96px; }
-[data-theme="dark"] .hole-banner { --hb-sky1:#1f3550; --hb-sky2:#16283f; --hb-sun:#e8d27a; --hb-far:#2f6e3a; --hb-grass:#2c5e30; --hb-grass2:#1d4322; --hb-fair:#4f9d3a; --hb-green:#7fc05a; box-shadow: 0 12px 28px rgba(0,0,0,.4); }
-.hb-art { flex: 0 0 44%; max-width: 180px; position: relative; }
-.hb-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.hb-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 12px 16px; background: linear-gradient(90deg, transparent, var(--card) 22%); color: var(--text); }
+.hole-banner { position: relative; margin-top: 12px; padding: 14px 18px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 22px rgba(20,40,15,.07); }
+.hb-info { display: flex; flex-direction: column; gap: 4px; }
 .hb-course { font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hb-num { font-size: 30px; font-weight: 900; letter-spacing: -.02em; line-height: 1.05; }
-.hb-meta { display: flex; gap: 8px; margin-top: 3px; }
-.hb-meta span { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 99px; background: var(--card2); color: var(--text); }
+.hb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hb-num { font-size: 30px; font-weight: 900; letter-spacing: -.02em; line-height: 1.05; color: var(--text); }
+.hb-meta { display: flex; gap: 8px; }
+.hb-meta span { font-size: 12.5px; font-weight: 800; padding: 4px 11px; border-radius: 99px; background: var(--card2); color: var(--text); }
 .hb-meta .hb-yds { color: var(--muted); }
 
 /* símbolo distinto por campo en el registro */
@@ -1764,3 +1761,32 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .myt-chk { font-style: normal; }
 .myt-lock { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; color: var(--muted2); }
 .myt-lockic { width: 100%; height: 100%; }
+
+/* ===== Tarjetas de ronda con stats (tab Ronda) ===== */
+.rc-list { display: flex; flex-direction: column; gap: 13px; margin-top: 10px; }
+.rc { position: relative; display: block; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 15px 16px 14px; cursor: pointer; box-shadow: 0 8px 22px rgba(20,40,15,.07); transition: transform .12s, box-shadow .2s; overflow: hidden; }
+.rc:active { transform: scale(.99); }
+.rc.vibe-fire { border-color: rgba(255,140,60,.5); }
+.rc.vibe-ice { border-color: rgba(90,170,230,.5); }
+.rc-vibe { position: absolute; top: 12px; right: 14px; font-size: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); z-index: 2; }
+.rc-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 13px; border-bottom: 1px solid var(--line-soft); }
+.rc-id { min-width: 0; }
+.rc-id b { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 900; color: var(--text); }
+.rc-party .gi { width: 14px; height: 14px; color: var(--lime); }
+.rc-id span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+.rc-score { flex: none; display: flex; flex-direction: column; align-items: center; line-height: 1; padding-left: 14px; margin-right: 22px; }
+.rc-num { font-size: 30px; font-weight: 900; letter-spacing: -.03em; color: var(--text); }
+.rc-par { font-size: 12.5px; font-weight: 800; margin-top: 3px; }
+.rc-score.good .rc-num, .rc-score.good .rc-par { color: #3aa055; }
+.rc-score.par .rc-par { color: var(--muted); }
+.rc-score.over .rc-par { color: #e2873a; }
+.rc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 6px; margin-top: 13px; }
+.rc-st { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1px; }
+.rc-st b { font-size: 18px; font-weight: 900; letter-spacing: -.02em; color: var(--text); }
+.rc-st span { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.rc-st i { font-size: 10.5px; font-style: normal; font-weight: 600; color: var(--muted2); }
+.app-content.view-in .rc-list .rc { animation: rowIn .5s cubic-bezier(.2,.8,.2,1) both; }
+.app-content.view-in .rc-list .rc:nth-child(2) { animation-delay: .05s; }
+.app-content.view-in .rc-list .rc:nth-child(3) { animation-delay: .1s; }
+.app-content.view-in .rc-list .rc:nth-child(4) { animation-delay: .15s; }
+.app-content.view-in .rc-list .rc:nth-child(n+5) { animation-delay: .2s; }
