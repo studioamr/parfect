@@ -505,6 +505,21 @@ const actions = {
     commit();
   },
   'lesson-close'() { V.lesson = null; V.lessonQ = false; V.lessonPick = null; render(); },
+  'coach-mode'(d) { const u = cur(); if (u) u.isCoach = d.c === '1'; V.coachStudent = null; commit(); },
+  'coach-pick'(d) { V.coachStudent = d.id; render(); window.scrollTo(0, 0); },
+  'coach-back'() { V.coachStudent = null; render(); window.scrollTo(0, 0); },
+  'coach-add-class'(d) {
+    clubInit(); const title = val('cz-ctitle'); const date = val('cz-cdate'); const time = val('cz-ctime');
+    if (!title || !date) { alert('Pon al menos el tema y la fecha de la clase.'); return; }
+    S.club.classes.push({ id: Store.uid(), studentId: d.id, coach: cur().name, date, time: time || '09:00', title });
+    commit();
+  },
+  'coach-add-note'(d) {
+    clubInit(); const text = val('cz-note');
+    if (!text) { alert('Escribe el comentario.'); return; }
+    S.club.notes.push({ id: Store.uid(), studentId: d.id, coach: cur().name, date: today(), text });
+    commit();
+  },
   'timer-start'() {
     if (!V.timer || V.timer.running || V.timer.left <= 0) return;
     V.timer.running = true; render();
