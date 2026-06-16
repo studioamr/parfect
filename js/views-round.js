@@ -681,6 +681,7 @@ function vPlay() {
         </div>
       </div>
     </div>
+    ${(typeof vCoachLive === 'function') ? vCoachLive('course', h) : ''}
 
     ${(() => {
       const steps = playSteps(h);

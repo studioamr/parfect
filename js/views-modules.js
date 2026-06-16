@@ -135,17 +135,38 @@ function vTrainerPlan(agg) {
     <div class="sec-h" style="margin-top:20px"><h2 style="font-size:16px">Dónde ganar golpes</h2><span class="small muted">toca un área</span></div>
     <div class="tr-areas">${cards}</div>`;
 }
+/* Coach IA en vivo: lee tus stats actuales y te dice qué priorizar (en práctica y en campo) */
+function vCoachLive(ctx, h) {
+  const agg = Stats.aggregate(myRounds());
+  if (!agg) {
+    return `<div class="coach-live"><span class="cl-ava">IA</span><div class="cl-body"><span class="cl-tag">Coach en vivo</span><b>Aún te estoy conociendo</b><p>Registra tu primera ronda y empiezo a leerte en tiempo real.</p></div></div>`;
+  }
+  const issues = [
+    { lab: 'Salidas', sev: 55 - (agg.fwPct || 0), tip: 'Tus salidas son tu mayor fuga. Hoy: 20 tiros buscando centrar la calle, no distancia.', ctip: 'Menos club y apunta al centro — la calle vale más que 15 yardas.' },
+    { lab: 'Approach', sev: 52 - (agg.girPct || 0), tip: 'Pierdes greens. Practica wedges a 50 / 75 / 100 m hasta dejarla a 3 m.', ctip: 'Apunta al centro del green, no a la bandera.' },
+    { lab: 'Juego corto', sev: 48 - (agg.scrPct || 0), tip: 'Tu up&down está bajo. 15 min de chips a un solo objetivo.', ctip: 'Si fallas el green, deja el chip cuesta arriba para subir el siguiente.' },
+    { lab: 'Putt', sev: ((agg.putts18 || 30) - 31) * 4, tip: 'Putts de más. Trabaja lag-putt: 10 bolas a 8, 10 y 12 m.', ctip: 'En putts largos prioriza dejarla cerca, no meterla.' },
+    { lab: 'Penales', sev: ((agg.penals18 || 0) - 1.5) * 7, tip: 'Los penales te cuestan golpes. Practica salida segura con híbrido.', ctip: 'En hoyos con OB, sal con híbrido y juega al centro.' },
+  ].sort((a, b) => b.sev - a.sev);
+  const top = issues[0];
+  if (ctx === 'course') {
+    return `<div class="coach-live cl-course"><span class="cl-ava">IA</span><div class="cl-body"><span class="cl-tag">Coach en vivo · ${top.lab}</span><p>${top.ctip}</p></div></div>`;
+  }
+  return `<div class="coach-live"><span class="cl-ava">IA</span><div class="cl-body"><span class="cl-tag">Coach en vivo</span><b>${top.lab}: tu prioridad ahora</b><p>${top.tip}</p></div></div>`;
+}
+
 function vTrainer() {
   const u = cur();
-  const tab = ['entreno', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
+  const tab = ['entreno', 'calendario', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
-  const body = tab === 'entreno' ? vSessionPlanner()
-    : tab === 'biblioteca' ? vBiblioteca()
-      : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-        : tab === 'academia' ? vAcademyLaunch()
-          : vDiag();
+  const body = tab === 'entreno' ? (vCoachLive('practice') + vSessionPlanner())
+    : tab === 'calendario' ? vCalendar()
+      : tab === 'biblioteca' ? vBiblioteca()
+        : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
+          : tab === 'academia' ? vAcademyLaunch()
+            : vDiag();
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
+    <div class="tabs scroll">${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('calendario', 'Calendario')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
     ${body}`;
 }
 

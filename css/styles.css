@@ -3008,6 +3008,15 @@ svg.fd-av { object-fit: contain; }
 .rf-score span { font-size: 20px; font-weight: 900; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
 .rf-sub { display: block; margin-top: 2px; font-size: 13px; font-weight: 800; color: #fff; opacity: .94; text-shadow: 0 2px 8px rgba(0,0,0,.28); }
 
+/* ===== Coach IA en vivo ===== */
+.coach-live { display: flex; gap: 12px; align-items: flex-start; background: linear-gradient(120deg, var(--lime-faint), var(--card)); border: 1px solid var(--lime-dim); border-radius: 16px; padding: 13px 15px; margin-top: 14px; box-shadow: 0 6px 18px rgba(20,40,15,.06); }
+.coach-live.cl-course { margin: 10px 0 0; background: var(--card); }
+.cl-ava { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--lime); color: #15240a; font-weight: 900; font-size: 13px; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(199,238,84,.4); }
+.cl-body { min-width: 0; }
+.cl-tag { display: inline-block; font-size: 10.5px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--lime-ink); }
+.cl-body b { display: block; font-size: 14.5px; font-weight: 900; color: var(--text); margin-top: 1px; }
+.cl-body p { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
 /* fondo de la landing: colinas, lago con fuente, ardilla */
 .lp-hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 34vh; opacity: .55; }
 [data-theme="dark"] .lp-hills { opacity: .22; }
