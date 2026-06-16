@@ -91,25 +91,40 @@ function vSetup() {
   const tee = teeById(tid);
   const sname = id => COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
   const totalYds = Math.round(COURSES[cid].holes.reduce((a, h) => a + h.yds, 0) * tee.f);
-  return `<div class="sec-h"><h2>Iniciar ronda</h2></div>
-    <div class="card">
-      <span class="label">Elige campo</span>
-      <div class="chips" style="margin-top:8px">
-        ${COURSE_ORDER.map(id => `<button class="chip ${cid === id ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">${esc(sname(id))}</button>`).join('')}
-      </div>
-      <p class="note" style="margin:10px 0 0">${esc(COURSES[cid].name)} · ${COURSES[cid].holes.length} hoyos · <b class="lime">pares y yardas reales</b>.</p>
+  const teeCol = { negras: '#23262e', azules: '#3a8fe0', blancas: '#eef2f6', rojas: '#e8483a', amarillas: '#f2c33a' };
+  const courseCards = COURSE_ORDER.map(id => {
+    const c = COURSES[id];
+    const on = cid === id;
+    const par = c.holes.reduce((a, h) => a + h.par, 0);
+    return `<button class="su-course ${on ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">
+      <span class="su-c-ic">${golfIcon('flag')}</span>
+      <span class="su-c-info"><b>${esc(sname(id))}</b><span>${c.holes.length} hoyos · Par ${par} · ${c.approx ? 'aprox' : 'real'}</span></span>
+      <span class="su-c-check">${on ? '✓' : ''}</span>
+    </button>`;
+  }).join('');
+  const teeRow = TEES.map(t => `<button class="su-tee ${tid === t.id ? 'on' : ''}" data-act="setup-pick-tee" data-t="${t.id}">
+      <span class="su-tee-dot" style="background:${teeCol[t.id] || '#ccc'}"></span>${esc(t.name)}
+    </button>`).join('');
+  return `<div class="su-hero">
+      <span class="su-hero-tag">${golfIcon('flag')} Nueva ronda</span>
+      <h1 class="su-hero-h">¿Listo para jugar?</h1>
+      <p class="su-hero-sub">Elige tu campo y tus salidas. Registras cada hoyo en segundos.</p>
     </div>
-    <div class="card">
-      <span class="label">Salidas (tees)</span>
-      <div class="chips" style="margin-top:8px">
-        ${TEES.map(t => `<button class="chip ${tid === t.id ? 'on' : ''}" data-act="setup-pick-tee" data-t="${t.id}">${esc(t.name)}</button>`).join('')}
-      </div>
-      <p class="note" style="margin:10px 0 0">${esc(tee.name)} · ${esc(tee.sub)} · <b class="lime">${totalYds} yds</b> en total.</p>
+    <div class="su-block">
+      <span class="su-lab">Campo</span>
+      <div class="su-courses">${courseCards}</div>
     </div>
-    <button class="btn primary" data-act="start-round">Comenzar ronda →</button>
-    <button class="btn" data-act="nav" data-view="ronda">Cancelar</button>
-    <div class="sec-h" style="margin-top:20px"><h2 style="font-size:16px">¿Juegas con amigos?</h2></div>
-    ${partyCard()}
+    <div class="su-block">
+      <span class="su-lab">Salida (tees)</span>
+      <div class="su-tees">${teeRow}</div>
+      <p class="su-meta">${esc(tee.name)} · ${esc(tee.sub)} · <b>${totalYds} yds</b> en total</p>
+    </div>
+    <button class="btn primary big su-go" data-act="start-round">${golfIcon('flag')} Comenzar ronda</button>
+    <button class="btn su-cancel" data-act="nav" data-view="ronda">Cancelar</button>
+    <div class="su-block">
+      <span class="su-lab">¿Juegas con amigos?</span>
+      ${partyCard()}
+    </div>
     ${myRounds().length ? vRecentRounds(myRounds()) : ''}`;
 }
 

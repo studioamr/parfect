@@ -577,6 +577,36 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .dd-steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.45; color: var(--text); font-weight: 500; }
 .dd-n { flex: none; width: 26px; height: 26px; border-radius: 50%; background: #C7EE54; color: #16241A; font-size: 13px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 3px 10px rgba(199,247,84,.4); }
 
+/* ====== Iniciar ronda (rediseño) ====== */
+.su-hero { margin-top: 8px; padding: 4px 2px 2px; }
+.su-hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--lime); }
+.su-hero-tag .gi, .su-hero-tag svg { width: 16px; height: 16px; }
+.su-hero-h { font-size: clamp(26px,6.5vw,34px); font-weight: 900; letter-spacing: -.02em; margin-top: 8px; }
+.su-hero-sub { font-size: 14px; color: var(--muted); margin-top: 6px; font-weight: 500; }
+.su-block { margin-top: 18px; }
+.su-lab { display: block; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.su-courses { display: flex; flex-direction: column; gap: 10px; }
+.su-course { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px 15px; box-shadow: 0 6px 16px rgba(20,40,15,0.06); transition: transform .12s, box-shadow .2s, border-color .15s, background .15s; }
+.su-course:active { transform: scale(.99); }
+.su-c-ic { flex: none; width: 44px; height: 44px; border-radius: 13px; background: var(--lime-faint); display: grid; place-items: center; color: var(--lime); }
+.su-c-ic .gi, .su-c-ic svg { width: 26px; height: 26px; }
+.su-c-info { flex: 1; min-width: 0; }
+.su-c-info b { display: block; font-size: 16.5px; font-weight: 800; color: var(--text); }
+.su-c-info span { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.su-c-check { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; color: transparent; font-size: 15px; font-weight: 900; }
+.su-course.on { border-color: #C7EE54; background: var(--lime-faint); box-shadow: 0 8px 22px rgba(199,247,84,.25); }
+.su-course.on .su-c-check { background: #C7EE54; border-color: #C7EE54; color: #16241A; }
+.su-course.on .su-c-ic { background: #C7EE54; color: #16241A; }
+.su-tees { display: flex; gap: 8px; flex-wrap: wrap; }
+.su-tee { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); font-size: 14px; font-weight: 800; color: var(--text); box-shadow: 0 4px 12px rgba(20,40,15,0.05); }
+.su-tee-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.18); flex: none; }
+.su-tee.on { border-color: #C7EE54; background: var(--lime-faint); box-shadow: 0 6px 16px rgba(199,247,84,.3); }
+.su-meta { font-size: 13px; color: var(--muted); margin-top: 10px; font-weight: 600; }
+.su-meta b { color: var(--text); }
+.su-go { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 22px; }
+.su-go .gi, .su-go svg { width: 22px; height: 22px; }
+.su-cancel { margin-top: 10px; }
+
 /* ====== Tarjeta de hoyo con casillas ====== */
 .hole-card { margin-top: 14px; }
 .hc-title { display: block; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
