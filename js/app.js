@@ -553,10 +553,10 @@ const actions = {
     const round = { id: Store.uid(), userId: a.userId, course: a.course, courseId: a.courseId, holeOffset: a.holeOffset || 0, date: today(), holes: a.holes.slice(0, a.holesCount) };
     S.rounds.push(round);
     S.active = null;
-    V.diag = null; V.detail = round.id; V.view = 'detalle';
+    V.diag = null; V.detail = round.id; V.view = 'detalle'; V.justFinished = round.id;
     commit(); window.scrollTo(0, 0);
   },
-  'round-detail'(d) { V.detail = d.id; V.delArm = null; go('detalle'); },
+  'round-detail'(d) { V.detail = d.id; V.delArm = null; V.justFinished = null; go('detalle'); },
   'round-delete'(d) {
     if (V.delArm !== d.id) { V.delArm = d.id; render(); return; }
     S.rounds = S.rounds.filter(r => r.id !== d.id);

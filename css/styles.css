@@ -2984,6 +2984,30 @@ svg.fd-av { object-fit: contain; }
   .lp-hero2 .lp-hero-copy { max-width: 640px; }
 }
 
+/* ===== Resumen de ronda: escena con el cielo del momento del día ===== */
+.rf-hero { position: relative; border-radius: 22px; overflow: hidden; margin-top: 14px; min-height: 196px; box-shadow: 0 10px 28px rgba(20,40,15,.12); }
+.rf-day  { background: linear-gradient(180deg,#5fbdef 0%,#9ad3ef 50%,#cfe9c0 100%); }
+.rf-dawn { background: linear-gradient(180deg,#ffd9a8 0%,#ffc6b2 45%,#dfe7cf 100%); }
+.rf-dusk { background: linear-gradient(180deg,#ff9e6b 0%,#ff8fa0 45%,#cdd9b0 100%); }
+.rf-night{ background: linear-gradient(180deg,#0a1430 0%,#15294e 55%,#1d3b2a 100%); }
+.rf-sky { position: absolute; inset: 0; overflow: hidden; }
+.rf-sun { position: absolute; top: 16px; right: 24px; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 42% 38%,#fffbe6,#ffe487 70%); box-shadow: 0 0 40px 14px rgba(255,228,135,.5); }
+.rf-dawn .rf-sun { left: 24px; right: auto; background: radial-gradient(circle at 42% 38%,#fff3d6,#ffcf8a 72%); box-shadow: 0 0 36px 12px rgba(255,185,120,.5); }
+.rf-dusk .rf-sun { background: radial-gradient(circle at 42% 38%,#fff0d0,#ff8a5b 72%); box-shadow: 0 0 40px 14px rgba(255,120,80,.5); }
+.rf-moon { position: absolute; top: 16px; right: 24px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 38% 36%,#fdfdf2,#d7dcec 72%); box-shadow: 0 0 36px 14px rgba(205,216,250,.4); }
+.rf-star { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: #fff; animation: lpTwinkle 3s ease-in-out infinite alternate; }
+.rf-bird { position: absolute; width: 22px; height: auto; }
+.rf-cloud { position: absolute; height: 12px; background: #fff; border-radius: 99px; opacity: .85; box-shadow: 18px 4px 0 -3px #fff, -16px 5px 0 -4px #fff; }
+.rf-cloud.c1 { top: 32%; left: 12%; width: 40px; } .rf-cloud.c2 { top: 16%; left: 62%; width: 30px; }
+.rf-night .rf-cloud { opacity: .14; }
+.rf-course { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 48%; }
+.rf-info { position: relative; z-index: 2; padding: 18px 20px; }
+.rf-kicker { font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.28); }
+.rf-score { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+.rf-score b { font-size: 58px; font-weight: 900; line-height: 1; letter-spacing: -.04em; color: #fff; text-shadow: 0 4px 16px rgba(0,0,0,.32); }
+.rf-score span { font-size: 20px; font-weight: 900; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.rf-sub { display: block; margin-top: 2px; font-size: 13px; font-weight: 800; color: #fff; opacity: .94; text-shadow: 0 2px 8px rgba(0,0,0,.28); }
+
 /* fondo de la landing: colinas, lago con fuente, ardilla */
 .lp-hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 34vh; opacity: .55; }
 [data-theme="dark"] .lp-hills { opacity: .22; }
