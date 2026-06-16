@@ -491,6 +491,20 @@ const actions = {
   'timer-set'(d) { if (!V.timer) V.timer = {}; stopDrillTimer(); const s = Number(d.s) || 300; V.timer = { left: s, total: s, running: false }; render(); },
   'timer-adjust'(d) { stopDrillTimer(); const cur = (V.timer && V.timer.total) || 300; const total = Math.max(60, Math.min(3600, cur + Number(d.d) * 60)); V.timer = { left: total, total, running: false }; render(); },
   'session-min'(d) { V.sessionMin = Number(d.m) || 60; render(); },
+  'lesson-open'(d) { const u = cur(); if (!u || !academyUnlocked(u, d.id)) return; V.lesson = d.id; V.lessonQ = false; V.lessonPick = null; render(); },
+  'lesson-quiz'() { V.lessonQ = true; V.lessonPick = null; render(); },
+  'lesson-answer'(d) { V.lessonPick = Number(d.i); render(); },
+  'lesson-retry'() { V.lessonPick = null; render(); },
+  'lesson-complete'(d) {
+    const u = cur(); if (!u) return;
+    u.academy = u.academy || {};
+    const wasDone = !!u.academy[d.id];
+    u.academy[d.id] = true;
+    V.lesson = null; V.lessonQ = false; V.lessonPick = null;
+    if (!wasDone && typeof celebrate === 'function') celebrate(true, '¡Lección completada!');
+    commit();
+  },
+  'lesson-close'() { V.lesson = null; V.lessonQ = false; V.lessonPick = null; render(); },
   'timer-start'() {
     if (!V.timer || V.timer.running || V.timer.left <= 0) return;
     V.timer.running = true; render();
