@@ -62,14 +62,14 @@ function vLanding() {
 
     <section class="lp-hero">
       <div class="lp-hero-copy reveal">
-        <span class="lp-pill">⛳ Golf analytics con IA</span>
+        <span class="lp-pill">${logoMark(13)} Golf analytics con IA</span>
         <h1 class="lp-title">Guarda tu tarjeta.<br/><span class="lime">Baja tu hándicap.</span></h1>
-        <p class="lp-sub">Registra cada ronda en segundos, deja que la IA la analice y entrena exactamente lo que te hace mejor. Sin adivinar.</p>
+        <p class="lp-sub">Registra cada ronda en segundos. La IA encuentra dónde pierdes golpes y te arma el entrenamiento exacto. Y rétate con amigos en La corta.</p>
         <div class="lp-cta-row">
           <button class="lp-order" data-act="go" data-view="signup">Empezar gratis →</button>
           <button class="lp-ghostbtn" data-act="demo-account">Ver demo</button>
         </div>
-        <p class="lp-trust">Tus datos viven en tu dispositivo · Gratis para empezar</p>
+        <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
       </div>
 
       <div class="lp-stage">

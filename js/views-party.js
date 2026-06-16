@@ -26,38 +26,54 @@ function vPartySetup() {
   const d = V.partyDraft;
   const cid = d.courseId || 'campestre';
   const sname = id => COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
+  const selGames = Object.keys(d.games).filter(k => d.games[k] && ['medal', 'match', 'corta'].includes(k));
+  const courseCards = COURSE_ORDER.map(id => {
+    const c = COURSES[id]; const on = cid === id; const par = c.holes.reduce((a, h) => a + h.par, 0);
+    return `<button class="su-course ${on ? 'on' : ''}" data-act="pd-pick-course" data-c="${id}">
+      <span class="su-c-ic">${golfIcon('flag')}</span>
+      <span class="su-c-info"><b>${esc(sname(id))}</b><span>${c.holes.length} hoyos · Par ${par}</span></span>
+      <span class="su-c-check">${on ? '✓' : ''}</span>
+    </button>`;
+  }).join('');
+  const gmeta = { medal: { ic: 'trophy', tag: 'Clásico' }, match: { ic: 'flag', tag: 'Hoyo a hoyo' }, corta: { ic: 'card', tag: 'Apuesta' } };
+  const gameCards = Object.entries(Party.GAMES).filter(([k]) => ['medal', 'match', 'corta'].includes(k)).map(([k, g]) => `
+    <button class="pg-card ${d.games[k] ? 'on' : ''}" data-act="pd-game" data-g="${k}">
+      <span class="pg-ic">${golfIcon(gmeta[k].ic)}</span>
+      <div class="pg-tx"><b>${g.name} <i class="pg-tag">${gmeta[k].tag}</i></b><p>${g.desc}</p></div>
+      <span class="pg-check">${d.games[k] ? '✓' : ''}</span>
+    </button>`).join('');
+  const stakeChips = [0, 10, 20, 50, 100].map(v => `<button class="chip ${(d.stake || 0) === v ? 'on' : ''}" data-act="pd-stake" data-v="${v}">${v === 0 ? 'Sin dinero' : '$' + v}</button>`).join('');
   return `<div class="shell no-nav fade-in">
     <button class="auth-back" data-act="nav" data-view="social">← Social</button>
-    <h1 class="auth-h">Nueva party</h1>
-    <p class="auth-sub">Configura el juego, comparte el código y a jugar.</p>
-    <div class="card">
-      <span class="label">Campo</span>
-      <div class="chips" style="margin-top:8px">
-        ${COURSE_ORDER.map(id => `<button class="chip ${cid === id ? 'on' : ''}" data-act="pd-pick-course" data-c="${id}">${esc(sname(id))}</button>`).join('')}
+    <div class="su-hero2 party-hero">
+      <div class="su-hero2-txt">
+        <span class="su-hero-tag">${golfIcon('flag')} Nueva party</span>
+        <h1 class="su-hero-h">Juega con amigos</h1>
+        <p class="su-hero-sub">Elige el juego, pon la apuesta y comparte el código.</p>
       </div>
-      <p class="note" style="margin:10px 0 0">${esc(COURSES[cid].name)} · ${COURSES[cid].holes.length} hoyos · <b class="lime">pares y yardas reales</b>.</p>
-      <button class="game-row ${d.useNet ? 'on' : ''}" data-act="pd-net" style="border-bottom:none;margin-top:8px">
-        <div class="g-main"><b>Jugar con hándicap (net)</b>
-        <p>Asigna golpes de ventaja por jugador en el lobby. Medal y Match se juegan con score neto.</p></div>
-        <span class="g-check">${d.useNet ? '✓' : ''}</span>
+      <div class="su-hero2-art">${holeScene(4)}</div>
+    </div>
+    <div class="su-block">
+      <span class="su-lab">Campo</span>
+      <div class="su-courses">${courseCards}</div>
+    </div>
+    <div class="su-block">
+      <span class="su-lab">Juego de la party · elige uno o varios</span>
+      <div class="party-games">${gameCards}</div>
+    </div>
+    <div class="su-block">
+      <span class="su-lab">Apuesta por unidad</span>
+      <div class="chips">${stakeChips}</div>
+      ${(d.stake || 0) > 0 ? `<p class="su-meta">El que pierde paga <b class="lime">$${d.stake}</b> por cada unidad de diferencia · se liquida al final.</p>` : `<p class="su-meta">Sin dinero — solo por honor y presumir.</p>`}
+    </div>
+    <div class="su-block">
+      <button class="pg-card net-card ${d.useNet ? 'on' : ''}" data-act="pd-net">
+        <span class="pg-ic">${golfIcon('medal')}</span>
+        <div class="pg-tx"><b>Jugar con hándicap (net)</b><p>Golpes de ventaja por jugador. Medal y Match se juegan con score neto.</p></div>
+        <span class="pg-check">${d.useNet ? '✓' : ''}</span>
       </button>
     </div>
-    <div class="card">
-      <span class="label">Juego de la party</span>
-      <p class="note" style="margin-top:0;margin-bottom:8px">Puedes elegir varios a la vez.</p>
-      ${Object.entries(Party.GAMES).filter(([k]) => ['medal', 'match', 'corta'].includes(k)).map(([k, g]) => `
-        <button class="game-row ${d.games[k] ? 'on' : ''}" data-act="pd-game" data-g="${k}">
-          <div class="g-main"><b>${g.name}</b><p>${g.desc}</p></div>
-          <span class="g-check">${d.games[k] ? '✓' : ''}</span>
-        </button>`).join('')}
-    </div>
-    <div class="card">
-      <span class="label">${golfIcon('card')} Apuesta por unidad</span>
-      <p class="note" style="margin-top:0;margin-bottom:8px">Cuánto vale cada unidad/punto ganado. Déjalo en cero para jugar solo por honor.</p>
-      <div class="chips">${[0, 10, 20, 50, 100].map(v => `<button class="chip ${(d.stake || 0) === v ? 'on' : ''}" data-act="pd-stake" data-v="${v}">${v === 0 ? 'Sin dinero' : '$' + v}</button>`).join('')}</div>
-      ${(d.stake || 0) > 0 ? `<p class="note" style="margin:10px 0 0">El que pierde paga <b class="lime">$${d.stake}</b> por cada unidad de diferencia. Se liquida al final.</p>` : ''}
-    </div>
-    <button class="btn primary" data-act="party-create">Crear party y generar código →</button>
+    <button class="btn primary big su-go" data-act="party-create" ${selGames.length ? '' : 'disabled'}>${golfIcon('flag')} ${selGames.length ? 'Crear party y código →' : 'Elige al menos un juego'}</button>
   </div>`;
 }
 

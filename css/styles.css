@@ -1985,3 +1985,21 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .cb-u { font-size: 22px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
 .cb-u.up { color: #d8f86a; } .cb-u.dn { color: #ffb0a6; }
 .cb-money { font-size: 11px; font-weight: 800; color: rgba(255,255,255,.78); }
+
+/* ===== Crear party rediseñado ===== */
+.party-hero { margin-top: 6px; }
+.party-games { display: flex; flex-direction: column; gap: 9px; }
+.pg-card { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 13px 15px; cursor: pointer; transition: transform .12s, border-color .15s, box-shadow .2s, background .15s; }
+.pg-card:active { transform: scale(.99); }
+.pg-card.on { border-color: #C7EE54; background: var(--lime-faint); box-shadow: 0 6px 18px rgba(199,247,84,.18); }
+.pg-ic { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--card2); display: grid; place-items: center; color: var(--lime); }
+.pg-card.on .pg-ic { background: #C7EE54; color: #16241A; }
+.pg-ic .gi { width: 22px; height: 22px; }
+.pg-tx { flex: 1; min-width: 0; }
+.pg-tx b { display: flex; align-items: center; gap: 7px; font-size: 15.5px; font-weight: 900; color: var(--text); }
+.pg-tag { font-size: 9.5px; font-style: normal; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--card2); padding: 2px 7px; border-radius: 99px; }
+.pg-card.on .pg-tag { background: rgba(22,36,26,.12); color: #2a4a1c; }
+.pg-tx p { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+.pg-check { flex: none; width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--line); display: grid; place-items: center; color: transparent; font-size: 15px; font-weight: 900; }
+.pg-card.on .pg-check { background: #C7EE54; border-color: #C7EE54; color: #16241A; }
+.net-card .pg-ic { color: var(--muted); }

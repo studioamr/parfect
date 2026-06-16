@@ -1,27 +1,26 @@
 /* PARFECT service worker: la app funciona offline una vez visitada. */
-const CACHE = 'parfect-v168';
+const CACHE = 'parfect-v169';
+/* Shell + imágenes. El JS/CSS llevan ?v=N y se cachean en runtime (cache-first exacto),
+   así nunca se sirve una versión vieja tras un deploy. */
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
-  './css/styles.css?v=30',
-  './js/ui.js?v=30',
-  './js/store.js?v=30',
-  './js/stats.js?v=30',
-  './js/trainer.js?v=30',
-  './js/views-public.js?v=30',
-  './js/views-home.js?v=30',
-  './js/views-round.js?v=30',
-  './js/views-modules.js?v=30',
-  './js/drills-library.js?v=30',
-  './js/party.js?v=30',
-  './js/views-party.js?v=30',
-  './js/trophies.js?v=30',
-  './js/views-trophies.js?v=30',
-  './js/strategy.js?v=30',
-  './js/sync.js?v=30',
-  './js/app.js?v=30',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './assets/apple-touch-icon.png',
+  './assets/golfer.png',
+  './assets/bird.png',
+  './assets/eagle.png',
+  './assets/flag.png',
+  './assets/trophy.png',
+  './assets/avatars/a1.png',
+  './assets/avatars/a2.png',
+  './assets/avatars/a3.png',
+  './assets/avatars/a4.png',
+  './assets/avatars/a5.png',
+  './assets/avatars/a6.png',
 ];
 
 self.addEventListener('install', (e) => {
