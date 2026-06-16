@@ -419,8 +419,7 @@ function vDashboard() {
   }
 
   return head + `
-    ${vPlayerCard(u, agg)}
-    ${vRecentRounds(rounds)}`;
+    ${vPlayerCard(u, agg)}`;
 }
 
 /* ---- reparto de score: birdies / pares / bogeys… ---- */

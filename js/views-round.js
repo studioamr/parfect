@@ -91,7 +91,7 @@ function vSetup() {
   const tee = teeById(tid);
   const sname = id => COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
   const totalYds = Math.round(COURSES[cid].holes.reduce((a, h) => a + h.yds, 0) * tee.f);
-  return `<div class="sec-h"><h2>Nueva ronda</h2></div>
+  return `<div class="sec-h"><h2>Iniciar ronda</h2></div>
     <div class="card">
       <span class="label">Elige campo</span>
       <div class="chips" style="margin-top:8px">
@@ -109,7 +109,8 @@ function vSetup() {
     <button class="btn primary" data-act="start-round">Comenzar ronda →</button>
     <button class="btn" data-act="nav" data-view="ronda">Cancelar</button>
     <div class="sec-h" style="margin-top:20px"><h2 style="font-size:16px">¿Juegas con amigos?</h2></div>
-    ${partyCard()}`;
+    ${partyCard()}
+    ${myRounds().length ? vRecentRounds(myRounds()) : ''}`;
 }
 
 /* ---------- Captura de hoyo ---------- */
