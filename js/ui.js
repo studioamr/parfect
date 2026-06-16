@@ -411,6 +411,19 @@ function drillScene(name, areaKey) {
   return drillArt(artMap[areaKey] || areaKey || 'putting');
 }
 
+/* mini-escenas animadas para el registro de hoyo (gif: bola a la calle, al green, putt…) */
+function regScene(kind) {
+  const W = 58, H = 42;
+  const ball = (path, dur, extra = '') => `<circle r="3.4" fill="#fff" stroke="#16301a" stroke-width="0.7">${extra}<animateMotion dur="${dur}" repeatCount="indefinite" calcMode="linear" path="${path}"/><animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;.1;.55;.85;1" dur="${dur}" repeatCount="indefinite"/></circle>`;
+  const wrap = inner => `<svg viewBox="0 0 ${W} ${H}" class="reg-scene" aria-hidden="true">${inner}</svg>`;
+  if (kind === 'fw') return wrap(`<rect x="6" y="38" width="46" height="4" rx="2" fill="rgba(20,40,10,.1)"/><rect x="20" y="27" width="32" height="11" rx="5" fill="#5fa83f"/><rect x="20" y="27" width="32" height="5" rx="2.5" fill="#86c860"/><path d="M5,32 Q28,2 40,29" fill="none" stroke="rgba(20,40,10,.18)" stroke-width="1.4" stroke-dasharray="2 3"/><rect x="3" y="33" width="6" height="3" rx="1" fill="#caa15e"/>${ball('M5,32 Q28,2 40,29', '2.4s')}`);
+  if (kind === 'gir') return wrap(`<ellipse cx="42" cy="33" rx="14" ry="6.5" fill="#54ad58"/><ellipse cx="38" cy="31" rx="6" ry="2.6" fill="#79c970" opacity=".6"/><line x1="42" y1="32" x2="42" y2="13" stroke="#2c4a1c" stroke-width="1.7"/><path d="M42,13 l9,2.6 -9,2.6z" fill="#C7EE54"/><path d="M5,34 Q26,-3 42,29" fill="none" stroke="rgba(20,40,10,.18)" stroke-width="1.4" stroke-dasharray="2 3"/>${ball('M5,34 Q26,-3 42,29', '2.4s')}`);
+  if (kind === 'ud') return wrap(`<ellipse cx="46" cy="34" rx="10" ry="4.5" fill="#54ad58"/><ellipse cx="46" cy="34" rx="3" ry="1.5" fill="#0a2e16"/><line x1="46" y1="34" x2="46" y2="16" stroke="#2c4a1c" stroke-width="1.6"/><path d="M46,16 l8,2.3 -8,2.3z" fill="#C7EE54"/><ellipse cx="8" cy="36" rx="6" ry="2.4" fill="#5a8a3c"/>${ball('M8,34 Q26,8 42,30 L46,34', '2.8s')}`);
+  if (kind === 'pen') return wrap(`<ellipse cx="40" cy="34" rx="15" ry="6.5" fill="url(#g3dWater)"/><ellipse cx="36" cy="32" rx="6" ry="2" fill="#fff" opacity=".25"/><rect x="3" y="33" width="6" height="3" rx="1" fill="#caa15e"/>${ball('M5,32 Q24,4 38,31', '2.4s')}`);
+  // putt: rueda y cae al hoyo
+  return wrap(`<path d="M8,32 L46,32" stroke="rgba(20,40,10,.18)" stroke-width="1.4" stroke-dasharray="2 3"/><ellipse cx="50" cy="32" rx="6.5" ry="2.6" fill="#0a2e16"/><line x1="50" y1="32" x2="50" y2="14" stroke="#2c4a1c" stroke-width="1.6"/><path d="M50,14 l9,2.6 -9,2.6z" fill="#C7EE54"/><circle r="3.4" fill="#fff" stroke="#16301a" stroke-width="0.7"><animateMotion dur="2.4s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;.72;1" path="M8,32 L48,32"/><animate attributeName="r" values="3.4;3.4;0;0" keyTimes="0;.7;.76;1" dur="2.4s" repeatCount="indefinite"/></circle>`);
+}
+
 /* stat card with progress bar */
 function statCard(value, caption, barPct) {
   const w = Math.max(0, Math.min(100, barPct));

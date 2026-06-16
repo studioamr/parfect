@@ -492,7 +492,7 @@ function vPlay() {
   const gir = h.app === 'gir';
 
   const chk = (k, on, ic, label, sub) => `<button class="chk-row ${on ? 'on' : ''}" data-act="h-toggle" data-k="${k}">
-      <span class="chk-ic">${golfIcon(ic)}</span>
+      <span class="chk-ic">${regScene(k)}</span>
       <span class="chk-lab">${label}<small>${sub}</small></span>
       <span class="chk-box">${on ? '✓' : ''}</span>
     </button>`;
@@ -520,7 +520,7 @@ function vPlay() {
     </div>
 
     <div class="card">
-      <div class="g-lab"><span class="label">Putts</span></div>
+      <div class="g-lab"><span class="chk-ic chk-ic-sm">${regScene('putt')}</span><span class="label">Putts</span></div>
       ${chipRow([[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']], 'putts', h.putts)}
       <div class="g-lab" style="margin-top:14px"><span class="label">Distancia 1er putt</span><span class="small muted">opcional</span></div>
       ${chipRow([['0-3', '0–3 ft'], ['3-8', '3–8 ft'], ['8-20', '8–20 ft'], ['20+', '+20 ft']], 'dist', h.dist)}

@@ -613,8 +613,12 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .hc-checks { display: flex; flex-direction: column; gap: 9px; }
 .chk-row { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; padding: 13px 14px; border-radius: 16px; background: var(--card2); border: 1.5px solid var(--line); transition: transform .12s, background .15s, border-color .15s, box-shadow .2s; }
 .chk-row:active { transform: scale(.985); }
-.chk-ic { width: 34px; height: 34px; flex: none; display: grid; place-items: center; color: var(--lime); }
-.chk-ic .gi, .chk-ic svg { width: 26px; height: 26px; }
+.chk-ic { width: 58px; height: 42px; flex: none; display: grid; place-items: center; color: var(--lime); border-radius: 11px; background: var(--card2); overflow: hidden; }
+.chk-ic .gi { width: 26px; height: 26px; }
+.chk-ic .reg-scene { width: 100%; height: 100%; display: block; }
+.chk-ic-sm { width: 42px; height: 30px; border-radius: 8px; margin-right: 8px; vertical-align: middle; }
+.chk-row.on .chk-ic { background: rgba(255,255,255,0.55); }
+.g-lab .chk-ic-sm { display: inline-grid; }
 .chk-lab { flex: 1; min-width: 0; font-size: 15.5px; font-weight: 800; color: var(--text); display: flex; flex-direction: column; gap: 1px; }
 .chk-lab small { font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .chk-box { flex: none; width: 28px; height: 28px; border-radius: 9px; border: 2px solid var(--line); display: grid; place-items: center; color: transparent; font-size: 17px; font-weight: 900; transition: .15s; }
