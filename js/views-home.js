@@ -26,10 +26,20 @@ function vShell(content) {
       ${item('trainer', t('nav_trainer'))}
       ${item('perfil', t('nav_profile'))}
     </nav>
+    ${vSenseiCompanion()}
     ${V.profileOpen ? vProfile() : ''}
     ${V.drillDetail ? vDrillDetail() : ''}
     ${V.drillLog ? vDrillSheet() : ''}
     ${V.bagEdit ? vBagSheet() : ''}
+  </div>`;
+}
+
+/* Sensei pájaro mítico que te acompaña en toda la app */
+function vSenseiCompanion() {
+  const open = V.senseiOpen !== false;
+  return `<div class="sensei-fab ${open ? 'open' : ''}">
+    ${open ? `<div class="sensei-fab-bubble"><b>Sensei</b><p>${senseiTip(V.view)}</p></div>` : ''}
+    <button class="sensei-fab-btn" data-act="sensei-toggle" aria-label="Sensei">${senseiBird()}</button>
   </div>`;
 }
 
@@ -624,7 +634,7 @@ function pstRing(label, pct, icon) {
 
 /* ============ Perfil (página) ============ */
 function vPerfil() {
-  return `<div class="sec-h"><h2>Tu perfil</h2><button class="sec-edit" data-act="profile-edit" aria-label="Personalizar">⚙ Personalizar</button></div>
+  return `<div class="sec-h"><h2>Tu perfil</h2></div>
     ${vLogros()}`;
 }
 

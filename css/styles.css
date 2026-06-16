@@ -916,6 +916,26 @@ button.row { cursor: pointer; }
 .sensei-name { display: block; font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--lime); margin-bottom: 2px; }
 .sensei-bubble p { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.45; }
 
+/* pájaro mítico (SVG animado) */
+.sbird { display: block; width: 100%; height: 100%; overflow: visible; }
+.sb-aura { transform-origin: center; animation: sbPulse 3s ease-in-out infinite; }
+@keyframes sbPulse { 0%,100% { opacity: .8; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.1); } }
+.sb-wing { transform-origin: 30px 30px; animation: sbFlap 1.5s ease-in-out infinite; }
+@keyframes sbFlap { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(9deg); } }
+.sb-sparks { animation: sbTwinkle 2.2s ease-in-out infinite; }
+@keyframes sbTwinkle { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* sensei flotante que acompaña en toda la app */
+.sensei-fab { position: fixed; left: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 60; display: flex; align-items: flex-end; gap: 8px; max-width: calc(100vw - 24px); pointer-events: none; }
+.sensei-fab-btn { flex: none; width: 56px; height: 56px; padding: 5px; border: 1px solid var(--line); border-radius: 50%; background: var(--card); box-shadow: 0 8px 22px rgba(20,40,15,.2); pointer-events: auto; animation: sbFloat 4s ease-in-out infinite; }
+@keyframes sbFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.sensei-fab-btn:active { transform: scale(.92); }
+.sensei-fab-bubble { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 16px 5px; padding: 9px 13px; box-shadow: 0 8px 20px rgba(20,40,15,.16); max-width: 230px; pointer-events: auto; animation: bubbleIn .4s cubic-bezier(.2,.9,.3,1.25) both; }
+.sensei-fab-bubble b { display: block; font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--lime); margin-bottom: 2px; }
+.sensei-fab-bubble p { font-size: 12.5px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.sensei-fab-bubble p b { display: inline; font-size: inherit; letter-spacing: 0; text-transform: none; color: var(--text); font-weight: 900; }
+@media (prefers-reduced-motion: reduce) { .sb-aura, .sb-wing, .sb-sparks, .sensei-fab-btn { animation: none !important; } }
+
 /* ====== Stats del perfil (anillos + tiles) ====== */
 .pst-rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
 .pst-ring { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 14px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 8px 22px rgba(20,40,15,0.07); }

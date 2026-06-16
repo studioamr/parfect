@@ -107,7 +107,6 @@ function vTrainer() {
   const body = tab === 'entreno' ? entreno : tab === 'objetivos' ? vKeyTargets(u) : vDiag();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    ${vSensei(tab)}
     <div class="tabs scroll">
       ${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('objetivos', 'Objetivos')}
     </div>

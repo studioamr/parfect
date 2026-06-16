@@ -102,6 +102,37 @@ function roundVibe(s, hcp) {
   return null;
 }
 
+/* Sensei: pájaro mítico (SVG con aura, alas que aletean, destellos) */
+function senseiBird(cls) {
+  return `<svg class="sbird ${cls || ''}" viewBox="0 0 56 56" aria-hidden="true">
+    <defs>
+      <radialGradient id="sbGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C7EE54" stop-opacity=".55"/><stop offset="55%" stop-color="#8a5cd0" stop-opacity=".24"/><stop offset="100%" stop-color="#8a5cd0" stop-opacity="0"/></radialGradient>
+      <linearGradient id="sbBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e6ff7a"/><stop offset="48%" stop-color="#46c79a"/><stop offset="100%" stop-color="#9a5cd0"/></linearGradient>
+    </defs>
+    <circle class="sb-aura" cx="28" cy="28" r="26" fill="url(#sbGlow)"/>
+    <path d="M14,34 L4,29 L10,36 L3,39 L13,40 Z" fill="url(#sbBody)" opacity=".85"/>
+    <path d="M13,35 Q20,17 38,21 Q45,23 47,19 Q46,33 30,41 Q20,44 13,35 Z" fill="url(#sbBody)"/>
+    <path class="sb-wing" d="M24,31 Q30,17 43,19 Q34,24 32,35 Q27,34 24,31 Z" fill="#ffffff" opacity=".3"/>
+    <path d="M37,15 Q39,7 45,5 Q42,11 43,16 Z" fill="#C7EE54"/>
+    <circle cx="40" cy="20" r="5.2" fill="url(#sbBody)"/>
+    <path d="M44,19 L52,18 L45,23 Z" fill="#ffcf5a"/>
+    <circle cx="41" cy="19" r="1.3" fill="#0a1408"/>
+    <g class="sb-sparks" fill="#fff"><path d="M50,33 l1,3 3,1 -3,1 -1,3 -1,-3 -3,-1 3,-1z"/><circle cx="9" cy="18" r="1.5"/><circle cx="46" cy="38" r="1.1"/></g>
+  </svg>`;
+}
+/* mensaje del sensei según la vista */
+function senseiTip(view) {
+  const m = {
+    inicio: 'Aquí ves tu juego. Toca la <b>P</b> para registrar una ronda. 🥷',
+    ronda: 'Tus rondas. Las de <b>fuego 🔥</b> le ganaron a tu hándicap.',
+    nueva: 'Elige campo y salidas… y a jugar. ¡Concéntrate!',
+    trainer: 'Entrena tu punto débil. Yo te marco qué practicar primero.',
+    perfil: 'Tus logros. Toca tu <b>foto</b> arriba para personalizar tu golfista.',
+    social: 'Reta a tus amigos en La corta. ¡El que pierde paga! 😏',
+  };
+  return m[view] || '¡Vamos por tu mejor golf!';
+}
+
 /* rango por hándicap 0–36 (golf): tu golfista se tiñe y su aura crece al subir */
 const RANKS = [
   { max: 36, n: 'Novato', c: '#9aa6b0', f: 'saturate(.35) brightness(1.08)', aura: 0 },

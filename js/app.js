@@ -419,6 +419,7 @@ const actions = {
     render();
   },
   'drill-close-detail'() { V.drillDetail = null; render(); },
+  'sensei-toggle'() { V.senseiOpen = V.senseiOpen === false; render(); },
   'drill-hit'() {
     if (!V.drillLog) return;
     const d = V.drillLog;
