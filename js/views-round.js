@@ -589,20 +589,19 @@ function roundAnalysis(a, s) {
   ];
   const weak = [...areas].sort((x, y) => x.v - y.v)[0];
   const strong = [...areas].sort((x, y) => y.v - x.v)[0];
-  const head = vibe && vibe.k === 'fire' ? '🔥 ¡Gran ronda! Le ganaste a tu hándicap.'
-    : vibe && vibe.k === 'ice' ? '🧊 Ronda fría, pero ya sabes dónde apretar.'
-    : '✅ Ronda sólida. Aquí está tu desglose.';
-  const row = (ic, b, sub, cls) => `<div class="ra-row ${cls || ''}"><span class="ra-ic">${ic}</span><div><b>${b}</b><span>${sub}</span></div></div>`;
+  const verdict = vibe && vibe.k === 'fire' ? { t: 'En fuego', cls: 'fire' }
+    : vibe && vibe.k === 'ice' ? { t: 'Ronda fría', cls: 'ice' }
+    : { t: 'Ronda sólida', cls: 'ok' };
+  const row = (icon, b, sub, cls) => `<div class="ra-row ${cls || ''}"><span class="ra-ic">${golfIcon(icon)}</span><div class="ra-tx"><b>${b}</b><span>${sub}</span></div></div>`;
   const rows = [
-    row('🐦', `${bird} birdie${bird !== 1 ? 's' : ''} o mejor`, `${par} pares · ${bog} bogeys · ${worse} dobles o peor`),
-    best ? row('⭐', `Tu mejor hoyo: #${best.n}`, relScore(best.d)) : '',
-    (worst && worst.d >= 2) ? row('⚠️', `El más caro: hoyo #${worst.n}`, `${relScore(worst.d)} — pasa la página`) : '',
-    row('💪', `Lo mejor: ${strong.k}`, 'sigue así'),
-    row('🎯', `Tu fuga de hoy: ${weak.k}`, 'practícalo en el Trainer', 'ra-focus'),
+    row('bird', `${bird} birdie${bird !== 1 ? 's' : ''} o mejor`, `${par} pares · ${bog} bogeys · ${worse} dobles+`),
+    best ? row('medal', `Mejor hoyo · #${best.n}`, relScore(best.d)) : '',
+    (worst && worst.d >= 2) ? row('card', `Hoyo más caro · #${worst.n}`, `${relScore(worst.d)} · pasa la página`) : '',
+    row('green', `Tu fortaleza · ${strong.k}`, 'sigue así'),
+    row('bucket', `Tu fuga · ${weak.k}`, 'practícalo en el Trainer', 'ra-focus'),
   ].filter(Boolean).join('');
   return `<div class="card ra-card">
-    <span class="label">Análisis de tu ronda</span>
-    <p class="ra-head">${head}</p>
+    <div class="ra-top"><span class="label" style="margin:0">Análisis de tu ronda</span><span class="ra-verdict ${verdict.cls}">${verdict.t}</span></div>
     ${rows}
   </div>`;
 }

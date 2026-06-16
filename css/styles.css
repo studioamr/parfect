@@ -547,14 +547,20 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 
 /* ====== Análisis de ronda (resumen) ====== */
 .ra-card { margin-top: 14px; }
-.ra-head { font-size: 15px; font-weight: 800; color: var(--text); margin: 6px 0 12px; }
+.ra-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.ra-verdict { font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; padding: 5px 12px; border-radius: 99px; flex: none; }
+.ra-verdict.fire { background: rgba(255,140,60,.18); color: #df6f2c; }
+.ra-verdict.ice { background: rgba(80,160,230,.18); color: #3a8fd0; }
+.ra-verdict.ok { background: var(--lime-faint); color: var(--lime); }
 .ra-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line-soft); }
 .ra-row:first-of-type { border-top: none; }
-.ra-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--card2); display: grid; place-items: center; font-size: 18px; }
+.ra-ic { flex: none; width: 36px; height: 36px; border-radius: 11px; background: var(--lime-faint); display: grid; place-items: center; color: var(--lime); }
+.ra-ic .gi, .ra-ic svg { width: 22px; height: 22px; }
+.ra-tx { min-width: 0; }
 .ra-row b { display: block; font-size: 14px; font-weight: 800; color: var(--text); }
-.ra-row span:last-child { font-size: 12px; color: var(--muted); font-weight: 600; }
-.ra-row.ra-focus { background: var(--lime-faint); border-radius: 12px; padding: 9px 10px; border-top: none; margin-top: 4px; }
-.ra-row.ra-focus .ra-ic { background: #C7EE54; }
+.ra-row .ra-tx span { font-size: 12px; color: var(--muted); font-weight: 600; }
+.ra-row.ra-focus { background: var(--lime-faint); border-radius: 12px; padding: 10px; border-top: none; margin-top: 6px; }
+.ra-row.ra-focus .ra-ic { background: #C7EE54; color: #16241A; }
 
 /* ====== Trainer: áreas (dónde ganar golpes) ====== */
 .tr-areas { display: flex; flex-direction: column; gap: 9px; margin-top: 10px; }
