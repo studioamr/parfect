@@ -187,6 +187,10 @@ const actions = {
   /* ---- perfil ---- */
   'profile-open'() { V.wipeArm = false; go('perfil'); },
   'profile-edit'() { V.profileOpen = true; render(); },
+  'card-picker'() { V.cardPicker = true; render(); },
+  'card-picker-close'() { V.cardPicker = false; render(); },
+  'set-skin'(d) { const u = cur(); if (u && CARD_SKINS.some(s => s.k === d.k)) { u.cardSkin = d.k; commit(); } },
+  'stat-open'(d) { V.statOpen = (V.statOpen === d.k) ? null : d.k; render(); },
   'go-trofeos'() { V.profileOpen = false; V.trainerTab = 'logros'; go('trainer'); },
   'profile-close'() { V.profileOpen = false; V.wipeArm = false; render(); },
   'prof-campo'(d) {

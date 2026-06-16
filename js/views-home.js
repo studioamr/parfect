@@ -28,6 +28,7 @@ function vShell(content) {
     </nav>
     ${vSenseiCompanion()}
     ${V.profileOpen ? vProfile() : ''}
+    ${V.cardPicker ? vCardPicker() : ''}
     ${V.drillDetail ? vDrillDetail() : ''}
     ${V.bagEdit ? vBagSheet() : ''}
   </div>`;
@@ -420,7 +421,7 @@ function vDashboard() {
   </div>`;
 
   if (!agg) {
-    return `<div class="dash"><div class="dash-aura" aria-hidden="true"></div>${head}<div class="card empty">
+    return `<div class="dash">${head}<div class="card empty">
       <div class="e-ico">${golfIcon('flag')}</div>
       <h3>${t('empty_h')}</h3>
       <p>${t('empty_p')}</p>
@@ -429,8 +430,29 @@ function vDashboard() {
     </div></div>`;
   }
 
-  return `<div class="dash"><div class="dash-aura" aria-hidden="true"></div>${head}
-    ${vPlayerCard(u, agg)}</div>`;
+  return `<div class="dash">${head}
+    ${vPlayerCard(u, agg)}
+    ${rounds.length ? vRecentStrip(rounds) : ''}</div>`;
+}
+
+/* Tira horizontal con tus últimas rondas (scroll) */
+function vRecentStrip(rounds) {
+  const u = cur();
+  const list = rounds.slice(0, 10);
+  const cards = list.map(r => {
+    const s = Stats.roundStats(r);
+    const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
+    const vibe = roundVibe(s, u.hcp);
+    return `<button class="rs-card ${vibe ? 'vibe-' + vibe.k : ''}" data-act="round-detail" data-id="${r.id}">
+      ${vibe ? `<span class="rs-vibe">${vibe.ic}</span>` : ''}
+      <span class="rs-date">${fmtDate(r.date)}</span>
+      <span class="rs-score">${s.score}</span>
+      <span class="rs-par">${fmtToPar(s.toPar)}</span>
+      <span class="rs-course">${esc(course)} · ${r.holes.length}h</span>
+    </button>`;
+  }).join('');
+  return `<div class="sec-h rs-h"><h2>Últimas rondas</h2>${rounds.length > 10 ? `<button class="sec-link" data-act="nav" data-view="ronda">Ver todas →</button>` : ''}</div>
+    <div class="rs-strip">${cards}</div>`;
 }
 
 /* ---- reparto de score: birdies / pares / bogeys… ---- */
@@ -585,13 +607,15 @@ function vPlayerCard(u, agg) {
   const holesTot = rs.reduce((a, r) => a + r.holes, 0) || 1;
   const threeP = (rs.reduce((a, r) => a + r.threeP, 0) / holesTot * 18).toFixed(1);
   const rk = RANKS[rankIdx(u.hcp)];
+  const goal = (u.goal ?? u.hcp ?? 12);
+  const bench = (typeof Stats !== 'undefined' && Stats.benchFor) ? Stats.benchFor(goal) : null;
   let statsHtml;
   if (agg) {
     const rings = [
-      ['Fairways', agg.fwPct, 'tee'],
-      ['GIR', agg.girPct, 'green'],
-      ['Up & down', agg.scrPct, 'flag'],
-    ].map(r => pstRing(r[0], r[1], r[2])).join('');
+      pstScene('fw', agg.fwPct, 'Fairways', bench && bench.fwPct),
+      pstScene('gir', agg.girPct, 'GIR', bench && bench.girPct),
+      pstScene('ud', agg.scrPct, 'Up & down', bench && bench.scrPct),
+    ].join('');
     const parPct = Math.round((sd.par || 0) / tot * 100);
     const birdiePct = Math.round(((sd.birdie || 0) + (sd.eagle || 0)) / tot * 100);
     const bogeyPct = Math.round(((sd.bogey || 0) + (sd.dbl || 0)) / tot * 100);
@@ -607,7 +631,9 @@ function vPlayerCard(u, agg) {
   } else {
     statsHtml = `<div class="card pl-empty"><span class="pl-empty-ic">${golfIcon('flag')}</span><b>Aún sin estadísticas</b><p>Registra tu primera ronda y aquí verás tus fairways, greens, putts y más.</p><button class="btn primary" data-act="quick-round">Registrar ronda →</button></div>`;
   }
-  return `<div class="pl-hero" style="background:${profileBgGrad(u)}">
+  const sk = cardSkin(u);
+  return `<div class="pl-hero skin-${sk.t}" style="background:${sk.g}">
+      <button class="pl-hero-skin" data-act="card-picker" aria-label="Cambiar diseño">${golfIcon('flag')}<span>Diseño</span></button>
       <div class="pl-hero-txt">
         <span class="pl-hero-lab">${esc(u.name)} · ${rk.n}</span>
         <div class="pl-hero-num">${fmtHcp(u.hcp)}</div>
@@ -616,6 +642,28 @@ function vPlayerCard(u, agg) {
       ${avatarImg(u, 'pl-hero-av')}
     </div>
     ${statsHtml}`;
+}
+
+/* Selector de diseños de tarjeta (24 skins) */
+function vCardPicker() {
+  const u = cur();
+  const cur_k = (u.cardSkin || 'calle');
+  const cells = CARD_SKINS.map(s => `<button class="cps-cell ${s.k === cur_k ? 'on' : ''}" data-act="set-skin" data-k="${s.k}">
+      <span class="cps-sw skin-${s.t}" style="background:${s.g}">${s.k === cur_k ? '<i class="cps-chk">✓</i>' : ''}</span>
+      <span class="cps-nm">${s.n}</span>
+    </button>`).join('');
+  return `<div class="overlay panel-ov" data-act="card-picker-close">
+    <div class="panel" data-act="noop">
+      <div class="panel-head">
+        <h2>Diseño de tarjeta</h2>
+        <button class="panel-x" data-act="card-picker-close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="panel-body">
+        <p class="cps-sub">Elige el look de tu tarjeta de inicio · ${CARD_SKINS.length} diseños.</p>
+        <div class="cps-grid">${cells}</div>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* anillo de progreso para una stat % */

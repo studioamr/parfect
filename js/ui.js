@@ -174,6 +174,112 @@ function profileBgGrad(u) {
   if (!b || k === 'rank' || !b.grad) { const rk = RANKS[rankIdx(u && u.hcp)] || RANKS[0]; return `linear-gradient(150deg, ${rk.c}, #5fa03f)`; }
   return b.grad;
 }
+
+/* ====== Diseños de la tarjeta de Inicio (24 skins de golf, a escoger) ====== */
+const CARD_SKINS = [
+  { k: 'calle', n: 'Calle', t: 'light', g: 'linear-gradient(155deg,#b6e673,#74b352)' },
+  { k: 'links', n: 'Links', t: 'light', g: 'linear-gradient(155deg,#d4e391,#9bbf5a)' },
+  { k: 'augusta', n: 'Augusta', t: 'dark', g: 'linear-gradient(155deg,#3f9d54,#1f6b39)' },
+  { k: 'pebble', n: 'Pebble', t: 'dark', g: 'linear-gradient(155deg,#8fd0e0,#3f7fa0)' },
+  { k: 'standrews', n: 'St Andrews', t: 'dark', g: 'linear-gradient(155deg,#a7c191,#5c7d4f)' },
+  { k: 'amanecer', n: 'Amanecer', t: 'light', g: 'linear-gradient(150deg,#ffd27a,#ff9e6b 55%,#7ec8e0)' },
+  { k: 'atardecer', n: 'Atardecer', t: 'dark', g: 'linear-gradient(150deg,#ff7e5f,#a8407a)' },
+  { k: 'oceano', n: 'Océano', t: 'dark', g: 'linear-gradient(150deg,#46b0e0,#1f6aa6)' },
+  { k: 'bunker', n: 'Bunker', t: 'light', g: 'linear-gradient(155deg,#f3e0a6,#d9b25e)' },
+  { k: 'pradera', n: 'Pradera', t: 'light', g: 'linear-gradient(155deg,#7ec850,#3f8f3a)' },
+  { k: 'bosque', n: 'Bosque', t: 'dark', g: 'linear-gradient(155deg,#2f7d4f,#143d2a)' },
+  { k: 'lima', n: 'Lima', t: 'light', g: 'linear-gradient(155deg,#e2f783,#a7d83f)' },
+  { k: 'esmeralda', n: 'Esmeralda', t: 'dark', g: 'linear-gradient(155deg,#2fd6a0,#0f8f74)' },
+  { k: 'tropical', n: 'Tropical', t: 'dark', g: 'linear-gradient(150deg,#2fe0c0,#2f9fd0)' },
+  { k: 'desierto', n: 'Desierto', t: 'dark', g: 'linear-gradient(155deg,#e8b07a,#b56b3a)' },
+  { k: 'hielo', n: 'Hielo', t: 'light', g: 'linear-gradient(155deg,#e3f1fb,#9fc7e8)' },
+  { k: 'tundra', n: 'Tundra', t: 'dark', g: 'linear-gradient(155deg,#c7d6dc,#7e98a3)' },
+  { k: 'lava', n: 'Lava', t: 'dark', g: 'linear-gradient(155deg,#ff6a3d,#8f1f1f)' },
+  { k: 'coral', n: 'Coral', t: 'dark', g: 'linear-gradient(155deg,#ff9a8b,#ff6a88)' },
+  { k: 'niebla', n: 'Niebla', t: 'light', g: 'linear-gradient(155deg,#d3dbd5,#8fa39a)' },
+  { k: 'medianoche', n: 'Medianoche', t: 'dark', g: 'linear-gradient(155deg,#2a3b6a,#0d1430)' },
+  { k: 'galaxia', n: 'Galaxia', t: 'dark', g: 'linear-gradient(150deg,#3b2f8a,#10183f)' },
+  { k: 'oro', n: 'Oro', t: 'light', g: 'linear-gradient(155deg,#f7d04a,#c98a1e)' },
+  { k: 'pino', n: 'Pino', t: 'dark', g: 'linear-gradient(155deg,#3aa6a0,#1f5e63)' },
+];
+function cardSkin(u) {
+  const k = (u && u.cardSkin) || 'calle';
+  return CARD_SKINS.find(x => x.k === k) || CARD_SKINS[0];
+}
+function cardSkinGrad(u) { return cardSkin(u).g; }
+
+/* ====== Mini-escenas 3D de golf por stat (Fairways / GIR / Up&down) ====== */
+function pstScene(kind, pct, label, goalPct) {
+  const p = Math.max(0, Math.min(100, Math.round(pct || 0)));
+  const open = V.statOpen === kind;
+  const art = kind === 'fw' ? fwScene(p) : kind === 'gir' ? girScene(p) : udScene(p);
+  const delta = (goalPct != null) ? (p - Math.round(goalPct)) : null;
+  const goalHtml = (goalPct != null)
+    ? `<span class="psc-goal">meta ${Math.round(goalPct)}% · <em class="${delta >= 0 ? 'up' : 'dn'}">${delta >= 0 ? '+' : ''}${delta}</em></span>`
+    : '';
+  return `<button class="pst-scene ${open ? 'open' : ''}" data-act="stat-open" data-k="${kind}" style="--p:${p}">
+    <div class="psc-art">${art}</div>
+    <b class="psc-num">${p}<i>%</i></b>
+    <span class="psc-lab">${esc(label)}</span>
+    ${goalHtml}
+  </button>`;
+}
+/* Fairway que se ilumina: trapezoide en perspectiva que se rellena de luz según % */
+function fwScene(p) {
+  const topY = 16, botY = 78, h = botY - topY;
+  const litY = (botY - h * p / 100).toFixed(1), litH = (h * p / 100).toFixed(1);
+  return `<svg viewBox="0 0 100 84" class="psc-svg" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <clipPath id="fwclip"><path d="M30 78 L70 78 L59 16 L41 16 Z"/></clipPath>
+      <linearGradient id="fwlit" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="var(--sc-lit)"/><stop offset="1" stop-color="var(--sc-grass2)"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="50" cy="80" rx="46" ry="6" fill="var(--sc-shadow)"/>
+    <g clip-path="url(#fwclip)">
+      <rect x="0" y="0" width="100" height="84" fill="var(--sc-dim)"/>
+      <rect x="0" y="${litY}" width="100" height="${litH}" fill="url(#fwlit)" class="psc-fill"/>
+      <line x1="50" y1="16" x2="50" y2="78" stroke="var(--sc-line)" stroke-width="1" stroke-dasharray="3 4" opacity=".5"/>
+    </g>
+    <path d="M30 78 L70 78 L59 16 L41 16 Z" fill="none" stroke="var(--sc-line)" stroke-width="1.4"/>
+    <g class="psc-flag"><line x1="50" y1="16" x2="50" y2="5" stroke="var(--sc-cup)" stroke-width="1.6"/>
+      <path d="M50 5 L62 8.5 L50 12 Z" fill="var(--sc-flag)"/></g>
+    <circle cx="50" cy="74" r="3.2" fill="var(--sc-ball)" stroke="var(--sc-line)" stroke-width=".6"/>
+  </svg>`;
+}
+/* Green que crece: óvalo en perspectiva cuyo tamaño/verdor sube con % */
+function girScene(p) {
+  const sc = 0.34 + 0.66 * Math.sqrt(p / 100);
+  const rx = (36 * sc).toFixed(1), ry = (15 * sc).toFixed(1);
+  const topY = (50 - ry).toFixed(1);
+  return `<svg viewBox="0 0 100 84" class="psc-svg" preserveAspectRatio="xMidYMid meet">
+    <defs><radialGradient id="grng" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="var(--sc-lit)"/><stop offset="1" stop-color="var(--sc-grass2)"/>
+    </radialGradient></defs>
+    <ellipse cx="50" cy="64" rx="44" ry="9" fill="var(--sc-dim)"/>
+    <ellipse cx="50" cy="50" rx="37" ry="15.5" fill="none" stroke="var(--sc-line)" stroke-width="1.2" stroke-dasharray="4 4" opacity=".55"/>
+    <ellipse class="psc-grow" cx="50" cy="50" rx="${rx}" ry="${ry}" fill="url(#grng)" stroke="var(--sc-grass2)" stroke-width="1"/>
+    <g class="psc-flag"><line x1="58" y1="${topY}" x2="58" y2="${(+topY - 22).toFixed(1)}" stroke="var(--sc-cup)" stroke-width="1.6"/>
+      <path d="M58 ${(+topY - 22).toFixed(1)} L70 ${(+topY - 18.5).toFixed(1)} L58 ${(+topY - 15).toFixed(1)} Z" fill="var(--sc-flag)"/>
+      <ellipse cx="58" cy="${topY}" rx="2.4" ry="1" fill="var(--sc-cup)"/></g>
+    <circle cx="42" cy="52" r="3" fill="var(--sc-ball)" stroke="var(--sc-line)" stroke-width=".6"/>
+  </svg>`;
+}
+/* Up&down: el hoyo se acerca a la bola conforme sube el % */
+function udScene(p) {
+  const farX = 74, farY = 26, nearX = 46, nearY = 52;
+  const cx = (farX + (nearX - farX) * p / 100).toFixed(1);
+  const cy = (farY + (nearY - farY) * p / 100).toFixed(1);
+  const cr = (3.4 + 2.4 * p / 100).toFixed(1);
+  return `<svg viewBox="0 0 100 84" class="psc-svg" preserveAspectRatio="xMidYMid meet">
+    <ellipse cx="50" cy="66" rx="46" ry="11" fill="var(--sc-dim)"/>
+    <path d="M28 60 Q ${cx} ${(+cy + 6).toFixed(1)} ${cx} ${cy}" fill="none" stroke="var(--sc-line)" stroke-width="1.4" stroke-dasharray="2.5 3.5" opacity=".7"/>
+    <ellipse class="psc-cup" cx="${cx}" cy="${cy}" rx="${cr}" ry="${(+cr * 0.42).toFixed(1)}" fill="var(--sc-cup)"/>
+    <g class="psc-flag"><line x1="${cx}" y1="${cy}" x2="${cx}" y2="${(+cy - 24).toFixed(1)}" stroke="var(--sc-cup)" stroke-width="1.6"/>
+      <path d="M${cx} ${(+cy - 24).toFixed(1)} L${(+cx + 12).toFixed(1)} ${(+cy - 20.5).toFixed(1)} L${cx} ${(+cy - 17).toFixed(1)} Z" fill="var(--sc-flag)"/></g>
+    <circle cx="28" cy="60" r="3.6" fill="var(--sc-ball)" stroke="var(--sc-line)" stroke-width=".6"/>
+  </svg>`;
+}
 /* "chispa": qué tan encendido va tu golfista según tus jugadas buenas recientes (0..1) */
 function golferSpark(u) {
   try {
