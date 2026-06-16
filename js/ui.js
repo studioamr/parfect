@@ -160,6 +160,14 @@ function roundVibe(s, hcp) {
   return { k: 'fire', ic: '🔥', t: 'En par' };          // par neto cuenta como fuego
 }
 
+/* rango "equivalente" de una ronda: su score a par escalado a 18 → color del rango.
+   Una vuelta cerca de par = Leyenda (oro); muy sobre par = Novato (gris). */
+function roundRank(s) {
+  if (!s || !s.holes) return RANKS[0];
+  const h = Math.round((s.toPar || 0) * 18 / Math.max(1, s.holes));
+  return RANKS[rankIdx(h)] || RANKS[0];
+}
+
 /* Sensei: pájaro mítico (SVG con aura, alas que aletean, destellos) */
 function senseiBird(cls) {
   return `<svg class="sbird ${cls || ''}" viewBox="0 0 56 56" aria-hidden="true">

@@ -137,28 +137,43 @@ function vTourneyMini(r) {
   return `<div class="tm">${row(front)}${has18 ? row(back) : ''}</div>`;
 }
 
-/* Tarjeta de ronda limpia: score + stats simples + marcas círculo/cuadro */
+/* anillo de progreso para una stat de la tarjeta de ronda */
+function rcRing(label, pct, color) {
+  const p = Math.max(0, Math.min(100, Math.round(pct || 0)));
+  const R = 21, C = 2 * Math.PI * R, off = (C * (1 - p / 100)).toFixed(1);
+  return `<div class="rc4-ring">
+    <div class="rc4-rwrap">
+      <svg viewBox="0 0 52 52"><circle class="rc4-rt" cx="26" cy="26" r="${R}"/><circle class="rc4-rp" cx="26" cy="26" r="${R}" stroke="${color}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off}"/></svg>
+      <span class="rc4-rv">${p}<i>%</i></span>
+    </div>
+    <span class="rc4-rl">${label}</span>
+  </div>`;
+}
+/* Tarjeta de ronda creativa: color por rango de la tirada + anillos + ribbon del campo */
 function vRoundStatCard(r, hcp) {
   const s = Stats.roundStats(r);
   const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
   const vibe = roundVibe(s, hcp);
+  const rk = roundRank(s);
   const holes = (r.holes || []).filter(Boolean);
   const birdies = holes.filter(x => x.score != null && x.score - x.par <= -1).length;
   const pct = (n, d) => d ? Math.round((n / d) * 100) : 0;
   const scoreCls = s.toPar <= 0 ? 'good' : s.toPar <= Math.round(s.holes * 0.33) ? 'par' : 'over';
-  const st = (label, val) => `<div class="rc3-st"><b>${val}</b><span>${label}</span></div>`;
-  return `<button class="rc3" data-act="round-detail" data-id="${r.id}">
-    <div class="rc3-top">
-      <div class="rc3-id"><b>${esc(course)}${r.partyId ? ` <span class="rc3-party">${golfIcon('flag')}</span>` : ''}</b><span>${fmtDate(r.date)} · ${s.holes} hoyos</span></div>
-      <div class="rc3-score ${scoreCls}">${vibe ? `<i class="rc3-vibe">${vibe.ic}</i>` : ''}<b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
+  const pill = (label, val, cls) => `<div class="rc4-pill ${cls || ''}"><b>${val}</b><span>${label}</span></div>`;
+  return `<button class="rc4" style="--rc:${rk.c}" data-act="round-detail" data-id="${r.id}">
+    <div class="rc4-head">
+      <div class="rc4-id"><span class="rc4-rank">${esc(rk.n)}</span><b>${esc(course)}${r.partyId ? ` <span class="rc4-party">${golfIcon('flag')}</span>` : ''}</b><span class="rc4-date">${fmtDate(r.date)} · ${s.holes} hoyos</span></div>
+      <div class="rc4-score ${scoreCls}">${vibe ? `<i class="rc4-vibe">${vibe.ic}</i>` : ''}<b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
     </div>
-    <div class="rc3-stats">
-      ${st('Fairway', pct(s.fw, s.fwTot) + '%')}
-      ${st('GIR', pct(s.gir, s.girTot) + '%')}
-      ${st('Up&down', pct(s.scr, s.scrTot) + '%')}
-      ${st('Putts', s.putts)}
-      ${st('Birdies', birdies)}
-      ${st('3 putts', s.threeP)}
+    <div class="rc4-rings">
+      ${rcRing('Fairway', pct(s.fw, s.fwTot), rk.c)}
+      ${rcRing('GIR', pct(s.gir, s.girTot), rk.c)}
+      ${rcRing('Up&down', pct(s.scr, s.scrTot), rk.c)}
+    </div>
+    <div class="rc4-pills">
+      ${pill('Putts', s.putts)}
+      ${pill('Birdies', birdies, birdies > 0 ? 'good' : '')}
+      ${pill('3 putts', s.threeP, s.threeP > 0 ? 'bad' : '')}
     </div>
     ${vTourneyMini(r)}
   </button>`;

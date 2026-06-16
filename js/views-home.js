@@ -455,13 +455,12 @@ function vRecentStrip(rounds) {
     const s = Stats.roundStats(r);
     const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
     const vibe = roundVibe(s, u.hcp);
-    const per = s.toPar / Math.max(1, s.holes);            // golpes sobre par por hoyo
-    const band = per <= 0 ? 'great' : per <= 0.34 ? 'good' : per <= 0.78 ? 'ok' : 'tough';
-    return `<button class="rs-card band-${band} ${vibe ? 'vibe-' + vibe.k : ''}" data-act="round-detail" data-id="${r.id}">
+    const rk = roundRank(s);                                // color según el "hándicap" de esa tirada
+    return `<button class="rs-card" style="border-top-color:${rk.c};background:linear-gradient(180deg, ${rk.c}24, var(--card) 50%)" data-act="round-detail" data-id="${r.id}">
       ${vibe ? `<span class="rs-vibe">${vibe.ic}</span>` : ''}
       <span class="rs-date">${fmtDate(r.date)}</span>
       <span class="rs-score">${s.score}</span>
-      <span class="rs-par">${fmtToPar(s.toPar)}</span>
+      <span class="rs-par" style="color:${rk.c}">${fmtToPar(s.toPar)}</span>
       <span class="rs-course">${esc(course)} · ${r.holes.length}h</span>
     </button>`;
   }).join('');
