@@ -771,7 +771,8 @@ function vStories(u) {
     .concat(FRIENDS_FEED.map(f => `<div class="story">
       <span class="story-ring"><img class="story-img golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy"></span>
       <span class="story-nm">${esc(f.name.split(' ')[0])}</span></div>`)).join('');
-  return `<div class="story-row">${cells}</div>`;
+  // duplicado para scroll infinito (marquee continuo)
+  return `<div class="story-row"><div class="story-track">${cells}${cells}</div></div>`;
 }
 
 /* liga de amigos: ranking */
@@ -794,10 +795,10 @@ function vRanking(u) {
 
 function vPerfil() {
   const u = cur();
-  return `${partyCard()}
-    ${vStories(u)}
+  return `${vStories(u)}
     ${vRanking(u)}
-    ${vSocialFeed()}`;
+    ${vSocialFeed()}
+    <div style="margin-top:22px">${partyCard()}</div>`;
 }
 
 /* ============ Bienvenida / onboarding (primer ingreso) ============ */

@@ -117,6 +117,17 @@ function roundBadges(r, s) {
   return b.slice(0, 3);
 }
 
+/* tira del campo jugado: una celda por hoyo (9 o 18) coloreada por score */
+function vHoleStrip(r) {
+  const cells = (r.holes || []).map((h, i) => {
+    if (!h) return '';
+    const d = h.score != null ? h.score - h.par : null;
+    const cls = d == null ? 'na' : d <= -1 ? 'u' : d === 0 ? 'p' : d === 1 ? 'o' : 'b';
+    return `<span class="rs-h rs-${cls}"><i>${i + 1}</i></span>`;
+  }).join('');
+  return `<div class="rs-holes"><div class="rs-holes-bar">${cells}</div></div>`;
+}
+
 /* Tarjeta de ronda: banda de color + escena 3D + logros + stats */
 function vRoundStatCard(r, hcp, idx) {
   const s = Stats.roundStats(r);
@@ -143,6 +154,7 @@ function vRoundStatCard(r, hcp, idx) {
       <div class="rc2-scene">${scene}<span class="rc2-scene-cap">Tu fuerte · ${best[2]} ${best[1]}%</span></div>
       ${badges ? `<div class="rc2-badges">${golfIcon('trophy')}${badges}</div>` : ''}
     </div>
+    ${vHoleStrip(r)}
     <div class="rc-stats">
       ${st('Fairway', fwP + '%', `${s.fw}/${s.fwTot}`)}
       ${st('GIR', girP + '%', `${s.gir}/${s.girTot}`)}

@@ -1813,10 +1813,17 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .fd-share .gi { width: 16px; height: 16px; color: var(--lime); }
 .fd-share:active { transform: scale(.99); }
 .fd-list { display: flex; flex-direction: column; gap: 13px; }
-.fd-card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 14px 16px; box-shadow: 0 8px 22px rgba(20,40,15,.06); }
+.fd-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 15px 16px 14px; box-shadow: 0 8px 22px rgba(20,40,15,.06); overflow: hidden; transition: transform .14s, box-shadow .2s; }
+.fd-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #C7EE54, #46b0e0, #9a5cd0); opacity: .9; }
+.fd-card:active { transform: scale(.995); }
+.app-content.view-in .fd-list .fd-card { animation: rowIn .5s cubic-bezier(.2,.8,.2,1) both; }
+.app-content.view-in .fd-list .fd-card:nth-child(2) { animation-delay: .05s; }
+.app-content.view-in .fd-list .fd-card:nth-child(3) { animation-delay: .1s; }
+.app-content.view-in .fd-list .fd-card:nth-child(n+4) { animation-delay: .15s; }
 .fd-head { display: flex; align-items: center; gap: 11px; }
-.fd-avwrap { width: 44px; height: 44px; flex: none; border-radius: 50%; background: var(--card2); display: grid; place-items: center; overflow: hidden; }
-.fd-av { width: 40px; height: 40px; object-fit: contain; }
+.fd-avwrap { width: 46px; height: 46px; flex: none; border-radius: 50%; padding: 2.5px; background: conic-gradient(from 210deg, #C7EE54, #6ec24f, #46b0e0, #C7EE54); display: grid; place-items: center; }
+.fd-av { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--card); border: 2px solid var(--card); }
+svg.fd-av { object-fit: contain; }
 .fd-who b { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 900; color: var(--text); }
 .fd-you { font-size: 10px; font-weight: 800; color: #16241A; background: #C7EE54; padding: 1px 7px; border-radius: 99px; }
 .fd-who span { display: block; font-size: 11.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
@@ -1872,8 +1879,11 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .app-content.view-in .rc-list .rc2:nth-child(n+5) { animation-delay: .2s; }
 
 /* ===== Social enriquecido: historias + liga ===== */
-.story-row { display: flex; gap: 13px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 2px 12px; margin: 0 -2px; scrollbar-width: none; }
-.story-row::-webkit-scrollbar { display: none; }
+.story-row { overflow: hidden; padding: 4px 0 12px; margin: 0 -2px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.story-track { display: flex; gap: 13px; width: max-content; animation: storyScroll 30s linear infinite; }
+.story-track:hover, body.is-scrolling .story-track { animation-play-state: paused; }
+@keyframes storyScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .story-track { animation: none; } .story-row { overflow-x: auto; scrollbar-width: none; } }
 .story { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 60px; }
 .story-ring { width: 58px; height: 58px; border-radius: 50%; padding: 3px; background: conic-gradient(from 210deg, #C7EE54, #6ec24f, #46b0e0, #C7EE54); display: grid; place-items: center; }
 .story.me .story-ring { background: conic-gradient(from 210deg, #ffd76a, #e8a93a, #ffd76a); }
@@ -2024,3 +2034,21 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .bet-games { display: flex; flex-wrap: wrap; gap: 7px; }
 .bet-chip { font-size: 11.5px; font-weight: 800; color: #14230f; background: rgba(255,255,255,.45); border: 1px solid rgba(20,40,15,.12); border-radius: 99px; padding: 4px 11px; }
 .bet-note { font-size: 11.5px; font-weight: 600; color: rgba(20,35,15,.7); margin-top: 11px; line-height: 1.4; }
+
+/* ===== Pájaros voladores: cada uno de un color ===== */
+.bb1 { filter: saturate(1.15); }
+.bb2 { filter: hue-rotate(155deg) saturate(1.25); }
+.lp-bird.lb1 { filter: saturate(1.15) drop-shadow(0 6px 8px rgba(20,40,15,.18)); }
+.lp-bird.lb2 { filter: hue-rotate(100deg) saturate(1.3) drop-shadow(0 6px 8px rgba(20,40,15,.18)); }
+.lp-bird.lb3 { filter: hue-rotate(215deg) saturate(1.3) drop-shadow(0 6px 8px rgba(20,40,15,.18)); }
+
+/* ===== Tira del campo jugado en tarjeta de ronda ===== */
+.rs-holes { padding: 0 16px 4px; }
+.rs-holes-bar { display: flex; gap: 3px; }
+.rs-h { flex: 1; height: 22px; border-radius: 5px; display: grid; place-items: center; background: var(--card2); }
+.rs-h i { font-size: 8px; font-style: normal; font-weight: 800; color: var(--muted2); }
+.rs-h.rs-u { background: #3aa055; } .rs-h.rs-u i { color: #fff; }
+.rs-h.rs-p { background: var(--card2); }
+.rs-h.rs-o { background: #f0b35a; } .rs-h.rs-o i { color: #5a3d00; }
+.rs-h.rs-b { background: #e2873a; } .rs-h.rs-b i { color: #fff; }
+.rs-h.rs-na { background: var(--line); opacity: .5; }
