@@ -582,14 +582,16 @@ function vPlayerCard(u, agg) {
       ['Up & down', agg.scrPct, 'flag'],
     ].map(r => pstRing(r[0], r[1], r[2])).join('');
     const parPct = Math.round((sd.par || 0) / tot * 100);
+    const birdiePlus = (sd.birdie || 0) + (sd.eagle || 0);
+    const bogeyPlus = (sd.bogey || 0) + (sd.dbl || 0);
     const tiles = [
       ['Putts / ronda', agg.putts18.toFixed(0), `<span class="pst-ic">${golfIcon('putter')}</span>`],
       ['3-putts / ronda', threeP, `<span class="pst-ic">${golfIcon('bucket')}</span>`],
-      ['Birdies', String(sd.birdie), `<img src="assets/bird.png" class="pst-img" alt="">`],
-      ['Águilas', String(sd.eagle), `<img src="assets/eagle.png" class="pst-img" alt="">`],
+      ['Birdie o mejor', String(birdiePlus), `<img src="assets/eagle.png" class="pst-img" alt="">`],
+      ['Bogey o peor', String(bogeyPlus), `<span class="pst-ic">${golfIcon('card')}</span>`],
       ['Pares', parPct + '%', `<span class="pst-ic">${golfIcon('flag')}</span>`],
       ['Mejor vuelta', fmtToPar(agg.bestToPar), `<span class="pst-ic">${golfIcon('trophy')}</span>`],
-    ].map(t => `<div class="pst-tile"><span class="pst-th">${t[2]}</span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
+    ].map((t, i) => `<div class="pst-tile" style="--i:${i}"><span class="pst-th">${t[2]}</span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
     statsHtml = `<div class="pst-rings">${rings}</div><div class="pst-grid">${tiles}</div>`;
   } else {
     statsHtml = `<div class="card pl-empty"><span class="pl-empty-ic">${golfIcon('flag')}</span><b>Aún sin estadísticas</b><p>Registra tu primera ronda y aquí verás tus fairways, greens, putts y más.</p><button class="btn primary" data-act="quick-round">Registrar ronda →</button></div>`;
@@ -612,7 +614,7 @@ function pstRing(label, pct, icon) {
   return `<div class="pst-ring">
     <div class="pst-ringsvg">
       <svg viewBox="0 0 64 64"><circle class="pst-track" cx="32" cy="32" r="${R}"/><circle class="pst-prog" cx="32" cy="32" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off}"/></svg>
-      <span class="pst-ringval">${p}<i>%</i></span>
+      <span class="pst-ringval"><b class="pst-ringnum">${p}</b><i>%</i></span>
     </div>
     <span class="pst-ringlab">${esc(label)}</span>
   </div>`;

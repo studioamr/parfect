@@ -895,6 +895,7 @@ button.row { cursor: pointer; }
 .app-content.view-in .pst-prog { animation: ringGrow 1s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes ringGrow { from { stroke-dashoffset: 163.4; } }
 .pst-ringval { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 900; color: var(--text); }
+.pst-ringnum { font-weight: 900; }
 .pst-ringval i { font-size: 11px; font-weight: 800; color: var(--muted); font-style: normal; margin-left: 1px; margin-top: 4px; }
 .pst-ringlab { font-size: 12px; font-weight: 800; color: var(--text); }
 .pst-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
@@ -904,6 +905,18 @@ button.row { cursor: pointer; }
 .pst-img { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; }
 .pst-val { display: block; font-size: 30px; font-weight: 900; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
 .pst-lab { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-top: 5px; }
+/* animaciones de las stats (todo se mueve) */
+.pst-img { animation: pstFly 3s ease-in-out infinite; transform-origin: center; }
+@keyframes pstFly { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-5px) rotate(5deg); } }
+.pst-th { animation: pstBob 3.4s ease-in-out infinite; }
+@keyframes pstBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.app-content.view-in .pst-tile { animation: tileIn .5s cubic-bezier(.2,.85,.25,1) both; animation-delay: calc(0.06s * var(--i, 0) + 0.12s); }
+@keyframes tileIn { from { opacity: 0; transform: translateY(16px) scale(.95); } to { opacity: 1; transform: none; } }
+.app-content.view-in .pst-ring { animation: tileIn .5s cubic-bezier(.2,.85,.25,1) both; }
+.app-content.view-in .pst-ring:nth-child(1) { animation-delay: .04s; }
+.app-content.view-in .pst-ring:nth-child(2) { animation-delay: .1s; }
+.app-content.view-in .pst-ring:nth-child(3) { animation-delay: .16s; }
+@media (prefers-reduced-motion: reduce) { .pst-img, .pst-th, .app-content.view-in .pst-tile, .app-content.view-in .pst-ring { animation: none !important; } }
 
 /* estado vacío de la tarjeta de jugador */
 .pl-empty { margin-top: 12px; text-align: center; padding: 24px 18px; }

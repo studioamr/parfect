@@ -164,7 +164,7 @@ function afterRender() {
 /* anima números clave contando hacia arriba al entrar a una vista */
 function animateCountUps(root) {
   if (!root || (matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-  root.querySelectorAll('.pl-hero-num, .pl-chip b').forEach(el => {
+  root.querySelectorAll('.pl-hero-num, .pl-chip b, .pst-val, .pst-ringnum').forEach(el => {
     if (el.dataset.cupDone) return;
     const raw = (el.textContent || '').trim();
     const m = raw.match(/^(\d+(?:\.\d+)?)(\s*%?)$/);
