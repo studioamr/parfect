@@ -219,7 +219,11 @@ function vSetup() {
       <p class="su-meta">${esc(tee.name)} · ${esc(tee.sub)} · <b>${totalYds} yds</b> en total</p>
     </div>
     <button class="btn primary big su-go" data-act="start-round">${golfIcon('flag')} Comenzar ronda</button>
-    <button class="btn su-cancel" data-act="nav" data-view="ronda">Cancelar</button>`;
+    <button class="btn su-cancel" data-act="nav" data-view="ronda">Cancelar</button>
+    <div class="su-block">
+      <span class="su-lab">¿Juegas con amigos?</span>
+      ${partyCard()}
+    </div>`;
 }
 
 /* ---------- Captura de hoyo ---------- */
@@ -609,43 +613,58 @@ function vPlay() {
       </div>
     </div>
 
-    <div class="card hole-card">
-      <span class="hc-title">${golfIcon('tee')} Tu tiro · toca lo que lograste</span>
-      <div class="hs-grid">
-        ${h.par !== 3 ? tile('fw', h.teeLie === 'calle', 'Fairway', 'le pegaste a la calle') : ''}
-        ${tile('gir', gir, 'Green', 'llegaste a tiempo')}
-        ${!gir ? tile('ud', h.upDown === true, 'Up &amp; down', 'salvaste el par') : ''}
-        ${tile('pen', !!h.pen, 'Penalti / OB', 'agua, fuera de límites')}
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="g-lab"><span class="chk-ic chk-ic-sm ic-putt">${golfIcon('putter')}</span><span class="label">Putts</span></div>
-      ${chipRow([[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']], 'putts', h.putts)}
-      <div class="g-lab" style="margin-top:14px"><span class="label">Distancia 1er putt</span><span class="small muted">opcional</span></div>
-      ${chipRow([['0-3', '0–3 ft'], ['3-8', '3–8 ft'], ['8-20', '8–20 ft'], ['20+', '+20 ft']], 'dist', h.dist)}
-    </div>
-
-    <div class="score-card ${scoreCls}">
-      <div class="sc-lab"><span class="label">Score del hoyo</span><span class="small muted">${score != null ? 'auto · ajústalo' : 'marca tus putts'}</span></div>
-      <div class="score-row">
-        <div class="sc-val"><span class="sc-num">${score != null ? score : '–'}</span><span class="sc-rel">${score != null ? relScore(score - h.par) : ''}</span></div>
-        <div class="stepper">
-          <button data-act="h-score" data-d="-1" ${score == null ? 'disabled' : ''}>−</button>
-          <button data-act="h-score" data-d="1" ${score == null ? 'disabled' : ''}>+</button>
-        </div>
-      </div>
-    </div>
+    ${(() => {
+      const steps = playSteps(h);
+      const ci = (V.fastStep != null && V.fastStep < steps.length) ? V.fastStep : fastDerivedIndex(h, steps);
+      const cur = steps[ci];
+      const tabLab = { tee: 'Calle', app: 'Green', ud: 'Up&D', putts: 'Putts', score: 'Score' };
+      const ansOf = k => {
+        if (k === 'tee') return h.teeLie === 'calle' ? 'Sí' : h.teeLie === 'ob' ? 'OB' : h.teeLie ? 'No' : null;
+        if (k === 'app') return h.app === 'gir' ? 'Sí' : h.app ? 'No' : null;
+        if (k === 'ud') return h.upDown === true ? 'Sí' : h.upDown === false ? 'No' : null;
+        if (k === 'putts') return h.putts != null ? h.putts + 'p' : null;
+        if (k === 'score') return score != null ? String(score) : null;
+        return null;
+      };
+      const tabs = steps.map((s, i) => `<button class="wz-tab ${i === ci ? 'on' : ''} ${ansOf(s) != null ? 'ans' : ''}" data-act="fast-tab" data-s="${s}"><span>${tabLab[s]}</span><b>${ansOf(s) || '·'}</b></button>`).join('');
+      const yn = (scene, onYes, onNo, yesAttr, noAttr, q, extra) => `
+        <h3 class="wz-q">${q}</h3>
+        <div class="wz-art">${chkScene(scene, onYes)}</div>
+        <div class="wz-yn">
+          <button class="wz-opt yes ${onYes ? 'on' : ''}" data-act="fast" ${yesAttr}>Sí</button>
+          <button class="wz-opt no ${onNo ? 'on' : ''}" data-act="fast" ${noAttr}>No</button>
+        </div>${extra || ''}`;
+      const penPill = `<div class="wz-extra"><button class="wz-pen ${h.pen ? 'on' : ''}" data-act="fast-pen">${h.pen ? '✓ ' : ''}Penalti / OB en este hoyo</button></div>`;
+      let body;
+      if (cur === 'tee') body = yn('fw', h.teeLie === 'calle', !!h.teeLie && h.teeLie !== 'calle' && h.teeLie !== 'ob', 'data-k="tee" data-lie="calle" data-dir="c"', 'data-k="tee" data-lie="rough" data-dir="c"', '¿Pegaste a la calle?', penPill);
+      else if (cur === 'app') body = yn('gir', h.app === 'gir', !!h.app && h.app !== 'gir', 'data-k="app" data-v="gir"', 'data-k="app" data-v="miss"', '¿Llegaste al green en regulación?', h.par === 3 ? penPill : '');
+      else if (cur === 'ud') body = yn('ud', h.upDown === true, h.upDown === false, 'data-k="ud" data-v="si"', 'data-k="ud" data-v="no"', '¿Salvaste el par? (up &amp; down)');
+      else if (cur === 'putts') {
+        const opts = h.upDown === true ? [[0, '0'], [1, '1']] : [[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']];
+        body = `<h3 class="wz-q">¿Cuántos putts?</h3><div class="wz-putts ${opts.length === 2 ? 'wz-putts2' : ''}">${opts.map(([v, l]) => `<button class="wz-putt ${h.putts === v ? 'on' : ''}" data-act="fast" data-k="putts" data-v="${v}">${l}</button>`).join('')}</div>`;
+      } else {
+        body = `<h3 class="wz-q">Tu score</h3>
+          <div class="wz-scorebox ${scoreCls}">
+            <span class="sc-num">${score != null ? score : '–'}</span><span class="sc-rel">${score != null ? relScore(score - h.par) : ''}</span>
+            <div class="stepper"><button data-act="h-score" data-d="-1">−</button><button data-act="h-score" data-d="1">+</button></div>
+          </div>`;
+      }
+      return `<div class="card wz">
+        <div class="wz-tabs">${tabs}</div>
+        <div class="wz-body">${body}</div>
+        ${ci > 0 ? `<button class="wz-back" data-act="fast-back">← Atrás</button>` : ''}
+      </div>`;
+    })()}
 
     <div class="btn-row">
       ${a.idx > 0 ? `<button class="btn" style="flex:0 0 26%" data-act="h-prev">←</button>` : ''}
       <button class="btn primary big" data-act="h-next" ${ready ? '' : 'disabled'}>${a.idx + 1 === a.holesCount ? 'Finalizar ronda ✓' : 'Siguiente hoyo →'}</button>
     </div>
 
-    <div class="card" style="margin-top:18px">
+    ${ready ? `<div class="card sc-clean" style="margin-top:18px">
       <span class="label">Tarjeta</span>
       ${scorecardTable(a.holesCount, i => (i === a.idx ? h.par : (a.holes[i] ? a.holes[i].par : parForActive(a, i))), [{ name: cur().name.split(' ')[0], scoreOf: i => (a.holes[i] ? a.holes[i].score : null) }], a.idx)}
-    </div>
+    </div>` : ''}
     ${V.confirmExit ? vExitSheet() : ''}
   </div>`;
 }

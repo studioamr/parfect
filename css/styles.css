@@ -2130,3 +2130,41 @@ svg.fd-av { object-fit: contain; }
 .diag-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--text); line-height: 1.4; }
 .ds-n { flex: none; width: 24px; height: 24px; border-radius: 8px; background: var(--lime-faint); display: grid; place-items: center; margin-top: 1px; }
 .ds-n .gi { width: 13px; height: 13px; color: var(--lime); }
+
+/* ===== Registro paso a paso (wizard) ===== */
+.wz { padding: 14px 14px 16px; }
+.wz-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; }
+.wz-tabs::-webkit-scrollbar { display: none; }
+.wz-tab { flex: 1 0 auto; min-width: 54px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 8px; border-radius: 12px; background: var(--card2); border: 1.5px solid transparent; cursor: pointer; }
+.wz-tab span { font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.wz-tab b { font-size: 13px; font-weight: 900; color: var(--muted2); }
+.wz-tab.ans b { color: var(--text); }
+.wz-tab.on { border-color: var(--lime); background: var(--lime-faint); }
+.wz-tab.on b { color: var(--text); }
+.wz-q { font-size: 19px; font-weight: 900; text-align: center; color: var(--text); margin: 4px 0 12px; }
+.wz-art { width: 100%; height: 90px; perspective: 320px; margin-bottom: 14px; }
+.wz-art .hs-svg { width: 100%; height: 100%; display: block; transform: rotateX(12deg); transform-origin: 50% 80%; filter: drop-shadow(0 6px 8px rgba(20,40,10,.16)); }
+.wz-yn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wz-opt { padding: 17px; border-radius: 16px; border: 2px solid var(--line); background: var(--card2); font-size: 17px; font-weight: 900; color: var(--text); cursor: pointer; transition: transform .12s, border-color .15s, background .15s; }
+.wz-opt:active { transform: scale(.97); }
+.wz-opt.yes.on { border-color: #C7EE54; background: var(--lime-faint); color: #2a4a1c; }
+[data-theme="dark"] .wz-opt.yes.on { color: #dff8c2; }
+.wz-opt.no.on { border-color: var(--muted2); }
+.wz-extra { margin-top: 12px; text-align: center; }
+.wz-pen { font-size: 12.5px; font-weight: 800; color: var(--muted); background: var(--card2); border: 1.5px solid var(--line); border-radius: 99px; padding: 8px 16px; cursor: pointer; }
+.wz-pen.on { border-color: var(--danger); color: var(--danger); background: rgba(255,122,107,.08); }
+.wz-putts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.wz-putts.wz-putts2 { grid-template-columns: repeat(2, 1fr); }
+.wz-putt { padding: 18px 0; border-radius: 16px; border: 2px solid var(--line); background: var(--card2); font-size: 19px; font-weight: 900; color: var(--text); cursor: pointer; }
+.wz-putt:active { transform: scale(.96); }
+.wz-putt.on { border-color: #C7EE54; background: var(--lime-faint); color: #2a4a1c; }
+[data-theme="dark"] .wz-putt.on { color: #dff8c2; }
+.wz-scorebox { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px; }
+.wz-scorebox .sc-num { font-size: 50px; font-weight: 900; letter-spacing: -.03em; color: var(--text); line-height: 1; }
+.wz-scorebox .sc-rel { font-size: 16px; font-weight: 800; color: var(--muted); }
+.wz-scorebox.good .sc-num { color: #3aa055; } .wz-scorebox.over .sc-num, .wz-scorebox.bad .sc-num { color: #e2873a; }
+.wz-back { display: block; margin: 14px auto 0; background: none; border: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* vars de las escenas dentro del wizard */
+.wz { --sc-grass:#7fcf5a; --sc-grass2:#3f9d44; --sc-lit:#d8f86a; --sc-dim:#d2e4c2; --sc-line:#9fb98c; --sc-flag:#ff5a4d; --sc-ball:#ffffff; --sc-cup:#1f3a16; --sc-shadow:rgba(30,60,20,.1); --sc-water1:#7cc4e8; --sc-water2:#2f7fb0; }
+[data-theme="dark"] .wz { --sc-grass:#5fb84a; --sc-grass2:#2f7d3a; --sc-lit:#bdf24a; --sc-dim:#2c4030; --sc-line:#4a5e44; --sc-flag:#ff6a5a; --sc-ball:#eef5ee; --sc-cup:#0c1a0a; --sc-shadow:rgba(0,0,0,.3); --sc-water1:#3f9fd0; --sc-water2:#1d5a86; }

@@ -59,6 +59,7 @@ function loadHole() {
   V.scoreTouched = !!ex;
   V.confirmExit = false;
   V.fastStep = null;
+  V.wizStep = null;
 }
 
 /* ============ Router ============ */
@@ -344,13 +345,15 @@ const actions = {
   'fast'(d) {
     const h = V.hole; if (!h) return;
     const k = d.k;
-    if (k === 'tee') { h.teeLie = d.lie; h.tee = d.dir || 'c'; }
+    if (k === 'tee') { h.teeLie = d.lie; h.tee = d.dir || 'c'; if (d.lie !== 'ob') h.pen = false; if (d.lie === 'ob') h.pen = true; }
     else if (k === 'app') { h.app = d.v; if (d.v === 'gir') h.upDown = null; }
-    else if (k === 'ud') { h.upDown = (d.v === 'si'); if (h.upDown) h.putts = 1; }
+    else if (k === 'ud') { h.upDown = (d.v === 'si'); }   // luego pregunta 1 o 0 putts
     else if (k === 'putts') { h.putts = Number(d.v); }
     V.fastStep = null; // re-deriva el paso → auto-avanza al siguiente
     render();
   },
+  'fast-pen'() { const h = V.hole; if (!h) return; h.pen = !h.pen; if (h.pen && (h.teeLie == null)) { h.teeLie = 'ob'; h.tee = 'c'; } render(); },
+  'fast-tab'(d) { const h = V.hole; if (!h) return; const steps = playSteps(h); const i = steps.indexOf(d.s); if (i >= 0) V.fastStep = i; render(); },
   'fast-back'() {
     const h = V.hole; if (!h) return;
     const steps = playSteps(h);

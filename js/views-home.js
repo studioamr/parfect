@@ -788,8 +788,7 @@ function vPerfil() {
   const u = cur();
   return `${vStories(u)}
     ${vRanking(u)}
-    ${vSocialFeed()}
-    <div style="margin-top:22px">${partyCard()}</div>`;
+    ${vSocialFeed()}`;
 }
 
 /* ============ Bienvenida / onboarding (primer ingreso) ============ */
