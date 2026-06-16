@@ -245,37 +245,46 @@ function vDrillsLibrary() {
 }
 
 /* ---------- Detalle de drill: imagen + pasos + meta + entrenar ---------- */
+const DRILL_CAT_META = { fw: { c: '#3f9d44', s: 'fw' }, gir: { c: '#2fa36b', s: 'gir' }, ud: { c: '#e0873a', s: 'ud' }, putt: { c: '#3a8fe0', s: 'ud' } };
 function vDrillDetail() {
   const d = V.drillDetail; if (!d) return '';
-  const catLab = (DRILL_CATS.find(c => c.id === d.cat) || {}).label || '';
+  const catLab = (DRILL_CATS.find(c => c.id === d.cat) || {}).label || 'Práctica';
+  const cm = DRILL_CAT_META[d.cat] || { c: '#3f9d44', s: 'fw' };
   const short = s => { let t = String(s).split('. ')[0].trim(); if (t.length > 46) t = t.split(/[,;]/)[0].trim(); return t.replace(/\.$/, ''); };
-  const steps = (d.steps || []).map((s, i) => `<li><span class="dd-n">${i + 1}</span><span>${esc(short(s))}</span></li>`).join('');
+  const steps = (d.steps || []).map((s, i) => `<li class="dd2-step"><span class="dd2-n">${i + 1}</span><span class="dd2-stext">${esc(short(s))}</span></li>`).join('');
   const doneToday = ((cur() || {}).drillsDone || {})[d.name] === today();
   const tm = V.timer || { left: 300, total: 300, running: false };
   const presets = [180, 300, 600];
-  const R = 46, C = 2 * Math.PI * R, off = (C * (1 - (tm.left / (tm.total || 1)))).toFixed(1);
+  const R = 40, C = 2 * Math.PI * R, off = (C * (1 - (tm.left / (tm.total || 1)))).toFixed(1);
   const timerHtml = `
-    <h3 class="dd-h3">Cronómetro</h3>
     <div class="ddt2 ${tm.running ? 'run' : ''}">
       <div class="ddt2-ring">
-        <svg viewBox="0 0 110 110"><circle class="ddt2-track" cx="55" cy="55" r="${R}"/><circle class="ddt2-prog" id="dd-ring" cx="55" cy="55" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off}"/></svg>
+        <svg viewBox="0 0 96 96"><circle class="ddt2-track" cx="48" cy="48" r="${R}"/><circle class="ddt2-prog" id="dd-ring" cx="48" cy="48" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off}"/></svg>
         <span class="ddt2-clock" id="dd-timer">${fmtClock(tm.left)}</span>
       </div>
-      <div class="ddt2-presets">${presets.map(s => `<button class="chip sm ${tm.total === s ? 'on' : ''}" data-act="timer-set" data-s="${s}">${s / 60} min</button>`).join('')}</div>
-      <div class="ddt2-ctrls">
-        ${tm.running
-      ? `<button class="btn" data-act="timer-pause">⏸ Pausar</button>`
-      : `<button class="btn primary" data-act="timer-start" ${tm.left <= 0 ? 'disabled' : ''}>${tm.left < tm.total ? 'Reanudar' : 'Iniciar'} ▶</button>`}
-        <button class="btn ghost" data-act="timer-reset">↺</button>
+      <div class="ddt2-side">
+        <div class="ddt2-presets">${presets.map(s => `<button class="chip sm ${tm.total === s ? 'on' : ''}" data-act="timer-set" data-s="${s}">${s / 60} min</button>`).join('')}</div>
+        <div class="ddt2-ctrls">
+          ${tm.running ? `<button class="btn" data-act="timer-pause">⏸ Pausar</button>` : `<button class="btn primary" data-act="timer-start" ${tm.left <= 0 ? 'disabled' : ''}>${tm.left < tm.total ? 'Reanudar' : 'Iniciar'} ▶</button>`}
+          <button class="btn ghost" data-act="timer-reset">↺</button>
+        </div>
       </div>
     </div>`;
   return `<div class="overlay" data-act="drill-close-detail">
-    <div class="sheet dd-sheet" data-act="noop">
+    <div class="sheet dd2" data-act="noop">
       <div class="grab"></div>
-      <div class="dd-sheet-head"><h2>${esc(d.name)}</h2><button class="panel-x" data-act="drill-close-detail" aria-label="Cerrar">✕</button></div>
-      <div class="dd-chips"><span class="dd-chip">${golfIcon('green')} ${esc(catLab)}</span><span class="dd-chip">${golfIcon('bucket')} ${esc(d.dose)}</span><span class="dd-chip">${golfIcon('flag')} ${esc(d.metric)}</span></div>
-      <h3 class="dd-h3">Pasos</h3>
-      <ol class="dd-steps">${steps}</ol>
+      <div class="dd2-hero" style="--dc:${cm.c}">
+        <button class="dd2-x" data-act="drill-close-detail" aria-label="Cerrar">✕</button>
+        <div class="dd2-hero-art">${chkScene(cm.s, true)}</div>
+        <div class="dd2-hero-txt"><span class="dd2-cat">${esc(catLab)}</span><h2>${esc(d.name)}</h2></div>
+      </div>
+      <div class="dd2-goals">
+        <div class="dd2-goal"><span>Dosis</span><b>${esc(d.dose)}</b></div>
+        <div class="dd2-goal"><span>Meta</span><b>${esc(d.metric)}</b></div>
+      </div>
+      <h3 class="dd2-h3">Cómo hacerlo</h3>
+      <ol class="dd2-steps">${steps}</ol>
+      <h3 class="dd2-h3">Ponte el reto</h3>
       ${timerHtml}
       <button class="btn primary big" data-act="drill-done">${doneToday ? 'Entrenado hoy ✓ · marcar otra vez' : 'Listo, lo entrené ✓'}</button>
     </div>

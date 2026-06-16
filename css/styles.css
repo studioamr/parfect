@@ -2345,3 +2345,37 @@ svg.fd-av { object-fit: contain; }
 .tr-up-ic .gi { width: 17px; height: 17px; }
 .tr-up-info { flex: 1; min-width: 0; } .tr-up-info b { display: block; font-size: 14.5px; font-weight: 800; color: var(--text); } .tr-up-info span { font-size: 12px; color: var(--muted); }
 .tr-up-btn { flex: none; background: var(--lime-faint); border: 1px solid var(--lime); color: var(--lime-ink); font-size: 12.5px; font-weight: 800; padding: 7px 13px; border-radius: 99px; cursor: pointer; }
+
+/* ===== Drill popup rediseñado (dd2) ===== */
+.dd2 { --sc-grass:#7fcf5a; --sc-grass2:#3f9d44; --sc-lit:#d8f86a; --sc-dim:#d2e4c2; --sc-line:#9fb98c; --sc-flag:#ff5a4d; --sc-ball:#fff; --sc-cup:#1f3a16; --sc-shadow:rgba(30,60,20,.12); --sc-water1:#7cc4e8; --sc-water2:#2f7fb0; }
+[data-theme="dark"] .dd2 { --sc-grass:#5fb84a; --sc-grass2:#2f7d3a; --sc-lit:#bdf24a; --sc-dim:#2c4030; --sc-line:#4a5e44; --sc-flag:#ff6a5a; --sc-ball:#eef5ee; --sc-cup:#0c1a0a; --sc-shadow:rgba(0,0,0,.3); --sc-water1:#3f9fd0; --sc-water2:#1d5a86; }
+.dd2-hero { position: relative; display: flex; align-items: center; gap: 12px; border-radius: 18px; background: var(--dc); color: #fff; padding: 12px 14px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 8px 20px rgba(20,40,15,.18); }
+.dd2-hero-art { width: 62px; height: 48px; flex: none; background: rgba(255,255,255,.92); border-radius: 12px; padding: 3px; }
+.dd2-hero-art .hs-svg { width: 100%; height: 100%; }
+.dd2-hero-txt { flex: 1; min-width: 0; padding-right: 26px; }
+.dd2-cat { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; opacity: .88; }
+.dd2-hero-txt h2 { font-size: 18px; font-weight: 900; color: #fff; line-height: 1.1; margin-top: 2px; }
+.dd2-x { position: absolute; top: 9px; right: 9px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.25); color: #fff; font-size: 14px; font-weight: 800; cursor: pointer; }
+.dd2-goals { display: flex; gap: 10px; margin-bottom: 16px; }
+.dd2-goal { flex: 1; background: var(--card2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 13px; }
+.dd2-goal span { font-size: 10.5px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.dd2-goal b { display: block; font-size: 15px; font-weight: 900; color: var(--text); margin-top: 2px; }
+.dd2-h3 { font-size: 12.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 12px; }
+.dd2-steps { list-style: none; margin: 0 0 18px; padding: 0; }
+.dd2-step { display: flex; gap: 14px; align-items: flex-start; padding-bottom: 14px; position: relative; }
+.dd2-step:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 30px; bottom: 0; width: 2px; background: var(--line); }
+.dd2-n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--lime); color: #16241A; font-weight: 900; font-size: 14px; display: grid; place-items: center; position: relative; z-index: 1; }
+.dd2-stext { font-size: 14.5px; color: var(--text); line-height: 1.4; padding-top: 4px; }
+.dd2 .ddt2 { display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 18px; background: var(--card2); border: 1px solid var(--line); margin-bottom: 16px; }
+.dd2 .ddt2.run { border-color: var(--lime); box-shadow: 0 0 0 3px var(--lime-faint); }
+.dd2 .ddt2-ring { position: relative; width: 96px; height: 96px; flex: none; }
+.dd2 .ddt2-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dd2 .ddt2-track { fill: none; stroke: var(--line); stroke-width: 7; }
+.dd2 .ddt2-prog { fill: none; stroke: #C7EE54; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.dd2 .ddt2-clock { position: absolute; inset: 0; display: grid; place-items: center; font-size: 23px; font-weight: 900; color: var(--text); font-variant-numeric: tabular-nums; }
+.dd2 .ddt2-side { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.dd2 .ddt2-presets { display: flex; gap: 6px; }
+.dd2 .ddt2-ctrls { display: flex; gap: 8px; }
+.dd2 .ddt2-ctrls .btn { flex: 1; padding: 10px; }
+.dd2 .ddt2-ctrls .btn.ghost { flex: 0 0 44px; }
+.dd2 .ddt2 { flex-direction: row; }
