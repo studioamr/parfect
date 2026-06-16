@@ -49,10 +49,8 @@ function scorecardTable(holesCount, parOf, rows, curIdx, ydsOf) {
   const block = (arr, totLabel) => {
     const head = `<tr class="sc-hrow"><th class="sc-name">Hoyo</th>${arr.map(i => `<th class="${i === curIdx ? 'sc-cur' : ''}">${i + 1}</th>`).join('')}<th class="sc-tt">${totLabel}</th></tr>`;
     const parRow = `<tr class="sc-parrow"><td class="sc-name">Par</td>${arr.map(i => `<td>${parOf(i)}</td>`).join('')}<td class="sc-tt">${sumR(parOf, arr)}</td></tr>`;
-    let ydsRow = '';
-    if (ydsOf) ydsRow = `<tr class="sc-ydsrow"><td class="sc-name">Yds</td>${arr.map(i => `<td>${ydsOf(i) || '–'}</td>`).join('')}<td class="sc-tt">${sumR(ydsOf, arr)}</td></tr>`;
     const playerRows = rows.map(r => `<tr><td class="sc-name">${esc(r.name)}</td>${arr.map(i => scTableCell(r.scoreOf(i), parOf(i), i === curIdx)).join('')}<td class="sc-tt">${sumR(r.scoreOf, arr)}</td></tr>`).join('');
-    return `<div class="sc-wb"><table class="sc-table sc-w"><thead>${head}</thead><tbody>${parRow}${ydsRow}${playerRows}</tbody></table></div>`;
+    return `<div class="sc-wb"><table class="sc-table sc-w"><thead>${head}</thead><tbody>${parRow}${playerRows}</tbody></table></div>`;
   };
   if (!has18) return `<div class="sc-stack">${block(seg(0, holesCount), 'TOT')}</div>`;
   return `<div class="sc-stack">${block(seg(0, 9), 'OUT')}${block(seg(9, holesCount), 'IN')}</div>`;
@@ -76,7 +74,7 @@ function vRondaTab() {
     return html;
   }
   const myHcp = u.hcp;
-  rows += rounds.map((r, i) => vRoundStatCard(r, myHcp, i)).join('');
+  rows += rounds.map(r => roundSceneCard(r)).join('');
   return html + `<div class="rc-list">${rows}</div>`;
 }
 
@@ -221,13 +219,19 @@ function vSetup() {
   const sname = id => COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
   const totalYds = Math.round(COURSES[cid].holes.reduce((a, h) => a + h.yds, 0) * tee.f);
   const teeCol = { negras: '#23262e', azules: '#3a8fe0', blancas: '#eef2f6', rojas: '#e8483a', amarillas: '#f2c33a' };
+  const phaseNow = roundPhase(new Date().getHours());
   const courseCards = COURSE_ORDER.map(id => {
     const c = COURSES[id];
     const on = cid === id;
     const par = c.holes.reduce((a, h) => a + h.par, 0);
-    return `<button class="su-course ${on ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">
-      <span class="su-c-info"><b>${esc(sname(id))}</b><span>${c.holes.length} hoyos · Par ${par} · ${c.approx ? 'aprox' : 'real'}</span></span>
-      <span class="su-c-check">${on ? '✓' : ''}</span>
+    return `<button class="cs-course rf-${phaseNow} ${on ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">
+      ${rfSky(phaseNow)}${rfCourseSvg()}
+      <div class="cs-info">
+        <b>${esc(sname(id))}</b>
+        <span class="cs-meta">${c.holes.length} hoyos · Par ${par} · ${c.approx ? 'aprox' : 'real'}</span>
+        <span class="cs-weather">${mockWeather(id)}</span>
+      </div>
+      <span class="cs-check">${on ? '✓' : ''}</span>
     </button>`;
   }).join('');
   const curPar = COURSES[cid].holes.reduce((a, h) => a + h.par, 0);
@@ -836,7 +840,6 @@ function vDetailCard(r, parOf, ydsOf) {
       <div class="dc-grid" style="grid-template-columns:54px repeat(${arr.length},1fr) 40px">
         <span class="dc-rl dc-corner">${lab || 'Hoyo'}</span>${cells(i => i + 1, 'dc-num')}<span class="dc-rl dc-tt">TOT</span>
         <span class="dc-rl">Par</span>${cells(i => parOf(i), 'dc-par')}<span class="dcell dc-tt">${sumIf(parOf, arr)}</span>
-        ${ydsOf ? `<span class="dc-rl">Yds</span>${cells(i => ydsOf(i) || '–', 'dc-yds')}<span class="dcell dc-tt">${sumIf(ydsOf, arr)}</span>` : ''}
         <span class="dc-rl">Score</span>${cells(i => scoreMarker(scoreOf(i), parOf(i)), 'dc-score')}<span class="dcell dc-tt dc-tot">${sumIf(scoreOf, arr)}</span>
         <span class="dc-rl">Calle</span>${cells(i => dot(fwOf(i)))}<span class="dc-rl dc-tt"></span>
         <span class="dc-rl">Green</span>${cells(i => dot(girOf(i)))}<span class="dc-rl dc-tt"></span>
@@ -848,29 +851,63 @@ function vDetailCard(r, parOf, ydsOf) {
     <div class="dc-legend"><span><i class="dc-dot hit"></i> logrado</span><span><i class="dc-dot miss"></i> fallado</span><span><i class="dc-mark mk-circ">3</i> birdie</span><span><i class="dc-mark mk-sq">5</i> bogey</span></div>`;
 }
 
-/* escena de resumen con el cielo del momento del día (sol/luna), pájaros y campo */
-function roundScene(s, courseName, justFin) {
-  const h = new Date().getHours() + new Date().getMinutes() / 60;
-  const phase = h < 6.5 ? 'night' : h < 8.5 ? 'dawn' : h < 17 ? 'day' : h < 19.5 ? 'dusk' : 'night';
+/* clima estimado del campo por hora del día (demo · sin conexión a un servicio real) */
+function mockWeather(courseId) {
+  const h = new Date().getHours();
+  const seed = String(courseId || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const t = Math.round(13 + 11 * Math.sin(Math.max(0, Math.min(1, (h - 6) / 13)) * Math.PI) + (seed % 3));
+  const cond = (h < 6.5 || h >= 19.5) ? 'Noche despejada' : h < 8.5 ? 'Amanece' : h < 12 ? 'Soleado' : h < 16 ? 'Soleado' : 'Tarde dorada';
+  return `${t}° · ${cond}`;
+}
+/* fase del día por hora y la hora en que se jugó una ronda */
+function roundPhase(hr) { return hr < 6.5 ? 'night' : hr < 8.5 ? 'dawn' : hr < 17 ? 'day' : hr < 19.5 ? 'dusk' : 'night'; }
+function roundHour(r) {
+  if (r && r.time) { const n = parseInt(String(r.time).split(':')[0], 10); if (!isNaN(n)) return n; }
+  let h = 0; const sid = String((r && r.id) || '');
+  for (let i = 0; i < sid.length; i++) h = (h * 31 + sid.charCodeAt(i)) >>> 0;
+  return 7 + (h % 11); // 7–17h estable por ronda cuando no hay hora guardada
+}
+function rfSky(phase) {
   const night = phase === 'night';
-  const stars = night ? Array.from({ length: 14 }, (_, i) => `<span class="rf-star" style="left:${(i * 41 % 94) + 3}%;top:${(i * 27 % 56) + 6}%;animation-delay:${(i % 4) * 0.5}s"></span>`).join('') : '';
+  const stars = night ? Array.from({ length: 12 }, (_, i) => `<span class="rf-star" style="left:${(i * 41 % 94) + 3}%;top:${(i * 27 % 50) + 6}%;animation-delay:${(i % 4) * 0.5}s"></span>`).join('') : '';
   const celest = night ? `<span class="rf-moon"></span>${stars}` : `<span class="rf-sun"></span>`;
   const bird = (st) => `<svg class="rf-bird" style="${st}" viewBox="0 0 24 8" aria-hidden="true"><path d="M1 6 Q6 0 11 5 Q16 0 23 6" fill="none" stroke="rgba(30,45,30,.5)" stroke-width="1.6" stroke-linecap="round"/></svg>`;
-  return `<div class="rf-hero rf-${phase}">
-    <div class="rf-sky" aria-hidden="true">${celest}<span class="rf-cloud c1"></span><span class="rf-cloud c2"></span>${bird('left:16%;top:24%')}${bird('left:58%;top:16%;transform:scale(.7)')}${bird('left:40%;top:36%;transform:scale(.55)')}</div>
-    <svg class="rf-course" viewBox="0 0 400 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  return `<div class="rf-sky" aria-hidden="true">${celest}<span class="rf-cloud c1"></span><span class="rf-cloud c2"></span>${bird('left:16%;top:24%')}${bird('left:58%;top:16%;transform:scale(.7)')}</div>`;
+}
+function rfCourseSvg() {
+  return `<svg class="rf-course" viewBox="0 0 400 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <path d="M0,46 Q120,22 250,40 T400,32 L400,90 L0,90Z" fill="#aedd7c"/>
       <path d="M0,66 Q140,48 280,62 T400,56 L400,90 L0,90Z" fill="#8fc857"/>
       <g transform="translate(330,40)"><ellipse cx="1" cy="2" rx="22" ry="6" fill="#7fbf52"/><rect x="0" y="-22" width="2" height="24" fill="#cfd6d8"/><path d="M2 -22 L13 -18 L2 -14 Z" fill="#ff5a4d"/></g>
       <g transform="translate(42,30)"><rect x="-2" y="8" width="4" height="14" fill="#6b4a2a"/><ellipse cx="0" cy="2" rx="16" ry="14" fill="#3a7d3a"/></g>
       <g transform="translate(88,38)"><rect x="-2" y="6" width="4" height="11" fill="#6b4a2a"/><ellipse cx="0" cy="0" rx="11" ry="10" fill="#479a44"/></g>
-    </svg>
+    </svg>`;
+}
+/* escena de resumen con el cielo del momento que se jugó la ronda */
+function roundScene(r, s, courseName, justFin) {
+  const phase = roundPhase(roundHour(r));
+  return `<div class="rf-hero rf-${phase}">
+    ${rfSky(phase)}${rfCourseSvg()}
     <div class="rf-info">
       <span class="rf-kicker">${justFin ? '¡Ronda guardada!' : 'Resumen de ronda'}</span>
       <div class="rf-score"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
       <span class="rf-sub">${esc(courseName)} · ${s.holes} hoyos</span>
     </div>
   </div>`;
+}
+/* tarjeta-escena clicable para el historial (cielo según la hora que se jugó) */
+function roundSceneCard(r, rail) {
+  const s = Stats.roundStats(r);
+  const course = (r.courseId && COURSES[r.courseId]) ? COURSES[r.courseId].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '') : r.course;
+  const phase = roundPhase(roundHour(r));
+  return `<button class="rf-hero rf-card ${rail ? 'rf-rail' : ''} rf-${phase}" data-act="round-detail" data-id="${r.id}">
+    ${rfSky(phase)}${rfCourseSvg()}
+    <div class="rf-info">
+      <span class="rf-kicker">${fmtDate(r.date)} · ${s.holes}h</span>
+      <div class="rf-score"><b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
+      <span class="rf-sub">${esc(course)}</span>
+    </div>
+  </button>`;
 }
 
 function vRoundDetail() {
@@ -888,7 +925,7 @@ function vRoundDetail() {
   const ydsOf = (ch && ch.some(h => h.yds)) ? (i => (chAt(i) ? chAt(i).yds : null)) : null;
   const totYds = ch ? ch.slice(off, off + r.holes.length).reduce((a, h) => a + (h.yds || 0), 0) : 0;
   return `<button class="auth-back" data-act="nav" data-view="ronda">← Tus rondas</button>
-    ${roundScene(s, courseName, justFin)}
+    ${roundScene(r, s, courseName, justFin)}
     <div class="card rd-course">
       <span><b>${esc(course ? course.name : r.course)}</b><span>${s.holes} hoyos · Par ${s.par}${totYds ? ` · ${totYds.toLocaleString('es-MX')} yds` : ''}${course && course.approx ? ' · aprox' : ' · real'}</span></span>
     </div>

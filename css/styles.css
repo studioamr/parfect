@@ -3033,6 +3033,50 @@ svg.fd-av { object-fit: contain; }
 .pay-done { margin-top: 14px; text-align: center; background: var(--lime-faint); color: var(--lime-ink); border-radius: 14px; padding: 14px; font-weight: 900; font-size: 15px; }
 .pay-done span { font-weight: 700; opacity: .6; font-size: 12px; }
 
+/* ===== Mini calendario (próxima semana) ===== */
+.wk-card { margin-top: 14px; }
+.wk-head { display: flex; align-items: center; justify-content: space-between; }
+.wk-strip { display: flex; gap: 5px; margin-top: 10px; }
+.wk-cell { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--card2); border: 1px solid var(--line-soft); border-radius: 12px; padding: 8px 2px 7px; cursor: pointer; }
+.wk-cell.today { border-color: var(--lime); background: var(--lime-faint); }
+.wk-wd { font-size: 10px; font-weight: 800; color: var(--muted2); text-transform: uppercase; }
+.wk-num { font-size: 16px; font-weight: 900; color: var(--text); line-height: 1; }
+.wk-dots { display: flex; gap: 2px; height: 6px; align-items: center; }
+.wk-dots .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
+.wk-empty { width: 5px; height: 5px; border-radius: 50%; background: var(--line); opacity: .5; }
+.wk-lab { font-size: 9.5px; font-weight: 700; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== Historial como tarjetas-escena ===== */
+.rc-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.rf-card { display: block; width: 100%; text-align: left; border: none; cursor: pointer; padding: 0; min-height: 150px; margin-top: 0; }
+.rf-card:active { transform: scale(.992); }
+.rf-card .rf-info { padding: 14px 16px; }
+.rf-card .rf-score b { font-size: 46px; }
+.rf-card .rf-score span { font-size: 17px; }
+.rs-strip-scene { gap: 12px; padding-bottom: 6px; }
+.rf-rail { flex: 0 0 210px; scroll-snap-align: start; min-height: 130px; margin-top: 0; }
+.rf-rail .rf-info { padding: 12px 14px; }
+.rf-rail .rf-score b { font-size: 38px; }
+.rf-rail .rf-score span { font-size: 14px; }
+.rf-rail .rf-kicker { font-size: 10px; }
+.rf-rail .rf-sub { font-size: 12px; }
+
+/* ===== Selección de campo como tarjeta-escena (sol + clima) ===== */
+.cs-course { position: relative; display: block; width: 100%; text-align: left; border: 2px solid transparent; border-radius: 18px; overflow: hidden; min-height: 104px; cursor: pointer; padding: 0; box-shadow: 0 6px 16px rgba(20,40,15,.08); }
+.cs-course:active { transform: scale(.99); }
+.cs-course.on { border-color: #C7EE54; box-shadow: 0 8px 22px rgba(199,247,84,.3); }
+.cs-course .rf-course { height: 52%; }
+.cs-course .rf-sun, .cs-course .rf-moon { width: 38px; height: 38px; top: 12px; right: 16px; }
+.cs-info { position: relative; z-index: 2; padding: 13px 15px; }
+.cs-info b { display: block; font-size: 17px; font-weight: 900; color: #15240a; text-shadow: 0 1px 6px rgba(255,255,255,.4); }
+.rf-night .cs-info b { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.cs-meta { display: block; font-size: 12px; font-weight: 800; color: #28391e; opacity: .85; }
+.rf-night .cs-meta { color: #eaf3df; }
+.cs-weather { display: inline-block; margin-top: 5px; font-size: 11px; font-weight: 800; color: #15240a; background: rgba(255,255,255,.6); border-radius: 99px; padding: 3px 9px; }
+.rf-night .cs-weather { color: #fff; background: rgba(255,255,255,.18); }
+.cs-check { position: absolute; z-index: 3; top: 12px; left: 16px; width: 24px; height: 24px; border-radius: 50%; background: #C7EE54; color: #15240a; font-weight: 900; display: grid; place-items: center; font-size: 14px; opacity: 0; transition: opacity .15s; }
+.cs-course.on .cs-check { opacity: 1; }
+
 /* fondo de la landing: colinas, lago con fuente, ardilla */
 .lp-hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 34vh; opacity: .55; }
 [data-theme="dark"] .lp-hills { opacity: .22; }

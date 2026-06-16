@@ -155,18 +155,42 @@ function vCoachLive(ctx, h) {
   return `<div class="coach-live"><span class="cl-ava">IA</span><div class="cl-body"><span class="cl-tag">Coach en vivo</span><b>${top.lab}: tu prioridad ahora</b><p>${top.tip}</p></div></div>`;
 }
 
+/* Mini calendario: solo la próxima semana, para saber qué toca */
+function vWeekStrip() {
+  const u = cur();
+  if (typeof ensureWeekPlan === 'function') ensureWeekPlan(u);
+  const byDate = {};
+  for (const e of (u.events || [])) (byDate[e.date] = byDate[e.date] || []).push(e);
+  const dn = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const base = new Date();
+  const cells = Array.from({ length: 7 }, (_, i) => {
+    const dt = new Date(base); dt.setDate(base.getDate() + i);
+    const iso = isoLocal(dt);
+    const wd = (dt.getDay() + 6) % 7;
+    const evs = byDate[iso] || [];
+    const main = evs[0];
+    const lab = main ? (main.title || EV_LABEL[main.type] || '').split(' ')[0] : 'Libre';
+    return `<button class="wk-cell ${i === 0 ? 'today' : ''}" data-act="nav" data-view="social">
+      <span class="wk-wd">${dn[wd]}</span>
+      <span class="wk-num">${dt.getDate()}</span>
+      <span class="wk-dots">${evs.slice(0, 3).map(e => `<i class="cal-dot ${e.type}"></i>`).join('') || '<i class="wk-empty"></i>'}</span>
+      <span class="wk-lab">${esc(lab)}</span>
+    </button>`;
+  }).join('');
+  return `<div class="card wk-card"><div class="wk-head"><span class="label" style="margin:0">Tu próxima semana</span><button class="sec-link" data-act="nav" data-view="social">Ver mes →</button></div><div class="wk-strip">${cells}</div></div>`;
+}
+
 function vTrainer() {
   const u = cur();
-  const tab = ['entreno', 'calendario', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
+  const tab = ['entreno', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
-  const body = tab === 'entreno' ? (vCoachLive('practice') + vSessionPlanner())
-    : tab === 'calendario' ? vCalendar()
-      : tab === 'biblioteca' ? vBiblioteca()
-        : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-          : tab === 'academia' ? vAcademyLaunch()
-            : vDiag();
+  const body = tab === 'entreno' ? (vCoachLive('practice') + vWeekStrip() + vSessionPlanner())
+    : tab === 'biblioteca' ? vBiblioteca()
+      : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
+        : tab === 'academia' ? vAcademyLaunch()
+          : vDiag();
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('calendario', 'Calendario')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
+    <div class="tabs scroll">${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
     ${body}`;
 }
 

@@ -550,7 +550,7 @@ const actions = {
   },
   'finish-round'() {
     const a = S.active;
-    const round = { id: Store.uid(), userId: a.userId, course: a.course, courseId: a.courseId, holeOffset: a.holeOffset || 0, date: today(), holes: a.holes.slice(0, a.holesCount) };
+    const round = { id: Store.uid(), userId: a.userId, course: a.course, courseId: a.courseId, holeOffset: a.holeOffset || 0, date: today(), time: new Date().toTimeString().slice(0, 5), holes: a.holes.slice(0, a.holesCount) };
     S.rounds.push(round);
     S.active = null;
     V.diag = null; V.detail = round.id; V.view = 'detalle'; V.justFinished = round.id;
