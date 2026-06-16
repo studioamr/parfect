@@ -77,6 +77,18 @@ function vPartySetup() {
   </div>`;
 }
 
+/* Panel de apuesta/corta — estilizado (verde fosfo), arriba al comenzar */
+function vBetPanel(p) {
+  const stake = Number(p.stake) || 0;
+  const games = Object.entries(p.games).filter(([, v]) => v).map(([k]) => Party.GAMES[k].name);
+  return `<div class="bet-panel">
+    <div class="bet-head"><span class="bet-tag">${golfIcon('card')} La apuesta</span><span class="bet-players">${p.players.length} jugador${p.players.length !== 1 ? 'es' : ''}</span></div>
+    <div class="bet-amt">${stake ? `$${stake}` : 'Honor'}<i>${stake ? '/ unidad' : 'sin dinero'}</i></div>
+    <div class="bet-games">${(games.length ? games : ['Sin juego']).map(g => `<span class="bet-chip">${esc(g)}</span>`).join('')}</div>
+    ${stake ? `<p class="bet-note">El que pierde paga $${stake} por cada unidad de diferencia · se liquida al final.</p>` : `<p class="bet-note">Sin dinero — se juega por honor y para presumir.</p>`}
+  </div>`;
+}
+
 /* ---------- Lobby ---------- */
 function vPartyLobby() {
   const p = activeParty();
@@ -88,6 +100,7 @@ function vPartyLobby() {
   return `<div class="shell no-nav fade-in">
     <button class="auth-back" data-act="party-exit">← Guardar y salir</button>
     <h1 class="auth-h">Lobby de la party</h1>
+    ${vBetPanel(p)}
     <div class="code-box">
       <span class="label">Código para unirse</span> ${syncBadge()}
       <div class="code">${esc(p.code)}</div>
@@ -287,6 +300,7 @@ function vPartyLive() {
     </div>
     ${V.showMoney ? `<div class="overlay" data-act="pa-money-close"><div class="sheet" data-act="noop">
       <div class="grab"></div><h2>${golfIcon('card')} Tabla en vivo</h2>
+      ${p.games.corta ? vCortaBar(p, p.idx) : ''}
       ${vPartyTable(p, p.idx)}
       <button class="btn" data-act="pa-money-close">Seguir jugando</button>
     </div></div>` : ''}

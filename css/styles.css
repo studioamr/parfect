@@ -2012,3 +2012,15 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .cre-customtile.on .cre-custom-lab { color: #2c5212; }
 .cre-none span { display: grid !important; place-items: center; color: var(--muted); font-size: 15px; background: var(--card2) !important; }
 .cre-sw.cre-none.on { border-color: var(--text); }
+
+/* ===== Panel de apuesta/corta en el lobby (verde fosfo, no blanco) ===== */
+.bet-panel { margin: 6px 0 14px; border-radius: 20px; padding: 16px 18px; background: linear-gradient(135deg,#d8fb5e,#a6e22e 60%,#7fc91f); box-shadow: 0 14px 30px rgba(150,210,40,.4); color: #14230f; }
+.bet-head { display: flex; align-items: center; justify-content: space-between; }
+.bet-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #2c5212; }
+.bet-tag .gi { width: 15px; height: 15px; }
+.bet-players { font-size: 11.5px; font-weight: 800; color: rgba(20,35,15,.66); }
+.bet-amt { font-size: 38px; font-weight: 900; letter-spacing: -.03em; line-height: 1; margin: 6px 0 10px; color: #14230f; }
+.bet-amt i { font-size: 14px; font-style: normal; font-weight: 800; color: rgba(20,35,15,.66); margin-left: 6px; }
+.bet-games { display: flex; flex-wrap: wrap; gap: 7px; }
+.bet-chip { font-size: 11.5px; font-weight: 800; color: #14230f; background: rgba(255,255,255,.45); border: 1px solid rgba(20,40,15,.12); border-radius: 99px; padding: 4px 11px; }
+.bet-note { font-size: 11.5px; font-weight: 600; color: rgba(20,35,15,.7); margin-top: 11px; line-height: 1.4; }
