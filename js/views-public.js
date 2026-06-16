@@ -40,8 +40,36 @@ function lpDrillCards() {
   </div>`).join('');
 }
 
+/* gráficos animados (3D) para las tarjetas de la landing */
+function lpFeatArt(kind) {
+  if (kind === 'round') return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
+    <defs><radialGradient id="lpaGreen" cx="42%" cy="32%" r="72%"><stop offset="0" stop-color="#b6ec74"/><stop offset="1" stop-color="#3f9d44"/></radialGradient></defs>
+    <ellipse cx="48" cy="60" rx="40" ry="10" fill="url(#lpaGreen)"/>
+    <ellipse cx="58" cy="56" rx="4.5" ry="1.8" fill="#16401c"/>
+    <g class="lpa-flag"><line x1="58" y1="55" x2="58" y2="22" stroke="#2a3550" stroke-width="3" stroke-linecap="round"/><path d="M58 22 L79 27 L58 32 Z" fill="#ff5a4d"/></g>
+    <circle class="lpa-ball" cx="18" cy="58" r="5.5" fill="#fff" stroke="#cdd5d7" stroke-width="1"/>
+  </svg>`;
+  if (kind === 'stats') return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
+    <rect class="lpa-bar lpab1" x="20" y="18" width="15" height="46" rx="4" fill="#C7EE54"/>
+    <rect class="lpa-bar lpab2" x="41" y="18" width="15" height="46" rx="4" fill="#46b0e0"/>
+    <rect class="lpa-bar lpab3" x="62" y="18" width="15" height="46" rx="4" fill="#9a5cd0"/>
+    <line x1="14" y1="65" x2="83" y2="65" stroke="#cbd5c0" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`;
+  if (kind === 'ai') return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
+    <circle class="lpa-ring lpar1" cx="48" cy="40" r="27" fill="none" stroke="#46b0e0" stroke-width="3.5"/>
+    <circle class="lpa-ring lpar2" cx="48" cy="40" r="17" fill="none" stroke="#46b0e0" stroke-width="3.5"/>
+    <circle cx="48" cy="40" r="6.5" fill="#46b0e0"/>
+    <circle class="lpa-hit" cx="48" cy="40" r="5.5" fill="#fff" stroke="#cdd5d7" stroke-width="1"/>
+  </svg>`;
+  return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
+    <g class="lpa-trophy"><path d="M34 22h28v9c0 9-6 16-14 16s-14-7-14-16z" fill="#f7d04a"/><rect x="45" y="47" width="6" height="8" fill="#c98a1e"/><rect x="37" y="55" width="22" height="5" rx="2" fill="#c98a1e"/><path d="M34 25c-6 0-9 3-8 8 1 4 5 6 9 6v-4c-3 0-5-2-5.5-4.5" fill="none" stroke="#f7d04a" stroke-width="3"/><path d="M62 25c6 0 9 3 8 8-1 4-5 6-9 6v-4c3 0 5-2 5.5-4.5" fill="none" stroke="#f7d04a" stroke-width="3"/></g>
+    <circle class="lpa-spark lpas1" cx="26" cy="20" r="2.6" fill="#C7EE54"/><circle class="lpa-spark lpas2" cx="71" cy="17" r="2.2" fill="#46b0e0"/><circle class="lpa-spark lpas3" cx="73" cy="42" r="2.6" fill="#ff6a88"/>
+  </svg>`;
+}
+
 function vLanding() {
-  const feat = (ic, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-ic">${ic}</div><h3>${t}</h3><p>${d}</p></div>`;
+  const feat = (kind, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-art lpa-${kind}">${lpFeatArt(kind)}</div><h3>${t}</h3><p>${d}</p></div>`;
+  // (lpFeatArt definida abajo, a nivel de módulo)
   return `<div class="lp">
     <div class="lp-life parallax" data-speed="0.22" aria-hidden="true">
       <img class="lp-bird lb1" src="assets/bird.png" alt="" />
@@ -98,11 +126,11 @@ function vLanding() {
       <span class="lp-eyebrow reveal">La app</span>
       <h2 class="lp-h2 reveal">Todo para jugar<br/><span class="lime">más inteligente.</span></h2>
       <div class="lp-feats">
-        ${[[ICONS.feat_round, 'Apunta tus rondas', 'Cada hoyo con unos toques. Listo en segundos, sin lápiz ni papel.'],
-           [ICONS.feat_stats, 'Mira tus números', 'Calles, greens, salvadas y putts, claros. Sabes cómo juegas de verdad.'],
-           [ICONS.feat_ai, 'Tu entrenador IA', 'Revisa tus rondas, te dice por qué pierdes golpes y arma tus drills.'],
-           [ICONS.social, 'Juega con amigos', 'Arma una partida con código y lleva La corta en vivo.']]
-          .map(([ic, t, d]) => feat(ic, t, d)).join('')}
+        ${[['round', 'Apunta tus rondas', 'Cada hoyo con unos toques. Listo en segundos, sin lápiz ni papel.'],
+           ['stats', 'Mira tus números', 'Calles, greens, salvadas y putts, claros. Sabes cómo juegas de verdad.'],
+           ['ai', 'Tu entrenador IA', 'Revisa tus rondas, te dice por qué pierdes golpes y arma tus drills.'],
+           ['social', 'Juega con amigos', 'Arma una partida con código y lleva La corta en vivo.']]
+          .map(([k, t, d]) => feat(k, t, d)).join('')}
       </div>
     </section>
 

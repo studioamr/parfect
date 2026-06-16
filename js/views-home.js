@@ -638,7 +638,7 @@ function vPlayerCard(u, agg) {
       ['Putts / ronda', agg.putts18.toFixed(0), `<span class="pst-ic">${golfIcon('putter')}</span>`],
       ['3-putts / ronda', threeP, `<span class="pst-ic">${golfIcon('bucket')}</span>`],
       ['Birdie o mejor', birdiePct + '%', `<img src="assets/eagle.png" class="pst-img" alt="">`],
-      ['Bogey o peor', bogeyPct + '%', `<span class="pst-ic">${golfIcon('card')}</span>`],
+      ['Bogey o peor', bogeyPct + '%', `<span class="pst-ic pst-bogey"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4.5" width="15" height="15" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>`],
       ['Pares', parPct + '%', `<span class="pst-ic">${golfIcon('flag')}</span>`],
       ['Mejor vuelta', fmtToPar(agg.bestToPar), `<span class="pst-ic">${golfIcon('trophy')}</span>`],
     ].map((t, i) => `<div class="pst-tile" style="--i:${i}"><span class="pst-th">${t[2]}</span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
@@ -784,9 +784,54 @@ function vRanking(u) {
     <div class="rk-card">${rows}<p class="rk-foot">Mejor ronda de la semana · ajustada a 18 hoyos</p></div>`;
 }
 
+/* Torneo (sembrado — sin backend) */
+const TOURNAMENT = {
+  active: {
+    name: 'Copa Parfect · Junio', course: 'Campestre', ends: 'Termina en 2 días',
+    leaders: [
+      { name: 'Rodrigo Pérez', av: 3, score: -4 },
+      { name: 'Diego Salinas', av: 1, score: -1 },
+      { me: true, score: 2 },
+      { name: 'Andrés Gil', av: 5, score: 4 },
+      { name: 'Mariana Ortiz', av: 2, score: 6 },
+      { name: 'Sofía Lara', av: 4, score: 9 },
+    ],
+  },
+  upcoming: [
+    { name: 'Torneo Aniversario', course: 'Tres Marías', date: '28 jun' },
+    { name: 'Match Play Amigos', course: 'Altozano', date: '5 jul' },
+  ],
+};
+function vTorneo(u) {
+  const t = TOURNAMENT.active;
+  const rows = t.leaders.slice().sort((a, b) => a.score - b.score).map((p, i) => {
+    const pos = i + 1;
+    const av = p.me ? avatarImg(u, 'tr-img') : `<img class="tr-img golfer" src="${AVATARS[p.av] || AVATARS[0]}" alt="" loading="lazy">`;
+    return `<div class="tr-row ${p.me ? 'me' : ''}">
+      <span class="tr-pos ${pos <= 3 ? 'top' + pos : ''}">${pos}</span>
+      <span class="tr-av">${av}</span>
+      <div class="tr-info"><b>${p.me ? esc(u.name.split(' ')[0]) + ' (tú)' : esc(p.name)}</b></div>
+      <span class="tr-score ${p.score <= 0 ? 'good' : ''}">${fmtToPar(p.score)}</span>
+    </div>`;
+  }).join('');
+  const ups = TOURNAMENT.upcoming.map(x => `<div class="tr-up">
+      <span class="tr-up-ic">${golfIcon('flag')}</span>
+      <div class="tr-up-info"><b>${esc(x.name)}</b><span>${esc(x.course)} · ${esc(x.date)}</span></div>
+      <button class="tr-up-btn" data-act="noop">Apuntarme</button>
+    </div>`).join('');
+  return `<div class="sec-h"><h2>Torneo en juego ${golfIcon('trophy')}</h2><span class="small muted">${t.ends}</span></div>
+    <div class="tr-card">
+      <div class="tr-head"><b>${esc(t.name)}</b><span>${esc(t.course)}</span></div>
+      <div class="tr-board">${rows}</div>
+    </div>
+    <div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Próximos torneos</h2></div>
+    <div class="tr-ups">${ups}</div>`;
+}
+
 function vPerfil() {
   const u = cur();
   return `${vStories(u)}
+    ${vTorneo(u)}
     ${vRanking(u)}
     ${vSocialFeed()}`;
 }
