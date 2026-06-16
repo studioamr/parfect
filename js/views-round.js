@@ -155,8 +155,7 @@ function vSetup() {
     <div class="su-block">
       <span class="su-lab">¿Juegas con amigos?</span>
       ${partyCard()}
-    </div>
-    ${myRounds().length ? vRecentRounds(myRounds()) : ''}`;
+    </div>`;
 }
 
 /* ---------- Captura de hoyo ---------- */

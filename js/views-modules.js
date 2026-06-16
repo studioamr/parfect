@@ -140,7 +140,7 @@ function vTrainer() {
   const tab = ['entreno', 'objetivos'].includes(V.trainerTab) ? V.trainerTab : 'diag';
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   const body = tab === 'entreno' ? (vTrackerPlan() + vDrillsLibrary())
-    : tab === 'objetivos' ? vKeyTargets(u)
+    : tab === 'objetivos' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
       : vDiag();
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
     <div class="tabs scroll">${T('diag', 'Resumen')}${T('entreno', 'Entrenamiento')}${T('objetivos', 'Objetivos')}</div>

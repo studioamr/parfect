@@ -729,9 +729,7 @@ function vSocialFeed() {
 }
 
 function vPerfil() {
-  return `${vSocialFeed()}
-    <div class="sec-h" style="margin-top:24px"><h2>Tu perfil</h2></div>
-    ${vLogros()}`;
+  return vSocialFeed();
 }
 
 /* ============ Bienvenida / onboarding (primer ingreso) ============ */
