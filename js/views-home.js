@@ -42,6 +42,15 @@ function vSenseiCompanion() {
   </div>`;
 }
 
+/* clima discreto (demo, por hora del día) en Inicio */
+function weatherChip() {
+  const h = new Date().getHours();
+  const tC = Math.round(21 + 4 * Math.sin(Math.max(0, Math.min(1, (h - 6) / 12)) * Math.PI));
+  const cond = h < 12 ? 'Soleado' : h < 17 ? 'Despejado' : 'Soleado';
+  const ic = `<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.4" fill="#ffce3a"/><g stroke="#ffce3a" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="1.5" x2="10" y2="3.4"/><line x1="10" y1="16.6" x2="10" y2="18.5"/><line x1="1.5" y1="10" x2="3.4" y2="10"/><line x1="16.6" y1="10" x2="18.5" y2="10"/><line x1="4" y1="4" x2="5.4" y2="5.4"/><line x1="14.6" y1="14.6" x2="16" y2="16"/><line x1="16" y1="4" x2="14.6" y2="5.4"/><line x1="5.4" y1="14.6" x2="4" y2="16"/></g></svg>`;
+  return `<div class="wx" title="Clima estimado"><span class="wx-ic">${ic}</span><div class="wx-tx"><b>${tC}°</b><span>${cond} · Morelia</span></div></div>`;
+}
+
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return t('greet_morning');
@@ -415,8 +424,9 @@ function vDashboard() {
   const u = cur();
   const rounds = myRounds();
   const agg = Stats.aggregate(rounds);
-  const head = `<div class="greet">
+  const head = `<div class="greet greet-row">
     <h1 class="greet-h">${greeting()}, ${esc(u.name.split(' ')[0])}</h1>
+    ${weatherChip()}
   </div>`;
 
   if (!agg) {

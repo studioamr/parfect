@@ -60,9 +60,9 @@ input, select, textarea { font-size: 16px; }
 #root { display: contents; }
 
 /* ============ Fondo inmersivo de toda la app (día/noche) ============ */
-.app-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: linear-gradient(180deg, #bfe6f7 0%, #d9efbf 48%, #b6dd86 100%); }
+.app-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: linear-gradient(180deg,#5fbdef 0%,#7cc7ef 18%,#a9dbf2 36%,#cfe9ee 54%,#d9edc8 72%,#a9d877 100%); }
 /* dentro de la app, el fondo es un ambiente sutil para que la app sea lo principal */
-body.in-app .app-bg::after { content: ''; position: absolute; inset: 0; background: var(--bg); opacity: 0.5; }
+body.in-app .app-bg::after { content: ''; position: absolute; inset: 0; background: var(--bg); opacity: 0.3; }
 body.in-app .app-bg .bg-cloud, body.in-app .app-bg .bg-bird, body.in-app .app-bg .bg-gball { opacity: 0.72; }
 [data-theme="dark"] .app-bg { background: linear-gradient(180deg, #0a1230 0%, #111d40 46%, #0a1124 100%); }
 .app-bg .bg-orb { position: absolute; top: 5%; right: 9%; width: 72px; height: 72px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff7cc, #ffd86b 70%); box-shadow: 0 0 60px 18px rgba(255,216,107,0.38); }
@@ -3174,6 +3174,19 @@ svg.fd-av { object-fit: contain; }
 .rs-card.rs-good { border-top-color: #2fa36b; }
 .rs-card.rs-par { border-top-color: var(--lime); }
 .rs-card.rs-over { border-top-color: #e0873a; }
+
+/* clima discreto en Inicio */
+.greet-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wx { display: inline-flex; align-items: center; gap: 7px; background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 6px 13px 6px 8px; box-shadow: 0 4px 12px rgba(20,40,15,.07); flex: none; }
+.wx-ic { width: 20px; height: 20px; display: grid; place-items: center; }
+.wx-ic svg { width: 20px; height: 20px; }
+.wx-tx { display: flex; flex-direction: column; line-height: 1; }
+.wx-tx b { font-size: 14px; font-weight: 900; color: var(--text); }
+.wx-tx span { font-size: 9.5px; font-weight: 700; color: var(--muted); margin-top: 1px; white-space: nowrap; }
+
+/* aura/glow en las figuras de Inicio (el PNG es transparente, el halo se ve detrás) */
+.pl-hero-av { background: radial-gradient(circle at 50% 44%, rgba(199,238,84,.5) 0%, rgba(255,255,255,.3) 36%, transparent 64%); border-radius: 50%; }
+.avatar-btn { position: relative; box-shadow: 0 0 0 2px rgba(199,238,84,.9), 0 0 14px rgba(199,238,84,.55); }
 
 /* bote separado por modalidad */
 .bote-list { display: flex; flex-direction: column; gap: 8px; }

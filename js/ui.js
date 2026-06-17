@@ -77,10 +77,7 @@ function positionOrb() {
   orb.style.right = 'auto';
   orb.style.top = (30 - elev * 25).toFixed(1) + '%';
   if (bg) {
-    bg.classList.remove('dawn', 'dusk', 'night');
-    if (h < 6.5 || h >= 19.5) bg.classList.add('night');
-    else if (h >= 6.5 && h < 8.5) bg.classList.add('dawn');
-    else if (h >= 17 && h < 19.5) bg.classList.add('dusk');
+    bg.classList.remove('dawn', 'dusk', 'night');   // cielo siempre azul (día), igual que la landing
   }
 }
 
