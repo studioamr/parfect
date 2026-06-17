@@ -222,18 +222,34 @@ function vDiag() {
       { lab: 'Putt', sev: ((agg.putts18 || 30) - 31) * 4, tip: 'Putts de más. Trabaja lag-putt: 10 bolas a 8, 10 y 12 m.' },
       { lab: 'Penales', sev: ((agg.penals18 || 0) - 1.5) * 7, tip: 'Los penales cuestan golpes. Practica salida segura con híbrido.' },
     ].sort((a, b) => b.sev - a.sev);
-    const cards = issues.map((it, i) => {
+    const lostOf = s => Math.max(0.3, Math.min(4.5, s / 11 + 0.5)).toFixed(1);
+    const sevW = s => Math.max(8, Math.min(100, Math.round(s * 1.5 + 32)));
+    const top = issues[0], aTop = AREA[top.lab];
+    const hero = `<div class="diag-hero" style="--c:${aTop.c}">
+      <div class="diag-hero-top"><span class="diag-hero-ic">${golfIcon(aTop.ic)}</span><span class="diag-hero-tag">Tu fuga #1</span></div>
+      <h2 class="diag-hero-h">${esc(top.lab)}</h2>
+      <div class="diag-hero-lost"><b>−${lostOf(top.sev)}</b><span>golpes / ronda<br>estimados aquí</span></div>
+      <p class="diag-hero-stat">${aTop.stat}</p>
+      <p class="diag-hero-tip">${esc(top.tip)}</p>
+      <button class="btn primary" data-act="trainer-tab" data-t="biblioteca">${golfIcon('green')} Practicar ${esc(top.lab)} →</button>
+    </div>`;
+    const bars = issues.slice(1).map(it => {
       const a = AREA[it.lab];
-      return `<div class="lib-card">
-        <div class="lib-head"><span class="lib-ic">${golfIcon(a.ic)}</span><b>${it.lab}</b><span class="lib-n">${i === 0 ? 'Prioridad 1' : 'Prioridad ' + (i + 1)}</span></div>
-        <div class="diag-body"><p class="diag-area-stat">${a.stat}</p><p class="diag-lead">${esc(it.tip)}</p>
-          <button class="btn sm ghost" data-act="trainer-tab" data-t="biblioteca">${golfIcon('green')} Practicar →</button></div>
-      </div>`;
+      return `<button class="diag-bar" data-act="trainer-tab" data-t="biblioteca" style="--c:${a.c}">
+        <span class="diag-bar-ic">${golfIcon(a.ic)}</span>
+        <div class="diag-bar-main">
+          <div class="diag-bar-top"><b>${esc(it.lab)}</b><span class="diag-bar-lost">−${lostOf(it.sev)}</span></div>
+          <div class="diag-bar-track"><i style="width:${sevW(it.sev)}%"></i></div>
+          <span class="diag-bar-stat">${a.stat}</span>
+        </div>
+        <span class="diag-bar-go">›</span></button>`;
     }).join('');
-    return `<div class="sec-h" style="margin-top:6px"><h2 style="font-size:18px">Tu diagnóstico IA</h2><span class="small muted">${agg.rounds} rondas · por área</span></div>
-      ${cards}
+    return `<div class="sec-h" style="margin-top:6px"><h2 style="font-size:18px">Tu diagnóstico IA</h2><span class="small muted">${agg.rounds} rondas</span></div>
+      ${hero}
+      <div class="sec-h" style="margin-top:20px"><h2 style="font-size:15px">Lo que sigue · por prioridad</h2></div>
+      <div class="diag-bars">${bars}</div>
       <button class="btn primary" data-act="diagnose" style="margin-top:16px">${golfIcon('flag')} Generar diagnóstico IA profundo</button>
-      <p class="note">La IA cruza tus ${agg.holesPlayed} hoyos para priorizar dónde se van los golpes. Practica de arriba hacia abajo.</p>`;
+      <p class="note">La IA cruza tus ${agg.holesPlayed} hoyos para priorizar dónde se van los golpes. Ataca de arriba hacia abajo.</p>`;
   }
   const d = V.diag;
   const warn = d.readiness === 'low'
@@ -525,21 +541,23 @@ function vSessionPlanner() {
   if (V.sessionRun) return vSessionRunner();
   const ai = V.planMode !== 'me';
   const blocks = buildSessionBlocks(u, agg, T, V.planMode, V.planAreas);
+  const AREA_C = { 'Calentamiento': '#9a8a4a', 'Driving': '#3f9d44', 'Hierros': '#2fa36b', 'Juego corto': '#e0873a', 'Putting': '#3a8fe0' };
   let clock = 0;
-  const seg = (b) => {
+  const segs = blocks.map(b => {
     const from = clock; clock += b.min;
-    return `<div class="sp-seg">
-      <span class="sp-time">${from}–${clock}'</span>
-      <span class="sp-dot ${b.warm ? 'warm' : ''}">${golfIcon(b.icon)}</span>
-      <div class="sp-body"><b>${esc(b.label)} <i class="sp-min">${b.min} min</i></b>
-        ${b.drill ? `<button class="sp-drill" data-act="drill-open" data-name="${esc(b.drill)}">${golfIcon('green')} ${esc(b.drill)} →</button>` : `<span class="sp-note">Calienta progresivo: wedge → hierros → driver</span>`}
+    const c = AREA_C[b.label] || '#3f9d44';
+    return `<div class="spt-node ${b.warm ? 'warm' : ''}" style="--c:${c}">
+      <span class="spt-dot">${golfIcon(b.icon)}</span>
+      <div class="spt-card">
+        <div class="spt-top"><b>${esc(b.label)}</b><span class="spt-time">${from}–${clock}'</span></div>
+        ${b.drill ? `<button class="spt-drill" data-act="drill-open" data-name="${esc(b.drill)}">${golfIcon('green')} ${esc(b.drill)} →</button>` : `<span class="spt-note">Calienta progresivo: wedge → hierros → driver</span>`}
+        <div class="spt-len"><span class="spt-track"><i style="width:${Math.round(b.min / T * 100)}%"></i></span><span class="spt-min">${b.min} min</span></div>
       </div></div>`;
-  };
-  const timeline = blocks.map(seg).join('');
+  }).join('');
   return `<div class="card sp-card">
-    <div class="sp-head"><span class="label">${golfIcon('flag')} Tu sesión · ${spFmtMin(T)}</span><span class="sp-total">${ai ? 'IA' : 'tú eliges'}</span></div>
-    <div class="sp-timeline">${timeline}</div>
-    <button class="btn primary big" data-act="session-run-start" style="margin-top:14px">▶ Iniciar sesión guiada</button>
+    <div class="sp-head"><span class="label">${golfIcon('flag')} Tu sesión · ${spFmtMin(T)}</span><span class="sp-total">${ai ? 'IA' : 'tú eliges'} · ${blocks.length} bloques</span></div>
+    <div class="spt">${segs}</div>
+    <button class="btn primary big" data-act="session-run-start" style="margin-top:6px">▶ Iniciar sesión guiada</button>
     <button class="btn ghost" data-act="plan-reset" style="margin-top:8px">↺ Nueva sesión</button>
     ${ai && !agg ? `<p class="note" style="margin-top:10px">Registra una ronda para que la IA ajuste el plan a tus debilidades reales.</p>` : ''}
   </div>`;
@@ -594,17 +612,24 @@ function vBiblioteca() {
     return `<button class="lib-tab ${c.id === cat ? 'on' : ''}" data-act="drill-cat" data-c="${c.id}" style="--lib:${a.c}"><span class="lib-tab-ic">${golfIcon(a.ic)}</span>${esc(c.label)}<span class="lib-tab-n">${n}</span></button>`;
   }).join('');
   const drills = DRILL_LIBRARY.filter(d => d.cat === cat);
-  const items = drills.map(d => {
+  const a = AREA[cat] || AREA.fw;
+  const LV = ['Básico', 'Intermedio', 'Avanzado'];
+  const band = Math.max(1, Math.ceil(drills.length / 3));
+  const items = drills.map((d, i) => {
     const isDone = done[d.name] === td;
-    return `<button class="dlc ${isDone ? 'done' : ''}" data-act="drill-open" data-name="${esc(d.name)}">
-      <span class="dlc-check">${isDone ? '✓' : ''}</span>
-      <div class="dlc-info"><b>${esc(d.name)}</b><p class="dlc-desc">${esc(d.desc)}</p>
-        <div class="dlc-meta"><span>${golfIcon('bucket')} ${esc(d.dose)}</span><span>${golfIcon('green')} ${esc(d.metric)}</span></div></div>
-      <span class="dlc-go">${isDone ? 'Hecho' : 'Ver →'}</span></button>`;
+    const lvl = LV[Math.min(2, Math.floor(i / band))];
+    return `<button class="lbd ${isDone ? 'done' : ''}" data-act="drill-open" data-name="${esc(d.name)}" style="--lib:${a.c}">
+      <span class="lbd-ico">${golfIcon(a.ic)}</span>
+      <div class="lbd-main">
+        <div class="lbd-top"><b class="lbd-name">${esc(d.name)}</b>${isDone ? '<span class="lbd-done">✓</span>' : ''}</div>
+        <p class="lbd-desc">${esc(d.desc)}</p>
+        <div class="lbd-chips"><span class="lbd-chip lbd-lv lv${Math.min(2, Math.floor(i / band))}">${lvl}</span><span class="lbd-chip">${golfIcon('bucket')} ${esc(d.dose)}</span></div>
+      </div>
+      <span class="lbd-go">›</span></button>`;
   }).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Biblioteca de drills</h2><span class="small muted">${DRILL_LIBRARY.length} ejercicios</span></div>
     <div class="lib-tabs">${tabs}</div>
-    <div class="dlc-list">${items}</div>`;
+    <div class="lbd-list">${items}</div>`;
 }
 /* pestaña Academia: tarjeta de lanzamiento a la ruta inmersiva */
 function vAcademyLaunch() {
