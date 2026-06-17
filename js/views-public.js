@@ -77,8 +77,10 @@ function vLanding() {
   const lpTree = (st) => `<div class="lp-tree" style="${st}"><svg viewBox="0 0 90 96"><rect x="41" y="52" width="8" height="40" rx="3" fill="#6b4a2a"/><ellipse cx="45" cy="40" rx="34" ry="30" fill="#3a7d3a"/><ellipse cx="30" cy="46" rx="20" ry="18" fill="#479a44"/><ellipse cx="60" cy="44" rx="20" ry="18" fill="#479a44"/><ellipse cx="45" cy="30" rx="16" ry="14" fill="#57ad50"/></svg></div>`;
   const stars = isNight ? Array.from({ length: 18 }, (_, i) => `<span class="lp-star" style="left:${(i * 37 % 96) + 2}%;top:${(i * 23 % 44) + 3}%;animation-delay:${(i % 5) * 0.5}s"></span>`).join('') : '';
   const celest = isNight ? `<div class="lp-moon"></div>${stars}` : `<div class="lp-sun"></div>`;
-  const bsil = (st) => `<svg class="lp-bsil" style="${st}" viewBox="0 0 24 8" aria-hidden="true"><path d="M1 6 Q6 0 11 5 Q16 0 23 6" fill="none" stroke="rgba(35,50,35,.45)" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+  const bsil = (st) => `<svg class="lp-bsil" style="${st}" viewBox="0 0 30 22" aria-hidden="true"><ellipse cx="14" cy="13" rx="9" ry="7" fill="#ff5e9a"/><circle cx="22" cy="8" r="5" fill="#ff5e9a"/><path d="M26 7 l6 -1 l-5 4 Z" fill="#ffb13b"/><circle cx="23" cy="7" r="1.3" fill="#fff"/><circle cx="23.3" cy="7.2" r=".65" fill="#241018"/><path class="lp-bwing" d="M12 11 q-7 -8 -1 -12 q3 6 8 11 Z" fill="#ec4d88"/><path d="M7 17 l-4 3 M10 18 l-3 4" stroke="#ff9a3b" stroke-width="1.3" stroke-linecap="round"/></svg>`;
   const cartSvg = `<svg viewBox="0 0 64 44" aria-hidden="true"><path d="M9 16 L14 6 L39 6 L45 16 Z" fill="#ffffff"/><rect x="12" y="7" width="24" height="9" rx="1" fill="#bfe6f7"/><rect x="6" y="16" width="42" height="13" rx="3" fill="#eef6df"/><rect x="44" y="19" width="15" height="9" rx="2" fill="#a7d36a"/><circle cx="16" cy="32" r="6" fill="#33382f"/><circle cx="38" cy="32" r="6" fill="#33382f"/><circle cx="16" cy="32" r="2.4" fill="#d6dccb"/><circle cx="38" cy="32" r="2.4" fill="#d6dccb"/></svg>`;
+  const lpPine = (st) => `<div class="lp-pine" style="${st}"><svg viewBox="0 0 40 64" aria-hidden="true"><rect x="17" y="48" width="6" height="15" rx="2" fill="#6b4a2a"/><polygon points="20,3 33,27 7,27" fill="#3f8f46"/><polygon points="20,15 36,42 4,42" fill="#357d3d"/><polygon points="20,27 38,56 2,56" fill="#2e7036"/></svg></div>`;
+  const lpFlag = (st, col) => `<div class="lp-cflag" style="${st}"><svg viewBox="0 0 22 30" aria-hidden="true"><ellipse cx="9" cy="27" rx="11" ry="3.4" fill="#7fbf52"/><rect x="9" y="3" width="1.7" height="22" fill="#d2d8da"/><path d="M10.7 3 L20 6.2 L10.7 9.4 Z" fill="${col || '#ff5a4d'}"/></svg></div>`;
   return `<div class="lp lp-ph-${phase}">
     <div class="lp-fixed" aria-hidden="true">
       <div class="lp-sky2">${celest}<span class="lp-icloud i1"></span><span class="lp-icloud i2"></span><span class="lp-icloud i3"></span></div>
@@ -90,41 +92,42 @@ function vLanding() {
       <span class="lp-fly lf1"></span><span class="lp-fly lf2"></span><span class="lp-fly lf3"></span>
       <div class="lp-ground">
         <svg class="lp-hills" viewBox="0 0 400 180" preserveAspectRatio="xMidYMax slice">
-          <path d="M0,52 Q90,26 190,44 T400,34 L400,180 L0,180Z" fill="#cdea9e"/>
-          <g fill="#9fce6e" opacity=".75"><ellipse cx="36" cy="48" rx="14" ry="11"/><ellipse cx="64" cy="50" rx="11" ry="9"/><ellipse cx="118" cy="44" rx="16" ry="12"/><ellipse cx="150" cy="48" rx="11" ry="9"/><ellipse cx="298" cy="42" rx="15" ry="11"/><ellipse cx="332" cy="46" rx="12" ry="9"/><ellipse cx="366" cy="43" rx="15" ry="11"/></g>
-          <path d="M0,92 Q120,62 250,84 T400,76 L400,180 L0,180Z" fill="#aedd7c"/>
-          <path d="M0,134 Q140,106 280,124 T400,116 L400,180 L0,180Z" fill="#8fc857"/>
-          <path d="M150,180 Q180,130 250,114 Q330,96 396,56" fill="none" stroke="#d7eeb0" stroke-width="22" stroke-linecap="round" opacity=".7"/>
-          <path d="M0,150 Q90,140 170,150 Q250,160 340,148 L400,150" fill="none" stroke="#cfe8a4" stroke-width="14" stroke-linecap="round" opacity=".55"/>
-          <ellipse cx="300" cy="116" rx="24" ry="8" fill="#f1e3b6"/>
-          <ellipse cx="72" cy="138" rx="17" ry="6" fill="#f1e3b6"/>
-          <g><ellipse cx="120" cy="148" rx="26" ry="9" fill="#7fbf52"/><rect x="118" y="124" width="2" height="24" fill="#cfd6d8"/><path d="M120 124 L131 128 L120 132 Z" fill="#ff5a4d"/></g>
-          <g><ellipse cx="250" cy="104" rx="20" ry="7" fill="#7fbf52"/><rect x="248.4" y="86" width="1.6" height="18" fill="#cfd6d8"/><path d="M250 86 L258 89 L250 93 Z" fill="#ff5a4d"/></g>
+          <path d="M0,50 Q90,24 190,42 T400,32 L400,180 L0,180Z" fill="#cdea9e"/>
+          <g fill="#9fce6e" opacity=".7"><ellipse cx="30" cy="46" rx="13" ry="10"/><ellipse cx="58" cy="48" rx="11" ry="9"/><ellipse cx="110" cy="42" rx="15" ry="11"/><ellipse cx="146" cy="46" rx="11" ry="9"/><ellipse cx="250" cy="40" rx="13" ry="10"/><ellipse cx="296" cy="42" rx="15" ry="11"/><ellipse cx="332" cy="45" rx="12" ry="9"/><ellipse cx="368" cy="42" rx="15" ry="11"/></g>
+          <path d="M0,88 Q120,58 250,80 T400,72 L400,180 L0,180Z" fill="#aedd7c"/>
+          <path d="M0,128 Q140,100 280,118 T400,110 L400,180 L0,180Z" fill="#8fc857"/>
+          <g opacity=".4" stroke="#bfe28a" stroke-width="9" fill="none" stroke-linecap="round"><path d="M30,180 Q120,128 250,116"/><path d="M80,180 Q160,132 290,120"/><path d="M130,180 Q200,136 330,124"/></g>
+          <path d="M150,180 Q180,128 250,112 Q330,94 396,54" fill="none" stroke="#d7eeb0" stroke-width="20" stroke-linecap="round" opacity=".7"/>
+          <ellipse cx="300" cy="110" rx="22" ry="7" fill="#f1e3b6"/>
+          <ellipse cx="68" cy="132" rx="16" ry="6" fill="#f1e3b6"/>
+          <ellipse cx="210" cy="150" rx="20" ry="7" fill="#f1e3b6"/>
         </svg>
         <svg class="lp-lake" viewBox="0 0 140 70" aria-hidden="true"><defs><radialGradient id="lpLakeG2" cx="40%" cy="32%" r="80%"><stop offset="0" stop-color="#8fd6f0"/><stop offset="1" stop-color="#2f87b0"/></radialGradient></defs><ellipse cx="70" cy="46" rx="62" ry="18" fill="url(#lpLakeG2)"/><ellipse class="lp-lakeshine" cx="54" cy="40" rx="22" ry="4.5" fill="#fff" opacity=".4"/><g class="lp-fountain"><rect x="68" y="24" width="4" height="20" rx="2" fill="#9fb0b3"/><path class="lp-fjet" d="M70 26 q-9 -15 -17 -2 M70 26 q9 -15 17 -2 M70 24 v-13" fill="none" stroke="#bfeaf6" stroke-width="2.4" stroke-linecap="round"/><circle class="lp-fdrop d1" cx="55" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d2" cx="85" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d3" cx="70" cy="16" r="1.7" fill="#cdeefb"/></g></svg>
         <svg class="lp-lake lp-lake2" viewBox="0 0 120 50" aria-hidden="true"><ellipse cx="60" cy="32" rx="54" ry="14" fill="#54a9d0"/><ellipse cx="46" cy="27" rx="18" ry="4" fill="#fff" opacity=".32"/><g class="lp-fountain"><rect x="58" y="16" width="3" height="16" rx="1.5" fill="#9fb0b3"/><path class="lp-fjet" d="M60 18 q-7 -11 -13 -2 M60 18 q7 -11 13 -2 M60 16 v-10" fill="none" stroke="#bfeaf6" stroke-width="2" stroke-linecap="round"/></g></svg>
-        ${lpTree('left:2%;bottom:11%;width:84px')}
-        ${lpTree('left:11%;bottom:6%;width:54px')}
-        ${lpTree('left:23%;bottom:14%;width:46px')}
-        ${lpTree('left:33%;bottom:7%;width:60px')}
-        ${lpTree('left:45%;bottom:15%;width:38px')}
-        ${lpTree('right:30%;bottom:13%;width:44px')}
-        ${lpTree('right:18%;bottom:8%;width:58px')}
-        ${lpTree('right:8%;bottom:17%;width:70px')}
-        ${lpTree('right:2%;bottom:6%;width:50px')}
-        <svg class="lp-perchb" style="left:7%;bottom:24%" viewBox="0 0 20 16" aria-hidden="true"><ellipse cx="9" cy="9" rx="5" ry="4" fill="#5b6b7a"/><circle cx="14" cy="6" r="3" fill="#5b6b7a"/><path d="M16 5 l3 -1 l-3 3 Z" fill="#f5a623"/><circle cx="14.6" cy="5.4" r=".7" fill="#fff"/><path d="M4 9 q-4 1 -3 -3 Z" fill="#46566a"/></svg>
-        <svg class="lp-perchb" style="right:11%;bottom:29%" viewBox="0 0 20 16" aria-hidden="true"><ellipse cx="9" cy="9" rx="5" ry="4" fill="#6a7b66"/><circle cx="14" cy="6" r="3" fill="#6a7b66"/><path d="M16 5 l3 -1 l-3 3 Z" fill="#f5a623"/><circle cx="14.6" cy="5.4" r=".7" fill="#fff"/><path d="M4 9 q-4 1 -3 -3 Z" fill="#566b52"/></svg>
+        <svg class="lp-lake lp-lake3" viewBox="0 0 120 50" aria-hidden="true"><ellipse cx="60" cy="32" rx="50" ry="13" fill="#4fa6cf"/><ellipse cx="46" cy="28" rx="16" ry="3.6" fill="#fff" opacity=".3"/><g class="lp-fountain"><rect x="58" y="18" width="3" height="14" rx="1.5" fill="#9fb0b3"/><path class="lp-fjet" d="M59.5 20 q-6 -10 -12 -2 M59.5 20 q6 -10 12 -2 M59.5 18 v-9" fill="none" stroke="#bfeaf6" stroke-width="2" stroke-linecap="round"/></g></svg>
+        <svg class="lp-clubhouse" viewBox="0 0 160 110" aria-hidden="true"><ellipse cx="80" cy="103" rx="74" ry="7" fill="#1a3a14" opacity=".12"/><rect x="30" y="50" width="100" height="50" rx="2" fill="#f6efe0"/><path d="M18 52 L80 20 L142 52 Z" fill="#c8623a"/><path d="M18 52 L80 20 L142 52 Z" fill="#000" opacity=".05"/><rect x="58" y="58" width="44" height="42" fill="#fbf6ea"/><rect x="60" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="78" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="96" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="73" y="78" width="14" height="22" rx="1" fill="#8a5a36"/><rect x="38" y="62" width="13" height="13" fill="#bfe6f7" stroke="#fff" stroke-width="2"/><rect x="109" y="62" width="13" height="13" fill="#bfe6f7" stroke="#fff" stroke-width="2"/></svg>
+        <svg class="lp-house" viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="45" cy="64" rx="40" ry="5" fill="#1a3a14" opacity=".12"/><rect x="18" y="34" width="54" height="32" rx="2" fill="#f4ecd6"/><path d="M12 36 L45 12 L78 36 Z" fill="#c8623a"/><rect x="38" y="48" width="14" height="18" rx="1" fill="#8a5a36"/><rect x="24" y="40" width="11" height="10" fill="#bfe6f7" stroke="#fff" stroke-width="1.5"/><rect x="56" y="40" width="11" height="10" fill="#bfe6f7" stroke="#fff" stroke-width="1.5"/></svg>
+        ${lpPine('left:1%;bottom:14%;width:42px')}
+        ${lpPine('left:8%;bottom:8%;width:34px')}
+        ${lpPine('left:17%;bottom:18%;width:28px')}
+        ${lpPine('right:1%;bottom:13%;width:44px')}
+        ${lpPine('right:9%;bottom:8%;width:34px')}
+        ${lpPine('right:18%;bottom:19%;width:28px')}
+        ${lpTree('left:4%;bottom:6%;width:58px')}
+        ${lpTree('left:22%;bottom:9%;width:46px')}
+        ${lpTree('right:5%;bottom:7%;width:56px')}
+        ${lpTree('right:23%;bottom:10%;width:44px')}
+        ${lpFlag('left:31%;bottom:11%')}
+        ${lpFlag('left:52%;bottom:17%', '#ffb13b')}
+        ${lpFlag('right:34%;bottom:14%')}
+        ${lpFlag('left:63%;bottom:8%', '#ffb13b')}
         <img class="lp-cgolfer g1" src="${AVATARS[0]}" alt="" />
         <img class="lp-cgolfer g2" src="${AVATARS[6]}" alt="" />
         <div class="lp-cart c1">${cartSvg}</div>
         <div class="lp-cart c2">${cartSvg}</div>
-        <div class="lp-hole"><span class="lp-green"></span><span class="lp-cup"></span><span class="lp-pin"></span></div>
+        <div class="lp-cart c3">${cartSvg}</div>
+        <div class="lp-base"></div>
       </div>
-    </div>
-    <div class="lp-narr" aria-hidden="true">
-      <div class="lp-guide"><div class="lp-guide-b"><svg viewBox="0 0 48 36"><ellipse cx="21" cy="20" rx="13" ry="8.5" fill="#6b7a89"/><circle cx="32" cy="14" r="6.5" fill="#6b7a89"/><path d="M38 13 l8 -2 l-7 5 Z" fill="#f5a623"/><circle cx="34" cy="12.5" r="1.6" fill="#fff"/><circle cx="34.4" cy="12.7" r=".9" fill="#10131a"/><path class="lp-wing" d="M17 15 q-7 -11 -1 -16 q3 8 9 13 Z" fill="#54647a"/></svg></div></div>
-      <span class="lp-fball"></span>
-      <div class="lp-birdie-pop"><img class="lp-bp-monito" src="${AVATARS[0]}" alt="" /><span class="lp-bp-txt">¡Birdie!</span></div>
     </div>
     <header class="lp-nav">
       <span class="lp-logo">${logoMark(16)} PARFECT</span>
@@ -325,37 +328,12 @@ function initLanding(root) {
     }
   };
   const sched = () => { if (!raf) raf = requestAnimationFrame(apply); };
-
-  // ===== narrativa del pájaro: te guía de arriba a abajo y al final birdie =====
-  const guide = root.querySelector('.lp-guide');
-  const guideB = root.querySelector('.lp-guide-b');
-  let played = false;
-  const birdScroll = () => {
-    if (!guide || played) return;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    const p = max > 0 ? Math.min(1, (window.scrollY || 0) / max) : 0;
-    const x = 9 + p * 50;             // vw: de la izquierda hacia la derecha
-    const y = 11 + p * 62;            // vh: baja contigo
-    const sway = Math.sin(p * 9) * 3;
-    guide.style.left = x.toFixed(1) + 'vw';
-    guide.style.top = (y + sway).toFixed(1) + 'vh';
-    if (p > 0.965) finale();
-  };
-  const finale = () => {
-    if (played) return;
-    played = true;
-    if (guide) { guide.style.transition = 'left .6s ease-in, top .6s ease-in'; guide.style.left = '52vw'; guide.style.top = '56vh'; }
-    root.classList.add('lp-finale-on');                       // dispara la bola
-    setTimeout(() => { if (guideB) guideB.classList.add('fall'); }, 760);  // la bola le pega
-    setTimeout(() => { const pop = root.querySelector('.lp-birdie-pop'); if (pop) pop.classList.add('show'); }, 1500);
-  };
-
-  const onScroll = () => { sy = window.scrollY || 0; sched(); birdScroll(); };
+  const onScroll = () => { sy = window.scrollY || 0; sched(); };
   const onMove = e => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; sched(); };
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('pointermove', onMove, { passive: true });
   window.__lpClean = () => { removeEventListener('scroll', onScroll); removeEventListener('pointermove', onMove); io.disconnect(); };
-  apply(); birdScroll();
+  apply();
 }
 
 /* ============ Auth ============ */

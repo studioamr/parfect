@@ -2975,7 +2975,8 @@ svg.fd-av { object-fit: contain; }
 .lp-ph-dawn .lp-sun { top: 16%; left: 12%; width: 90px; height: 90px; background: radial-gradient(circle at 42% 38%,#fff3d6,#ffcf8a 72%); box-shadow: 0 0 80px 26px rgba(255,185,120,.5); }
 .lp-ph-dusk .lp-sun { top: 13%; right: 12%; width: 100px; height: 100px; background: radial-gradient(circle at 42% 38%,#fff0d0,#ff8a5b 72%); box-shadow: 0 0 90px 30px rgba(255,120,80,.5); }
 .lp-fixed .lp-moon { top: 8%; right: 14%; }
-.lp-bsil { position: absolute; width: 26px; height: auto; will-change: transform; }
+.lp-bsil { position: absolute; width: 30px; height: auto; will-change: transform; filter: drop-shadow(0 4px 5px rgba(20,40,15,.16)); }
+.lp-bwing { transform-origin: 60% 80%; animation: lpFlap .4s ease-in-out infinite alternate; }
 .lp-fixed .lp-icloud { position: absolute; height: 20px; background: #fff; border-radius: 99px; box-shadow: 26px 5px 0 -3px #fff, -24px 6px 0 -4px #fff; }
 .lp-fixed .lp-icloud.i1 { top: 18%; left: 12%; width: 64px; animation: lpDrift 70s linear infinite; }
 .lp-fixed .lp-icloud.i2 { top: 30%; left: 60%; width: 50px; animation: lpDrift 92s linear infinite; animation-delay: -30s; }
@@ -2985,8 +2986,8 @@ svg.fd-av { object-fit: contain; }
 .lp-fixed .lf2 { bottom: 50vh; animation: lpBallArcR 21s ease-in-out infinite; animation-delay: -7s; }
 .lp-fixed .lf3 { bottom: 36vh; animation: lpBallArc 24s ease-in-out infinite; animation-delay: -13s; }
 
-/* campo (suelo) fijo abajo — estilo in-app, sin casa club */
-.lp-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 38vh; }
+/* campo (suelo) fijo abajo — paraíso de golf */
+.lp-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 45vh; }
 .lp-ground .lp-hills { position: absolute; inset: 0; width: 100%; height: 100%; }
 .lp-ground .lp-lake { position: absolute; right: 6%; bottom: 6%; width: 116px; height: auto; opacity: .92; }
 .lp-ground .lp-lake2 { position: absolute; left: 4%; bottom: 4%; right: auto; width: 96px; opacity: .9; }
@@ -2997,8 +2998,18 @@ svg.fd-av { object-fit: contain; }
 .lp-cart { position: absolute; width: 56px; height: auto; bottom: 9%; }
 .lp-cart.c1 { left: -12%; animation: lpCart 26s linear infinite; }
 .lp-cart.c2 { left: -12%; transform: scaleX(-1); animation: lpCartB 34s linear infinite; animation-delay: -16s; }
+.lp-cart.c3 { left: -12%; bottom: 19%; transform: scale(.82); animation: lpCart 40s linear infinite; animation-delay: -28s; }
 @keyframes lpCart { from { left: -12%; } to { left: 112%; } }
 @keyframes lpCartB { from { left: 112%; } to { left: -12%; } }
+/* paraíso: lago 3, pinos, casa club, casita, banderas, base de pasto/tierra */
+.lp-ground .lp-lake3 { position: absolute; left: 30%; bottom: 23%; right: auto; width: 84px; opacity: .88; }
+.lp-pine { position: absolute; }
+.lp-pine svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 5px 7px rgba(20,40,15,.2)); }
+.lp-clubhouse { position: absolute; left: 13%; bottom: 50%; width: 120px; height: auto; filter: drop-shadow(0 9px 13px rgba(20,40,15,.2)); }
+.lp-house { position: absolute; right: 5%; bottom: 11%; width: 86px; height: auto; filter: drop-shadow(0 7px 10px rgba(20,40,15,.2)); }
+.lp-cflag { position: absolute; }
+.lp-cflag svg { width: 22px; height: auto; display: block; filter: drop-shadow(0 3px 4px rgba(20,40,15,.16)); }
+.lp-base { position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(180deg, #74b84e 0 45%, #835230 45% 100%); }
 
 /* hoyo (objetivo del final) */
 .lp-hole { position: absolute; left: 60vw; bottom: 6vh; width: 60px; height: 30px; }
@@ -3046,7 +3057,7 @@ svg.fd-av { object-fit: contain; }
 @media (min-width: 720px) {
   .lp-hero2 .lp-stage { width: min(46%, 380px); }
   .lp-hero2 .lp-hero-copy { max-width: 640px; }
-  .lp-ground { height: 34vh; }
+  .lp-ground { height: 42vh; }
 }
 
 /* ===== Resumen de ronda: escena con el cielo del momento del día ===== */
