@@ -20,7 +20,7 @@ function golfBallSVG() {
     <circle cx="100" cy="100" r="90" fill="url(#bg-ball)"/>
     <g fill="#8b9698" opacity="0.30">${ballDimples()}</g>
     <ellipse cx="70" cy="58" rx="30" ry="20" fill="#fff" opacity="0.55"/>
-    <circle cx="100" cy="100" r="89" fill="none" stroke="rgba(199,238,84,0.55)" stroke-width="1.5"/>
+    <circle cx="100" cy="100" r="89" fill="none" stroke="rgba(124,194,74,0.55)" stroke-width="1.5"/>
   </svg>`;
 }
 
@@ -78,7 +78,7 @@ function lpFeatArt(kind) {
   </svg>`;
   return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
     <g class="lpa-trophy"><path d="M34 22h28v9c0 9-6 16-14 16s-14-7-14-16z" fill="#f7d04a"/><rect x="45" y="47" width="6" height="8" fill="#c98a1e"/><rect x="37" y="55" width="22" height="5" rx="2" fill="#c98a1e"/><path d="M34 25c-6 0-9 3-8 8 1 4 5 6 9 6v-4c-3 0-5-2-5.5-4.5" fill="none" stroke="#f7d04a" stroke-width="3"/><path d="M62 25c6 0 9 3 8 8-1 4-5 6-9 6v-4c3 0 5-2 5.5-4.5" fill="none" stroke="#f7d04a" stroke-width="3"/></g>
-    <circle class="lpa-spark lpas1" cx="26" cy="20" r="2.6" fill="#C7EE54"/><circle class="lpa-spark lpas2" cx="71" cy="17" r="2.2" fill="#46b0e0"/><circle class="lpa-spark lpas3" cx="73" cy="42" r="2.6" fill="#ff6a88"/>
+    <circle class="lpa-spark lpas1" cx="26" cy="20" r="2.6" fill="#7cc24a"/><circle class="lpa-spark lpas2" cx="71" cy="17" r="2.2" fill="#46b0e0"/><circle class="lpa-spark lpas3" cx="73" cy="42" r="2.6" fill="#ff6a88"/>
   </svg>`;
 }
 
@@ -107,7 +107,7 @@ function vLanding() {
   // mismo estilo del fondo de la app (clases bgc-*), exagerado: muchísimos árboles + greens + lagos
   const bgcTree = (x, y, s) => `<g class="bgc-tree" transform="translate(${x} ${y}) scale(${s})"><rect class="bgc-trunk" x="-2" y="-2" width="4" height="14"/><circle class="bgc-leaf" cx="0" cy="-11" r="11"/><circle class="bgc-leaf2" cx="-7" cy="-5" r="8"/><circle class="bgc-leaf2" cx="7" cy="-6" r="8"/></g>`;
   const bgcGreen = (x, y, rx, ry) => `<ellipse class="bgc-green-sh" cx="${x}" cy="${y + 4}" rx="${rx}" ry="${ry}"/><ellipse class="bgc-green" cx="${x}" cy="${y}" rx="${rx}" ry="${ry - 1}"/>`;
-  const bgcFlag = (x, y, h) => `<g class="bgc-flag" transform="translate(${x} ${y})"><line x1="0" y1="0" x2="0" y2="-${h || 26}" stroke="#fff" stroke-width="2.2"/><path d="M0,-${h || 26} l13,4 -13,4z" fill="#C7EE54"/><circle cx="0" cy="0" r="2.2" fill="#0a2e16"/></g>`;
+  const bgcFlag = (x, y, h) => `<g class="bgc-flag" transform="translate(${x} ${y})"><line x1="0" y1="0" x2="0" y2="-${h || 26}" stroke="#fff" stroke-width="2.2"/><path d="M0,-${h || 26} l13,4 -13,4z" fill="#7cc24a"/><circle cx="0" cy="0" r="2.2" fill="#0a2e16"/></g>`;
   const bgcLake = (x, y, rx, ry) => `<ellipse class="bgc-lake" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/><ellipse class="bgc-lake-sh" cx="${x - 12}" cy="${y - 3}" rx="${Math.round(rx * 0.36)}" ry="3.5"/><g class="bgc-fountain" transform="translate(${x} ${y - 5})"><rect x="-1.4" y="-12" width="2.8" height="14" fill="#9fb0b3"/><path class="bgc-fjet" d="M0,-12 q-9,-12 -16,-3 M0,-12 q9,-12 16,-3 M0,-13 v-9" fill="none" stroke="#cdeefb" stroke-width="2"/><circle class="bgc-fdrop d1" cx="-12" cy="-9" r="1.6" fill="#cdeefb"/><circle class="bgc-fdrop d2" cx="12" cy="-9" r="1.6" fill="#cdeefb"/></g>`;
   const tline = (arr) => arr.map(t => bgcTree(t[0], t[1], t[2])).join('');
   return `<div class="lp lp-ph-${phase}">
@@ -153,6 +153,20 @@ function vLanding() {
         <button class="lp-cta-sm" data-act="go" data-view="signup">Empezar</button>
       </div>
     </header>
+    <section class="lp-intro">
+      <div class="lp-intro-top reveal">
+        <span class="lp-intro-logo">PARFECT</span>
+        <span class="lp-intro-tag">Golf Analytics · IA</span>
+      </div>
+      <div class="lp-intro-creds">
+        <div class="lp-cred lpc1"><span class="lp-stars">★★★★★</span><b>4.9</b><span>Trustpilot</span></div>
+        <div class="lp-cred lpc2"><b class="lp-forbes">Forbes</b><span>"Baja tu hándicap"</span></div>
+        <div class="lp-cred lpc3"><span class="lp-tico">${golfIcon('trophy')}</span><b>Mejor app de golf 2025</b></div>
+        <div class="lp-cred lpc4"><span class="lp-tico">${golfIcon('flag')}</span><b>Federación Mexicana de Golf</b></div>
+        <div class="lp-cred lpc5"><b class="lp-forbes">Golf Digest</b><span>destacada</span></div>
+      </div>
+      <div class="lp-intro-scroll">Desliza para entrar<span class="lp-scrolldot"></span></div>
+    </section>
     <section class="lp-hero2">
       <div class="lp-stage">
         <div class="lp-glow"></div>
@@ -171,28 +185,6 @@ function vLanding() {
           <button class="lp-ghostbtn" data-act="demo-account">Ver demo</button>
         </div>
         <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
-      </div>
-    </section>
-
-    <section class="lp-sec lp-trust">
-      <span class="lp-press-lab reveal">Reconocidos en</span>
-      <div class="lp-press reveal">
-        <span class="lp-plogo lp-forbes">Forbes</span>
-        <span class="lp-plogo">Golf Digest</span>
-        <span class="lp-plogo">ESPN</span>
-      </div>
-      <div class="lp-trustcards">
-        <div class="lp-trustc reveal">
-          <div class="lp-stars">★★★★★</div>
-          <b>4.9 / 5</b><span>Excelente en Trustpilot</span>
-        </div>
-        <div class="lp-trustc reveal">
-          <span class="lp-tico">${golfIcon('trophy')}</span>
-          <b>Mejor app de golf 2025</b><span>Golf Tech Awards</span>
-        </div>
-        <div class="lp-trustc reveal">
-          <span class="lp-quote">"La forma más simple de bajar tu hándicap."</span><span>— Forbes</span>
-        </div>
       </div>
     </section>
 
@@ -318,7 +310,7 @@ function maybeCelebrate() {
   if (!key || window.__celebrated === key) return;
   window.__celebrated = key;
   if (matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cols = ['#C7EE54', '#9ad13e', '#ffd56b', '#ff9f43', '#5aa9e0', '#ffffff'];
+  const cols = ['#7cc24a', '#9ad13e', '#ffd56b', '#ff9f43', '#5aa9e0', '#ffffff'];
   const wrap = document.createElement('div');
   wrap.className = 'confetti';
   let html = '';
