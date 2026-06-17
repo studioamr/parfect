@@ -196,14 +196,17 @@ function vRoundStatCard(r, hcp) {
   const parOf = i => (r.holes[i] && r.holes[i].par != null) ? r.holes[i].par : (ch && ch[off + i] ? ch[off + i].par : 4);
   const ydsOf = (ch && ch.some(h => h.yds)) ? (i => (ch[off + i] ? ch[off + i].yds : null)) : null;
   const rows = [{ name: 'Tú', scoreOf: i => (r.holes[i] ? r.holes[i].score : null) }];
-  const nh = r.holes.length;
-  const idxs = [...new Set([0, Math.floor((nh - 1) / 2), nh - 1])];
   return `<button class="rc6" data-act="round-detail" data-id="${r.id}">
     <div class="rc6-head">
       <div class="rc6-id"><b>${esc(course)}${r.partyId ? ` <span class="rc5-party">${golfIcon('flag')}</span>` : ''}</b><span class="rc5-date">${fmtDate(r.date)} · ${s.holes} hoyos · Par ${s.par}</span></div>
       <div class="rc5-score ${scoreCls}">${vibe ? `<i>${vibe.ic}</i>` : ''}<b>${s.score}</b><span>${fmtToPar(s.toPar)}</span></div>
     </div>
-    <div class="ht-row">${idxs.map(i => holeTrackCard(r, i)).join('')}</div>
+    <div class="pst-rings rc6-scenes">
+      ${pstSceneStatic('fw', s.fwTot ? (s.fw / s.fwTot) * 100 : 0, 'Fairways')}
+      ${pstSceneStatic('gir', s.girTot ? (s.gir / s.girTot) * 100 : 0, 'GIR')}
+      ${pstSceneStatic('ud', s.scrTot ? (s.scr / s.scrTot) * 100 : 0, 'Up & down')}
+    </div>
+    <div class="rc6-card">${scorecardTable(s.holes, parOf, rows, -1, ydsOf)}</div>
   </button>`;
 }
 
