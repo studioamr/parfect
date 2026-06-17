@@ -85,20 +85,37 @@ function vLanding() {
       ${bsil('left:0;top:13%;animation:lpFlyR 38s linear infinite')}
       ${bsil('left:0;top:21%;transform:scale(.7);animation:lpFlyR 50s linear infinite;animation-delay:-16s')}
       ${bsil('left:0;top:8%;animation:lpFlyL 44s linear infinite;animation-delay:-8s')}
+      ${bsil('left:0;top:17%;transform:scale(.55);animation:lpFlyL 56s linear infinite;animation-delay:-30s')}
+      ${bsil('left:0;top:27%;transform:scale(.85);animation:lpFlyR 60s linear infinite;animation-delay:-42s')}
       <span class="lp-fly lf1"></span><span class="lp-fly lf2"></span><span class="lp-fly lf3"></span>
       <div class="lp-ground">
         <svg class="lp-hills" viewBox="0 0 400 180" preserveAspectRatio="xMidYMax slice">
-          <path d="M0,62 Q90,32 190,52 T400,42 L400,180 L0,180Z" fill="#c9e89a"/>
-          <path d="M0,98 Q120,66 250,88 T400,80 L400,180 L0,180Z" fill="#aedd7c"/>
-          <path d="M0,138 Q140,110 280,128 T400,120 L400,180 L0,180Z" fill="#8fc857"/>
-          <path d="M150,180 Q180,134 250,118 Q330,100 396,60" fill="none" stroke="#d7eeb0" stroke-width="22" stroke-linecap="round" opacity=".7"/>
-          <path d="M0,156 Q90,144 170,154 Q250,164 340,152 L400,156" fill="none" stroke="#cfe8a4" stroke-width="15" stroke-linecap="round" opacity=".55"/>
-          <ellipse cx="306" cy="120" rx="25" ry="8.5" fill="#f1e3b6"/>
+          <path d="M0,52 Q90,26 190,44 T400,34 L400,180 L0,180Z" fill="#cdea9e"/>
+          <g fill="#9fce6e" opacity=".75"><ellipse cx="36" cy="48" rx="14" ry="11"/><ellipse cx="64" cy="50" rx="11" ry="9"/><ellipse cx="118" cy="44" rx="16" ry="12"/><ellipse cx="150" cy="48" rx="11" ry="9"/><ellipse cx="298" cy="42" rx="15" ry="11"/><ellipse cx="332" cy="46" rx="12" ry="9"/><ellipse cx="366" cy="43" rx="15" ry="11"/></g>
+          <path d="M0,92 Q120,62 250,84 T400,76 L400,180 L0,180Z" fill="#aedd7c"/>
+          <path d="M0,134 Q140,106 280,124 T400,116 L400,180 L0,180Z" fill="#8fc857"/>
+          <path d="M150,180 Q180,130 250,114 Q330,96 396,56" fill="none" stroke="#d7eeb0" stroke-width="22" stroke-linecap="round" opacity=".7"/>
+          <path d="M0,150 Q90,140 170,150 Q250,160 340,148 L400,150" fill="none" stroke="#cfe8a4" stroke-width="14" stroke-linecap="round" opacity=".55"/>
+          <ellipse cx="300" cy="116" rx="24" ry="8" fill="#f1e3b6"/>
+          <ellipse cx="72" cy="138" rx="17" ry="6" fill="#f1e3b6"/>
+          <g><ellipse cx="120" cy="148" rx="26" ry="9" fill="#7fbf52"/><rect x="118" y="124" width="2" height="24" fill="#cfd6d8"/><path d="M120 124 L131 128 L120 132 Z" fill="#ff5a4d"/></g>
+          <g><ellipse cx="250" cy="104" rx="20" ry="7" fill="#7fbf52"/><rect x="248.4" y="86" width="1.6" height="18" fill="#cfd6d8"/><path d="M250 86 L258 89 L250 93 Z" fill="#ff5a4d"/></g>
         </svg>
         <svg class="lp-lake" viewBox="0 0 140 70" aria-hidden="true"><defs><radialGradient id="lpLakeG2" cx="40%" cy="32%" r="80%"><stop offset="0" stop-color="#8fd6f0"/><stop offset="1" stop-color="#2f87b0"/></radialGradient></defs><ellipse cx="70" cy="46" rx="62" ry="18" fill="url(#lpLakeG2)"/><ellipse class="lp-lakeshine" cx="54" cy="40" rx="22" ry="4.5" fill="#fff" opacity=".4"/><g class="lp-fountain"><rect x="68" y="24" width="4" height="20" rx="2" fill="#9fb0b3"/><path class="lp-fjet" d="M70 26 q-9 -15 -17 -2 M70 26 q9 -15 17 -2 M70 24 v-13" fill="none" stroke="#bfeaf6" stroke-width="2.4" stroke-linecap="round"/><circle class="lp-fdrop d1" cx="55" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d2" cx="85" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d3" cx="70" cy="16" r="1.7" fill="#cdeefb"/></g></svg>
-        ${lpTree('left:3%;bottom:12%;width:82px')}
-        ${lpTree('left:17%;bottom:7%;width:52px')}
-        ${lpTree('right:27%;bottom:9%;width:48px')}
+        <svg class="lp-lake lp-lake2" viewBox="0 0 120 50" aria-hidden="true"><ellipse cx="60" cy="32" rx="54" ry="14" fill="#54a9d0"/><ellipse cx="46" cy="27" rx="18" ry="4" fill="#fff" opacity=".32"/><g class="lp-fountain"><rect x="58" y="16" width="3" height="16" rx="1.5" fill="#9fb0b3"/><path class="lp-fjet" d="M60 18 q-7 -11 -13 -2 M60 18 q7 -11 13 -2 M60 16 v-10" fill="none" stroke="#bfeaf6" stroke-width="2" stroke-linecap="round"/></g></svg>
+        ${lpTree('left:2%;bottom:11%;width:84px')}
+        ${lpTree('left:11%;bottom:6%;width:54px')}
+        ${lpTree('left:23%;bottom:14%;width:46px')}
+        ${lpTree('left:33%;bottom:7%;width:60px')}
+        ${lpTree('left:45%;bottom:15%;width:38px')}
+        ${lpTree('right:30%;bottom:13%;width:44px')}
+        ${lpTree('right:18%;bottom:8%;width:58px')}
+        ${lpTree('right:8%;bottom:17%;width:70px')}
+        ${lpTree('right:2%;bottom:6%;width:50px')}
+        <svg class="lp-perchb" style="left:7%;bottom:24%" viewBox="0 0 20 16" aria-hidden="true"><ellipse cx="9" cy="9" rx="5" ry="4" fill="#5b6b7a"/><circle cx="14" cy="6" r="3" fill="#5b6b7a"/><path d="M16 5 l3 -1 l-3 3 Z" fill="#f5a623"/><circle cx="14.6" cy="5.4" r=".7" fill="#fff"/><path d="M4 9 q-4 1 -3 -3 Z" fill="#46566a"/></svg>
+        <svg class="lp-perchb" style="right:11%;bottom:29%" viewBox="0 0 20 16" aria-hidden="true"><ellipse cx="9" cy="9" rx="5" ry="4" fill="#6a7b66"/><circle cx="14" cy="6" r="3" fill="#6a7b66"/><path d="M16 5 l3 -1 l-3 3 Z" fill="#f5a623"/><circle cx="14.6" cy="5.4" r=".7" fill="#fff"/><path d="M4 9 q-4 1 -3 -3 Z" fill="#566b52"/></svg>
+        <img class="lp-cgolfer g1" src="${AVATARS[0]}" alt="" />
+        <img class="lp-cgolfer g2" src="${AVATARS[6]}" alt="" />
         <div class="lp-cart c1">${cartSvg}</div>
         <div class="lp-cart c2">${cartSvg}</div>
         <div class="lp-hole"><span class="lp-green"></span><span class="lp-cup"></span><span class="lp-pin"></span></div>

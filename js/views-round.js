@@ -219,19 +219,13 @@ function vSetup() {
   const sname = id => COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
   const totalYds = Math.round(COURSES[cid].holes.reduce((a, h) => a + h.yds, 0) * tee.f);
   const teeCol = { negras: '#23262e', azules: '#3a8fe0', blancas: '#eef2f6', rojas: '#e8483a', amarillas: '#f2c33a' };
-  const phaseNow = roundPhase(new Date().getHours());
   const courseCards = COURSE_ORDER.map(id => {
     const c = COURSES[id];
     const on = cid === id;
     const par = c.holes.reduce((a, h) => a + h.par, 0);
-    return `<button class="cs-course rf-${phaseNow} ${on ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">
-      ${rfSky(phaseNow)}${rfCourseSvg()}
-      <div class="cs-info">
-        <b>${esc(sname(id))}</b>
-        <span class="cs-meta">${c.holes.length} hoyos · Par ${par} · ${c.approx ? 'aprox' : 'real'}</span>
-        <span class="cs-weather">${mockWeather(id)}</span>
-      </div>
-      <span class="cs-check">${on ? '✓' : ''}</span>
+    return `<button class="su-course ${on ? 'on' : ''}" data-act="setup-pick-course" data-c="${id}">
+      <span class="su-c-info"><b>${esc(sname(id))}</b><span>${c.holes.length} hoyos · Par ${par} · ${c.approx ? 'aprox' : 'real'}</span></span>
+      <span class="su-c-check">${on ? '✓' : ''}</span>
     </button>`;
   }).join('');
   const curPar = COURSES[cid].holes.reduce((a, h) => a + h.par, 0);
