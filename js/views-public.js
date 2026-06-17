@@ -81,6 +81,13 @@ function vLanding() {
   const cartSvg = `<svg viewBox="0 0 64 44" aria-hidden="true"><path d="M9 16 L14 6 L39 6 L45 16 Z" fill="#ffffff"/><rect x="12" y="7" width="24" height="9" rx="1" fill="#bfe6f7"/><rect x="6" y="16" width="42" height="13" rx="3" fill="#eef6df"/><rect x="44" y="19" width="15" height="9" rx="2" fill="#a7d36a"/><circle cx="16" cy="32" r="6" fill="#33382f"/><circle cx="38" cy="32" r="6" fill="#33382f"/><circle cx="16" cy="32" r="2.4" fill="#d6dccb"/><circle cx="38" cy="32" r="2.4" fill="#d6dccb"/></svg>`;
   const lpPine = (st) => `<div class="lp-pine" style="${st}"><svg viewBox="0 0 40 64" aria-hidden="true"><rect x="17" y="48" width="6" height="15" rx="2" fill="#6b4a2a"/><polygon points="20,3 33,27 7,27" fill="#3f8f46"/><polygon points="20,15 36,42 4,42" fill="#357d3d"/><polygon points="20,27 38,56 2,56" fill="#2e7036"/></svg></div>`;
   const lpFlag = (st, col) => `<div class="lp-cflag" style="${st}"><svg viewBox="0 0 22 30" aria-hidden="true"><ellipse cx="9" cy="27" rx="11" ry="3.4" fill="#7fbf52"/><rect x="9" y="3" width="1.7" height="22" fill="#d2d8da"/><path d="M10.7 3 L20 6.2 L10.7 9.4 Z" fill="${col || '#ff5a4d'}"/></svg></div>`;
+  // mismo estilo del fondo de la app (clases bgc-*), exagerado: muchísimos árboles + greens + lagos
+  const bgcTree = (x, y, s) => `<g class="bgc-tree" transform="translate(${x} ${y}) scale(${s})"><rect class="bgc-trunk" x="-2" y="-2" width="4" height="14"/><circle class="bgc-leaf" cx="0" cy="-11" r="11"/><circle class="bgc-leaf2" cx="-7" cy="-5" r="8"/><circle class="bgc-leaf2" cx="7" cy="-6" r="8"/></g>`;
+  const bgcGreen = (x, y, rx, ry) => `<ellipse class="bgc-green-sh" cx="${x}" cy="${y + 4}" rx="${rx}" ry="${ry}"/><ellipse class="bgc-green" cx="${x}" cy="${y}" rx="${rx}" ry="${ry - 1}"/>`;
+  const bgcFlag = (x, y, h) => `<g class="bgc-flag" transform="translate(${x} ${y})"><line x1="0" y1="0" x2="0" y2="-${h || 26}" stroke="#fff" stroke-width="2.2"/><path d="M0,-${h || 26} l13,4 -13,4z" fill="#C7EE54"/><circle cx="0" cy="0" r="2.2" fill="#0a2e16"/></g>`;
+  const bgcLake = (x, y, rx, ry) => `<ellipse class="bgc-lake" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/><ellipse class="bgc-lake-sh" cx="${x - 12}" cy="${y - 3}" rx="${Math.round(rx * 0.36)}" ry="3.5"/><g class="bgc-fountain" transform="translate(${x} ${y - 5})"><rect x="-1.4" y="-12" width="2.8" height="14" fill="#9fb0b3"/><path class="bgc-fjet" d="M0,-12 q-9,-12 -16,-3 M0,-12 q9,-12 16,-3 M0,-13 v-9" fill="none" stroke="#cdeefb" stroke-width="2"/><circle class="bgc-fdrop d1" cx="-12" cy="-9" r="1.6" fill="#cdeefb"/><circle class="bgc-fdrop d2" cx="12" cy="-9" r="1.6" fill="#cdeefb"/></g>`;
+  const bgcGolfer = (x, y, cls) => `<g class="bgc-golfer ${cls}" transform="translate(${x} ${y})"><ellipse class="bgc-gsh" cx="0" cy="3" rx="7" ry="1.6"/><path class="bgc-gbody" d="M-2.6,2 L-1,-8 L1,-8 L2.6,2 Z"/><circle class="bgc-gbody" cx="0" cy="-11" r="2.6"/><line class="bgc-gclub" x1="1" y1="-8" x2="7" y2="-14"/></g>`;
+  const tline = (arr) => arr.map(t => bgcTree(t[0], t[1], t[2])).join('');
   return `<div class="lp lp-ph-${phase}">
     <div class="lp-fixed" aria-hidden="true">
       <div class="lp-sky2">${celest}<span class="lp-icloud i1"></span><span class="lp-icloud i2"></span><span class="lp-icloud i3"></span></div>
@@ -91,42 +98,26 @@ function vLanding() {
       ${bsil('left:0;top:27%;transform:scale(.85);animation:lpFlyR 60s linear infinite;animation-delay:-42s')}
       <span class="lp-fly lf1"></span><span class="lp-fly lf2"></span><span class="lp-fly lf3"></span>
       <div class="lp-ground">
-        <svg class="lp-hills" viewBox="0 0 400 180" preserveAspectRatio="xMidYMax slice">
-          <path d="M0,50 Q90,24 190,42 T400,32 L400,180 L0,180Z" fill="#cdea9e"/>
-          <g fill="#9fce6e" opacity=".7"><ellipse cx="30" cy="46" rx="13" ry="10"/><ellipse cx="58" cy="48" rx="11" ry="9"/><ellipse cx="110" cy="42" rx="15" ry="11"/><ellipse cx="146" cy="46" rx="11" ry="9"/><ellipse cx="250" cy="40" rx="13" ry="10"/><ellipse cx="296" cy="42" rx="15" ry="11"/><ellipse cx="332" cy="45" rx="12" ry="9"/><ellipse cx="368" cy="42" rx="15" ry="11"/></g>
-          <path d="M0,88 Q120,58 250,80 T400,72 L400,180 L0,180Z" fill="#aedd7c"/>
-          <path d="M0,128 Q140,100 280,118 T400,110 L400,180 L0,180Z" fill="#8fc857"/>
-          <g opacity=".4" stroke="#bfe28a" stroke-width="9" fill="none" stroke-linecap="round"><path d="M30,180 Q120,128 250,116"/><path d="M80,180 Q160,132 290,120"/><path d="M130,180 Q200,136 330,124"/></g>
-          <path d="M150,180 Q180,128 250,112 Q330,94 396,54" fill="none" stroke="#d7eeb0" stroke-width="20" stroke-linecap="round" opacity=".7"/>
-          <ellipse cx="300" cy="110" rx="22" ry="7" fill="#f1e3b6"/>
-          <ellipse cx="68" cy="132" rx="16" ry="6" fill="#f1e3b6"/>
-          <ellipse cx="210" cy="150" rx="20" ry="7" fill="#f1e3b6"/>
+        <svg class="lp-bgc" viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <path class="bgc-far" d="M0,108 Q100,74 200,96 T400,88 L400,240 L0,240 Z"/>
+          ${tline([[18, 110, .85], [42, 112, .7], [66, 108, .95], [100, 106, .8], [140, 104, .7], [186, 106, .72], [232, 104, .7], [286, 108, .78], [330, 110, .9], [366, 106, 1.05]])}
+          ${bgcFlag(70, 104, 22)}
+          <path class="bgc-mid" d="M0,152 Q120,114 240,142 T400,132 L400,240 L0,240 Z"/>
+          ${bgcLake(92, 170, 46, 13)}
+          ${bgcGreen(300, 148, 38, 13)}${bgcFlag(300, 148, 30)}
+          ${bgcGreen(238, 152, 24, 9)}${bgcFlag(238, 152, 22)}
+          ${tline([[14, 158, 1.05], [54, 164, .85], [100, 156, .7], [352, 160, 1.2], [386, 156, 1.0]])}
+          <ellipse class="bgc-sand" cx="170" cy="190" rx="26" ry="8"/>
+          <ellipse class="bgc-sand" cx="64" cy="198" rx="20" ry="7"/>
+          <path class="bgc-front" d="M0,202 Q140,172 280,196 T400,192 L400,240 L0,240 Z"/>
+          ${bgcLake(330, 206, 40, 11)}
+          ${bgcGreen(120, 214, 34, 11)}${bgcFlag(120, 214, 28)}
+          <path class="bgc-fair" d="M150,240 Q175,206 230,197 Q300,185 360,150" fill="none" stroke-width="20" stroke-linecap="round"/>
+          ${tline([[24, 210, 1.3], [74, 216, 1.05], [360, 210, 1.3], [390, 216, 1.1]])}
+          ${bgcGolfer(70, 214, 'gA')}${bgcGolfer(238, 222, 'gB')}${bgcGolfer(338, 214, 'gA')}
         </svg>
-        <svg class="lp-lake" viewBox="0 0 140 70" aria-hidden="true"><defs><radialGradient id="lpLakeG2" cx="40%" cy="32%" r="80%"><stop offset="0" stop-color="#8fd6f0"/><stop offset="1" stop-color="#2f87b0"/></radialGradient></defs><ellipse cx="70" cy="46" rx="62" ry="18" fill="url(#lpLakeG2)"/><ellipse class="lp-lakeshine" cx="54" cy="40" rx="22" ry="4.5" fill="#fff" opacity=".4"/><g class="lp-fountain"><rect x="68" y="24" width="4" height="20" rx="2" fill="#9fb0b3"/><path class="lp-fjet" d="M70 26 q-9 -15 -17 -2 M70 26 q9 -15 17 -2 M70 24 v-13" fill="none" stroke="#bfeaf6" stroke-width="2.4" stroke-linecap="round"/><circle class="lp-fdrop d1" cx="55" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d2" cx="85" cy="28" r="1.7" fill="#cdeefb"/><circle class="lp-fdrop d3" cx="70" cy="16" r="1.7" fill="#cdeefb"/></g></svg>
-        <svg class="lp-lake lp-lake2" viewBox="0 0 120 50" aria-hidden="true"><ellipse cx="60" cy="32" rx="54" ry="14" fill="#54a9d0"/><ellipse cx="46" cy="27" rx="18" ry="4" fill="#fff" opacity=".32"/><g class="lp-fountain"><rect x="58" y="16" width="3" height="16" rx="1.5" fill="#9fb0b3"/><path class="lp-fjet" d="M60 18 q-7 -11 -13 -2 M60 18 q7 -11 13 -2 M60 16 v-10" fill="none" stroke="#bfeaf6" stroke-width="2" stroke-linecap="round"/></g></svg>
-        <svg class="lp-lake lp-lake3" viewBox="0 0 120 50" aria-hidden="true"><ellipse cx="60" cy="32" rx="50" ry="13" fill="#4fa6cf"/><ellipse cx="46" cy="28" rx="16" ry="3.6" fill="#fff" opacity=".3"/><g class="lp-fountain"><rect x="58" y="18" width="3" height="14" rx="1.5" fill="#9fb0b3"/><path class="lp-fjet" d="M59.5 20 q-6 -10 -12 -2 M59.5 20 q6 -10 12 -2 M59.5 18 v-9" fill="none" stroke="#bfeaf6" stroke-width="2" stroke-linecap="round"/></g></svg>
-        <svg class="lp-clubhouse" viewBox="0 0 160 110" aria-hidden="true"><ellipse cx="80" cy="103" rx="74" ry="7" fill="#1a3a14" opacity=".12"/><rect x="30" y="50" width="100" height="50" rx="2" fill="#f6efe0"/><path d="M18 52 L80 20 L142 52 Z" fill="#c8623a"/><path d="M18 52 L80 20 L142 52 Z" fill="#000" opacity=".05"/><rect x="58" y="58" width="44" height="42" fill="#fbf6ea"/><rect x="60" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="78" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="96" y="58" width="4" height="42" fill="#e6dcc6"/><rect x="73" y="78" width="14" height="22" rx="1" fill="#8a5a36"/><rect x="38" y="62" width="13" height="13" fill="#bfe6f7" stroke="#fff" stroke-width="2"/><rect x="109" y="62" width="13" height="13" fill="#bfe6f7" stroke="#fff" stroke-width="2"/></svg>
-        <svg class="lp-house" viewBox="0 0 90 70" aria-hidden="true"><ellipse cx="45" cy="64" rx="40" ry="5" fill="#1a3a14" opacity=".12"/><rect x="18" y="34" width="54" height="32" rx="2" fill="#f4ecd6"/><path d="M12 36 L45 12 L78 36 Z" fill="#c8623a"/><rect x="38" y="48" width="14" height="18" rx="1" fill="#8a5a36"/><rect x="24" y="40" width="11" height="10" fill="#bfe6f7" stroke="#fff" stroke-width="1.5"/><rect x="56" y="40" width="11" height="10" fill="#bfe6f7" stroke="#fff" stroke-width="1.5"/></svg>
-        ${lpPine('left:1%;bottom:14%;width:42px')}
-        ${lpPine('left:8%;bottom:8%;width:34px')}
-        ${lpPine('left:17%;bottom:18%;width:28px')}
-        ${lpPine('right:1%;bottom:13%;width:44px')}
-        ${lpPine('right:9%;bottom:8%;width:34px')}
-        ${lpPine('right:18%;bottom:19%;width:28px')}
-        ${lpTree('left:4%;bottom:6%;width:58px')}
-        ${lpTree('left:22%;bottom:9%;width:46px')}
-        ${lpTree('right:5%;bottom:7%;width:56px')}
-        ${lpTree('right:23%;bottom:10%;width:44px')}
-        ${lpFlag('left:31%;bottom:11%')}
-        ${lpFlag('left:52%;bottom:17%', '#ffb13b')}
-        ${lpFlag('right:34%;bottom:14%')}
-        ${lpFlag('left:63%;bottom:8%', '#ffb13b')}
-        <img class="lp-cgolfer g1" src="${AVATARS[0]}" alt="" />
-        <img class="lp-cgolfer g2" src="${AVATARS[6]}" alt="" />
         <div class="lp-cart c1">${cartSvg}</div>
         <div class="lp-cart c2">${cartSvg}</div>
-        <div class="lp-cart c3">${cartSvg}</div>
-        <div class="lp-base"></div>
       </div>
     </div>
     <header class="lp-nav">
