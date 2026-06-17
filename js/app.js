@@ -732,8 +732,8 @@ const actions = {
       const el = document.getElementById('dd-timer');
       if (!el) { stopDrillTimer(); return; }
       el.textContent = fmtClock(V.timer.left);
-      const ring = document.getElementById('dd-ring');
-      if (ring) { const R = 46, C = 2 * Math.PI * R; ring.setAttribute('stroke-dashoffset', (C * (1 - (V.timer.left / (V.timer.total || 1)))).toFixed(1)); }
+      const bar = document.getElementById('dd-bar');
+      if (bar) bar.style.width = (100 * (1 - (V.timer.left / (V.timer.total || 1)))).toFixed(1) + '%';
       if (V.timer.left <= 0) { stopDrillTimer(); V.timer.running = false; if (typeof celebrate === 'function') celebrate(false, '¡Tiempo! Bien entrenado'); render(); }
     }, 1000);
   },

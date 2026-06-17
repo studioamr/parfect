@@ -306,23 +306,16 @@ function vDrillDetail() {
   const doneToday = ((cur() || {}).drillsDone || {})[d.name] === today();
   const tm = V.timer || { left: 300, total: 300, running: false };
   const presets = [300, 600, 900, 1200];
-  const R = 40, C = 2 * Math.PI * R, off = (C * (1 - (tm.left / (tm.total || 1)))).toFixed(1);
+  const pct = Math.round(100 * (1 - (tm.left / (tm.total || 1))));
   const timerHtml = `
-    <div class="ddt2 ${tm.running ? 'run' : ''}">
-      <div class="ddt2-ring">
-        <svg viewBox="0 0 96 96"><circle class="ddt2-track" cx="48" cy="48" r="${R}"/><circle class="ddt2-prog" id="dd-ring" cx="48" cy="48" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off}"/></svg>
-        <span class="ddt2-clock" id="dd-timer">${fmtClock(tm.left)}</span>
-      </div>
-      <div class="ddt2-side">
-        <div class="ddt2-presets">${presets.map(s => `<button class="chip sm ${tm.total === s ? 'on' : ''}" data-act="timer-set" data-s="${s}">${s / 60} min</button>`).join('')}</div>
-        <div class="ddt2-custom" ${tm.running ? 'style="opacity:.45;pointer-events:none"' : ''}>
-          <span class="ddt2-clab">Tiempo por sesión</span>
-          <div class="ddt2-step"><button data-act="timer-adjust" data-d="-1" aria-label="Menos">−</button><b>${Math.round(tm.total / 60)} min</b><button data-act="timer-adjust" data-d="1" aria-label="Más">+</button></div>
-        </div>
-        <div class="ddt2-ctrls">
-          ${tm.running ? `<button class="btn" data-act="timer-pause">⏸ Pausar</button>` : `<button class="btn primary" data-act="timer-start" ${tm.left <= 0 ? 'disabled' : ''}>${tm.left < tm.total ? 'Reanudar' : 'Iniciar'} ▶</button>`}
-          <button class="btn ghost" data-act="timer-reset">↺</button>
-        </div>
+    <div class="sr-card tmr-card">
+      <div class="sr-now"><span class="sr-scene">${(typeof statScene === 'function') ? statScene(cm.s) : chkScene(cm.s, true)}</span><div class="sr-nowtx"><b>${esc(d.name)}</b><span>${esc(d.dose || catLab)}</span></div></div>
+      <div class="sr-clock" id="dd-timer">${fmtClock(tm.left)}</div>
+      <div class="sr-bar"><i id="dd-bar" style="width:${pct}%"></i></div>
+      <div class="tmr-presets ${tm.running ? 'tmr-locked' : ''}">${presets.map(s => `<button class="chip sm ${tm.total === s ? 'on' : ''}" data-act="timer-set" data-s="${s}">${s / 60} min</button>`).join('')}</div>
+      <div class="ddt2-ctrls">
+        ${tm.running ? `<button class="btn" data-act="timer-pause">⏸ Pausar</button>` : `<button class="btn primary" data-act="timer-start" ${tm.left <= 0 ? 'disabled' : ''}>${tm.left < tm.total ? 'Reanudar' : 'Iniciar'} ▶</button>`}
+        <button class="btn ghost" data-act="timer-reset">↺</button>
       </div>
     </div>`;
   return `<div class="overlay" data-act="drill-close-detail">
@@ -482,7 +475,8 @@ function vSessionPlanner() {
       <div class="sp-phase">Entrenamiento libre</div>
       <h2 class="sp-q">${golfIcon('putter')} ¿Qué bastón entrenas?</h2>
       <div class="chips" style="flex-wrap:wrap;margin-bottom:16px">${chips}</div>
-      <div class="free-clockbox"><span class="free-clock" id="free-clock">${fmtClock(t.secs)}</span><span class="free-lab">${V.freeClub ? esc(V.freeClub) : 'elige un bastón'}</span></div>
+      <div class="sr-now"><span class="sr-scene">${(typeof statScene === 'function') ? statScene(({ 'Driver': 'fw', 'Maderas': 'fw', 'Híbridos': 'fw', 'Hierros': 'gir', 'Wedges': 'ud', 'Juego corto': 'ud', 'Putter': 'putt' })[V.freeClub] || 'fw') : ''}</span><div class="sr-nowtx"><b>${V.freeClub ? esc(V.freeClub) : 'Entrenamiento libre'}</b><span>${V.freeClub ? 'cronometrando' : 'elige un bastón'}</span></div></div>
+      <div class="sr-clock" id="free-clock">${fmtClock(t.secs)}</div>
       <div class="ddt2-ctrls" style="margin-top:14px">
         ${t.running ? `<button class="btn" data-act="free-pause">⏸ Pausar</button>` : `<button class="btn primary" data-act="free-start" ${V.freeClub ? '' : 'disabled'}>${t.secs > 0 ? 'Reanudar' : 'Iniciar'} ▶</button>`}
         <button class="btn ghost" data-act="free-reset">↺</button>

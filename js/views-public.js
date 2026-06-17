@@ -86,36 +86,24 @@ function lpFeatArt(kind) {
 function lpPhone(scr, cls) {
   return `<div class="lp-phone ${cls || ''}"><span class="lp-phone-notch"></span><div class="lp-phone-scr">${scr}</div></div>`;
 }
-function lpRing(k, pct, lab) {
-  return `<div class="lps-ring"><div class="lps-ringart">${(typeof chkScene === 'function') ? chkScene(k, true) : ''}</div><b>${pct}%</b><span>${lab}</span></div>`;
-}
+/* pantalla real: renderiza componentes reales de la app, escalados dentro del teléfono */
+function lpReal(inner) { return `<div class="lp-realscr"><div class="lp-realwrap">${inner}</div></div>`; }
 function lpScrStats() {
-  return `<div class="lps">
-    <div class="lps-top"><span class="lps-logo">PARFECT</span><span class="lps-av">🏌️</span></div>
-    <div class="lps-card">
-      <div class="lps-card-l"><span>Tu hándicap</span><b>7.2</b><small>Élite · Campestre</small></div>
-      <span class="lps-card-fig">🏌️</span>
-    </div>
-    <div class="lps-rings">${lpRing('fw', 61, 'Calles')}${lpRing('gir', 53, 'GIR')}${lpRing('ud', 51, 'U&D')}</div>
-    <div class="lps-tiles"><div class="lps-tile"><b>30</b><span>Putts</span></div><div class="lps-tile"><b>8%</b><span>Birdies</span></div><div class="lps-tile"><b>−2</b><span>Mejor</span></div></div>
-  </div>`;
+  const rings = [['fw', 61, 'Fairways'], ['gir', 53, 'GIR'], ['ud', 51, 'Up & down']]
+    .map(([k, p, l]) => (typeof pstSceneStatic === 'function') ? pstSceneStatic(k, p, l) : '').join('');
+  const tiles = [['Putts / ronda', '30', 'putter'], ['Birdie o mejor', '8%', 'flag'], ['Bogey o peor', '31%', 'green'], ['Pares', '60%', 'flag']]
+    .map((t, i) => `<div class="pst-tile" style="--i:${i}"><span class="pst-th"><span class="pst-ic">${golfIcon(t[2])}</span></span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
+  return lpReal(`<div class="pl-hero" style="background:linear-gradient(135deg,#2f6d34,#1c4a23)"><div class="pl-hero-txt"><span class="pl-hero-lab">Demo PARFECT · Élite</span><div class="pl-hero-num">7.2</div><span class="pl-hero-sub">Hándicap · Campestre</span></div></div><div class="pst-rings">${rings}</div><div class="pst-grid">${tiles}</div>`);
 }
 function lpScrPlay() {
-  return `<div class="lps">
-    <div class="lps-top"><span class="lps-x">✕</span><span class="lps-logo">Campestre</span><span class="lps-mini">3/18</span></div>
-    <div class="lps-hb"><span>Hoyo 3</span><b>Par 4 · 380 yds</b></div>
-    <div class="lps-htiles">${['fw','gir','ud'].map((k,i)=>`<div class="lps-ht">${(typeof chkScene==='function')?chkScene(k, i<2):''}<span>${['Calle','Green','U&D'][i]}</span></div>`).join('')}</div>
-    <div class="lps-bigscore"><span>Score</span><b>4</b><small>Par</small></div>
-  </div>`;
+  const tiles = [['fw', true, 'Calle'], ['gir', true, 'Green'], ['ud', false, 'Up & down']]
+    .map(([k, on, l]) => `<button class="hs-tile ic-${k} ${on ? 'on' : ''}"><div class="hs-art">${(typeof chkScene === 'function') ? chkScene(k, on) : ''}</div><span class="hs-lab">${l}</span><span class="hs-box">${on ? '✓' : ''}</span></button>`).join('');
+  return lpReal(`<div class="lpsr-hb"><span class="lpsr-hb-c">Campestre · Azules</span><div class="lpsr-hb-r"><b>Hoyo 3</b><span>Par 4 · 380 yds</span></div></div><div class="hs-tiles">${tiles}</div>`);
 }
 function lpScrCoach() {
-  return `<div class="lps">
-    <div class="lps-top"><span class="lps-logo">Análisis IA</span></div>
-    <div class="lps-coach"><span class="lps-coach-ic">IA</span><div class="lps-coach-tx"><span>Tu fuga #1</span><b>Approach</b></div></div>
-    <div class="lps-cbars">
-      ${[['Salidas',62],['Approach',92],['Juego corto',55],['Putt',40]].map(([t,w])=>`<div class="lps-cbar"><span>${t}</span><i style="width:${w}%"></i></div>`).join('')}
-    </div>
-  </div>`;
+  const bars = [['Salidas', 62], ['Juego corto', 55], ['Putt', 40]]
+    .map(([t, w]) => `<button class="diag-bar" style="--c:#3f9d44"><span class="diag-bar-ic">${golfIcon('flag')}</span><div class="diag-bar-main"><div class="diag-bar-top"><b>${t}</b></div><div class="diag-bar-track"><i style="width:${w}%"></i></div></div></button>`).join('');
+  return lpReal(`<div class="diag-hero" style="--c:#2fa36b"><div class="diag-hero-top"><span class="diag-hero-ic">${golfIcon('green')}</span><span class="diag-hero-tag">Tu fuga #1</span></div><h2 class="diag-hero-h">Approach</h2><div class="diag-hero-lost"><b>−1.2</b><span>golpes / ronda</span></div><p class="diag-hero-tip">Practica wedges a 50 / 75 / 100 m hasta dejarla a 3 m.</p></div><div class="diag-bars" style="margin-top:12px">${bars}</div>`);
 }
 
 function vLanding() {
