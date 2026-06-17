@@ -204,9 +204,20 @@ const ACADEMY_QUIZ = [
     { q: 'La mentalidad élite tras un error es…', opts: ['Enojarte', 'Siguiente golpe, plan claro', 'Rendirte', 'Arriesgar todo'], a: 1 },
   ] },
 ];
+/* 18 niveles (secciones) que reusan los 6 bancos temáticos de preguntas */
+const ACADEMY_N = 18;
+const ACADEMY_POOL = ACADEMY_QUIZ.reduce((a, h) => a.concat(h.qs), []);
+function levelMeta(i) { return ACADEMY_QUIZ[i % ACADEMY_QUIZ.length]; }
+function levelQs(i) {
+  // 10 preguntas estables por nivel: barajado con semilla del índice del nivel
+  const pool = ACADEMY_POOL.slice();
+  let s = (i + 3) * 2654435761 % 2147483647;
+  for (let k = pool.length - 1; k > 0; k--) { s = (s * 48271) % 2147483647; const j = s % (k + 1); [pool[k], pool[j]] = [pool[j], pool[k]]; }
+  return pool.slice(0, 10);
+}
 function quizBest(u, i) { return ((u && u.acQuiz) || {})[i] || 0; }
 function quizUnlocked(u, i) { return i === 0 || quizBest(u, i - 1) >= 7; }
-function quizProgress(u) { let done = 0; for (let i = 0; i < ACADEMY_QUIZ.length; i++) if (quizBest(u, i) >= 7) done++; return { done, total: ACADEMY_QUIZ.length }; }
+function quizProgress(u) { let done = 0; for (let i = 0; i < ACADEMY_N; i++) if (quizBest(u, i) >= 7) done++; return { done, total: ACADEMY_N }; }
 
 /* lista plana en orden (para bloquear secuencialmente) */
 const ACADEMY_FLAT = ACADEMY.reduce((a, u) => a.concat(u.lessons.map(l => l.id)), []);
@@ -281,31 +292,30 @@ function acFlagSVG() {
 function vAcademyBody(u) {
   const prog = quizProgress(u);
   const pct = Math.round((prog.done / prog.total) * 100);
-  const curIdx = ACADEMY_QUIZ.findIndex((_, i) => quizBest(u, i) < 7);
-  const off = [0, 50, 72, 50, 0, -50];
-  const nodes = ACADEMY_QUIZ.map((h, i) => {
+  let curIdx = -1; for (let i = 0; i < ACADEMY_N; i++) { if (quizBest(u, i) < 7) { curIdx = i; break; } }
+  const squares = Array.from({ length: ACADEMY_N }, (_, i) => {
+    const m = levelMeta(i);
     const best = quizBest(u, i);
     const unlocked = quizUnlocked(u, i);
     const passed = best >= 7;
     const isCur = i === curIdx;
     const state = passed ? 'done' : isCur ? 'cur' : unlocked ? 'open' : 'lock';
-    const dx = off[i % off.length];
-    const ic = passed ? '<span class="duo-ic chk">✓</span>' : !unlocked ? '<span class="duo-ic lk">🔒</span>' : `<span class="duo-ic">${golfIcon(h.icon)}</span>`;
-    return `<div class="duo-row" style="transform:translateX(${dx}px)">
-      ${isCur ? `<span class="duo-start">JUGAR</span>` : ''}
-      <button class="duo-node aq-pnode ${state}" ${unlocked ? `data-act="quiz-open" data-i="${i}"` : 'disabled'} style="--uc:${h.color}" aria-label="${esc(h.unit)}"><span class="aq-pno">${i + 1}</span>${ic}</button>
-      <span class="duo-cap">${esc(h.unit)}${best ? ` · ${best}/10` : ''}</span>
-    </div>`;
+    const ic = passed ? '✓' : !unlocked ? '🔒' : `<span class="aqs-gi">${golfIcon(m.icon)}</span>`;
+    return `<button class="aqs-sq ${state}" ${unlocked ? `data-act="quiz-open" data-i="${i}"` : 'disabled'} style="--uc:${m.color}" aria-label="Nivel ${i + 1} · ${esc(m.unit)}">
+      <span class="aqs-no">${i + 1}</span>
+      <span class="aqs-ic">${ic}</span>
+      ${isCur ? '<span class="aqs-play">JUGAR</span>' : best ? `<span class="aqs-best">${best}/10</span>` : ''}
+    </button>`;
   }).join('');
   const bubble = curIdx >= 0
-    ? `¡Hoyo ${curIdx + 1}!<br><b>${esc(ACADEMY_QUIZ[curIdx].unit)}</b> · 10 preguntas`
+    ? `¡Nivel ${curIdx + 1}!<br><b>${esc(levelMeta(curIdx).unit)}</b> · 10 preguntas`
     : `🏆 ¡Campo completo!<br><b>Eres leyenda de la Academia.</b>`;
   return `<div class="acw-guide">
       <div class="acw-bird">${senseiBird('')}</div>
       <div class="acw-bubble">${bubble}</div>
     </div>
-    <div class="ac-progwrap acw-prog"><div class="ac-progbar"><i style="width:${pct}%"></i></div><span>${prog.done}/${prog.total} hoyos</span></div>
-    <div class="duo-path aq-path">${nodes}</div>`;
+    <div class="ac-progwrap acw-prog"><div class="ac-progbar"><i style="width:${pct}%"></i></div><span>${prog.done}/${prog.total} niveles</span></div>
+    <div class="aqs-grid">${squares}</div>`;
 }
 
 function vAcademy() {
@@ -331,24 +341,25 @@ function vAcademy() {
 function vQuizSheet() {
   const u = cur();
   const q = V.quiz; if (!q) return '';
-  const hole = ACADEMY_QUIZ[q.i]; if (!hole) return '';
-  const total = hole.qs.length;
+  const hole = levelMeta(q.i); if (!hole) return '';
+  const qs = levelQs(q.i);
+  const total = qs.length;
   if (q.done) {
     const passed = q.score >= 7;
-    const hasNext = q.i + 1 < ACADEMY_QUIZ.length;
+    const hasNext = q.i + 1 < ACADEMY_N;
     return `<div class="overlay overlay-top" data-act="quiz-close"><div class="sheet aq-sheet aq-result" data-act="noop" style="--uc:${hole.color}">
       <div class="aq-res-ring ${passed ? 'pass' : ''}"><div class="aq-res-ic">${passed ? '🏆' : '🎯'}</div></div>
-      <h2 class="aq-res-h">${passed ? '¡Hoyo superado!' : '¡Casi lo logras!'}</h2>
+      <h2 class="aq-res-h">${passed ? '¡Nivel superado!' : '¡Casi lo logras!'}</h2>
       <div class="aq-res-score">${q.score}<span>/${total}</span></div>
       <div class="aq-res-stars">${[0, 1, 2].map(s => `<span class="${q.score >= [5, 7, 9][s] ? 'on' : ''}">★</span>`).join('')}</div>
-      <p class="aq-res-sub">${passed ? (hasNext ? '¡Desbloqueaste el siguiente hoyo! 🔓' : '¡Completaste el campo entero! 🏆') : 'Necesitas 7/10 para pasar. ¡Vuelve a intentarlo!'}</p>
+      <p class="aq-res-sub">${passed ? (hasNext ? '¡Desbloqueaste el siguiente nivel! 🔓' : '¡Completaste los 18 niveles! 🏆') : 'Necesitas 7/10 para pasar. ¡Vuelve a intentarlo!'}</p>
       <div class="aq-res-btns">
         <button class="btn primary big" data-act="quiz-retry">↺ Jugar de nuevo</button>
         ${passed && hasNext ? `<button class="btn big" data-act="quiz-next-hole">Siguiente hoyo →</button>` : `<button class="btn" data-act="quiz-close">Salir</button>`}
       </div>
     </div></div>`;
   }
-  const item = hole.qs[q.order[q.qi]];
+  const item = qs[q.order[q.qi]];
   const letters = ['A', 'B', 'C', 'D'];
   const answered = q.picked != null;
   const correct = answered && q.picked === item.a;
@@ -361,7 +372,7 @@ function vQuizSheet() {
   const dots = Array.from({ length: total }, (_, k) => `<span class="aq-dot ${k < q.qi ? 'done' : k === q.qi ? 'cur' : ''}"></span>`).join('');
   return `<div class="overlay overlay-top" data-act="quiz-close"><div class="sheet aq-sheet" data-act="noop" style="--uc:${hole.color}">
     <div class="aq-top">
-      <span class="aq-tag">${golfIcon(hole.icon)} Hoyo ${q.i + 1} · ${esc(hole.unit)}</span>
+      <span class="aq-tag">${golfIcon(hole.icon)} Nivel ${q.i + 1} · ${esc(hole.unit)}</span>
       <span class="aq-pts">${q.score}<b>✓</b></span>
       <button class="aq-x" data-act="quiz-close" aria-label="Cerrar">✕</button>
     </div>

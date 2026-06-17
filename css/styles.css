@@ -2130,6 +2130,21 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 
 /* hoja de lección */
 .lsheet { max-height: 88vh; overflow-y: auto; }
+/* ===== Academia · niveles en cuadros (grid) ===== */
+.aqs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+.aqs-sq { position: relative; aspect-ratio: 1; border: none; border-radius: 18px; background: var(--uc); color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 6px 0 color-mix(in srgb, var(--uc) 55%, #000), 0 10px 16px rgba(20,40,15,.16); transition: transform .1s, box-shadow .1s; }
+.aqs-sq:active:not(.lock) { transform: translateY(4px); box-shadow: 0 2px 0 color-mix(in srgb, var(--uc) 55%, #000); }
+.aqs-no { font-size: 22px; font-weight: 900; letter-spacing: -.02em; }
+.aqs-ic { font-size: 20px; line-height: 1; }
+.aqs-ic .aqs-gi .gi { width: 22px; height: 22px; filter: brightness(0) invert(1); }
+.aqs-best { font-size: 10px; font-weight: 800; opacity: .95; background: rgba(0,0,0,.2); padding: 1px 7px; border-radius: 99px; }
+.aqs-sq.done { background: #d6a52f; box-shadow: 0 6px 0 #936f1c, 0 10px 16px rgba(20,40,15,.16); }
+.aqs-sq.lock { background: #c8ccc4; color: #fff; box-shadow: 0 6px 0 #9aa094; cursor: default; }
+[data-theme="dark"] .aqs-sq.lock { background: #2a3a30; box-shadow: 0 6px 0 #16241c; }
+.aqs-sq.lock .aqs-no { opacity: .85; }
+.aqs-sq.cur { animation: duoBounce 1.6s ease-in-out infinite; }
+.aqs-play { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: #fff; color: #1d7a3a; font-size: 9px; font-weight: 900; letter-spacing: .08em; padding: 3px 8px; border-radius: 99px; box-shadow: 0 3px 8px rgba(20,40,15,.2); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .aqs-sq.cur { animation: none; } }
 /* ===== Academia · Quiz tipo Preguntados ===== */
 .aq-pnode { flex-direction: column; gap: 0; }
 .aq-pnode .aq-pno { position: absolute; top: -7px; right: -7px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: #11331b; color: #d2ff6e; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid var(--card); z-index: 2; }

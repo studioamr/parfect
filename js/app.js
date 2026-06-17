@@ -717,7 +717,7 @@ const actions = {
   'quiz-open'(d) {
     const u = cur(); const i = Number(d.i);
     if (!u || typeof quizUnlocked !== 'function' || !quizUnlocked(u, i)) return;
-    const n = ACADEMY_QUIZ[i].qs.length;
+    const n = (typeof levelQs === 'function') ? levelQs(i).length : 10;
     const order = Array.from({ length: n }, (_, k) => k);
     for (let k = n - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
     V.quiz = { i, qi: 0, score: 0, picked: null, order, done: false };
@@ -725,14 +725,14 @@ const actions = {
   },
   'quiz-pick'(d) {
     const q = V.quiz; if (!q || q.picked != null) return;
-    const item = ACADEMY_QUIZ[q.i].qs[q.order[q.qi]];
+    const item = levelQs(q.i)[q.order[q.qi]];
     q.picked = Number(d.i);
     if (q.picked === item.a) q.score++;
     render();
   },
   'quiz-advance'() {
     const q = V.quiz; if (!q || q.picked == null) return;
-    const total = ACADEMY_QUIZ[q.i].qs.length;
+    const total = levelQs(q.i).length;
     if (q.qi + 1 < total) { q.qi++; q.picked = null; render(); return; }
     // terminado
     q.done = true;
