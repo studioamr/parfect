@@ -680,8 +680,10 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .lib-ic .gi, .lib-ic svg { width: 18px; height: 18px; }
 .lib-head b { flex: 1; min-width: 0; font-size: 16.5px; font-weight: 900; color: var(--text); }
 .lib-n { flex: none; font-size: 12px; font-weight: 800; color: var(--muted); background: var(--card2); border-radius: 99px; padding: 3px 11px; }
-.lib-card .dlc-list { margin-top: 2px; gap: 9px; }
-.lib-card .dlc { background: var(--card2); }
+.lib-card .dlc-list { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 11px; margin-top: 2px; padding: 2px 2px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.lib-card .dlc-list::-webkit-scrollbar { display: none; }
+.lib-card .dlc { background: var(--card2); flex: 0 0 82%; max-width: 290px; scroll-snap-align: center; }
+.lib-card .dlc-list::after { content: ''; flex: 0 0 2px; }   /* respiro al final del carrusel */
 
 /* ====== Detalle de drill (pasos) ====== */
 .dd-cat { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--lime-ink); }

@@ -184,7 +184,7 @@ function vTrainer() {
   const u = cur();
   const tab = ['diag', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'entreno';
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
-  const body = tab === 'entreno' ? (vWeekStrip() + vSessionPlanner())
+  const body = tab === 'entreno' ? vSessionPlanner()
     : tab === 'biblioteca' ? vBiblioteca()
       : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
         : tab === 'academia' ? vAcademyLaunch()
