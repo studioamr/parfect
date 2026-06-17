@@ -379,6 +379,8 @@ function initLanding(root) {
   const layers = [...root.querySelectorAll('[data-speed]')];
   const introTop = root.querySelector('.lp-intro-top');
   const introSec = root.querySelector('.lp-intro');
+  const sky2 = root.querySelector('.lp-sky2');     // cielo (sol + nubes): sube al bajar
+  const ground = root.querySelector('.lp-ground'); // suelo/campo: sube a tu encuentro
   let mx = 0, my = 0, sy = 0, raf = 0;
   const apply = () => {
     raf = 0;
@@ -386,6 +388,9 @@ function initLanding(root) {
       const sp = parseFloat(el.dataset.speed) || 0;
       el.style.transform = `translate3d(${(mx * sp * 18).toFixed(1)}px, ${(my * sp * 18 - sy * sp * 0.12).toFixed(1)}px, 0)`;
     }
+    // descenso del cielo al suelo: el cielo sube (te quedas bajo el sol) y el campo se acerca
+    if (sky2) sky2.style.transform = `translateY(${(-sy * 0.42).toFixed(0)}px)`;
+    if (ground) ground.style.transform = `translateY(${Math.max(-150, -sy * 0.08).toFixed(0)}px)`;
     if (introTop) {
       const range = (introSec ? introSec.offsetHeight : innerHeight * 0.6) * 0.9;   // barrido suave: el texto se va al bajar
       const p = Math.min(1, Math.max(0, sy / Math.max(160, range)));
