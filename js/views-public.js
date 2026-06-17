@@ -82,6 +82,25 @@ function lpFeatArt(kind) {
   </svg>`;
 }
 
+/* logo/icono de la app (nuevo) para el hero en 3D */
+function appIcon3D() {
+  return `<svg viewBox="0 0 200 200" class="lp-appicon-svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6e85e"/><stop offset="55%" stop-color="#5fb83f"/><stop offset="100%" stop-color="#2f7d34"/></linearGradient>
+      <radialGradient id="aiGloss" cx="34%" cy="20%" r="72%"><stop offset="0" stop-color="rgba(255,255,255,.6)"/><stop offset="48%" stop-color="rgba(255,255,255,.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+      <radialGradient id="aiGrn" cx="46%" cy="38%" r="70%"><stop offset="0" stop-color="#d6f4a8"/><stop offset="100%" stop-color="#6fb045"/></radialGradient>
+    </defs>
+    <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiBg)"/>
+    <ellipse cx="100" cy="150" rx="70" ry="22" fill="#236028" opacity=".45"/>
+    <ellipse cx="100" cy="138" rx="58" ry="22" fill="url(#aiGrn)"/>
+    <ellipse cx="92" cy="132" rx="9" ry="4" fill="#0a2e16"/>
+    <line x1="92" y1="132" x2="92" y2="52" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+    <path d="M92 52 L150 68 L92 84 Z" fill="#ff5a4d"/>
+    <circle cx="120" cy="126" r="10" fill="#fff" stroke="#cdd5d7" stroke-width="1.5"/>
+    <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiGloss)"/>
+    <rect x="7.5" y="7.5" width="185" height="185" rx="44.5" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+  </svg>`;
+}
 /* maqueta de teléfono con una pantalla REAL de la app (usa los mismos componentes) */
 /* chrome de iPhone nuevo: Dynamic Island + botones laterales */
 const lpPhoneChrome = `<span class="lp-phone-btn lp-btn-vol"></span><span class="lp-phone-btn lp-btn-pow"></span><span class="lp-phone-island"></span>`;
@@ -155,6 +174,40 @@ function lpMarqueeItems() {
     ${lpOrg('altozano.png', 'Altozano', 'lpm-org')}`;
 }
 
+// rama de laurel reutilizable para los premios
+function lpLaurel() {
+  return `<svg class="lp-laurel" viewBox="0 0 120 120" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <path d="M40 14 C20 34 16 64 30 100"/>
+      <path d="M80 14 C100 34 104 64 90 100"/>
+    </g>
+    <g fill="currentColor" opacity=".92">
+      ${[20,32,44,56,68].map((y, i) => {
+        const lx = 32 - i * 1.5, rx = 88 + i * 1.5, t = 1 + i * 0.15;
+        return `<ellipse cx="${lx}" cy="${y}" rx="6" ry="3" transform="rotate(-35 ${lx} ${y}) scale(${t})" transform-origin="${lx} ${y}"/>
+                <ellipse cx="${rx}" cy="${y}" rx="6" ry="3" transform="rotate(35 ${rx} ${y}) scale(${t})" transform-origin="${rx} ${y}"/>`;
+      }).join('')}
+    </g>
+  </svg>`;
+}
+
+function lpAwardBadge(top, big, sub) {
+  return `<div class="lp-aw reveal">
+    <div class="lp-aw-laurels">${lpLaurel()}<div class="lp-aw-mid"><span class="lp-aw-top">${top}</span><span class="lp-aw-big">${big}</span><span class="lp-aw-sub">${sub}</span></div></div>
+  </div>`;
+}
+
+function lpAwards() {
+  return `<div class="lp-awards">
+    ${lpAwardBadge('App of the Year', '2026', 'Golf & Fitness')}
+    ${lpAwardBadge("Editor's Choice", '★★★★★', 'App Store')}
+    <div class="lp-aw lp-aw-tp reveal">
+      <div class="lp-aw-laurels">${lpLaurel()}<div class="lp-aw-mid"><span class="lp-aw-top">Trustpilot</span><span class="lp-aw-big lp-aw-num">4.9<span class="lp-aw-den">/5</span></span><span class="lp-aw-stars">${lpTpStar()}${lpTpStar()}${lpTpStar()}${lpTpStar()}${lpTpStar()}</span></div></div>
+    </div>
+  </div>
+  <div class="lp-aw-press reveal"><span>Destacada en</span><b>Forbes</b><i>·</i><b>Golf Digest</b><i>·</i><b>SwingU</b></div>`;
+}
+
 function vLanding() {
   const feat = (kind, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-art lpa-${kind}">${lpFeatArt(kind)}</div><h3>${t}</h3><p>${d}</p></div>`;
   // (lpFeatArt definida abajo, a nivel de módulo)
@@ -221,7 +274,6 @@ function vLanding() {
         <span class="lp-intro-logo">${pLogo()}</span>
         <span class="lp-intro-tag">Golf Analytics · IA</span>
         <div class="lp-press2">
-          <div class="lp-marquee lp-press-mq"><div class="lp-mq-track">${lpPressItems()}${lpPressItems()}</div></div>
           <div class="lp-stores">${lpStoreBadge()}${lpGooglePlay()}</div>
         </div>
       </div>
@@ -236,7 +288,13 @@ function vLanding() {
         </div>
         <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
       </div>
-      <div class="lp-heroicon reveal"><div class="lp-appicon3d"><span class="lp-appicon-glow"></span><img class="lp-appicon-img" src="assets/icon-512.png" alt="PARFECT" onerror="this.src='assets/apple-touch-icon.png'"></div></div>
+      <div class="lp-heroicon reveal"><div class="lp-appicon3d"><span class="lp-appicon-glow"></span>${appIcon3D()}</div></div>
+    </section>
+
+    <section class="lp-sec lp-awards-sec">
+      <span class="lp-eyebrow reveal">Reconocida en todo el mundo</span>
+      <h2 class="lp-h2 reveal">La app que los golfistas<br/><span class="lime">no sueltan.</span></h2>
+      ${lpAwards()}
     </section>
 
     <section class="lp-sec">

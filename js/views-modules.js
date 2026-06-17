@@ -570,6 +570,17 @@ function lbFwScene() {
     <circle cx="50" cy="46" r="3" fill="#fff" stroke="#5a6668" stroke-width=".5"/>
   </svg>`;
 }
+/* dibujo de green (GIR) más claro y nítido para la biblioteca */
+function lbGirScene() {
+  return `<svg viewBox="0 0 100 56" class="hs-svg" aria-hidden="true">
+    <ellipse cx="50" cy="41" rx="40" ry="12" fill="#cfe3b6"/>
+    <ellipse cx="50" cy="34" rx="34" ry="13" fill="#7cbf52"/>
+    <ellipse cx="48" cy="31" rx="22" ry="8" fill="#8fd06a"/>
+    <ellipse cx="56" cy="29" rx="3" ry="1.4" fill="#0c1c11"/>
+    <line x1="56" y1="29" x2="56" y2="8" stroke="#cfd6d8" stroke-width="1.4"/><path d="M56 8 L67 11 L56 14 Z" fill="#ff5a4d"/>
+    <circle cx="42" cy="33" r="3" fill="#fff" stroke="#5a6668" stroke-width=".5"/>
+  </svg>`;
+}
 /* dibujo de putt (mismo estilo que las escenas de Inicio) */
 function lbPuttScene() {
   return `<svg viewBox="0 0 100 56" class="hs-svg" aria-hidden="true">
@@ -597,9 +608,10 @@ function vBiblioteca() {
   const band = Math.max(1, Math.ceil(drills.length / 3));
   // mismos dibujos que Inicio: fairway, green, up&down (+ putt)
   const scene = (cat === 'fw') ? lbFwScene()
-    : (cat === 'ud' && typeof udGifScene === 'function') ? udGifScene()
-      : (cat === 'putt') ? lbPuttScene()
-        : (typeof chkScene === 'function') ? chkScene(cat, true) : '';
+    : (cat === 'gir') ? lbGirScene()
+      : (cat === 'ud' && typeof udGifScene === 'function') ? udGifScene()
+        : (cat === 'putt') ? lbPuttScene()
+          : (typeof chkScene === 'function') ? chkScene(cat, true) : '';
   const items = drills.map((d, i) => {
     const isDone = done[d.name] === td;
     const lvl = LV[Math.min(2, Math.floor(i / band))];

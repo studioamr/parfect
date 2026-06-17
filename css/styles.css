@@ -689,7 +689,7 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 /* biblioteca: filtro por categoría (chips) + lista vertical */
 .lib-tabs { display: flex; gap: 6px; padding: 4px 0 12px; margin-top: 10px; }
 .lib-tabs::-webkit-scrollbar { display: none; }
-.lib-tab { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 4px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-size: 12px; font-weight: 800; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.lib-tab { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 9px 3px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-size: 11px; font-weight: 800; color: var(--muted); cursor: pointer; white-space: nowrap; }
 .lib-tab .lib-tab-n { display: none; }
 .lib-tab .lib-tab-ic { width: 14px; height: 14px; color: var(--lib); display: inline-flex; flex: none; }
 .lib-tab .lib-tab-ic svg, .lib-tab .lib-tab-ic .gi { width: 100%; height: 100%; }
@@ -3250,10 +3250,9 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 .lp-herophone { margin-top: 28px; z-index: 3; }
 /* icono de la app en 3D profundo animado (hero) */
 .lp-heroicon { margin-top: 30px; z-index: 3; perspective: 900px; display: flex; justify-content: center; }
-.lp-appicon3d { position: relative; width: min(208px, 56vw); aspect-ratio: 1; transform-style: preserve-3d; animation: appiconFloat 6s ease-in-out infinite; }
-.lp-appicon-img { width: 100%; height: 100%; border-radius: 24%; object-fit: cover; display: block;
-  box-shadow: 0 6px 0 -1px rgba(0,0,0,.18), 0 14px 0 -3px rgba(0,0,0,.12), 0 34px 50px rgba(20,40,15,.42), inset 0 2px 6px rgba(255,255,255,.45), inset 0 -8px 16px rgba(0,0,0,.18);
-  outline: 1px solid rgba(255,255,255,.25); }
+.lp-appicon3d { position: relative; width: min(200px, 54vw); aspect-ratio: 1; border-radius: 23%; transform-style: preserve-3d; animation: appiconFloat 6s ease-in-out infinite;
+  box-shadow: 0 6px 0 -1px rgba(0,0,0,.18), 0 16px 0 -4px rgba(0,0,0,.12), 0 36px 52px rgba(20,40,15,.45); }
+.lp-appicon-svg, .lp-appicon-img { width: 100%; height: 100%; border-radius: 23%; object-fit: cover; display: block; }
 .lp-appicon-glow { position: absolute; inset: -14%; border-radius: 50%; z-index: -1; background: radial-gradient(circle, rgba(124,194,74,.55) 0%, rgba(124,194,74,0) 68%); filter: blur(6px); animation: appiconGlow 6s ease-in-out infinite; }
 @keyframes appiconFloat {
   0%   { transform: translateY(0) rotateX(8deg) rotateY(-14deg); }
@@ -3483,10 +3482,8 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 
 .lp-hero2 .lp-stage { width: min(76%, 320px); margin: 46px auto 0; z-index: 3; }
 .lp-hero2 .lp-hero-copy { position: relative; z-index: 3; text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 540px; margin: 8px auto 0; padding: 28px 22px clamp(40px,12vw,90px); }
-.lp-hero2 .lp-hero-copy::before { content: ''; position: absolute; inset: -6% -8% 18%; z-index: -1; background: radial-gradient(ellipse 70% 60% at 50% 42%, rgba(243,247,233,.92) 0%, rgba(243,247,233,.7) 45%, rgba(243,247,233,0) 75%); pointer-events: none; }
-.lp-hero2 .lp-title { text-shadow: 0 2px 16px rgba(243,247,233,.7); }
-.lp-hero2 .lp-sub { opacity: 1; color: var(--text); text-shadow: 0 1px 10px rgba(243,247,233,.85); }
-.lp-hero2 .lp-trust { text-shadow: 0 1px 8px rgba(243,247,233,.9); }
+.lp-hero2 .lp-title { text-shadow: 0 1px 2px rgba(255,255,255,.35); }
+.lp-hero2 .lp-sub { opacity: 1; color: var(--text); text-shadow: 0 1px 2px rgba(255,255,255,.4); }
 .lp-hero2 .lp-hero-copy .lp-title { margin-top: 14px; }
 .lp-hero2 .lp-sub { max-width: 34ch; margin-left: auto; margin-right: auto; }
 .lp-hero2 .lp-cta-row { justify-content: center; }
@@ -3677,6 +3674,26 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 .store-badge .sb-tx { display: flex; flex-direction: column; line-height: 1.04; text-align: left; }
 .store-badge .sb-sm { font-size: 9px; font-weight: 600; letter-spacing: .01em; }
 .store-badge .sb-lg { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-top: 1px; }
+/* sección de premios / reconocimientos (estilo laureles profesional) */
+.lp-awards-sec { text-align: center; }
+.lp-awards { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: clamp(18px, 6vw, 64px); margin-top: 34px; }
+.lp-aw { display: inline-flex; flex-direction: column; align-items: center; }
+.lp-aw-laurels { position: relative; width: clamp(118px, 30vw, 152px); height: clamp(118px, 30vw, 152px); display: grid; place-items: center; color: var(--lime); }
+.lp-laurel { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 4px 10px rgba(120,170,40,.22)); }
+.lp-aw-mid { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; line-height: 1; gap: 4px; padding: 0 8px; }
+.lp-aw-top { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.lp-aw-big { font-size: clamp(26px, 7vw, 34px); font-weight: 900; letter-spacing: -.02em; color: var(--text); font-family: Georgia, 'Times New Roman', serif; }
+.lp-aw-sub { font-size: 11px; font-weight: 700; color: var(--muted); }
+.lp-aw .lp-aw-big.lp-aw-num { font-family: inherit; display: inline-flex; align-items: baseline; }
+.lp-aw-den { font-size: 14px; font-weight: 800; color: var(--muted); margin-left: 1px; }
+.lp-aw-stars { display: inline-flex; gap: 1px; margin-top: 2px; }
+.lp-aw-stars .lp-tpstar { width: 13px; height: 13px; fill: #00b67a; }
+.lp-aw .lp-aw-big:not(.lp-aw-num) { color: #f4c534; font-family: inherit; font-size: clamp(15px, 4.4vw, 18px); letter-spacing: 1px; }
+.lp-aw-press { margin: 26px auto 0; display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 9px; font-size: 13px; color: var(--muted); }
+.lp-aw-press span { font-weight: 700; letter-spacing: .02em; }
+.lp-aw-press b { font-weight: 900; color: var(--text); }
+.lp-aw-press b:nth-of-type(1) { font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
+.lp-aw-press i { opacity: .45; font-style: normal; }
 /* reseñas: prensa (Forbes) + Trustpilot + opiniones */
 .lp-reviews { text-align: center; }
 .lp-pressquote { margin: 16px auto 24px; max-width: 26ch; font-size: clamp(20px, 4.8vw, 27px); font-weight: 800; font-style: italic; line-height: 1.32; color: var(--text); }
