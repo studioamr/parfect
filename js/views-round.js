@@ -317,19 +317,18 @@ function vSetup() {
       </button>`).join('')}</div>
     </div></div>` : '';
   const body = `<div class="su-block"><span class="su-lab">Campo</span><div class="su-courses">${courseCards}</div></div>
-      <button class="btn primary big su-go" data-act="start-round">${golfIcon('flag')} Comenzar ronda</button>`;
+      <button class="btn primary big su-go" data-act="start-round">${pMark(19)} Comenzar ronda</button>`;
   const u = cur();
   const act = (typeof activeParty === 'function') ? activeParty() : null;
   const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
   const lobbyCard = `<div class="su-block su-lobby">
-      <span class="su-lab">${golfIcon('flag')} Jugar con amigos · lobby</span>
+      <span class="su-lab">${pMark(15)} Entrar a lobby</span>
       <div class="card lobby-card">
-        <p class="small muted" style="margin-top:0">Crea una lobby y comparte el código, o entra con el de un amigo. Cada quien anota desde su celular.</p>
-        ${myActive ? `<button class="btn primary" data-act="party-resume">${golfIcon('flag')} Volver a tu lobby ${esc(act.code)}${act.status === 'live' ? ` · hoyo ${act.idx + 1}` : ''}</button>`
-          : `<button class="btn primary" data-act="party-new">${golfIcon('flag')} Crear una lobby</button>`}
-        <div class="join-row" style="margin-top:12px">
+        <p class="small muted" style="margin-top:0">Pon el código que te compartió un amigo. Cada quien anota desde su celular.</p>
+        ${myActive ? `<button class="btn primary" data-act="party-resume" style="margin-bottom:10px">${golfIcon('flag')} Volver a tu lobby ${esc(act.code)}${act.status === 'live' ? ` · hoyo ${act.idx + 1}` : ''}</button>` : ''}
+        <div class="join-row">
           <input id="join-code" class="join-code-input" placeholder="Código (ej. K7M2)" maxlength="4" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
-          <button class="btn sm ghost" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Entrando…' : 'Entrar'}</button>
+          <button class="btn primary" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Entrando…' : 'Entrar'}</button>
         </div>
         ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
       </div>

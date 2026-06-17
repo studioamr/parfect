@@ -560,6 +560,8 @@ function initials(name) {
 }
 
 /* ---- logo mark (golf flag swoosh) ---- */
+/* P icónica de PARFECT (para botones) */
+function pMark(size = 18) { return `<span class="p-ico" aria-hidden="true" style="font-size:${size}px">P</span>`; }
 function logoMark(size = 16) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">
     <path d="M8 21V4" stroke="#7cc24a" stroke-width="2.6" stroke-linecap="round"/>

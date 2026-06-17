@@ -450,6 +450,8 @@ const SP_AREAS = {
 const spFmtMin = m => m >= 60 ? (m % 60 ? (m / 60).toFixed(1) : (m / 60)) + ' h' : m + ' min';
 function spDrill(k) { const d = (typeof Trainer !== 'undefined' && Trainer.DRILLS && Trainer.DRILLS[k]) ? Trainer.DRILLS[k] : null; return d && d[0] ? d[0].name : null; }
 
+function spSceneFor(lab) { return ({ 'Salida': 'fw', 'Driving': 'fw', 'Hierros': 'gir', 'Juego corto': 'ud', 'Putting': 'putt' })[lab] || 'fw'; }
+
 function vSessionPlanner() {
   const u = cur();
   const agg = Stats.aggregate(myRounds());
@@ -504,7 +506,7 @@ function vSessionPlanner() {
   if (V.sessionRun) return vSessionRunner();
   const ai = V.planMode !== 'me';
   const blocks = buildSessionBlocks(u, agg, T, V.planMode, V.planAreas);
-  const sceneFor = lab => ({ 'Salida': 'fw', 'Driving': 'fw', 'Hierros': 'gir', 'Juego corto': 'ud', 'Putting': 'putt' }[lab] || 'fw');
+  const sceneFor = spSceneFor;
   let clock = 0;
   const segs = blocks.map(b => {
     const from = clock; clock += b.min;
@@ -551,7 +553,7 @@ function vSessionRunner() {
   const tot = b.min * 60; const pct = Math.round(100 * (1 - r.left / tot));
   return `<div class="card sp-card sr-card">
     <div class="sp-phase">Sesión en curso · bloque ${r.idx + 1} de ${r.blocks.length}</div>
-    <div class="sr-now"><span class="sr-ic">${golfIcon(b.icon)}</span><div class="sr-nowtx"><b>${esc(b.label)}</b>${b.drill ? `<button class="sr-drill" data-act="drill-open" data-name="${esc(b.drill)}">${esc(b.drill)} →</button>` : `<span>Calienta progresivo</span>`}</div></div>
+    <div class="sr-now"><span class="sr-scene">${(typeof statScene === 'function') ? statScene(spSceneFor(b.label)) : golfIcon(b.icon)}</span><div class="sr-nowtx"><b>${esc(b.label)}</b>${b.drill ? `<button class="sr-drill" data-act="drill-open" data-name="${esc(b.drill)}">${esc(b.drill)} →</button>` : `<span>Calienta progresivo</span>`}</div></div>
     <div class="sr-clock" id="sr-clock">${fmtClock(r.left)}</div>
     <div class="sr-bar"><i id="sr-bar" style="width:${pct}%"></i></div>
     <p class="sr-next">${next ? 'Sigue: ' + esc(next.label) + ' · ' + next.min + ' min' : '¡Último bloque!'}</p>
