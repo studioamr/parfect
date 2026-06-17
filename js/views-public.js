@@ -320,10 +320,86 @@ function lpAwardsDeco() {
   </div>`;
 }
 
-/* foto del club: usa assets/<file> si existe; si no, muestra una escena de respaldo */
-function lpClubShot(file, label, grad, big) {
+/* árbol decorativo para las escenas del club */
+function cgTree(x, y, s, c1, c2) { return `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2.5" y="-2" width="5" height="16" rx="2" fill="#7a5230"/><circle cx="0" cy="-12" r="13" fill="${c1}"/><circle cx="-9" cy="-4" r="9" fill="${c2}"/><circle cx="9" cy="-5" r="9" fill="${c2}"/></g>`; }
+/* escena: tee de salida (panorámica, hora dorada) */
+function lpClubTee() {
+  return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" class="lpgal-svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="cgTeeSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#84cdf2"/><stop offset="55%" stop-color="#cdeaf0"/><stop offset="100%" stop-color="#ffe7c8"/></linearGradient>
+      <linearGradient id="cgTeeFair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#73bd4d"/><stop offset="100%" stop-color="#2f7d3a"/></linearGradient>
+    </defs>
+    <rect width="320" height="200" fill="url(#cgTeeSky)"/>
+    <circle cx="246" cy="44" r="27" fill="#fff6dd" opacity=".92"/>
+    <path d="M0,94 Q80,68 165,88 T320,82 L320,130 L0,130 Z" fill="#a6d585" opacity=".85"/>
+    <path d="M0,110 Q90,92 200,106 T320,100 L320,200 L0,200 Z" fill="#79bd54"/>
+    <path d="M118,200 L150,110 L172,110 L214,200 Z" fill="url(#cgTeeFair)"/>
+    <g transform="translate(161,108)"><line x1="0" y1="0" x2="0" y2="-13" stroke="#fff" stroke-width="1.4"/><path d="M0,-13 l6,2 -6,2z" fill="#e8392b"/></g>
+    ${cgTree(34, 128, 1.5, '#3f9d52', '#2f7d3a')}${cgTree(292, 126, 1.8, '#3f9d52', '#2f7d3a')}${cgTree(70, 120, 1, '#54ad62', '#3a8f46')}${cgTree(258, 118, 1.05, '#54ad62', '#3a8f46')}
+    <ellipse cx="160" cy="190" rx="78" ry="15" fill="#3f9447"/>
+    <ellipse cx="160" cy="188" rx="78" ry="13" fill="#54ac57"/>
+    <circle cx="116" cy="186" r="4.5" fill="#e8392b"/><circle cx="204" cy="186" r="4.5" fill="#e8392b"/>
+    <ellipse cx="160" cy="187" rx="6" ry="2" fill="#000" opacity=".12"/>
+    <rect x="159.2" y="180" width="1.8" height="7" fill="#cdd6c2"/><circle cx="160" cy="178" r="4.2" fill="#fff"/><circle cx="158.7" cy="176.7" r="1.3" fill="#fff" opacity=".7"/>
+  </svg>`;
+}
+/* escena: green de cerca con bandera roja */
+function lpClubGreen() {
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="lpgal-svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="cgGrSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0f2"/><stop offset="100%" stop-color="#d7eef0"/></linearGradient>
+      <radialGradient id="cgGreen" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#8ad06a"/><stop offset="70%" stop-color="#4fa64f"/><stop offset="100%" stop-color="#2f7d3a"/></radialGradient>
+    </defs>
+    <rect width="200" height="200" fill="url(#cgGrSky)"/>
+    <path d="M0,66 Q70,48 140,62 T200,58 L200,90 L0,90 Z" fill="#9fcf7e"/>
+    ${cgTree(26, 72, 1.2, '#3f9d52', '#2f7d3a')}${cgTree(176, 70, 1.4, '#3f9d52', '#2f7d3a')}
+    <ellipse cx="100" cy="138" rx="120" ry="66" fill="#3f9447"/>
+    <ellipse cx="100" cy="132" rx="96" ry="52" fill="url(#cgGreen)"/>
+    <path d="M40,128 Q100,110 160,128" fill="none" stroke="#6cc471" stroke-width="2" opacity=".55"/>
+    <path d="M44,150 Q100,134 156,150" fill="none" stroke="#3a8f46" stroke-width="2" opacity=".4"/>
+    <ellipse cx="112" cy="126" rx="6" ry="2.6" fill="#10260f"/>
+    <g transform="translate(112,126)"><line x1="0" y1="0" x2="-1" y2="-46" stroke="#eef3e6" stroke-width="2.4"/><path d="M-1,-46 l18,5 -18,5z" fill="#e8392b"/></g>
+    <ellipse cx="84" cy="140" rx="5" ry="2" fill="#000" opacity=".14"/><circle cx="84" cy="136" r="5" fill="#fff"/><circle cx="82" cy="134" r="1.6" fill="#fff" opacity=".75"/>
+  </svg>`;
+}
+/* escena: ronda con amigos (siluetas caminando) */
+function lpClubFriends() {
+  const golfer = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="1" rx="7" ry="2.2" fill="#000" opacity=".15"/><rect x="3" y="-26" width="4" height="18" rx="2" fill="#5a3a1e"/><path d="M-6,-2 Q-7,-20 0,-22 Q7,-20 6,-2 Z" fill="${c}"/><circle cx="0" cy="-27" r="5" fill="#e9c9a3"/><path d="M-5,-29 a5 5 0 0 1 10 0 l2 0 -1 2 -12 0 -1 -2 Z" fill="${c}"/></g>`;
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="lpgal-svg" aria-hidden="true">
+    <defs><linearGradient id="cgFrSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#83cbf0"/><stop offset="60%" stop-color="#cfeaee"/><stop offset="100%" stop-color="#ffe9cf"/></linearGradient>
+      <linearGradient id="cgFrFair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb84a"/><stop offset="100%" stop-color="#9fd06a"/></linearGradient></defs>
+    <rect width="200" height="200" fill="url(#cgFrSky)"/>
+    <circle cx="158" cy="40" r="24" fill="#fff6dd" opacity=".9"/>
+    <path d="M0,84 Q70,62 140,80 T200,74 L200,120 L0,120 Z" fill="#9fcf7e"/>
+    ${cgTree(22, 96, 1.3, '#3f9d52', '#2f7d3a')}${cgTree(182, 92, 1.5, '#3f9d52', '#2f7d3a')}${cgTree(150, 88, .9, '#54ad62', '#3a8f46')}
+    <path d="M40,200 L86,98 L120,98 L180,200 Z" fill="url(#cgFrFair)"/>
+    <path d="M86,98 L120,98 L114,118 L92,118 Z" fill="#7cc24a" opacity=".5"/>
+    ${golfer(96, 150, 2.1, '#2f6bd0')}${golfer(122, 158, 2.4, '#e8392b')}${golfer(78, 162, 2.6, '#2f7d3a')}
+  </svg>`;
+}
+/* escena: atardecer en el campo con lago */
+function lpClubSunset() {
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="lpgal-svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="cgSunSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b3b86"/><stop offset="42%" stop-color="#e8617a"/><stop offset="74%" stop-color="#ffb15a"/><stop offset="100%" stop-color="#ffe0a3"/></linearGradient>
+      <linearGradient id="cgSunLake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc16a"/><stop offset="100%" stop-color="#c97a8e"/></linearGradient>
+    </defs>
+    <rect width="200" height="200" fill="url(#cgSunSky)"/>
+    <circle cx="100" cy="120" r="34" fill="#fff0b8" opacity=".95"/>
+    <circle cx="100" cy="120" r="50" fill="#ffd98a" opacity=".35"/>
+    <path d="M0,118 Q60,100 120,114 T200,108 L200,140 L0,140 Z" fill="#6a4a6e" opacity=".55"/>
+    <path d="M0,132 Q70,118 140,130 T200,126 L200,150 L0,150 Z" fill="#4a3552"/>
+    <rect y="150" width="200" height="50" fill="url(#cgSunLake)"/>
+    <ellipse cx="100" cy="150" rx="26" ry="4" fill="#fff0b8" opacity=".8"/>
+    <g opacity=".55"><rect x="92" y="154" width="16" height="2" fill="#fff" opacity=".5"/><rect x="86" y="162" width="28" height="2" fill="#fff" opacity=".4"/><rect x="80" y="172" width="40" height="2.5" fill="#fff" opacity=".3"/></g>
+    <g transform="translate(150,132)"><line x1="0" y1="0" x2="0" y2="-30" stroke="#2a1f33" stroke-width="2.2"/><path d="M0,-30 l13,4 -13,4z" fill="#e8392b"/></g>
+    <ellipse cx="150" cy="133" rx="14" ry="3" fill="#2a1f33"/>
+  </svg>`;
+}
+/* foto del club: usa assets/<file> si existe; si no, muestra la escena ilustrada */
+function lpClubShot(file, label, scene, big) {
   return `<figure class="lp-gal-item${big ? ' big' : ''}">
-    <span class="lp-gal-ph" style="background:${grad}"><span class="lp-gal-ic">${golfFlagSvg()}</span></span>
+    <span class="lp-gal-ph">${scene}</span>
     <img class="lp-gal-img" src="assets/${file}" alt="${esc(label)}" loading="lazy" onload="if(this.naturalWidth){var p=this.parentElement.querySelector('.lp-gal-ph');if(p)p.style.display='none'}else{this.remove()}" onerror="this.remove()">
     <figcaption class="lp-gal-cap">${esc(label)}</figcaption>
   </figure>`;
@@ -334,10 +410,10 @@ function lpGallery() {
     <h2 class="lp-h2 reveal">Del primer tee<br/><span class="lime">al último putt.</span></h2>
     <p class="lp-lead reveal" style="text-align:center;max-width:34ch;margin:0 auto 16px">Vive el golf como en tu club: cada ronda, cada green y cada atardecer, registrados.</p>
     <div class="lp-gallery reveal">
-      ${lpClubShot('club-tee.png', 'En el tee de salida', 'linear-gradient(160deg,#86c8ef,#3f9447)', true)}
-      ${lpClubShot('club-green.png', 'Putt en el green', 'linear-gradient(160deg,#bfe6a0,#2f7d3a)')}
-      ${lpClubShot('club-friends.png', 'Ronda con amigos', 'linear-gradient(160deg,#ffe3ca,#4f9540)')}
-      ${lpClubShot('club-sunset.png', 'Atardecer en el campo', 'linear-gradient(160deg,#ffd2bf,#d6a52f)')}
+      ${lpClubShot('club-tee.png', 'En el tee de salida', lpClubTee(), true)}
+      ${lpClubShot('club-green.png', 'Putt en el green', lpClubGreen())}
+      ${lpClubShot('club-friends.png', 'Ronda con amigos', lpClubFriends())}
+      ${lpClubShot('club-sunset.png', 'Atardecer en el campo', lpClubSunset())}
     </div>
   </section>`;
 }
