@@ -59,9 +59,11 @@ const I18N = {
 };
 function curLang() { return (typeof S !== 'undefined' && S.settings && S.settings.lang) || 'es'; }
 function t(k) { const d = I18N[curLang()] || I18N.es; return d[k] != null ? d[k] : (I18N.es[k] != null ? I18N.es[k] : k); }
+function curEnv() { return (typeof S !== 'undefined' && S.settings && S.settings.env) || 'dia'; }
 function applyTheme() {
   const th = (typeof S !== 'undefined' && S.settings && S.settings.theme) || 'light';
   document.documentElement.setAttribute('data-theme', th);
+  document.documentElement.setAttribute('data-env', curEnv());
 }
 
 /* sol/luna: se mueven por el cielo según la hora (amanecer→mediodía→atardecer) */

@@ -65,6 +65,15 @@ input, select, textarea { font-size: 16px; }
 body.in-app .app-bg::after { content: ''; position: absolute; inset: 0; background: var(--bg); opacity: 0.3; }
 body.in-app .app-bg .bg-cloud, body.in-app .app-bg .bg-bird, body.in-app .app-bg .bg-gball { opacity: 0.72; }
 [data-theme="dark"] .app-bg { background: linear-gradient(180deg, #0a1230 0%, #111d40 46%, #0a1124 100%); }
+/* Entornos del campo (solo en tema claro; cambian el cielo + tono de la escena) */
+html[data-theme="light"][data-env="amanecer"] .app-bg { background: linear-gradient(180deg,#ffd49c 0%,#ffc3ad 30%,#ffd7c4 56%,#ffeed7 80%,#eef6ee 100%); }
+html[data-theme="light"][data-env="atardecer"] .app-bg { background: linear-gradient(180deg,#5b3b86 0%,#b9577f 34%,#ff8f6b 64%,#ffc78a 88%,#ffe6c0 100%); }
+html[data-theme="light"][data-env="noche"] .app-bg { background: linear-gradient(180deg,#0a1838 0%,#10224a 48%,#1c3866 100%); }
+html[data-env="amanecer"] .bg-course { filter: brightness(1.03) saturate(1.03) hue-rotate(-6deg); }
+html[data-env="atardecer"] .bg-course { filter: saturate(1.08) hue-rotate(-12deg) brightness(.95); }
+html[data-env="noche"] .bg-course { filter: brightness(.5) saturate(.82) hue-rotate(6deg); }
+html[data-env="noche"] .bg-orb { filter: brightness(1.4) grayscale(.5); }
+html[data-env="noche"] .bg-stars { opacity: .9; }
 .app-bg .bg-orb { position: absolute; top: 3%; right: 6%; width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff7cc, #ffdf8e 72%); box-shadow: 0 0 30px 6px rgba(255,216,107,0.22); opacity: .85; }
 [data-theme="dark"] .app-bg .bg-orb { background: radial-gradient(circle at 42% 36%, #ffffff, #cfd6ea 72%); box-shadow: 0 0 46px 12px rgba(200,210,240,0.16); }
 [data-theme="light"] .app-bg.dawn { background: linear-gradient(180deg, #ffd8a6 0%, #ffe7b4 28%, #d9efbf 60%, #b6dd86 100%); }
@@ -2375,6 +2384,13 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .greet-name { position: absolute; left: 0; top: 0; font-size: 24px; font-weight: 900; letter-spacing: -.02em; color: #0a2e4a; opacity: 0; white-space: nowrap; animation: greetCycle 10.5s ease-in-out infinite; animation-delay: calc(var(--i) * -1.5s); }
 @keyframes greetCycle { 0% { opacity: 0; transform: translateY(11px); } 2% { opacity: 1; transform: translateY(0); } 12% { opacity: 1; transform: translateY(0); } 14.3% { opacity: 0; transform: translateY(-11px); } 100% { opacity: 0; transform: translateY(-11px); } }
 @media (prefers-reduced-motion: reduce) { .lp-greet-sun, .lp-greet-cloud { animation: none; } .greet-name { animation-duration: 0s; } .greet-name[style*="--i:0"] { opacity: 1; } }
+/* Landing · franja de fotos reales en "Tu camino" */
+.lp-caminoshots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 18px; }
+.lp-cmsh { position: relative; margin: 0; border-radius: 16px; overflow: hidden; aspect-ratio: 3 / 4.3; box-shadow: 0 10px 24px rgba(20,40,15,.12); }
+.lp-cmsh-ph { position: absolute; inset: 0; }
+.lp-cmsh-ph svg { width: 100%; height: 100%; }
+.lp-cmsh-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lp-cmsh-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 6px 8px; font-size: 11px; font-weight: 800; color: #fff; text-align: center; background: linear-gradient(0deg, rgba(8,20,8,.65), transparent); }
 /* Landing · galería de fotos del club */
 .lp-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .lp-gal-item { position: relative; margin: 0; border-radius: 18px; overflow: hidden; aspect-ratio: 1 / 1; box-shadow: 0 12px 30px rgba(20,40,15,.12); }

@@ -1085,6 +1085,9 @@ function vProfile() {
           <div class="set-row" style="margin-top:12px"><span class="set-lab">${t('theme')}</span><div class="chips">
             <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? '' : 'on'}" data-act="set-theme" data-v="dark">${golfIcon('peak')} ${t('dark')}</button>
             <button class="chip sm ${(S.settings && S.settings.theme) === 'light' ? 'on' : ''}" data-act="set-theme" data-v="light">${t('light')}</button></div></div>
+          <div class="set-row" style="margin-top:12px"><span class="set-lab">Entorno del campo</span><div class="chips" style="flex-wrap:wrap">
+            ${[['dia', '🏖️ Playa día'], ['amanecer', '🌅 Amanecer'], ['atardecer', '🌇 Atardecer'], ['noche', '🌙 Noche']].map(([e, l]) => `<button class="chip sm ${curEnv() === e ? 'on' : ''}" data-act="set-env" data-e="${e}">${l}</button>`).join('')}
+          </div></div>
           <hr class="set-div">
           <p class="set-lab" style="margin-bottom:9px">Respaldo de tus datos</p>
           <div class="bk-row">

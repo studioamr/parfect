@@ -457,6 +457,7 @@ const actions = {
   'home-round'(d) { V.homeRid = d.id; render(); },
   'set-lang'(d) { S.settings = S.settings || {}; S.settings.lang = d.v === 'en' ? 'en' : 'es'; commit(); },
   'set-theme'(d) { S.settings = S.settings || {}; S.settings.theme = d.v === 'light' ? 'light' : 'dark'; commit(); },
+  'set-env'(d) { S.settings = S.settings || {}; S.settings.env = ['dia', 'amanecer', 'atardecer', 'noche'].includes(d.e) ? d.e : 'dia'; commit(); },
   'bag-edit'() { V.bagEdit = true; render(); },
   'bag-toggle'(d) {
     const u = cur(); if (!u) return;

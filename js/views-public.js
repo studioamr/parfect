@@ -162,22 +162,10 @@ function lpScrLoading() {
     <div class="lp-load-foot">Cargando tu juego…</div>
   </div>`;
 }
-/* primer iPhone: saludo "Buenos días, <nombre>" con nombres que rotan en loop + sol animado */
+/* primer iPhone: pantalla de inicio real (screenshot si existe, si no el componente) */
 function lpIntroPhone() {
-  const names = ['Andrés', 'Valeria', 'Diego', 'Sofía', 'Mateo', 'Camila', 'Renata'];
-  const nameSpans = names.map((n, i) => `<span class="greet-name" style="--i:${i}">${esc(n)}</span>`).join('');
-  const rings = [['fw', 61, 'Fairways'], ['gir', 53, 'GIR'], ['ud', 51, 'Up & down']]
-    .map(([k, p, l]) => (typeof pstSceneStatic === 'function') ? pstSceneStatic(k, p, l) : '').join('');
-  const tiles = [['Putts / ronda', '30', 'putter'], ['Birdie o mejor', '8%', 'flag'], ['Bogey o peor', '31%', 'green'], ['Pares', '60%', 'flag']]
-    .map((t, i) => `<div class="pst-tile" style="--i:${i}"><span class="pst-th"><span class="pst-ic">${golfIcon(t[2])}</span></span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
-  const scr = lpReal(`<div class="lp-greet">
-      <span class="lp-greet-sun"></span>
-      <span class="lp-greet-cloud gc1"></span><span class="lp-greet-cloud gc2"></span>
-      <span class="lp-greet-hi">Buenos días,</span>
-      <span class="greet-names">${nameSpans}</span>
-    </div>
-    <div class="pst-rings">${rings}</div>
-    <div class="pst-grid">${tiles}</div>`);
+  const scr = `<img class="lp-shotimg" src="assets/shot-inicio.png" alt="" onload="if(this.naturalWidth){var c=this.parentElement.querySelector('.lp-shotcomp');if(c)c.style.display='none'}else{this.remove()}" onerror="this.remove()">
+    <div class="lp-shotcomp">${lpScrStats()}</div>`;
   return lpPhone(scr);
 }
 function lpScrStats() {
@@ -416,6 +404,10 @@ function lpClubShot(file, label, scene, big) {
     <figcaption class="lp-gal-cap">${esc(label)}</figcaption>
   </figure>`;
 }
+/* foto vertical para la franja "Tu camino" (real si existe, ilustración si no) */
+function lpCaminoShot(file, label, scene) {
+  return `<figure class="lp-cmsh"><span class="lp-cmsh-ph">${scene}</span><img class="lp-cmsh-img" src="assets/${file}" alt="${esc(label)}" loading="lazy" onload="if(this.naturalWidth){var p=this.parentElement.querySelector('.lp-cmsh-ph');if(p)p.style.display='none'}else{this.remove()}" onerror="this.remove()"><figcaption class="lp-cmsh-cap">${esc(label)}</figcaption></figure>`;
+}
 function lpGallery() {
   return `<section class="lp-sec lp-gallery-sec">
     <span class="lp-eyebrow reveal">Vívelo en el campo</span>
@@ -424,7 +416,7 @@ function lpGallery() {
     <div class="lp-gallery reveal">
       ${lpClubShot('club-1.jpg', 'El gran torneo Montrer', lpClubTee(), true)}
       ${lpClubShot('club-2.jpg', 'Categoría damas', lpClubFriends())}
-      ${lpClubShot('club-3.jpg', 'Foursome en el campo', lpClubGreen())}
+      ${lpClubShot('club-3.jpg', 'Aliados en el campo', lpClubGreen())}
       ${lpClubShot('club-4.jpg', 'Futuras promesas', lpClubFriends())}
       ${lpClubShot('club-5.jpg', 'Premiación', lpClubSunset())}
     </div>
@@ -576,6 +568,11 @@ function vLanding() {
         <span class="lp-j lp-j-a">🇲🇽<small>Torneo local</small></span>
         <span class="lp-j lp-j-p">✈️</span>
         <span class="lp-j lp-j-b">🎓<small>Beca afuera</small></span>
+      </div>
+      <div class="lp-caminoshots reveal">
+        ${lpCaminoShot('camino-1.jpg', 'Juega tu torneo', lpClubTee())}
+        ${lpCaminoShot('camino-2.jpg', 'Compite y crece', lpClubGreen())}
+        ${lpCaminoShot('camino-3.jpg', 'Llega más lejos', lpClubSunset())}
       </div>
       <div class="lp-presgrid">
         ${[['🏆', 'Torneos que cuentan', 'Cada torneo suma para el ranking juvenil nacional. Tus resultados te posicionan.'],
