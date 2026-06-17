@@ -646,7 +646,9 @@ const actions = {
   'timer-adjust'(d) { stopDrillTimer(); const cur = (V.timer && V.timer.total) || 300; const total = Math.max(60, Math.min(3600, cur + Number(d.d) * 60)); V.timer = { left: total, total, running: false }; render(); },
   'session-min'(d) { V.sessionMin = Number(d.m) || 60; render(); },
   'plan-time'(d) { V.sessionMin = Number(d.m) || 60; V.planStep = 'mode'; render(); window.scrollTo(0, 0); },
-  'plan-mode'(d) { V.planMode = d.m; if (d.m === 'me') V.planStep = 'areas'; else if (d.m === 'free') { V.planStep = 'free'; V.freeTimer = { secs: 0, running: false }; } else V.planStep = 'plan'; render(); window.scrollTo(0, 0); },
+  'plan-mode'(d) { V.planMode = d.m; if (d.m === 'me') V.planStep = 'areas'; else if (d.m === 'lib') { V.planStep = 'lib'; V.libPick = V.libPick || []; } else if (d.m === 'free') { V.planStep = 'free'; V.freeTimer = { secs: 0, running: false }; } else V.planStep = 'plan'; render(); window.scrollTo(0, 0); },
+  'plan-lib-cat'(d) { V.libCat = d.c; render(); },
+  'plan-lib-toggle'(d) { V.libPick = V.libPick || []; const i = V.libPick.indexOf(d.name); if (i >= 0) V.libPick.splice(i, 1); else V.libPick.push(d.name); render(); },
   'session-run-start'(d) {
     const u = cur(); if (!u) return;
     const blocks = buildSessionBlocks(u, Stats.aggregate(myRounds()), V.sessionMin || 60, V.planMode, V.planAreas);

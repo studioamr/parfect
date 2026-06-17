@@ -182,15 +182,14 @@ function vWeekStrip() {
 
 function vTrainer() {
   const u = cur();
-  const tab = ['entreno', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
-  const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
+  const tab = ['entreno', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'diag';
   const body = tab === 'entreno' ? vSessionPlanner()
-    : tab === 'biblioteca' ? vBiblioteca()
-      : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-        : tab === 'academia' ? vAcademyLaunch()
-          : vDiag();
+    : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
+      : tab === 'academia' ? vAcademyLaunch()
+        : vDiag();
+  const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('entreno', 'Entrenamiento')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
+    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('entreno', 'Entrenamiento')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
     ${body}`;
 }
 
@@ -304,27 +303,19 @@ function vDrillDetail() {
   const short = s => { let t = String(s).split('. ')[0].trim(); if (t.length > 46) t = t.split(/[,;]/)[0].trim(); return t.replace(/\.$/, ''); };
   const steps = (d.steps || []).map((s, i) => `<li class="dd2-step"><span class="dd2-n">${i + 1}</span><span class="dd2-stext">${esc(short(s))}</span></li>`).join('');
   const doneToday = ((cur() || {}).drillsDone || {})[d.name] === today();
-  const tm = V.timer || { left: 300, total: 300, running: false };
-  const pct = Math.round(100 * (1 - (tm.left / (tm.total || 1))));
-  const timerHtml = `
-    <div class="card sp-card sr-card">
-      <div class="sp-phase">Ejercicio · ${esc(catLab)}</div>
-      <div class="sr-now"><span class="sr-scene">${drillScene(cm.s)}</span><div class="sr-nowtx"><b>${esc(d.name)}</b><span>${esc(d.dose || catLab)}</span></div></div>
-      <div class="sr-clock" id="dd-timer">${fmtClock(tm.left)}</div>
-      <div class="sr-bar"><i id="dd-bar" style="width:${pct}%"></i></div>
-      ${d.metric ? `<p class="sr-next">Meta: ${esc(d.metric)}</p>` : ''}
-      <div class="ddt2-ctrls">
-        ${tm.running ? `<button class="btn" data-act="timer-pause">⏸ Pausar</button>` : `<button class="btn primary" data-act="timer-start" ${tm.left <= 0 ? 'disabled' : ''}>${tm.left < tm.total ? 'Reanudar' : 'Iniciar'} ▶</button>`}
-        <button class="btn ghost" data-act="timer-reset" aria-label="Reiniciar">↺</button>
-      </div>
-    </div>`;
   return `<div class="overlay overlay-top" data-act="drill-close-detail">
     <div class="sheet dd2" data-act="noop">
       <div class="dd2-top">
         <span class="dd2-cat">${esc(catLab)}</span>
         <button class="dd2-x" data-act="drill-close-detail" aria-label="Cerrar">✕</button>
       </div>
-      ${timerHtml}
+      <div class="card sp-card sr-card dd2-headcard">
+        <div class="sr-now"><span class="sr-scene">${drillScene(cm.s)}</span><div class="sr-nowtx"><b>${esc(d.name)}</b><span>${esc(d.dose || catLab)}</span></div></div>
+      </div>
+      <div class="dd2-goals">
+        <div class="dd2-goal"><span>Dosis</span><b>${esc(d.dose)}</b></div>
+        <div class="dd2-goal"><span>Meta</span><b>${esc(d.metric)}</b></div>
+      </div>
       <h3 class="dd2-h3">Cómo hacerlo</h3>
       <ol class="dd2-steps">${steps}</ol>
       <button class="btn primary big" data-act="drill-done">${doneToday ? 'Entrenado hoy ✓ · marcar otra vez' : 'Listo, lo entrené ✓'}</button>
@@ -441,7 +432,7 @@ function spSceneFor(lab) { return ({ 'Salida': 'fw', 'Driving': 'fw', 'Hierros':
 function vSessionPlanner() {
   const u = cur();
   const agg = Stats.aggregate(myRounds());
-  const step = ['mode', 'areas', 'plan', 'free'].includes(V.planStep) ? V.planStep : 'time';
+  const step = ['mode', 'areas', 'plan', 'free', 'lib'].includes(V.planStep) ? V.planStep : 'time';
   const T = V.sessionMin || 60;
 
   if (step === 'time') {
@@ -457,7 +448,32 @@ function vSessionPlanner() {
       <h2 class="sp-q">¿Cómo armamos tu sesión?</h2>
       <button class="sp-modecard" data-act="plan-mode" data-m="ai"><span class="sp-modeic">${golfIcon('flag')}</span><div><b>Que la IA la arme por mí</b><span>Reparte el tiempo priorizando tus puntos débiles.</span></div></button>
       <button class="sp-modecard" data-act="plan-mode" data-m="me"><span class="sp-modeic">${golfIcon('bucket')}</span><div><b>Yo elijo qué entrenar</b><span>Escoge las áreas y nosotros repartimos el tiempo.</span></div></button>
+      <button class="sp-modecard" data-act="plan-mode" data-m="lib"><span class="sp-modeic">${golfIcon('card')}</span><div><b>Elegir de la biblioteca</b><span>Arma tu sesión con drills específicos según tu tiempo.</span></div></button>
       <button class="sp-back" data-act="plan-reset">← Cambiar tiempo</button>
+    </div>`;
+  }
+  if (step === 'lib') {
+    const cat = (V.libCat && DRILL_CATS.some(c => c.id === V.libCat)) ? V.libCat : DRILL_CATS[0].id;
+    const pick = V.libPick || [];
+    const per = pick.length ? Math.max(4, Math.round(T / pick.length)) : 0;
+    const tabs = DRILL_CATS.map(c => `<button class="lib-tab ${c.id === cat ? 'on' : ''}" data-act="plan-lib-cat" data-c="${c.id}">${esc(c.label)}</button>`).join('');
+    const drills = DRILL_LIBRARY.filter(d => d.cat === cat);
+    const list = drills.map(d => {
+      const on = pick.includes(d.name);
+      return `<div class="splib-item ${on ? 'on' : ''}" data-act="plan-lib-toggle" data-name="${esc(d.name)}" role="button" tabindex="0">
+        <span class="splib-chk">${on ? '✓' : '+'}</span>
+        <span class="splib-tx"><b>${esc(d.name)}</b><span>${esc(d.desc)}</span></span>
+        <button class="splib-eye" data-act="drill-open" data-name="${esc(d.name)}" aria-label="Ver ejercicio">👁</button>
+      </div>`;
+    }).join('');
+    return `<div class="card sp-card">
+      <div class="sp-phase">Paso 2 de 2 · ${spFmtMin(T)} · biblioteca</div>
+      <h2 class="sp-q">Elige tus ejercicios</h2>
+      <p class="sp-libhint">${pick.length ? `${pick.length} elegido${pick.length > 1 ? 's' : ''} · ~${per} min c/u` : 'Toca los drills que quieras meter a tu sesión'}</p>
+      <div class="lib-tabs">${tabs}</div>
+      <div class="splib-list">${list}</div>
+      <button class="btn primary big" data-act="plan-build" ${pick.length ? '' : 'disabled'} style="margin-top:10px">Armar sesión (${pick.length}) →</button>
+      <button class="sp-back" data-act="plan-mode-back">← Atrás</button>
     </div>`;
   }
   if (step === 'free') {
@@ -516,6 +532,17 @@ function vSessionPlanner() {
 
 /* arma los bloques de la sesión (calentamiento + áreas), usado por la línea de tiempo y el runner */
 function buildSessionBlocks(u, agg, T, mode, areas) {
+  if (mode === 'lib') {
+    const picked = (V.libPick || []).map(n => DRILL_LIBRARY.find(d => d.name === n)).filter(Boolean);
+    if (!picked.length) return [];
+    const per = Math.max(4, Math.round(T / picked.length));
+    const cl = { fw: 'Salida', gir: 'Hierros', ud: 'Juego corto', putt: 'Putting' };
+    const ci = { fw: 'flag', gir: 'green', ud: 'bucket', putt: 'putter' };
+    const bl = picked.map(d => ({ label: cl[d.cat] || 'Drill', icon: ci[d.cat] || 'green', drill: d.name, min: per }));
+    const sum = bl.reduce((a, b) => a + b.min, 0);
+    bl[bl.length - 1].min = Math.max(4, bl[bl.length - 1].min + (T - sum));
+    return bl;
+  }
   const warm = Math.max(5, Math.round(T * 0.12));
   const rem = T - warm;
   let blocks;
