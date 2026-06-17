@@ -567,9 +567,9 @@ function logoMark(size = 16) {
     <path d="M5 21c2-1.4 4.6-1.4 6.6 0" stroke="#7cc24a" stroke-width="2" stroke-linecap="round"/>
   </svg>`;
 }
-/* logo "PARFECT" con la P hecha bandera (la bandera ES la P) */
+/* logo PARFECT (texto normal) */
 function pLogo() {
-  return `<svg class="logo-fp" viewBox="0 0 22 26" aria-hidden="true"><path d="M4 25 V3.6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M5.3 4.2 L19 8.6 L5.3 13 Z" fill="currentColor"/></svg>ARFECT`;
+  return `PARFECT`;
 }
 
 const ICONS = {

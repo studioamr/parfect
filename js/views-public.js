@@ -173,8 +173,7 @@ function vLanding() {
     <section class="lp-hero2">
       <div class="lp-stage">
         <div class="lp-glow"></div>
-        <div class="lp-golfer-stack parallax" data-speed="0.16">${AVATARS.map((src, i) => `<img class="lp-golfer lpg${i}" src="${src}" alt="${i === 0 ? 'Golfista PARFECT' : ''}" />`).join('')}</div>
-        <div class="lp-shadow" aria-hidden="true"></div>
+        <div class="lp-appshot parallax" data-speed="0.12">${lpFeatArt('stats')}</div>
         <div class="lp-fcard lp-fc1 parallax" data-speed="0.7"><span class="lp-fc-k">Hándicap</span><b class="lp-fc-v">12.4 <i>▾</i></b></div>
         <div class="lp-fcard lp-fc2 parallax" data-speed="0.95"><b class="lp-fc-v lime">−1</b><span>¡Birdie!</span></div>
         <div class="lp-fcard lp-fc3 parallax" data-speed="0.5"><span class="lp-fc-k">GIR</span><b class="lp-fc-v lime">64%</b></div>

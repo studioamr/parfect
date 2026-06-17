@@ -1449,6 +1449,8 @@ body.is-scrolling .lp-bird, body.is-scrolling .lp-fly { animation-play-state: pa
 .lp-trust { margin-top: 16px; font-size: 12.5px; color: var(--text); opacity: .62; font-weight: 700; }
 
 .lp-stage { position: relative; z-index: 3; aspect-ratio: 1/1.04; display: grid; place-items: center; }
+.lp-appshot { position: relative; z-index: 2; width: min(62vw, 280px); margin: 0 auto; filter: drop-shadow(0 22px 42px rgba(20,40,15,.24)); animation: lp-float 6s ease-in-out infinite; will-change: transform; }
+.lp-appshot .lpa { width: 100%; height: auto; display: block; border-radius: 14px; }
 .lp-glow { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 66%; height: 66%; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.42) 0%, rgba(255,255,255,.12) 48%, transparent 72%); z-index: 1; animation: lp-pulse 5s ease-in-out infinite; }
 [data-theme="dark"] .lp-glow { background: radial-gradient(circle, rgba(255,255,255,.14) 0%, transparent 70%); }
 .lp-shadow { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); width: 42%; height: 5%; background: radial-gradient(ellipse, rgba(20,50,15,.28), transparent 72%); z-index: 1; animation: lp-shadow 6s ease-in-out infinite; }
@@ -3351,9 +3353,9 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 
 /* prueba social: prensa + Trustpilot + premios */
 /* intro: PARFECT flotante + reconocimientos transparentes volando (antes del landing) */
-.lp-intro { position: relative; z-index: 2; min-height: 0; background: transparent; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 17vh 18px 11vh; overflow: visible; }
-.lp-intro-top { position: relative; z-index: 2; }
-.lp-intro-logo { display: block; font-size: 48px; font-weight: 900; letter-spacing: .03em; font-style: italic; color: var(--text); text-shadow: 0 6px 20px rgba(20,40,15,.12); }
+.lp-intro { position: relative; z-index: 2; min-height: 94vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 12vh 18px 9vh; overflow: visible; }
+.lp-intro-top { position: relative; z-index: 2; animation: lpFloat3 6s ease-in-out infinite; }
+.lp-intro-logo { display: block; font-size: clamp(56px, 18vw, 104px); font-weight: 900; letter-spacing: -.01em; font-style: italic; color: var(--text); line-height: .95; text-shadow: 0 12px 34px rgba(20,40,15,.16); }
 /* la P de PARFECT hecha bandera */
 .logo-fp { height: .92em; width: auto; vertical-align: -.11em; margin-right: -.02em; }
 .lp-intro-tag { display: block; font-size: 13px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
