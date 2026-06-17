@@ -680,10 +680,32 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .lib-ic .gi, .lib-ic svg { width: 18px; height: 18px; }
 .lib-head b { flex: 1; min-width: 0; font-size: 16.5px; font-weight: 900; color: var(--text); }
 .lib-n { flex: none; font-size: 12px; font-weight: 800; color: var(--muted); background: var(--card2); border-radius: 99px; padding: 3px 11px; }
-.lib-card .dlc-list { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 11px; margin-top: 2px; padding: 2px 2px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.lib-card .dlc-list::-webkit-scrollbar { display: none; }
-.lib-card .dlc { background: var(--card2); flex: 0 0 82%; max-width: 290px; scroll-snap-align: center; }
-.lib-card .dlc-list::after { content: ''; flex: 0 0 2px; }   /* respiro al final del carrusel */
+.lib-card .dlc-list { margin-top: 2px; gap: 9px; }
+.lib-card .dlc { background: var(--card2); }
+/* biblioteca: filtro por categoría (chips) + lista vertical */
+.lib-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 12px; margin-top: 10px; scrollbar-width: none; }
+.lib-tabs::-webkit-scrollbar { display: none; }
+.lib-tab { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-size: 13.5px; font-weight: 800; color: var(--muted); cursor: pointer; }
+.lib-tab .lib-tab-ic { width: 16px; height: 16px; color: var(--lib); display: inline-flex; }
+.lib-tab .lib-tab-ic svg, .lib-tab .lib-tab-ic .gi { width: 100%; height: 100%; }
+.lib-tab .lib-tab-n { font-size: 11px; font-weight: 800; color: var(--muted); opacity: .8; }
+.lib-tab.on { border-color: var(--lib); color: var(--text); box-shadow: 0 4px 12px rgba(20,40,15,.1); }
+.lib-tab:active { transform: scale(.96); }
+
+/* ====== Lista de amigos (Social) ====== */
+.fr-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.fr-card { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 11px 13px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; box-shadow: 0 4px 12px rgba(20,40,15,.05); }
+.fr-card:active { transform: scale(.985); }
+.fr-av { flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%; overflow: hidden; background: var(--lime-faint); display: inline-flex; align-items: center; justify-content: center; }
+.fr-av img { width: 100%; height: 100%; object-fit: cover; }
+.fr-av.lg { width: 54px; height: 54px; }
+.fr-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.fr-info b { font-size: 15px; color: var(--text); }
+.fr-info span { font-size: 12.5px; color: var(--muted); }
+.fr-score { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.05; }
+.fr-score b { font-size: 18px; color: var(--text); }
+.fr-score small { font-size: 11px; color: var(--muted); }
+.fr-go { flex: 0 0 auto; font-size: 20px; color: var(--muted); margin-left: 2px; }
 
 /* ====== Detalle de drill (pasos) ====== */
 .dd-cat { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--lime-ink); }

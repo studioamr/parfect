@@ -584,32 +584,25 @@ function vSessionRunner() {
 function vBiblioteca() {
   const done = (cur() || {}).drillsDone || {};
   const td = today();
-  const AREA = {
-    fw: { c: '#3f9d44', t: 'rgba(63,157,68,.10)', ic: 'flag' },
-    gir: { c: '#2fa36b', t: 'rgba(47,163,107,.10)', ic: 'green' },
-    ud: { c: '#e0873a', t: 'rgba(224,135,58,.10)', ic: 'bucket' },
-    putt: { c: '#3a8fe0', t: 'rgba(58,143,224,.10)', ic: 'putter' },
-  };
-  const card = (col, tint, icon, title, count, rows) => `<div class="lib-card">
-      <div class="lib-head"><span class="lib-ic">${golfIcon(icon)}</span><b>${esc(title)}</b><span class="lib-n">${count}</span></div>
-      <div class="dlc-list">${rows}</div>
-    </div>`;
-  // 1) Biblioteca de drills — una tarjeta de color por área
-  const libCards = DRILL_CATS.map(cat => {
-    const a = AREA[cat.id] || AREA.fw;
-    const drills = DRILL_LIBRARY.filter(d => d.cat === cat.id);
-    const rows = drills.map(d => {
-      const isDone = done[d.name] === td;
-      return `<button class="dlc ${isDone ? 'done' : ''}" data-act="drill-open" data-name="${esc(d.name)}">
-        <span class="dlc-check">${isDone ? '✓' : ''}</span>
-        <div class="dlc-info"><b>${esc(d.name)}</b><p class="dlc-desc">${esc(d.desc)}</p>
-          <div class="dlc-meta"><span>${golfIcon('bucket')} ${esc(d.dose)}</span><span>${golfIcon('green')} ${esc(d.metric)}</span></div></div>
-        <span class="dlc-go">${isDone ? 'Hecho' : 'Ver →'}</span></button>`;
-    }).join('');
-    return card(a.c, a.t, a.ic, cat.label, drills.length, rows);
+  const AREA = { fw: { c: '#3f9d44', ic: 'flag' }, gir: { c: '#2fa36b', ic: 'green' }, ud: { c: '#e0873a', ic: 'bucket' }, putt: { c: '#3a8fe0', ic: 'putter' } };
+  const cat = (V.drillCat && DRILL_CATS.some(c => c.id === V.drillCat)) ? V.drillCat : DRILL_CATS[0].id;
+  const tabs = DRILL_CATS.map(c => {
+    const a = AREA[c.id] || AREA.fw;
+    const n = DRILL_LIBRARY.filter(d => d.cat === c.id).length;
+    return `<button class="lib-tab ${c.id === cat ? 'on' : ''}" data-act="drill-cat" data-c="${c.id}" style="--lib:${a.c}"><span class="lib-tab-ic">${golfIcon(a.ic)}</span>${esc(c.label)}<span class="lib-tab-n">${n}</span></button>`;
+  }).join('');
+  const drills = DRILL_LIBRARY.filter(d => d.cat === cat);
+  const items = drills.map(d => {
+    const isDone = done[d.name] === td;
+    return `<button class="dlc ${isDone ? 'done' : ''}" data-act="drill-open" data-name="${esc(d.name)}">
+      <span class="dlc-check">${isDone ? '✓' : ''}</span>
+      <div class="dlc-info"><b>${esc(d.name)}</b><p class="dlc-desc">${esc(d.desc)}</p>
+        <div class="dlc-meta"><span>${golfIcon('bucket')} ${esc(d.dose)}</span><span>${golfIcon('green')} ${esc(d.metric)}</span></div></div>
+      <span class="dlc-go">${isDone ? 'Hecho' : 'Ver →'}</span></button>`;
   }).join('');
   return `<div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Biblioteca de drills</h2><span class="small muted">${DRILL_LIBRARY.length} ejercicios</span></div>
-    ${libCards}`;
+    <div class="lib-tabs">${tabs}</div>
+    <div class="dlc-list">${items}</div>`;
 }
 /* pestaña Academia: tarjeta de lanzamiento a la ruta inmersiva */
 function vAcademyLaunch() {
@@ -863,13 +856,24 @@ function partyCard() {
 }
 
 function vSocial() {
+  const friends = (typeof FRIENDS_FEED !== 'undefined' ? FRIENDS_FEED : []).map(f => `
+    <button class="fr-card" data-act="friend" data-id="${esc(f.id)}">
+      <span class="fr-av"><img class="golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy"></span>
+      <div class="fr-info"><b>${esc(f.name)}</b><span>HCP ${fmtHcp(f.hcp)} · ${esc(f.course)}</span></div>
+      <span class="fr-score"><b>${f.score}</b><small>${fmtToPar(f.toPar)}</small></span>
+      <span class="fr-go">›</span>
+    </button>`).join('');
   return `<button class="auth-back" data-act="nav" data-view="trainer">← Entrenamiento</button>
-    <div class="sec-h"><h2>Calendario</h2><span class="small muted">toca un día y agrega lo que toca</span></div>
+    <div class="sec-h"><h2>Tus amigos</h2><span class="small muted">toca para ver su perfil</span></div>
+    <div class="fr-list">${friends}</div>
+    <div class="sec-h" style="margin-top:24px"><h2>Calendario</h2><span class="small muted">toca un día y agrega lo que toca</span></div>
     ${vCalendar()}`;
 }
 
 /* ---------- Perfil de un jugador (amigo) ---------- */
 function vFriend() {
+  const ff = (typeof FRIENDS_FEED !== 'undefined' ? FRIENDS_FEED : []).find(x => x.id === V.friendId);
+  if (ff) return vFriendFeed(ff);
   const p = S.users.find(x => x.id === V.friendId);
   if (!p) { V.view = 'social'; return vSocial(); }
   const me = p.id === S.session;
@@ -908,4 +912,40 @@ function vFriend() {
         </div>`;
       }).join('')}
     </div>`;
+}
+
+/* Perfil de un amigo del feed (datos simulados de FRIENDS_FEED) */
+function vFriendFeed(f) {
+  const putts18 = Math.round(f.putts / f.holes * 18);
+  const b = Stats.benchFor(f.hcp);
+  const agg = { fwPct: f.fw, girPct: f.gir, scrPct: Math.round(b.scrPct), putts18, puttsPerGir: Math.max(1.6, 2.2 - (18 - f.hcp) * 0.02), consistency: Math.max(2, 3.5 + f.hcp * 0.22), rounds: 1 };
+  const radar = Stats.radarOf(agg);
+  const toPar18 = Math.round(f.toPar / f.holes * 18);
+  return `<button class="auth-back" data-act="nav" data-view="social">← Social</button>
+    <div class="greet" style="padding-top:6px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="fr-av lg"><img class="golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy"></span>
+        <div><h1 style="font-size:26px">${esc(f.name)}</h1>
+        <p class="hcp">HCP ${fmtHcp(f.hcp)} · ${esc(f.course)}</p></div>
+      </div>
+    </div>
+    <div class="grid2">
+      ${statCard(f.fw + '%', 'Fairways', f.fw)}
+      ${statCard(f.gir + '%', 'GIR', f.gir)}
+      ${statCard(String(f.putts), 'Putts', Stats.clamp((38 - putts18) / 11 * 100, 0, 100))}
+      ${statCard(fmtToPar(toPar18), 'Score a 18', Stats.clamp((20 - toPar18) / 24 * 100, 0, 100))}
+    </div>
+    <div class="card">
+      <span class="label">Perfil de habilidades</span>
+      <div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div>
+    </div>
+    <div class="card">
+      <span class="label">Última ronda · ${esc(f.when)}</span>
+      <div class="hist-row" style="cursor:default">
+        <div class="r-main"><b>${esc(f.course)}</b><span>${f.holes} hoyos · ${f.putts} putts · ${f.fw}% FW · ${f.gir}% GIR</span></div>
+        <div class="r-side"><b>${f.score}</b><span>${fmtToPar(f.toPar)}</span></div>
+      </div>
+      ${f.cap ? `<p class="note" style="margin:10px 0 0">“${esc(f.cap)}”</p>` : ''}
+    </div>
+    <button class="btn primary" data-act="event-new" style="margin-top:4px">${golfIcon('flag')} Invitar a jugar</button>`;
 }

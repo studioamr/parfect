@@ -97,15 +97,34 @@ function progressCard(u, rounds) {
   </div>`;
 }
 
-/* Próximos eventos (para Inicio) */
+/* Próximos eventos confirmados (lo que el usuario marcó Apuntarme/Confirmar) */
 function upcomingCard(u) {
   const tl = todayLocal();
-  const up = (u.events || []).filter(e => e.date >= tl && e.type !== 'descanso').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
+  const up = (u.events || []).filter(e => e.joined && e.date >= tl).sort((a, b) => a.date.localeCompare(b.date));
   if (!up.length) return '';
   const rows = up.map(e => `<button class="cal-ev ${e.type}" data-act="cal-goto" data-date="${e.date}" style="width:100%;text-align:left;cursor:pointer">
       <div class="r-main"><b>${esc(e.title || EV_LABEL[e.type])}</b><span>${golfIcon(EV_ICON[e.type])} ${calDateLabel(e.date)}${e.area ? ' · ' + esc(e.area) : ''}</span></div><span class="muted">›</span>
     </button>`).join('');
-  return `<div class="card"><span class="label">${golfIcon('card')} Próximos eventos</span>${rows}</div>`;
+  return `<div class="card" style="margin-top:14px"><span class="label">${golfIcon('card')} Tus eventos confirmados</span>${rows}<p class="note" style="margin:6px 0 0">Ya están en tu <b class="lime">calendario</b>.</p></div>`;
+}
+
+/* Convierte una fecha "28 jun" / "24 jun · 9:00" en ISO (próxima ocurrencia) */
+function parseUpDate(s) {
+  const M = { ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5, jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11 };
+  const m = (s || '').toLowerCase().match(/(\d{1,2})\s+([a-záé]+)/);
+  if (!m) return null;
+  const day = +m[1], mon = M[m[2].slice(0, 3)];
+  if (mon == null) return null;
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  let dt = new Date(t0.getFullYear(), mon, day);
+  if (dt < t0) dt = new Date(t0.getFullYear() + 1, mon, day);
+  return isoLocal(dt);
+}
+/* Crea el evento de calendario a partir de un próximo torneo/clase */
+function upEventToCal(x) {
+  const date = parseUpDate(x.date);
+  if (!date) return null;
+  return { id: 'up-' + (Store.uid ? Store.uid() : Date.now()), date, type: x.type === 'clase' ? 'entreno' : 'ronda', title: x.name, area: (x.course || '').split('·').pop().trim(), joined: x.name };
 }
 
 /* ---- escenas animadas tipo GIF 3D por estadística (gradientes, sombras, profundidad) ---- */
@@ -888,6 +907,7 @@ function vTorneo(u) {
     <div class="sec-h" style="margin-top:20px"><h2 style="font-size:18px">Próximos eventos</h2><button class="sec-link" data-act="event-new">+ Crear evento</button></div>
     ${vEventsList(u)}
     <div class="tr-ups">${ups}</div>
+    ${upcomingCard(u)}
     ${V.eventDraft ? vEventComposer(u) : ''}`;
 }
 
