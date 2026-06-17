@@ -457,9 +457,10 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .nav-p {
   width: 58px; height: 58px; border-radius: 50%; flex: none;
   background: #C7EE54; border: none; color: #16241A;
-  font-size: 23px; font-weight: 900; font-style: italic;
+  display: grid; place-items: center;
   margin: 0 2px 6px; box-shadow: 0 6px 22px rgba(199,238,84, 0.55), 0 0 0 5px rgba(199,238,84, 0.16);
 }
+.nav-p .navp-flag { width: 28px; height: 28px; display: block; }
 
 /* ============ Charts ============ */
 .radar-wrap { display: flex; justify-content: center; }
@@ -2923,6 +2924,10 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 .lpa-bar { transform-origin: 50% 64px; animation: lpaBar 2.6s ease-in-out infinite; }
 .lpab2 { animation-delay: .18s; } .lpab3 { animation-delay: .36s; }
 @keyframes lpaBar { 0%,100% { transform: scaleY(.45); } 50% { transform: scaleY(1); } }
+/* mini-app preview (Mira tus números): barras que se llenan */
+.lpa-fill { transform-box: fill-box; transform-origin: left center; animation: lpaGrow 3.2s ease-in-out infinite; }
+.lpf2 { animation-delay: .22s; } .lpf3 { animation-delay: .44s; }
+@keyframes lpaGrow { 0% { transform: scaleX(.06); } 28%,80% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
 .lpa-ring { transform-origin: 48px 40px; animation: lpaPulse 2.4s ease-out infinite; }
 .lpar2 { animation-delay: .4s; }
 @keyframes lpaPulse { 0% { transform: scale(.7); opacity:.3; } 50% { opacity:.9; } 100% { transform: scale(1.12); opacity:0; } }
@@ -3303,6 +3308,21 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 [data-theme="dark"] .lp-squirrel { opacity: .8; }
 @media (prefers-reduced-motion: reduce) { .lp-squirrel, .lp-fountain { animation: none; } }
 
+/* prueba social: prensa + Trustpilot + premios */
+.lp-trust { text-align: center; }
+.lp-press-lab { display: block; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.lp-press { display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 22px; }
+.lp-plogo { font-size: 21px; font-weight: 900; letter-spacing: -.01em; color: var(--muted); opacity: .68; font-family: Georgia, 'Times New Roman', serif; }
+.lp-forbes { font-style: italic; }
+.lp-trustcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.lp-trustc { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 12px; box-shadow: 0 10px 26px rgba(20,40,15,.06); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lp-trustc b { font-size: 15px; font-weight: 900; color: var(--text); }
+.lp-trustc > span:last-child { font-size: 11px; font-weight: 700; color: var(--muted); }
+.lp-stars { color: #2fb36a; font-size: 16px; letter-spacing: 1.5px; }
+.lp-tico { width: 26px; height: 26px; color: var(--lime-ink); display: inline-flex; }
+.lp-tico svg { width: 100%; height: 100%; }
+.lp-quote { font-size: 12.5px; font-weight: 800; color: var(--text); line-height: 1.35; font-style: italic; }
+@media (max-width: 520px) { .lp-trustcards { grid-template-columns: 1fr; } .lp-press { gap: 18px; } .lp-plogo { font-size: 18px; } }
 /* presencia real */
 .lp-presence { text-align: center; }
 .lp-statrow { display: flex; justify-content: center; gap: 10px; margin: 18px 0 22px; flex-wrap: wrap; }

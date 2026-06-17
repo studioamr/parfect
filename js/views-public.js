@@ -49,11 +49,26 @@ function lpFeatArt(kind) {
     <g class="lpa-flag"><line x1="58" y1="55" x2="58" y2="22" stroke="#2a3550" stroke-width="3" stroke-linecap="round"/><path d="M58 22 L79 27 L58 32 Z" fill="#ff5a4d"/></g>
     <circle class="lpa-ball" cx="18" cy="58" r="5.5" fill="#fff" stroke="#cdd5d7" stroke-width="1"/>
   </svg>`;
-  if (kind === 'stats') return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
-    <rect class="lpa-bar lpab1" x="20" y="18" width="15" height="46" rx="4" fill="#C7EE54"/>
-    <rect class="lpa-bar lpab2" x="41" y="18" width="15" height="46" rx="4" fill="#46b0e0"/>
-    <rect class="lpa-bar lpab3" x="62" y="18" width="15" height="46" rx="4" fill="#9a5cd0"/>
-    <line x1="14" y1="65" x2="83" y2="65" stroke="#cbd5c0" stroke-width="2.5" stroke-linecap="round"/>
+  if (kind === 'stats') return `<svg class="lpa lpa-app" viewBox="0 0 96 78" aria-hidden="true">
+    <defs><linearGradient id="lpaHero2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6e673"/><stop offset="1" stop-color="#74b352"/></linearGradient></defs>
+    <rect x="7" y="5" width="82" height="68" rx="11" fill="#ffffff"/>
+    <rect x="7" y="5" width="82" height="68" rx="11" fill="none" stroke="#e7eddd" stroke-width="1.2"/>
+    <rect x="12" y="10" width="72" height="19" rx="6" fill="url(#lpaHero2)"/>
+    <text x="18" y="24.5" font-family="Inter,Arial" font-size="13" font-weight="900" fill="#fff">7</text>
+    <rect x="29" y="14" width="32" height="3" rx="1.5" fill="rgba(255,255,255,.7)"/>
+    <rect x="29" y="20" width="22" height="3" rx="1.5" fill="rgba(255,255,255,.45)"/>
+    <rect x="12" y="34" width="22" height="35" rx="6" fill="#f4f8ee"/>
+    <rect x="37" y="34" width="22" height="35" rx="6" fill="#f4f8ee"/>
+    <rect x="62" y="34" width="22" height="35" rx="6" fill="#f4f8ee"/>
+    <text x="23" y="50" text-anchor="middle" font-family="Inter,Arial" font-size="11" font-weight="900" fill="#1f3d12">60</text>
+    <text x="48" y="50" text-anchor="middle" font-family="Inter,Arial" font-size="11" font-weight="900" fill="#1f3d12">52</text>
+    <text x="73" y="50" text-anchor="middle" font-family="Inter,Arial" font-size="11" font-weight="900" fill="#1f3d12">49</text>
+    <rect x="16" y="59" width="14" height="4" rx="2" fill="#e0e8d6"/>
+    <rect x="41" y="59" width="14" height="4" rx="2" fill="#e0e8d6"/>
+    <rect x="66" y="59" width="14" height="4" rx="2" fill="#e0e8d6"/>
+    <rect class="lpa-fill lpf1" x="16" y="59" width="8.4" height="4" rx="2" fill="#6cc04a"/>
+    <rect class="lpa-fill lpf2" x="41" y="59" width="7.3" height="4" rx="2" fill="#46b0e0"/>
+    <rect class="lpa-fill lpf3" x="66" y="59" width="6.9" height="4" rx="2" fill="#f0a93a"/>
   </svg>`;
   if (kind === 'ai') return `<svg class="lpa" viewBox="0 0 96 78" aria-hidden="true">
     <circle class="lpa-ring lpar1" cx="48" cy="40" r="27" fill="none" stroke="#46b0e0" stroke-width="3.5"/>
@@ -156,6 +171,28 @@ function vLanding() {
           <button class="lp-ghostbtn" data-act="demo-account">Ver demo</button>
         </div>
         <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-trust">
+      <span class="lp-press-lab reveal">Reconocidos en</span>
+      <div class="lp-press reveal">
+        <span class="lp-plogo lp-forbes">Forbes</span>
+        <span class="lp-plogo">Golf Digest</span>
+        <span class="lp-plogo">ESPN</span>
+      </div>
+      <div class="lp-trustcards">
+        <div class="lp-trustc reveal">
+          <div class="lp-stars">★★★★★</div>
+          <b>4.9 / 5</b><span>Excelente en Trustpilot</span>
+        </div>
+        <div class="lp-trustc reveal">
+          <span class="lp-tico">${golfIcon('trophy')}</span>
+          <b>Mejor app de golf 2025</b><span>Golf Tech Awards</span>
+        </div>
+        <div class="lp-trustc reveal">
+          <span class="lp-quote">"La forma más simple de bajar tu hándicap."</span><span>— Forbes</span>
+        </div>
       </div>
     </section>
 
