@@ -182,15 +182,17 @@ function vWeekStrip() {
 
 function vTrainer() {
   const u = cur();
-  const tab = ['diag', 'biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'entreno';
+  const tab = ['biblioteca', 'logros', 'academia'].includes(V.trainerTab) ? V.trainerTab : 'entreno';
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
-  const body = tab === 'entreno' ? vSessionPlanner()
-    : tab === 'biblioteca' ? vBiblioteca()
-      : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-        : tab === 'academia' ? vAcademyLaunch()
-          : (vCoachLive('practice') + vDiag());
+  const entrenoBody = vSessionPlanner()
+    + `<div class="sec-h" style="margin-top:28px"><h2>${golfIcon('green')} Análisis IA</h2><span class="small muted">tu coach en tiempo real</span></div>`
+    + vCoachLive('practice') + vDiag();
+  const body = tab === 'biblioteca' ? vBiblioteca()
+    : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
+      : tab === 'academia' ? vAcademyLaunch()
+        : entrenoBody;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('entreno', 'Entrenamiento')}${T('diag', 'Análisis IA')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
+    <div class="tabs scroll">${T('entreno', 'Entrenamiento')}${T('biblioteca', 'Biblioteca')}${T('logros', 'Logros')}${T('academia', 'Academia')}</div>
     ${body}`;
 }
 
@@ -914,32 +916,43 @@ function vFriend() {
     </div>`;
 }
 
-/* Perfil de un amigo del feed (datos simulados de FRIENDS_FEED) */
+/* Perfil de un amigo del feed — mismas stats y diseño que Inicio (datos simulados de FRIENDS_FEED) */
 function vFriendFeed(f) {
   const putts18 = Math.round(f.putts / f.holes * 18);
-  const b = Stats.benchFor(f.hcp);
-  const agg = { fwPct: f.fw, girPct: f.gir, scrPct: Math.round(b.scrPct), putts18, puttsPerGir: Math.max(1.6, 2.2 - (18 - f.hcp) * 0.02), consistency: Math.max(2, 3.5 + f.hcp * 0.22), rounds: 1 };
-  const radar = Stats.radarOf(agg);
   const toPar18 = Math.round(f.toPar / f.holes * 18);
+  const scrPct = (typeof Stats !== 'undefined' && Stats.benchFor) ? Math.round(Stats.benchFor(f.hcp).scrPct) : 50;
+  const threePct = (typeof Stats !== 'undefined' && Stats.benchFor) ? Stats.benchFor(f.hcp).threePct : 6;
+  const threeP = (threePct / 100 * 18).toFixed(1);
+  const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const birdiePct = cl(Math.round(11 - f.hcp * 0.5), 0, 16);
+  const bogeyPct = cl(Math.round(20 + f.hcp * 1.7), 10, 78);
+  const parPct = cl(100 - birdiePct - bogeyPct, 4, 90);
+  const rk = (typeof RANKS !== 'undefined' && typeof rankIdx === 'function') ? RANKS[rankIdx(f.hcp)] : null;
+  const rings = [
+    pstSceneStatic('fw', f.fw, 'Fairways'),
+    pstSceneStatic('gir', f.gir, 'GIR'),
+    pstSceneStatic('ud', scrPct, 'Up & down'),
+  ].join('');
+  const tiles = [
+    ['Putts / ronda', String(putts18), `<span class="pst-ic">${golfIcon('putter')}</span>`],
+    ['3-putts / ronda', threeP, `<span class="pst-ic">${golfIcon('bucket')}</span>`],
+    ['Birdie o mejor', birdiePct + '%', `<img src="assets/eagle.png" class="pst-img" alt="">`],
+    ['Bogey o peor', bogeyPct + '%', `<span class="pst-ic pst-bogey"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4.5" width="15" height="15" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>`],
+    ['Pares', parPct + '%', `<span class="pst-ic">${golfIcon('flag')}</span>`],
+    ['Última (a par)', fmtToPar(toPar18), `<span class="pst-ic">${golfIcon('trophy')}</span>`],
+  ].map((t, i) => `<div class="pst-tile" style="--i:${i}"><span class="pst-th">${t[2]}</span><b class="pst-val">${t[1]}</b><span class="pst-lab">${t[0]}</span></div>`).join('');
   return `<button class="auth-back" data-act="nav" data-view="social">← Social</button>
-    <div class="greet" style="padding-top:6px">
-      <div style="display:flex;align-items:center;gap:14px">
-        <span class="fr-av lg"><img class="golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy"></span>
-        <div><h1 style="font-size:26px">${esc(f.name)}</h1>
-        <p class="hcp">HCP ${fmtHcp(f.hcp)} · ${esc(f.course)}</p></div>
+    <div class="pl-hero" style="background:linear-gradient(135deg,#2f6d34,#1c4a23)">
+      <div class="pl-hero-txt">
+        <span class="pl-hero-lab">${esc(f.name)}${rk ? ' · ' + rk.n : ''}</span>
+        <div class="pl-hero-num">${fmtHcp(f.hcp)}</div>
+        <span class="pl-hero-sub">Hándicap · ${esc(f.course)}</span>
       </div>
+      <span class="pl-hero-av golfer"><img class="golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:contain"></span>
     </div>
-    <div class="grid2">
-      ${statCard(f.fw + '%', 'Fairways', f.fw)}
-      ${statCard(f.gir + '%', 'GIR', f.gir)}
-      ${statCard(String(f.putts), 'Putts', Stats.clamp((38 - putts18) / 11 * 100, 0, 100))}
-      ${statCard(fmtToPar(toPar18), 'Score a 18', Stats.clamp((20 - toPar18) / 24 * 100, 0, 100))}
-    </div>
-    <div class="card">
-      <span class="label">Perfil de habilidades</span>
-      <div class="radar-wrap">${radarSVG(radar.labels, radar.values)}</div>
-    </div>
-    <div class="card">
+    <div class="pst-rings">${rings}</div>
+    <div class="pst-grid">${tiles}</div>
+    <div class="card" style="margin-top:16px">
       <span class="label">Última ronda · ${esc(f.when)}</span>
       <div class="hist-row" style="cursor:default">
         <div class="r-main"><b>${esc(f.course)}</b><span>${f.holes} hoyos · ${f.putts} putts · ${f.fw}% FW · ${f.gir}% GIR</span></div>
@@ -947,5 +960,5 @@ function vFriendFeed(f) {
       </div>
       ${f.cap ? `<p class="note" style="margin:10px 0 0">“${esc(f.cap)}”</p>` : ''}
     </div>
-    <button class="btn primary" data-act="event-new" style="margin-top:4px">${golfIcon('flag')} Invitar a jugar</button>`;
+    <button class="btn primary" data-act="event-new" style="margin-top:14px">${golfIcon('flag')} Invitar a jugar</button>`;
 }

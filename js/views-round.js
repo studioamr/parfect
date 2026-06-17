@@ -314,13 +314,6 @@ function vSetup() {
     </div>`;
     return `${holesToggle}${startSel}<p class="su-meta">Jugarás <b class="lime">${holes} hoyos</b> desde el <b class="lime">hoyo ${start + 1}</b> · Par ${par}.</p>`;
   })();
-  const whenToggle = `<div class="su-block">
-      <span class="su-lab">¿Cuándo juegas?</span>
-      <div class="chips">
-        <button class="chip on" data-act="setup-when" data-w="ahora">Ahora</button>
-        <button class="chip" data-act="party-new">Programar tee time</button>
-      </div>
-    </div>`;
   const body = `<div class="su-block"><span class="su-lab">Campo</span><div class="su-courses">${courseCards}</div></div>
       ${holesNineBlock}
       <button class="btn primary big su-go" data-act="start-round">${golfIcon('flag')} Comenzar ronda</button>`;
@@ -330,12 +323,11 @@ function vSetup() {
   const lobbyCard = `<div class="su-block su-lobby">
       <span class="su-lab">${golfIcon('flag')} Jugar con amigos · lobby</span>
       <div class="card lobby-card">
-        <p class="small muted" style="margin-top:0">Entra a la lobby de un amigo con su código, o crea la tuya y compártelo. Cada quien anota desde su celular.</p>
-        ${myActive ? `<button class="btn primary" data-act="party-resume">${golfIcon('flag')} Volver a tu lobby ${esc(act.code)}${act.status === 'live' ? ` · hoyo ${act.idx + 1}` : ''}</button>`
-          : `<button class="btn primary" data-act="party-new">${golfIcon('flag')} Crear una lobby</button>`}
+        <p class="small muted" style="margin-top:0">Entra a la lobby de un amigo con su código. Cada quien anota desde su celular.</p>
+        ${myActive ? `<button class="btn primary" data-act="party-resume">${golfIcon('flag')} Volver a tu lobby ${esc(act.code)}${act.status === 'live' ? ` · hoyo ${act.idx + 1}` : ''}</button>` : ''}
         <div class="join-row" style="margin-top:12px">
           <input id="join-code" placeholder="Código (ej. K7M2)" maxlength="4" style="text-transform:uppercase">
-          <button class="btn sm ghost" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Entrando…' : 'Entrar'}</button>
+          <button class="btn primary" data-act="party-join" ${V.joining ? 'disabled' : ''}>${V.joining ? 'Entrando…' : 'Entrar a la lobby'}</button>
         </div>
         ${V.err ? `<p class="form-err">${esc(V.err)}</p>` : ''}
       </div>
@@ -348,7 +340,6 @@ function vSetup() {
       </div>
       <div class="su-hero2-art">${courseCrest(cid)}</div>
     </div>
-    ${whenToggle}
     ${body}
     ${lobbyCard}
     <button class="btn su-cancel" data-act="nav" data-view="ronda">Cancelar</button>
