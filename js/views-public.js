@@ -72,8 +72,8 @@ function vLanding() {
   // (lpFeatArt definida abajo, a nivel de módulo)
   // cielo gigante que cambia con el reloj del día: amanecer / día / atardecer / noche
   const lpH = new Date().getHours() + new Date().getMinutes() / 60;
-  const phase = lpH < 6.5 ? 'night' : lpH < 8.5 ? 'dawn' : lpH < 17 ? 'day' : lpH < 19.5 ? 'dusk' : 'night';
-  const isNight = phase === 'night';
+  const phase = 'day';           // cielo siempre azul (día)
+  const isNight = false;
   const lpTree = (st) => `<div class="lp-tree" style="${st}"><svg viewBox="0 0 90 96"><rect x="41" y="52" width="8" height="40" rx="3" fill="#6b4a2a"/><ellipse cx="45" cy="40" rx="34" ry="30" fill="#3a7d3a"/><ellipse cx="30" cy="46" rx="20" ry="18" fill="#479a44"/><ellipse cx="60" cy="44" rx="20" ry="18" fill="#479a44"/><ellipse cx="45" cy="30" rx="16" ry="14" fill="#57ad50"/></svg></div>`;
   const stars = isNight ? Array.from({ length: 18 }, (_, i) => `<span class="lp-star" style="left:${(i * 37 % 96) + 2}%;top:${(i * 23 % 44) + 3}%;animation-delay:${(i % 5) * 0.5}s"></span>`).join('') : '';
   const celest = isNight ? `<div class="lp-moon"></div>${stars}` : `<div class="lp-sun"></div>`;
