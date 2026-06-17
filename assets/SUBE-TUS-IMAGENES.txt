@@ -15,13 +15,14 @@ PANTALLAS (screenshots de la app) — van dentro de los iPhones de la landing:
   Si no subes alguno, ese iPhone muestra el componente real (no se rompe).
 
 FOTOS DEL CLUB (galería "Vívelo en el campo" — fotos reales del torneo):
-  club-1.png   -> foto GRANDE (horizontal). Ej: grupo junto al Mercedes-Benz
-  club-2.png   -> Equipo Panteras (los 3 estudiantes)
-  club-3.png   -> Aliados (mujer junto al Mercedes CLA)
-  club-4.png   -> Experiencia (mezcal Sangre de Héroes / Chandon)
+  club-1.png   -> foto GRANDE horizontal. Ej: la carpa/banquete o el grupo Mercedes
+  club-2.png   -> Categoría damas (las 3 golfistas)
+  club-3.png   -> Foursome (los 4 caballeros) o Mercedes-Benz
+  club-4.png   -> Futuras promesas (el juvenil en su swing)
+  club-5.png   -> Premiación (los trofeos) o banners UNIMO
 
-  Recomendado: PNG/JPG horizontal. Si no subes alguna, se muestra una
-  ilustración de respaldo (no se rompe).
+  Recomendado: PNG/JPG horizontal para club-1; las demás cualquier orientación.
+  Si no subes alguna, se muestra una ilustración de respaldo (no se rompe).
 
 LOGOS (carrusel "Campos y aliados", scroll infinito):
   fmg.png         -> Federación Mexicana de Golf
