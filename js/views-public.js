@@ -86,23 +86,31 @@ function lpFeatArt(kind) {
 function appIcon3D() {
   return `<svg viewBox="0 0 200 200" class="lp-appicon-svg" aria-hidden="true">
     <defs>
-      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6e85e"/><stop offset="55%" stop-color="#5fb83f"/><stop offset="100%" stop-color="#2f7d34"/></linearGradient>
-      <radialGradient id="aiGloss" cx="34%" cy="20%" r="72%"><stop offset="0" stop-color="rgba(255,255,255,.6)"/><stop offset="48%" stop-color="rgba(255,255,255,.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aef062"/><stop offset="52%" stop-color="#5fb83f"/><stop offset="100%" stop-color="#28702f"/></linearGradient>
+      <linearGradient id="aiP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="100%" stop-color="#e7efe6"/></linearGradient>
+      <radialGradient id="aiBall" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#ffffff"/><stop offset="100%" stop-color="#cfdad2"/></radialGradient>
+      <radialGradient id="aiGloss" cx="32%" cy="16%" r="78%"><stop offset="0" stop-color="rgba(255,255,255,.62)"/><stop offset="46%" stop-color="rgba(255,255,255,.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
     </defs>
     <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiBg)"/>
-    <ellipse cx="100" cy="184" rx="86" ry="34" fill="#236028" opacity=".32"/>
+    <!-- destello superior y sombra base -->
+    <ellipse cx="100" cy="186" rx="88" ry="34" fill="#1f5a26" opacity=".3"/>
     <!-- P de PARFECT -->
-    <g transform="translate(7,-2)">
-      <g transform="translate(3,4)" opacity=".26">
-        <rect x="62" y="50" width="27" height="106" rx="12" fill="#0a2e16"/>
-        <path d="M75 50 A35 35 0 0 1 75 120" fill="none" stroke="#0a2e16" stroke-width="27" stroke-linecap="round"/>
+    <g transform="translate(8,-3)">
+      <g transform="translate(3,5)" opacity=".22">
+        <rect x="60" y="48" width="29" height="110" rx="13" fill="#0a2e16"/>
+        <path d="M74 48 A37 37 0 0 1 74 122" fill="none" stroke="#0a2e16" stroke-width="29" stroke-linecap="round"/>
       </g>
-      <rect x="62" y="50" width="27" height="106" rx="12" fill="#ffffff"/>
-      <path d="M75 50 A35 35 0 0 1 75 120" fill="none" stroke="#ffffff" stroke-width="27" stroke-linecap="round"/>
-      <circle cx="90" cy="85" r="11" fill="#eef3f0" stroke="#cdd5d7" stroke-width="1.4"/>
+      <rect x="60" y="48" width="29" height="110" rx="13" fill="url(#aiP)"/>
+      <path d="M74 48 A37 37 0 0 1 74 122" fill="none" stroke="url(#aiP)" stroke-width="29" stroke-linecap="round"/>
+      <!-- bola de golf con hoyuelos en el contador de la P -->
+      <circle cx="90" cy="85" r="13.5" fill="url(#aiBall)" stroke="#bcc8bf" stroke-width="1.2"/>
+      <g fill="#c2cdc4" opacity=".8">
+        <circle cx="86" cy="81" r="1.3"/><circle cx="91" cy="80" r="1.3"/><circle cx="95" cy="84" r="1.3"/>
+        <circle cx="88" cy="86" r="1.3"/><circle cx="93" cy="88" r="1.3"/><circle cx="84" cy="86" r="1.1"/>
+      </g>
     </g>
     <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiGloss)"/>
-    <rect x="7.5" y="7.5" width="185" height="185" rx="44.5" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <rect x="7.5" y="7.5" width="185" height="185" rx="44.5" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="1.5"/>
   </svg>`;
 }
 /* maqueta de teléfono con una pantalla REAL de la app (usa los mismos componentes) */
@@ -211,6 +219,25 @@ function lpAwards() {
   <div class="lp-aw-press reveal"><span>Destacada en</span><b>Forbes</b><i>·</i><b>Golf Digest</b><i>·</i><b>SwingU</b></div>`;
 }
 
+// florecita de 5 pétalos para adornar
+function lpFlowerSvg(petal, core) {
+  const petals = [0, 72, 144, 216, 288].map(a => `<ellipse cx="12" cy="5.4" rx="3.3" ry="5" transform="rotate(${a} 12 12)"/>`).join('');
+  return `<svg viewBox="0 0 24 24" class="lp-flsvg" aria-hidden="true"><g fill="${petal}">${petals}</g><circle cx="12" cy="12" r="3.3" fill="${core}"/></svg>`;
+}
+// capa de adornos para la sección de premios: pájaros + flores
+function lpAwardsDeco() {
+  return `<div class="lp-aw-deco" aria-hidden="true">
+    <span class="awd awd-bird b1">${senseiBird('')}</span>
+    <span class="awd awd-bird b2">${senseiBird('')}</span>
+    <span class="awd awd-fl f1">${lpFlowerSvg('#ff8fb4', '#ffd34d')}</span>
+    <span class="awd awd-fl f2">${lpFlowerSvg('#ffd34d', '#ff8fb4')}</span>
+    <span class="awd awd-fl f3">${lpFlowerSvg('#c08bff', '#ffd34d')}</span>
+    <span class="awd awd-fl f4">${lpFlowerSvg('#ff8fb4', '#ffffff')}</span>
+    <span class="awd awd-fl f5">${lpFlowerSvg('#ffb347', '#fff3c4')}</span>
+    <span class="awd awd-fl f6">${lpFlowerSvg('#7fd0ff', '#ffffff')}</span>
+  </div>`;
+}
+
 function vLanding() {
   const feat = (kind, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-art lpa-${kind}">${lpFeatArt(kind)}</div><h3>${t}</h3><p>${d}</p></div>`;
   // (lpFeatArt definida abajo, a nivel de módulo)
@@ -283,7 +310,7 @@ function vLanding() {
     </section>
     <section class="lp-hero2 lp-hero2-clean">
       <div class="lp-hero-copy reveal">
-        <h1 class="lp-title">Baja tu hándicap<br/><span class="lime">con datos, no con suerte.</span></h1>
+        <h1 class="lp-title">La forma más fácil<br/><span class="lime">de bajar tu hándicap.</span></h1>
         <p class="lp-sub">Registra cada ronda hoyo por hoyo: salida, fairways, greens, juego corto y putts. La IA analiza tus estadísticas, detecta dónde pierdes golpes y arma tu plan de entrenamiento. Sigue tu hándicap, tu progreso y tu juego completo en una sola app.</p>
         <div class="lp-cta-row">
           <button class="lp-order" data-act="go" data-view="signup">Empezar gratis →</button>
@@ -295,6 +322,7 @@ function vLanding() {
     </section>
 
     <section class="lp-sec lp-awards-sec">
+      ${lpAwardsDeco()}
       <span class="lp-eyebrow reveal">Reconocida en todo el mundo</span>
       <h2 class="lp-h2 reveal">La app que los golfistas<br/><span class="lime">no sueltan.</span></h2>
       ${lpAwards()}

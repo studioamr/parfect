@@ -3675,7 +3675,26 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 .store-badge .sb-sm { font-size: 9px; font-weight: 600; letter-spacing: .01em; }
 .store-badge .sb-lg { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-top: 1px; }
 /* sección de premios / reconocimientos (estilo laureles profesional) */
-.lp-awards-sec { text-align: center; }
+.lp-awards-sec { text-align: center; position: relative; overflow: hidden; }
+/* adornos: pájaros + flores alrededor de los premios */
+.lp-aw-deco { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.lp-aw-deco .awd { position: absolute; }
+.lp-aw-deco .awd-bird { width: 40px; height: 40px; opacity: .92; }
+.lp-aw-deco .awd-bird .sbird { width: 100%; height: 100%; }
+.lp-aw-deco .b1 { top: 5%; right: 7%; transform: rotate(8deg); animation: awdFloat 6s ease-in-out infinite; }
+.lp-aw-deco .b2 { top: 30%; left: 5%; width: 30px; height: 30px; transform: scaleX(-1) rotate(6deg); animation: awdFloat 7.5s ease-in-out infinite .8s; }
+.lp-aw-deco .awd-fl { width: 22px; height: 22px; opacity: .82; }
+.lp-aw-deco .awd-fl .lp-flsvg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(20,40,15,.12)); }
+.lp-aw-deco .f1 { top: 16%; left: 8%; animation: awdSpin 9s ease-in-out infinite; }
+.lp-aw-deco .f2 { top: 9%; left: 26%; width: 16px; height: 16px; animation: awdSpin 11s ease-in-out infinite 1s; }
+.lp-aw-deco .f3 { bottom: 18%; right: 9%; width: 26px; height: 26px; animation: awdSpin 10s ease-in-out infinite .4s; }
+.lp-aw-deco .f4 { bottom: 26%; left: 6%; width: 18px; height: 18px; animation: awdSpin 12s ease-in-out infinite .7s; }
+.lp-aw-deco .f5 { top: 46%; right: 5%; width: 20px; height: 20px; animation: awdSpin 9.5s ease-in-out infinite .2s; }
+.lp-aw-deco .f6 { bottom: 8%; right: 28%; width: 17px; height: 17px; animation: awdSpin 13s ease-in-out infinite 1.3s; }
+.lp-awards-sec > *:not(.lp-aw-deco) { position: relative; z-index: 1; }
+@keyframes awdFloat { 0%,100% { transform: translateY(0) rotate(6deg); } 50% { transform: translateY(-8px) rotate(6deg); } }
+@keyframes awdSpin { 0%,100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-6px) rotate(8deg); } }
+[data-theme="dark"] .lp-aw-deco .awd-bird { opacity: .8; }
 .lp-awards { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: clamp(18px, 6vw, 64px); margin-top: 34px; }
 .lp-aw { display: inline-flex; flex-direction: column; align-items: center; }
 .lp-aw-laurels { position: relative; width: clamp(118px, 30vw, 152px); height: clamp(118px, 30vw, 152px); display: grid; place-items: center; color: var(--lime); }
