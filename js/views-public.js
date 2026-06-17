@@ -387,7 +387,7 @@ function vLanding() {
     </section>
 
     <section class="lp-hero2 lp-appstage-sec">
-      <div class="lp-loadphone reveal">${lpPhone(lpScrStats())}</div>
+      <div class="lp-loadphone reveal">${lpPhoneShot('shot-inicio.png', lpScrStats())}</div>
       <div class="lp-hero-copy reveal">
         <h1 class="lp-title lp-title-stage">Baja tu hándicap,<br/><span class="lp-title-grad">fácil.</span></h1>
         <p class="lp-sub">Sigue tu hándicap, tu progreso y tu juego completo en una sola app.</p>
