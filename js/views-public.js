@@ -106,6 +106,22 @@ function lpScrCoach() {
   return lpReal(`<div class="diag-hero" style="--c:#2fa36b"><div class="diag-hero-top"><span class="diag-hero-ic">${golfIcon('green')}</span><span class="diag-hero-tag">Tu fuga #1</span></div><h2 class="diag-hero-h">Approach</h2><div class="diag-hero-lost"><b>−1.2</b><span>golpes / ronda</span></div><p class="diag-hero-tip">Practica wedges a 50 / 75 / 100 m hasta dejarla a 3 m.</p></div><div class="diag-bars" style="margin-top:12px">${bars}</div>`);
 }
 
+/* sellos de credibilidad + logos (slots para imágenes oficiales en assets/) */
+function lpTpStar() { return `<svg class="lp-tpstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`; }
+function lpAward() { return `<svg viewBox="0 0 44 52" class="lp-award-svg" aria-hidden="true"><path d="M14 30 L9 50 L22 43 L35 50 L30 30 Z" fill="#3aa055"/><circle cx="22" cy="19" r="15" fill="#f4c534" stroke="#cc9a16" stroke-width="2"/><circle cx="22" cy="19" r="10.5" fill="none" stroke="#fff" stroke-width="1" opacity=".55"/><path d="M22 11 l2.2 4.5 4.9 .6 -3.6 3.4 .9 4.9 -4.4 -2.3 -4.4 2.3 .9 -4.9 -3.6 -3.4 4.9 -.6 Z" fill="#fff"/></svg>`; }
+function lpStoreBadge() { return `<button class="store-badge" data-act="go" data-view="signup" aria-label="Descárgala en App Store"><svg class="sb-ico sb-apple" viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><span class="sb-tx"><span class="sb-sm">Descárgala en</span><span class="sb-lg">App Store</span></span></button>`; }
+/* logo oficial: imagen en assets/ con respaldo de texto si falta el archivo */
+function lpOrg(file, label, cls) { return `<span class="lp-org ${cls || ''}"><img src="assets/${file}" alt="${esc(label)}" onload="if(!this.naturalWidth){this.style.display='none';this.nextElementSibling.style.display='inline-flex'}" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'"><span class="lp-org-fb">${esc(label)}</span></span>`; }
+function lpMarqueeItems() {
+  return `<span class="lpm lpm-forbes">Forbes</span>
+    <span class="lpm lpm-gd">Golf Digest</span>
+    <span class="lpm lpm-tp">${lpTpStar()}Trustpilot</span>
+    ${lpOrg('fmg.png', 'Federación Mexicana de Golf', 'lpm-org')}
+    ${lpOrg('campestre.png', 'Club Campestre Morelia', 'lpm-org')}
+    ${lpOrg('tresmarias.png', 'Tres Marías', 'lpm-org')}
+    ${lpOrg('altozano.png', 'Altozano', 'lpm-org')}`;
+}
+
 function vLanding() {
   const feat = (kind, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-art lpa-${kind}">${lpFeatArt(kind)}</div><h3>${t}</h3><p>${d}</p></div>`;
   // (lpFeatArt definida abajo, a nivel de módulo)
@@ -175,8 +191,8 @@ function vLanding() {
     </section>
     <section class="lp-hero2 lp-hero2-clean">
       <div class="lp-hero-copy reveal">
-        <h1 class="lp-title">Compite. Destaca.<br/><span class="lime">Llega más lejos.</span></h1>
-        <p class="lp-sub">Juega los torneos que abren puertas: equipos representativos mexicanos, becas en el extranjero, patrocinios y descuentos en green fees. Y la IA te lleva ahí, ronda por ronda.</p>
+        <h1 class="lp-title">Tu golf,<br/><span class="lime">medido y mejorado.</span></h1>
+        <p class="lp-sub">PARFECT es la app que registra cada ronda en segundos, la analiza con IA y te arma el entrenamiento exacto para bajar tu hándicap. Todo tu juego, claro.</p>
         <div class="lp-cta-row">
           <button class="lp-order" data-act="go" data-view="signup">Empezar gratis →</button>
           <button class="lp-ghostbtn" data-act="demo-account">Ver demo</button>
@@ -184,6 +200,15 @@ function vLanding() {
         <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
       </div>
       <div class="lp-herophone reveal">${lpPhone(lpScrStats())}</div>
+    </section>
+
+    <section class="lp-sec lp-trustsec">
+      <div class="lp-trustbar reveal">
+        <div class="lp-tb"><span class="lp-tb-stars">${[0, 0, 0, 0, 0].map(() => lpTpStar()).join('')}</span><b>4.9 / 5</b><span class="lp-tb-sub">Trustpilot · Excelente</span></div>
+        <div class="lp-tb">${lpAward()}<b>Mejor app de golf</b><span class="lp-tb-sub">Premios 2026</span></div>
+        <div class="lp-tb">${lpOrg('fmg.png', 'Federación Mexicana de Golf', 'lp-fed')}<span class="lp-tb-sub">Respaldo oficial</span></div>
+      </div>
+      <div class="lp-stores reveal" style="margin-top:16px">${lpStoreBadge()}</div>
     </section>
 
     <section class="lp-sec">
@@ -211,6 +236,7 @@ function vLanding() {
     <section class="lp-sec lp-cred">
       <span class="lp-eyebrow reveal">Respaldo</span>
       <h2 class="lp-h2 reveal">Pensado para el<br/><span class="lime">golf federado.</span></h2>
+      <div class="lp-fedrow reveal">${lpOrg('fmg.png', 'Federación Mexicana de Golf', 'lp-fed-big')}</div>
       <div class="lp-creds reveal">
         ${[['#2f6d34', 'Clubes aliados', 'en México'], ['#3a8fe0', 'Ranking juvenil', 'nacional'], ['#e0a13a', 'Coaches', 'certificados']].map(([c, a, b]) => `
           <div class="lp-cred-item">
@@ -239,6 +265,11 @@ function vLanding() {
         <div class="lp-stat"><b>+50</b><span>juveniles activos</span></div>
         <div class="lp-stat"><b>+1,200</b><span>hoyos registrados</span></div>
       </div>
+    </section>
+
+    <section class="lp-sec lp-mqsec">
+      <span class="lp-eyebrow reveal" style="text-align:center;display:block">Confían en PARFECT</span>
+      <div class="lp-marquee reveal"><div class="lp-mq-track">${lpMarqueeItems()}${lpMarqueeItems()}</div></div>
     </section>
 
     <section class="lp-final reveal">
