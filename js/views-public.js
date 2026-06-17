@@ -252,6 +252,30 @@ function lpAwards() {
   </div>`;
 }
 
+// patrocinadores / aliados en scroll infinito (logos; texto por ahora, PNG si los subes a assets/)
+function lpSponsors() {
+  const brands = [
+    ['Campestre Morelia', 'campestre.png', 'sp-serif'],
+    ['Tres Marías', 'tresmarias.png', 'sp-serif'],
+    ['Altozano', 'altozano.png', ''],
+    ['Fed. Mex. de Golf Infantil', 'fmgi.png', 'sp-serif'],
+    ['ELECTROLIT', 'electrolit.png', 'sp-bold'],
+    ['Titleist', 'titleist.png', 'sp-serif'],
+    ['Aeroméxico', 'aeromexico.png', ''],
+    ['Mercedes-Benz', 'mercedes.png', 'sp-serif'],
+    ['BMW', 'bmw.png', 'sp-bold'],
+    ['BYD', 'byd.png', 'sp-bold'],
+    ['TaylorMade', 'taylormade.png', 'sp-bold'],
+    ['HUBLOT', 'hublot.png', 'sp-serif'],
+  ];
+  const item = ([name, file, cls]) => `<span class="lp-sp ${cls}"><img src="assets/${file}" alt="${esc(name)}" onload="if(!this.naturalWidth){this.style.display='none';this.nextElementSibling.style.display='inline'}" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="lp-sp-tx">${esc(name)}</span></span>`;
+  const set = brands.map(item).join('');
+  return `<div class="lp-sponsors reveal">
+    <span class="lp-sponsors-lab">Patrocinadores y aliados</span>
+    <div class="lp-marquee lp-sp-mq"><div class="lp-mq-track">${set}${set}</div></div>
+  </div>`;
+}
+
 // opiniones de Trustpilot en scroll infinito
 function lpReviews() {
   const stars = `<span class="lp-rv-stars">${[0, 0, 0, 0, 0].map(() => `<span class="rvbox">${lpTpStar()}</span>`).join('')}</span>`;
@@ -384,6 +408,7 @@ function vLanding() {
       <span class="lp-eyebrow reveal">Reconocida en todo el mundo</span>
       <h2 class="lp-h2 reveal">La app que los golfistas<br/><span class="lime">no sueltan.</span></h2>
       ${lpAwards()}
+      ${lpSponsors()}
     </section>
 
     <section class="lp-hero2 lp-appstage-sec">
