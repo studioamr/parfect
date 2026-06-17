@@ -1569,11 +1569,31 @@ body.is-scrolling .lp-bird, body.is-scrolling .lp-fly { animation-play-state: pa
 .lp-alt button:hover { color: var(--lime-ink); }
 .lp-foot { position: relative; z-index: 3; border-top: 1px solid var(--line); padding: 28px clamp(20px,5vw,40px) calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; color: var(--muted2); font-size: 12px; }
 
-.reveal { opacity: 0; transform: translateY(34px); filter: blur(5px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1), filter .8s ease; }
+.reveal { opacity: 0; transform: translateY(40px) scale(.985); filter: blur(7px); transition: opacity .85s cubic-bezier(.2,.7,.2,1), transform .85s cubic-bezier(.2,.7,.2,1), filter .85s ease; will-change: opacity, transform, filter; }
 .reveal.in { opacity: 1; transform: none; filter: none; }
 .lp-feat.reveal, .lp-flowc.reveal { transition-property: opacity, transform, filter, box-shadow; }
 
-@media (prefers-reduced-motion: reduce) { .lp *, .lp *::after { animation: none !important; } .reveal { opacity: 1; transform: none; filter: none; } }
+/* === scroll interactivo: reveals direccionales + escalonados === */
+/* las tarjetas de captura entran desde los lados de forma alterna */
+.lp-shots .lp-shot { transform: translateX(-56px) translateY(24px) scale(.985); filter: blur(8px); }
+.lp-shots .lp-shot.lp-shot-r { transform: translateX(56px) translateY(24px) scale(.985); }
+.lp-shots .lp-shot.in { transform: none; filter: none; }
+/* el escenario de la app entra con un leve zoom */
+.lp-appstage.reveal { transform: translateY(36px) scale(.94); }
+.lp-appstage.reveal.in { transform: none; }
+/* escalonado de rejillas para un barrido más vivo */
+.lp-flow .lp-flowc:nth-child(2) { transition-delay: .07s; }
+.lp-flow .lp-flowc:nth-child(3) { transition-delay: .14s; }
+.lp-flow .lp-flowc:nth-child(4) { transition-delay: .21s; }
+.lp-presgrid .lp-prescard:nth-child(2) { transition-delay: .06s; }
+.lp-presgrid .lp-prescard:nth-child(3) { transition-delay: .12s; }
+.lp-presgrid .lp-prescard:nth-child(4) { transition-delay: .18s; }
+.lp-presgrid .lp-prescard:nth-child(5) { transition-delay: .24s; }
+.lp-presgrid .lp-prescard:nth-child(6) { transition-delay: .3s; }
+.lp-awards .lp-aw:nth-child(2) { transition-delay: .12s; }
+.lp-awards .lp-aw:nth-child(3) { transition-delay: .24s; }
+
+@media (prefers-reduced-motion: reduce) { .lp *, .lp *::after { animation: none !important; } .reveal, .lp-shots .lp-shot, .lp-appstage.reveal { opacity: 1 !important; transform: none !important; filter: none !important; } }
 
 @media (max-width: 860px) {
   .lp-hero { grid-template-columns: 1fr; text-align: center; gap: 8px; min-height: auto; padding-top: 8px; }

@@ -84,27 +84,30 @@ function lpFeatArt(kind) {
 
 /* logo/icono de la app (nuevo) para el hero en 3D */
 function appIcon3D() {
-  // swoosh estilo Nike: talón grueso abajo-izq, punta delgada arriba-der (trayectoria de golf)
-  const swoosh = 'M34 150 C86 150 150 74 176 40 C150 74 96 104 60 118 C50 128 40 140 34 150 Z';
+  // monograma "P" itálico (mismo estilo del wordmark PARFECT) + bola de golf en el contador
+  const pMark = `<rect x="64" y="46" width="26" height="110" rx="12"/><path d="M77 46 A34 34 0 0 1 77 118" fill="none" stroke-width="26" stroke-linecap="round"/>`;
   return `<svg viewBox="0 0 200 200" class="lp-appicon-svg" aria-hidden="true">
     <defs>
-      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c2f56a"/><stop offset="50%" stop-color="#7ccb3f"/><stop offset="100%" stop-color="#2f8a36"/></linearGradient>
+      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d5a2a"/><stop offset="52%" stop-color="#123f1d"/><stop offset="100%" stop-color="#0a2913"/></linearGradient>
+      <linearGradient id="aiP" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#caff63"/><stop offset="100%" stop-color="#7cc24a"/></linearGradient>
       <radialGradient id="aiBall" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#ffffff"/><stop offset="100%" stop-color="#dfe7df"/></radialGradient>
-      <radialGradient id="aiGloss" cx="30%" cy="12%" r="82%"><stop offset="0" stop-color="rgba(255,255,255,.5)"/><stop offset="46%" stop-color="rgba(255,255,255,.06)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+      <radialGradient id="aiGloss" cx="30%" cy="12%" r="82%"><stop offset="0" stop-color="rgba(255,255,255,.34)"/><stop offset="46%" stop-color="rgba(255,255,255,.05)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
     </defs>
     <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiBg)"/>
-    <g transform="translate(0,6)">
-      <path d="${swoosh}" fill="#0a2e16" opacity=".2" transform="translate(4,6)"/>
-      <path d="${swoosh}" fill="#0d3a1c"/>
-      <!-- bola de golf disparada desde la punta del swoosh -->
-      <circle cx="176" cy="40" r="14" fill="url(#aiBall)" stroke="#b9c6bd" stroke-width="1.2"/>
-      <g fill="#a9b7ac" opacity=".75">
-        <circle cx="171" cy="36" r="1.4"/><circle cx="177" cy="35" r="1.4"/><circle cx="181" cy="40" r="1.4"/>
-        <circle cx="173" cy="42" r="1.4"/><circle cx="179" cy="44" r="1.4"/><circle cx="169" cy="41" r="1.2"/>
-      </g>
+    <ellipse cx="100" cy="170" rx="62" ry="40" fill="#caff63" opacity=".08"/>
+    <!-- P itálica (skew como el wordmark) -->
+    <g transform="translate(100,100) skewX(-10) translate(-100,-100)">
+      <g transform="translate(3,4)" fill="#000" stroke="#000" opacity=".22">${pMark}</g>
+      <g fill="url(#aiP)" stroke="url(#aiP)">${pMark}</g>
+    </g>
+    <!-- bola de golf en el contador de la P -->
+    <circle cx="92" cy="82" r="11" fill="url(#aiBall)" stroke="#b9c6bd" stroke-width="1.1"/>
+    <g fill="#a9b7ac" opacity=".7">
+      <circle cx="88" cy="79" r="1.1"/><circle cx="93" cy="78" r="1.1"/><circle cx="96" cy="82" r="1.1"/>
+      <circle cx="90" cy="84" r="1.1"/><circle cx="94" cy="85" r="1.1"/>
     </g>
     <rect x="6" y="6" width="188" height="188" rx="46" fill="url(#aiGloss)"/>
-    <rect x="7.5" y="7.5" width="185" height="185" rx="44.5" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="1.5"/>
+    <rect x="7.5" y="7.5" width="185" height="185" rx="44.5" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
   </svg>`;
 }
 /* maqueta de teléfono con una pantalla REAL de la app (usa los mismos componentes) */
@@ -539,9 +542,10 @@ function celebrate(big, label) {
   setTimeout(() => wrap.remove(), big ? 2600 : 1900);
 }
 function initLanding(root) {
+  // reveal interactivo: aparece al entrar y se difumina al salir (en ambos sentidos)
   const io = new IntersectionObserver(es => {
-    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    es.forEach(e => { e.target.classList.toggle('in', e.isIntersecting); });
+  }, { threshold: 0.12, rootMargin: '0px 0px -10% 0px' });
   root.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   const layers = [...root.querySelectorAll('[data-speed]')];
