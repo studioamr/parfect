@@ -4039,13 +4039,14 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 .lp-club .clogo { width: 72px; }
 .lp-club .clogo svg, .lp-club .clogo-svg { width: 100%; height: auto; display: block; }
 .lp-club > span { font-size: 11px; font-weight: 800; color: var(--text); }
-.lp-presgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; text-align: left; }
-.lp-prescard { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px 14px; box-shadow: 0 10px 26px rgba(20,40,15,.06); }
-.lp-presic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--lime-faint); margin-bottom: 10px; }
-.lp-presic .gi { width: 22px; height: 22px; }
-.lp-prescard h3 { font-size: 15px; font-weight: 900; color: var(--text); margin: 0 0 4px; }
-.lp-prescard p { font-size: 12.5px; line-height: 1.45; color: var(--muted); margin: 0; }
-.lp-prescard .lp-presic { font-size: 21px; line-height: 1; }
+/* "Tu camino" como una línea de tiempo (no tarjetas) */
+.lp-presgrid { position: relative; display: block; text-align: left; margin-top: 12px; padding: 8px 20px 10px; background: color-mix(in srgb, var(--card) 82%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 16px 38px rgba(20,40,15,.1); }
+.lp-presgrid::before { content: ''; position: absolute; left: 44px; top: 44px; bottom: 44px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, color-mix(in srgb, var(--lime) 22%, transparent), var(--lime) 26%, var(--lime) 74%, color-mix(in srgb, var(--lime) 22%, transparent)); z-index: 0; }
+.lp-prescard { position: relative; display: grid; grid-template-columns: 50px 1fr; grid-template-rows: auto auto; column-gap: 16px; align-items: start; padding: 13px 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+.lp-presic { position: relative; z-index: 1; grid-column: 1; grid-row: 1 / span 2; align-self: center; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 3px solid var(--lime); box-shadow: 0 4px 13px rgba(20,40,15,.14); margin: 0; font-size: 24px; line-height: 1; }
+.lp-presic .gi { width: 24px; height: 24px; }
+.lp-prescard h3 { grid-column: 2; grid-row: 1; font-size: 15.5px; font-weight: 900; color: var(--text); margin: 0 0 3px; }
+.lp-prescard p { grid-column: 2; grid-row: 2; font-size: 12.5px; line-height: 1.45; color: var(--muted); margin: 0; }
 /* adornos del camino juvenil: aviones, banderas, trofeos flotando */
 .lp-presence { position: relative; overflow: hidden; }
 .lp-pres-orn { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
