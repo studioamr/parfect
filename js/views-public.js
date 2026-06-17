@@ -475,8 +475,7 @@ function vLanding() {
            ['🇲🇽', 'Equipos representativos', 'Los mejores forman los equipos juveniles que representan a México.'],
            ['🎓', 'Becas en el extranjero', 'Exposición ante universidades y academias de golf fuera del país.'],
            ['🤝', 'Patrocinios', 'Conecta con marcas que apuestan por las promesas del golf mexicano.'],
-           ['⛳', 'Green fees con descuento', 'Tarifas preferentes en campos aliados para que juegues y compitas más.'],
-           ['📈', 'Tu progreso, medido', 'La IA registra cada ronda y te dice exactamente qué entrenar para subir.']]
+           ['⛳', 'Green fees con descuento', 'Tarifas preferentes en campos aliados para que juegues y compitas más.']]
           .map(([ic, t, d]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p></div>`).join('')}
       </div>
       <div class="lp-flagstrip reveal"><span class="lp-flagstrip-lab">Destinos</span><span class="lp-flags">🇺🇸 🇪🇸 🇬🇧 🇨🇦 🇦🇺</span></div>
