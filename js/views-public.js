@@ -131,7 +131,7 @@ function vLanding() {
       </div>
     </div>
     <header class="lp-nav">
-      <span class="lp-logo">${logoMark(16)} PARFECT</span>
+      <span class="lp-logo">PARFECT</span>
       <div class="lp-links">
         <button data-act="go" data-view="login">Entrar</button>
         <button class="lp-cta-sm" data-act="go" data-view="signup">Empezar</button>
@@ -214,7 +214,7 @@ function vLanding() {
     </section>
 
     <footer class="lp-foot">
-      <span class="lp-logo">${logoMark(15)} PARFECT</span>
+      <span class="lp-logo">PARFECT</span>
       <span>Tu app para mejorar en el golf y jugar con amigos. Tus datos viven en tu dispositivo.</span>
     </footer>
   </div>`;

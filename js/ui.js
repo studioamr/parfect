@@ -320,8 +320,9 @@ function pstSceneStatic(kind, pct, label) {
 function udGifScene() {
   const d = 'M16 46 Q40 2 63 37';
   return `<svg viewBox="0 0 100 56" class="hs-svg" aria-hidden="true">
+    <defs><radialGradient id="ud2g" cx="52%" cy="38%" r="70%"><stop offset="0" stop-color="var(--sc-lit)"/><stop offset="1" stop-color="var(--sc-grass2)"/></radialGradient></defs>
     <ellipse cx="52" cy="49" rx="44" ry="7" fill="var(--sc-dim)"/>
-    <ellipse cx="64" cy="38" rx="28" ry="10" fill="var(--sc-lit)"/>
+    <ellipse cx="64" cy="38" rx="28" ry="10" fill="url(#ud2g)" stroke="var(--sc-grass2)" stroke-width="1"/>
     <ellipse cx="64" cy="38" rx="3.4" ry="1.5" fill="var(--sc-cup)"/>
     <line x1="64" y1="37" x2="64" y2="11" stroke="var(--sc-cup)" stroke-width="1.5"/><path d="M64 11 L76 14.5 L64 18 Z" fill="var(--sc-flag)"/>
     <path class="ud2-arc" d="${d}" fill="none" stroke="var(--sc-line)" stroke-width="1.5" stroke-dasharray="3 3.5" stroke-linecap="round" opacity=".6"/>
