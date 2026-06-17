@@ -82,6 +82,42 @@ function lpFeatArt(kind) {
   </svg>`;
 }
 
+/* maqueta de teléfono con una pantalla REAL de la app (usa los mismos componentes) */
+function lpPhone(scr, cls) {
+  return `<div class="lp-phone ${cls || ''}"><span class="lp-phone-notch"></span><div class="lp-phone-scr">${scr}</div></div>`;
+}
+function lpRing(k, pct, lab) {
+  return `<div class="lps-ring"><div class="lps-ringart">${(typeof chkScene === 'function') ? chkScene(k, true) : ''}</div><b>${pct}%</b><span>${lab}</span></div>`;
+}
+function lpScrStats() {
+  return `<div class="lps">
+    <div class="lps-top"><span class="lps-logo">PARFECT</span><span class="lps-av">🏌️</span></div>
+    <div class="lps-card">
+      <div class="lps-card-l"><span>Tu hándicap</span><b>7.2</b><small>Élite · Campestre</small></div>
+      <span class="lps-card-fig">🏌️</span>
+    </div>
+    <div class="lps-rings">${lpRing('fw', 61, 'Calles')}${lpRing('gir', 53, 'GIR')}${lpRing('ud', 51, 'U&D')}</div>
+    <div class="lps-tiles"><div class="lps-tile"><b>30</b><span>Putts</span></div><div class="lps-tile"><b>8%</b><span>Birdies</span></div><div class="lps-tile"><b>−2</b><span>Mejor</span></div></div>
+  </div>`;
+}
+function lpScrPlay() {
+  return `<div class="lps">
+    <div class="lps-top"><span class="lps-x">✕</span><span class="lps-logo">Campestre</span><span class="lps-mini">3/18</span></div>
+    <div class="lps-hb"><span>Hoyo 3</span><b>Par 4 · 380 yds</b></div>
+    <div class="lps-htiles">${['fw','gir','ud'].map((k,i)=>`<div class="lps-ht">${(typeof chkScene==='function')?chkScene(k, i<2):''}<span>${['Calle','Green','U&D'][i]}</span></div>`).join('')}</div>
+    <div class="lps-bigscore"><span>Score</span><b>4</b><small>Par</small></div>
+  </div>`;
+}
+function lpScrCoach() {
+  return `<div class="lps">
+    <div class="lps-top"><span class="lps-logo">Análisis IA</span></div>
+    <div class="lps-coach"><span class="lps-coach-ic">IA</span><div class="lps-coach-tx"><span>Tu fuga #1</span><b>Approach</b></div></div>
+    <div class="lps-cbars">
+      ${[['Salidas',62],['Approach',92],['Juego corto',55],['Putt',40]].map(([t,w])=>`<div class="lps-cbar"><span>${t}</span><i style="width:${w}%"></i></div>`).join('')}
+    </div>
+  </div>`;
+}
+
 function vLanding() {
   const feat = (kind, t, d) => `<div class="lp-feat reveal"><div class="lp-feat-art lpa-${kind}">${lpFeatArt(kind)}</div><h3>${t}</h3><p>${d}</p></div>`;
   // (lpFeatArt definida abajo, a nivel de módulo)
@@ -159,6 +195,7 @@ function vLanding() {
         </div>
         <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
       </div>
+      <div class="lp-herophone reveal">${lpPhone(lpScrStats())}</div>
     </section>
 
     <section class="lp-sec lp-presence">
@@ -194,14 +231,12 @@ function vLanding() {
     </section>
 
     <section class="lp-sec">
-      <span class="lp-eyebrow reveal">La app</span>
-      <h2 class="lp-h2 reveal">Todo para jugar<br/><span class="lime">más inteligente.</span></h2>
-      <div class="lp-feats">
-        ${[['round', 'Apunta tus rondas', 'Cada hoyo con unos toques. Listo en segundos, sin lápiz ni papel.'],
-           ['stats', 'Mira tus números', 'Calles, greens, salvadas y putts, claros. Sabes cómo juegas de verdad.'],
-           ['ai', 'Tu entrenador IA', 'Revisa tus rondas, te dice por qué pierdes golpes y arma tus drills.'],
-           ['social', 'Juega con amigos', 'Arma una partida con código y lleva La corta en vivo.']]
-          .map(([k, t, d]) => feat(k, t, d)).join('')}
+      <span class="lp-eyebrow reveal">La app por dentro</span>
+      <h2 class="lp-h2 reveal">Funciones reales,<br/><span class="lime">no promesas.</span></h2>
+      <div class="lp-shots">
+        <div class="lp-shot reveal">${lpPhone(lpScrPlay())}<div class="lp-shot-tx"><h3>Registra cada hoyo</h3><p>Salida, green, juego corto y putts en segundos. Tu tarjeta, completa, sin lápiz ni papel.</p></div></div>
+        <div class="lp-shot lp-shot-r reveal">${lpPhone(lpScrCoach())}<div class="lp-shot-tx"><h3>Tu coach IA</h3><p>Cruza tus rondas, encuentra dónde pierdes golpes y te dice exactamente qué entrenar.</p></div></div>
+        <div class="lp-shot reveal">${lpPhone(lpScrStats())}<div class="lp-shot-tx"><h3>Mira tus números</h3><p>Calles, GIR, up & down, putts y más. Sabes de verdad cómo juegas y cómo subir.</p></div></div>
       </div>
     </section>
 

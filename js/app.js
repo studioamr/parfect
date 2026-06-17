@@ -400,7 +400,7 @@ const actions = {
   },
 
   /* ---- rondas ---- */
-  'go-setup'() { V.setupCourseId = (V.setupCourseId && COURSES[V.setupCourseId]) ? V.setupCourseId : 'campestre'; const total = COURSES[V.setupCourseId].holes.length; V.setupHoles = total >= 18 ? 18 : 9; V.setupStart = 0; go('nueva'); },
+  'go-setup'() { V.setupCourseId = (V.setupCourseId && COURSES[V.setupCourseId]) ? V.setupCourseId : 'campestre'; const total = COURSES[V.setupCourseId].holes.length; V.setupHoles = total >= 18 ? 18 : 9; V.setupStart = 0; V.joining = false; V.err = null; go('nueva'); },
   'setup-pick-course'(d) {
     if (COURSES[d.c]) V.setupCourseId = d.c;
     const total = COURSES[V.setupCourseId].holes.length;
