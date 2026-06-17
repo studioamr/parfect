@@ -368,7 +368,14 @@ function vLanding() {
           ${bgcGreen(120, 206, 34, 11)}${bgcFlag(120, 206, 26)}
           ${tline([[26, 206, 1.25], [206, 210, .92], [262, 212, 1.05], [338, 206, 1.25]])}
         </svg>
-        <div class="lp-appicon3d"><span class="lp-appicon-glow"></span>${appIcon3D()}</div>
+        <div class="lp-golfhero">
+          <span class="lp-golfer" aria-hidden="true">🏌️</span>
+          <span class="lp-gball" aria-hidden="true"></span>
+          <span class="lp-pop pp1"><b>63%</b><i>Fairways</i></span>
+          <span class="lp-pop pp2"><b>57%</b><i>GIR</i></span>
+          <span class="lp-pop pp3"><b>7.2</b><i>Hándicap</i></span>
+          <span class="lp-pop pp4"><b>30</b><i>Putts</i></span>
+        </div>
       </div>
     </section>
 

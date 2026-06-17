@@ -3536,6 +3536,22 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug { animation-play-state: pa
   border: 1px solid rgba(255,255,255,.5); box-shadow: 0 24px 56px rgba(20,40,15,.16), inset 0 1px 0 rgba(255,255,255,.5); display: grid; place-items: center; }
 .lp-stage-bg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 66%; display: block; }
 .lp-appstage .lp-appicon3d { position: relative; z-index: 2; width: clamp(120px, 40vw, 168px); margin-top: -6%; }
+/* golfista pegándole a la bola + stats en pop-ups */
+.lp-golfhero { position: absolute; inset: 0; z-index: 2; }
+.lp-golfer { position: absolute; left: 47%; bottom: 16%; transform: translateX(-50%); font-size: clamp(86px, 30vw, 142px); line-height: 1; transform-origin: 52% 86%; animation: golferSwing 2.8s ease-in-out infinite; filter: drop-shadow(0 10px 14px rgba(20,40,15,.25)); }
+@keyframes golferSwing { 0%,100% { transform: translateX(-50%) rotate(-4deg); } 50% { transform: translateX(-50%) rotate(4deg); } }
+.lp-gball { position: absolute; left: 62%; bottom: 26%; width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff, #d2dad3 72%); box-shadow: 0 2px 5px rgba(0,0,0,.25); animation: golfBallHit 2.8s ease-in-out infinite; }
+@keyframes golfBallHit { 0%,46% { transform: translate(0,0) scale(1); opacity: 1; } 60% { transform: translate(46px,-60px) scale(.85); opacity: 1; } 78% { transform: translate(96px,-30px) scale(.7); opacity: .7; } 90%,100% { transform: translate(120px,18px) scale(.6); opacity: 0; } }
+.lp-pop { position: absolute; z-index: 3; display: inline-flex; align-items: baseline; gap: 5px; background: rgba(255,255,255,.96); border: 1px solid var(--line); border-radius: 13px; padding: 6px 11px; box-shadow: 0 10px 22px rgba(20,40,15,.18); white-space: nowrap; transform-origin: center bottom; animation: popLoop 5.6s ease-in-out infinite; }
+.lp-pop b { font-size: 17px; font-weight: 900; color: var(--lime-ink); letter-spacing: -.02em; }
+.lp-pop i { font-size: 10.5px; font-weight: 800; font-style: normal; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+.lp-pop.pp1 { top: 16%; left: 4%; animation-delay: 0s; }
+.lp-pop.pp2 { top: 9%; right: 5%; animation-delay: 1.4s; }
+.lp-pop.pp3 { top: 40%; right: 1%; animation-delay: 2.8s; }
+.lp-pop.pp4 { top: 47%; left: 2%; animation-delay: 4.2s; }
+@keyframes popLoop { 0% { opacity: 0; transform: scale(.5) translateY(10px); } 8% { opacity: 1; transform: scale(1.04) translateY(0); } 14% { transform: scale(1) translateY(0); } 72% { opacity: 1; transform: scale(1) translateY(0); } 84% { opacity: 0; transform: scale(.92) translateY(-8px); } 100% { opacity: 0; } }
+[data-theme="dark"] .lp-pop { background: rgba(22,31,58,.96); }
+@media (prefers-reduced-motion: reduce) { .lp-golfer, .lp-gball, .lp-pop { animation: none !important; } .lp-pop { opacity: 1; } .lp-gball { opacity: 1; } }
 .lp-fc2 .lp-fc-v { font-size: 18px; margin-right: 2px; }
 @media (prefers-reduced-motion: reduce) { .lp-guide, .lp-fball, .lp-cart, .lp-bsil { display: none; } }
 @media (min-width: 720px) {
