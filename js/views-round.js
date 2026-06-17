@@ -291,8 +291,8 @@ function vSetup() {
     const ro = roundOptions(cid);
     const has18 = ro.opts18.length > 0;          // el campo tiene más de 9 hoyos
     const total = COURSES[cid].holes.length;
-    const holes = has18 ? (V.setupHoles || 18) : 9;
-    const start = (V.setupStart != null && V.setupStart < total) ? V.setupStart : 0;
+    const holes = (V.setupHoles === 9) ? 9 : (has18 ? 18 : 9);
+    const start = (((V.setupStart || 0) % total) + total) % total;
     const par = roundPar(cid, start, holes);
     const holesToggle = has18 ? `<div class="su-block">
       <span class="su-lab">Hoyos</span>
@@ -301,10 +301,17 @@ function vSetup() {
         <button class="chip ${holes === 18 ? 'on' : ''}" data-act="setup-holes" data-h="18">18 hoyos</button>
       </div>
     </div>` : '';
-    const startSel = total > 9 ? `<div class="su-block">
-      <span class="su-lab">¿En qué hoyo inicias?</span>
-      <div class="chips chips-scroll">${Array.from({ length: total }, (_, i) => `<button class="chip ${i === start ? 'on' : ''}" data-act="setup-nine" data-s="${i}">${i + 1}</button>`).join('')}</div>
-    </div>` : '';
+    const startSel = `<div class="su-block">
+      <span class="su-lab">¿En qué hoyo empiezas?</span>
+      <div class="su-startrow">
+        <div class="su-startstep">
+          <button data-act="setup-start-adj" data-d="-1" aria-label="Hoyo anterior">−</button>
+          <b>Hoyo ${start + 1}</b>
+          <button data-act="setup-start-adj" data-d="1" aria-label="Hoyo siguiente">+</button>
+        </div>
+        ${start !== 0 ? `<button class="su-startreset" data-act="setup-start-adj" data-d="reset">Desde el 1</button>` : '<span class="su-starthint">o sale del que quieras</span>'}
+      </div>
+    </div>`;
     return `${holesToggle}${startSel}<p class="su-meta">Jugarás <b class="lime">${holes} hoyos</b> desde el <b class="lime">hoyo ${start + 1}</b> · Par ${par}.</p>`;
   })();
   const whenToggle = `<div class="su-block">
@@ -903,7 +910,10 @@ function vSummary(a) {
       ${scorecard(a.holes.slice(0, 9))}
       ${a.holes.length > 9 ? scorecard(a.holes.slice(9), 9) : ''}
     </div>
-    <button class="btn primary" data-act="finish-round">Guardar ronda ✓</button>
+    ${a.holesCount === 9
+      ? `<button class="btn primary" data-act="extend-nine">Seguir con los otros 9 →</button>
+         <button class="btn" data-act="finish-round">Guardar estos 9 ✓</button>`
+      : `<button class="btn primary" data-act="finish-round">Guardar ronda ✓</button>`}
     <button class="btn" data-act="h-prev">← Corregir último hoyo</button>
   </div>`;
 }

@@ -393,8 +393,15 @@ const actions = {
     render();
   },
   'setup-when'(d) { V.setupWhen = d.w === 'prog' ? 'prog' : 'ahora'; render(); window.scrollTo(0, 0); },
-  'setup-holes'(d) { V.setupHoles = Number(d.h) === 9 ? 9 : 18; V.setupStart = 0; render(); },
+  'setup-holes'(d) { V.setupHoles = Number(d.h) === 9 ? 9 : 18; render(); },
   'setup-nine'(d) { V.setupStart = Number(d.s) || 0; render(); },
+  'setup-start-adj'(d) {
+    const cid = (V.setupCourseId && COURSES[V.setupCourseId]) ? V.setupCourseId : 'campestre';
+    const total = COURSES[cid].holes.length;
+    if (d && d.d === 'reset') V.setupStart = 0;
+    else V.setupStart = (((V.setupStart || 0) + (Number(d.d) || 0)) % total + total) % total;
+    render();
+  },
   'setup-pick-tee'(d) { if (TEES.some(t => t.id === d.t)) V.setupTee = d.t; render(); },
   'strat-course'(d) { if (COURSES[d.c]) { V.stratCid = d.c; V.stratIdx = 0; V.stratTeeId = null; } render(); },
   'strat-hole'(d) { V.stratIdx = Number(d.i); V.stratTeeId = null; render(); },
@@ -450,10 +457,8 @@ const actions = {
     const cid = (V.setupCourseId && COURSES[V.setupCourseId]) ? V.setupCourseId : 'campestre';
     const course = COURSES[cid].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', '');
     const total = COURSES[cid].holes.length;
-    const holesCount = Math.min(V.setupHoles || (total >= 18 ? 18 : 9), 18);   // 9 o 18 (los campos de 9 repiten vuelta)
-    let holeOffset = V.setupStart || 0;
-    if (holeOffset + holesCount > total && total >= 18) holeOffset = Math.max(0, total - holesCount);
-    if (total < 18) holeOffset = 0;   // campo de 9: siempre arranca en 1
+    const holesCount = (V.setupHoles === 9) ? 9 : 18;   // 9 o 18 (los campos de 9 repiten vuelta)
+    const holeOffset = (((V.setupStart || 0) % total) + total) % total;   // empieza en cualquier hoyo (da la vuelta)
     const tee = teeById(V.setupTee);
     S.active = { userId: S.session, course, courseId: cid, holesCount, holeOffset, holes: [], idx: 0, startedAt: Date.now(), teeId: tee.id, teeName: tee.name, teeF: tee.f };
     V.teeSheet = false;
@@ -550,6 +555,14 @@ const actions = {
   'play-discard'() {
     S.active = null;
     V.confirmExit = false; V.view = 'ronda';
+    commit(); window.scrollTo(0, 0);
+  },
+  'extend-nine'() {
+    const a = S.active; if (!a) return;
+    a.holesCount = 18;            // continúa con los otros 9 (hoyo 10 = idx 9, da la vuelta si el campo es de 9)
+    if (a.idx < 9) a.idx = 9;
+    loadHole();
+    V.view = 'play';
     commit(); window.scrollTo(0, 0);
   },
   'finish-round'() {
