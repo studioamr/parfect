@@ -565,6 +565,28 @@ function botReply(text) {
   return 'Buena pregunta. Puedo ayudarte con: registrar rondas, el Análisis IA, cómo entrenar, la Academia, jugar con amigos o tu perfil. ¿Cuál te interesa?';
 }
 function chatScrollBottom() { const b = document.getElementById('chat-body'); if (b) b.scrollTop = b.scrollHeight; }
+/* Envía un mensaje de Birdie: usa el AI Coach real (Edge Function) si está
+   disponible, con indicador de "escribiendo…"; si no, cae al guion local. */
+function sendChat(txt) {
+  txt = String(txt || '').trim(); if (!txt) return;
+  V.chat = V.chat || { open: true, msgs: [] };
+  V.chat.open = true;
+  V.chat.msgs.push({ from: 'me', text: txt });
+  const focusInput = () => { const i = document.getElementById('chat-text'); if (i) i.focus(); chatScrollBottom(); };
+  if (typeof AI !== 'undefined' && AI.on()) {
+    const ph = { from: 'bot', text: '', typing: true };
+    V.chat.msgs.push(ph);
+    render(); setTimeout(focusInput, 40);
+    AI.chat(V.chat.msgs).then(res => {
+      ph.typing = false;
+      ph.text = (res && res.ok && res.text) ? res.text : botReply(txt);
+      render(); setTimeout(chatScrollBottom, 40);
+    });
+  } else {
+    V.chat.msgs.push({ from: 'bot', text: botReply(txt) });
+    render(); setTimeout(focusInput, 40);
+  }
+}
 function chatWidget(where) {
   const c = V.chat || { open: false, msgs: [] };
   const mount = `chat-mount${where === 'app' ? ' in-app' : ''}`;
@@ -572,7 +594,10 @@ function chatWidget(where) {
     return `<div class="${mount}"><button class="chat-fab" data-act="chat-open" aria-label="Abrir asistente">${chatBotIcon()}</button></div>`;
   }
   const list = (c.msgs && c.msgs.length ? c.msgs : [{ from: 'bot', text: BOT_HELLO }]);
-  const msgs = list.map(m => `<div class="chatmsg ${m.from}">${m.from === 'bot' ? `<span class="chatav">${chatBotIcon()}</span>` : ''}<div class="chatbub">${esc(m.text).replace(/\n/g, '<br>')}</div></div>`).join('');
+  const msgs = list.map(m => {
+    const inner = m.typing ? '<span class="chat-typing"><i></i><i></i><i></i></span>' : esc(m.text).replace(/\n/g, '<br>');
+    return `<div class="chatmsg ${m.from}">${m.from === 'bot' ? `<span class="chatav">${chatBotIcon()}</span>` : ''}<div class="chatbub">${inner}</div></div>`;
+  }).join('');
   const quicks = BOT_QUICKS.map(q => `<button class="chatq" data-act="chat-quick" data-q="${esc(q)}">${esc(q)}</button>`).join('');
   return `<div class="${mount} open">
     <div class="chat-panel">

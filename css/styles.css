@@ -2363,6 +2363,11 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .chatbub { font-size: 13px; line-height: 1.4; padding: 9px 12px; border-radius: 15px; }
 .chatmsg.bot .chatbub { background: var(--card2); border: 1px solid var(--line); color: var(--text); border-bottom-left-radius: 5px; }
 .chatmsg.me .chatbub { background: var(--lime); color: #0c2913; font-weight: 600; border-bottom-right-radius: 5px; }
+.chat-typing { display: inline-flex; gap: 4px; align-items: center; padding: 1px 0; }
+.chat-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted, #9aa); display: inline-block; opacity: .35; animation: chatDot 1.1s infinite ease-in-out; }
+.chat-typing i:nth-child(2) { animation-delay: .18s; }
+.chat-typing i:nth-child(3) { animation-delay: .36s; }
+@keyframes chatDot { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: .9; transform: translateY(-3px); } }
 .chat-quicks { display: flex; gap: 7px; overflow-x: auto; padding: 9px 12px; border-top: 1px solid var(--line); background: var(--card); -webkit-overflow-scrolling: touch; }
 .chatq { flex: none; font-size: 12px; font-weight: 700; color: var(--text); background: var(--card2); border: 1px solid var(--line); border-radius: 99px; padding: 7px 12px; white-space: nowrap; cursor: pointer; }
 .chatq:active { transform: scale(.96); }

@@ -250,8 +250,8 @@ const actions = {
   /* ---- Birdie chatbot ---- */
   'chat-open'() { V.chat = V.chat || { open: false, msgs: [] }; V.chat.open = true; if (!V.chat.msgs.length) V.chat.msgs.push({ from: 'bot', text: BOT_HELLO }); render(); setTimeout(() => { const i = document.getElementById('chat-text'); if (i) i.focus(); chatScrollBottom(); }, 40); },
   'chat-close'() { if (V.chat) V.chat.open = false; render(); },
-  'chat-send'() { const el = document.getElementById('chat-text'); const txt = el ? el.value.trim() : ''; if (!txt) return; V.chat = V.chat || { open: true, msgs: [] }; V.chat.msgs.push({ from: 'me', text: txt }); V.chat.msgs.push({ from: 'bot', text: botReply(txt) }); render(); setTimeout(() => { const i = document.getElementById('chat-text'); if (i) i.focus(); chatScrollBottom(); }, 40); },
-  'chat-quick'(d) { const txt = d.q || ''; if (!txt) return; V.chat = V.chat || { open: true, msgs: [] }; V.chat.msgs.push({ from: 'me', text: txt }); V.chat.msgs.push({ from: 'bot', text: botReply(txt) }); render(); setTimeout(chatScrollBottom, 40); },
+  'chat-send'() { const el = document.getElementById('chat-text'); sendChat(el ? el.value.trim() : ''); },
+  'chat-quick'(d) { sendChat(d.q || ''); },
 
   /* ---- Club (B2B) ---- */
   'club-create-open'() { V.clubCreating = true; V.clubErr = null; render(); window.scrollTo(0, 0); },
