@@ -363,6 +363,37 @@ const actions = {
     (t.players || []).forEach(p => { const el = document.getElementById('cap-' + p.userId); if (el) { const v = (el.value || '').trim(); const n = Number(v); p.gross = (v === '' || isNaN(n) || n < t.holes || n > 200) ? (v === '' ? null : p.gross) : n; } });
     V.tournCapture = false; commit();
   },
+  'tourn-report-ai'() {
+    const c = myClub(); const t = c && (c.tournaments || []).find(x => x.id === V.tournId); if (!t) return;
+    const lb = tournLeaderboard(t, true).filter(r => r.has);
+    if (!lb.length) { if (typeof celebrate === 'function') celebrate(false, 'Captura al menos un score primero'); return; }
+    if (typeof AI === 'undefined' || !AI.on()) { actions['tourn-report'](); return; }
+    V.tournReportOpen = true; V.tournReport = { name: t.name, loading: true }; render();
+    const top = lb.slice(0, 5).map((r, i) => `${i + 1}. ${r.name}${r.role === 'junior' ? ' (juvenil)' : ''} — neto ${r.net}, gross ${r.gross} (${r.toPar >= 0 ? '+' : ''}${r.toPar})`).join('\n');
+    const stats = [
+      `Torneo: ${t.name}`,
+      `Formato: stroke play · ${t.holes} hoyos · par ${t.par}${t.date ? ` · ${t.date}` : ''}`,
+      `Club: ${c.name}`,
+      `Jugadores con score: ${lb.length} de ${(t.players || []).length}`,
+      (t.sponsors && t.sponsors.length) ? `Patrocinadores: ${t.sponsors.join(', ')}` : '',
+      `Tabla (neto):\n${top}`,
+    ].filter(Boolean).join('\n');
+    const prompt = 'Eres el anfitrión del torneo del club. Escribe un resumen breve (un párrafo de 4 a 6 frases) para compartir con los miembros: felicita al ganador por neto, menciona 1 o 2 actuaciones destacadas (incluye a algún juvenil si aparece bien ubicado), y cierra agradeciendo a los patrocinadores si los hay. Tono festivo y cálido, en español de México. No inventes nombres ni números que no estén en los datos. Solo el párrafo.';
+    AI.chat([{ from: 'me', text: prompt }], { stats }).then(res => {
+      if (res && res.ok && res.text) { V.tournReport = { name: t.name, text: res.text }; render(); }
+      else { V.tournReportOpen = false; V.tournReport = null; render(); actions['tourn-report'](); }
+    });
+  },
+  'tourn-report'() {
+    const c = myClub(); const t = c && (c.tournaments || []).find(x => x.id === V.tournId); if (!t) return;
+    const lb = tournLeaderboard(t, true).filter(r => r.has);
+    if (!lb.length) { if (typeof celebrate === 'function') celebrate(false, 'Captura al menos un score primero'); return; }
+    const top = lb.slice(0, 3).map((r, i) => `${i + 1}. ${r.name} — neto ${r.net} (gross ${r.gross})`).join('\n');
+    const txt = `🏆 ${t.name} · ${c.name}\n${t.holes} hoyos · par ${t.par}${t.date ? ` · ${t.date}` : ''}\n\n${top}${(t.sponsors && t.sponsors.length) ? `\n\nGracias a ${t.sponsors.join(', ')}` : ''}`;
+    shareReport(txt);
+  },
+  'tourn-report-close'() { V.tournReportOpen = false; render(); },
+  'tourn-report-share'() { const t = V.tournReport && V.tournReport.text; if (t) shareReport(t); },
 
   /* ---- Academia juvenil ---- */
   'club-academy-open'() { V.jrId = null; V.jrPlanOpen = false; V.view = 'club-academy'; render(); window.scrollTo(0, 0); },

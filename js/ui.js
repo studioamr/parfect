@@ -565,6 +565,15 @@ function botReply(text) {
   return 'Buena pregunta. Puedo ayudarte con: registrar rondas, el Análisis IA, cómo entrenar, la Academia, jugar con amigos o tu perfil. ¿Cuál te interesa?';
 }
 function chatScrollBottom() { const b = document.getElementById('chat-body'); if (b) b.scrollTop = b.scrollHeight; }
+/* compartir texto (reporte): nativo si se puede, si no al portapapeles */
+function shareReport(text) {
+  const t = String(text || '').trim(); if (!t) return;
+  try {
+    if (navigator.share) { navigator.share({ title: 'PARFECT', text: t }).catch(() => {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(t).then(() => { if (typeof celebrate === 'function') celebrate(false, 'Copiado ✓'); }); }
+    else if (typeof celebrate === 'function') celebrate(false, 'Listo');
+  } catch (e) { if (typeof celebrate === 'function') celebrate(false, 'Listo'); }
+}
 /* Envía un mensaje de Birdie: usa el AI Coach real (Edge Function) si está
    disponible, con indicador de "escribiendo…"; si no, cae al guion local. */
 function sendChat(txt) {

@@ -1373,7 +1373,22 @@ function vTournDetail(c, t, u) {
     </div>
     <div class="card trn-board">${rows || '<p class="note">Sin jugadores inscritos.</p>'}</div>
     ${staff ? `<button class="btn primary" data-act="tourn-capture" style="margin-top:12px">${golfIcon('card')} Capturar scores</button>` : ''}
-    ${V.tournCapture ? vTournCapture(t) : ''}`;
+    ${(staff && lb.some(r => r.has)) ? `<button class="btn ${(typeof AI !== 'undefined' && AI.on()) ? 'ghost' : 'primary'}" data-act="tourn-report-ai" style="margin-top:8px">${(typeof AI !== 'undefined' && AI.on()) ? '✨ Reporte del torneo con IA' : `${golfIcon('trophy')} Compartir resultados`}</button>` : ''}
+    ${V.tournCapture ? vTournCapture(t) : ''}
+    ${V.tournReportOpen ? vTournReportSheet(t) : ''}`;
+}
+function vTournReportSheet(t) {
+  const r = V.tournReport || {};
+  const body = r.loading
+    ? `<p class="aiq-birdie-load" style="justify-content:center">Birdie está redactando<span class="chat-typing"><i></i><i></i><i></i></span></p>`
+    : `<p>${esc(r.text || '').replace(/\n/g, '<br>')}</p>`;
+  return `<div class="overlay" data-act="tourn-report-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>Reporte del torneo</h2>
+    <p class="auth-sub">Redactado por Birdie · ${esc((t && t.name) || r.name || '')}.</p>
+    <div class="jr-report-box">${body}</div>
+    ${r.text ? `<button class="btn primary big" data-act="tourn-report-share" style="margin-top:12px">Compartir con el club →</button>` : ''}
+  </div></div>`;
 }
 function vTournCapture(t) {
   const rows = (t.players || []).map(p => `<div class="cap-row"><span class="cap-nm">${esc(p.name)}</span><input class="cap-in" id="cap-${esc(p.userId)}" type="number" inputmode="numeric" placeholder="–" value="${p.gross != null ? p.gross : ''}"></div>`).join('');
