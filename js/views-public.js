@@ -597,28 +597,28 @@ function vLanding() {
     </section>
 
 
-    <section class="lp-sec lp-club">
+    <section class="lp-sec lpc-sec">
       <span class="lp-eyebrow reveal">PARFECT para clubes</span>
       <h2 class="lp-h2 reveal">Llena tus torneos.<br/><span class="lime">Forma a tu cantera.</span></h2>
-      <p class="lp-lead reveal" style="text-align:center;max-width:38ch;margin:14px auto 0">Lleva la vida social de tu campo y el desarrollo juvenil a una sola app, con la marca de tu club.</p>
+      <p class="lp-lead reveal" style="text-align:center;max-width:42ch;margin:14px auto 0">Lleva la vida social de tu campo y el desarrollo juvenil a una sola app, con la marca de tu club.</p>
 
-      <div class="lpc-pillars">
-        <div class="lpc-pillar reveal">
-          <span class="lpc-pic">${golfIcon('trophy')}</span>
+      <div class="lpc-grid">
+        <div class="lpc-card reveal">
+          <span class="lpc-num">01</span>
           <h3>Torneos en vivo</h3>
-          <p>La vida social del campo, digital.</p>
-          <ul class="lpc-ul">
+          <p>La vida social del campo, en digital.</p>
+          <ul class="lpc-feat">
             <li>Crea torneos en minutos (gross y neto)</li>
             <li>Leaderboard que se actualiza en vivo</li>
             <li>Podio y ganadores automáticos</li>
-            <li>Cuelga a tus patrocinadores en cada torneo</li>
+            <li>Patrocinadores en cada torneo</li>
           </ul>
         </div>
-        <div class="lpc-pillar reveal">
-          <span class="lpc-pic">${golfIcon('flag')}</span>
+        <div class="lpc-card reveal">
+          <span class="lpc-num">02</span>
           <h3>Academia juvenil</h3>
           <p>Impulsa el talento y fideliza familias.</p>
-          <ul class="lpc-ul">
+          <ul class="lpc-feat">
             <li>Plan de entrenamiento por juvenil</li>
             <li>Progreso medido y “camino a la beca”</li>
             <li>Reporte automático para los padres</li>
@@ -628,12 +628,9 @@ function vLanding() {
       </div>
 
       <div class="lpc-ai reveal">
-        <span class="lpc-ai-ava">${chatBotIcon()}</span>
-        <div class="lpc-ai-tx">
-          <span class="lpc-ai-lab">Nuevo · con IA</span>
-          <b>Birdie escribe por ti</b>
-          <p>El reporte de cada torneo y el de cada juvenil para sus papás, redactados solos con los datos reales del club.</p>
-        </div>
+        <span class="lpc-ai-kick">Nuevo · con IA</span>
+        <b class="lpc-ai-h">Birdie escribe por ti</b>
+        <p>El reporte de cada torneo y el de cada juvenil para sus papás, redactados solos con los datos reales del club.</p>
       </div>
 
       <div class="lpc-stats">
