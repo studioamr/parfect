@@ -546,7 +546,19 @@ function golfIcon(name, cls = '') {
 const BOT_HELLO = '¡Hola! Soy Birdie, tu asistente de PARFECT. Pregúntame lo que quieras de la app o tu juego.';
 const BOT_QUICKS = ['¿Cómo registro una ronda?', '¿Qué es el Análisis IA?', '¿Cómo entreno?', '¿Es gratis?'];
 function chatBotIcon() {
-  return `<svg viewBox="0 0 24 24" class="chatico" aria-hidden="true"><path d="M4 4h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 16H10l-4.5 4v-4H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 4z" fill="currentColor"/><circle cx="9.2" cy="10" r="1.5" fill="#0d2414"/><circle cx="14.8" cy="10" r="1.5" fill="#0d2414"/></svg>`;
+  return `<svg viewBox="0 0 24 24" class="chatico" aria-hidden="true">
+    <path class="bf-tuft" d="M12 3.4 q1.7 -2.2 3.4 -1.1 q-.3 2.1 -2.2 2.7 Z" fill="#6fb53f"/>
+    <circle cx="12" cy="12.6" r="8.4" fill="url(#g3dLime)"/>
+    <ellipse cx="6.8" cy="14.6" rx="1.3" ry="1" fill="#ffce7a" opacity=".55"/>
+    <ellipse cx="17.2" cy="14.6" rx="1.3" ry="1" fill="#ffce7a" opacity=".55"/>
+    <circle cx="9.4" cy="11.4" r="2.6" fill="#fff"/>
+    <circle cx="14.6" cy="11.4" r="2.6" fill="#fff"/>
+    <circle class="bf-eye" cx="9.8" cy="11.7" r="1.15" fill="#0d2414"/>
+    <circle class="bf-eye" cx="15" cy="11.7" r="1.15" fill="#0d2414"/>
+    <circle cx="9.45" cy="11.25" r=".38" fill="#fff"/>
+    <circle cx="14.65" cy="11.25" r=".38" fill="#fff"/>
+    <path d="M10.7 14.4 h2.6 l-1.3 2.1 Z" fill="#f3a637"/>
+  </svg>`;
 }
 function botReply(text) {
   const t = String(text || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -610,7 +622,7 @@ function chatWidget(where) {
   const quicks = BOT_QUICKS.map(q => `<button class="chatq" data-act="chat-quick" data-q="${esc(q)}">${esc(q)}</button>`).join('');
   return `<div class="${mount} open">
     <div class="chat-panel">
-      <div class="chat-head"><span class="chat-head-ava">${chatBotIcon()}</span><div class="chat-head-tx"><b>Birdie</b><span>Asistente PARFECT</span></div><button class="chat-x" data-act="chat-close" aria-label="Cerrar">✕</button></div>
+      <div class="chat-head"><span class="chat-head-ava">${chatBotIcon()}</span><div class="chat-head-tx"><b>Birdie</b><span class="chat-on"><i></i> Tu coach con IA · en línea</span></div><button class="chat-x" data-act="chat-close" aria-label="Cerrar">✕</button></div>
       <div class="chat-body" id="chat-body">${msgs}</div>
       <div class="chat-quicks">${quicks}</div>
       <div class="chat-input"><input id="chat-text" type="text" placeholder="Escribe tu pregunta…" autocomplete="off"><button class="chat-send-btn" data-act="chat-send" aria-label="Enviar">➤</button></div>
