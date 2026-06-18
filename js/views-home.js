@@ -759,11 +759,11 @@ function pstRing(label, pct, icon) {
 /* ============ Perfil (página) ============ */
 /* Posts de amigos (sembrados — sin backend) */
 const FRIENDS_FEED = [
-  { id: 'f3', name: 'Rodrigo Pérez', av: 3, hcp: 5, course: 'Campestre', holes: 18, score: 75, toPar: 3, fw: 72, gir: 67, putts: 29, when: 'hace 2 h', cmt: 5, likes: 24, cap: 'Tres birdies seguidos en los hoyos 5 al 7. Día redondo.', top: { by: 'Diego', txt: 'Crack absoluto, te alcanzo el finde.' } },
-  { id: 'f1', name: 'Diego Salinas', av: 1, hcp: 8, course: 'Tres Marías', holes: 18, score: 82, toPar: 10, fw: 61, gir: 50, putts: 31, when: 'hace 4 h', cmt: 3, likes: 12, cap: 'Por fin rompí 85. El putt cayó hoy.', top: { by: 'Mariana', txt: 'Ese putt del 18 estuvo brutal.' } },
+  { id: 'f3', name: 'Rodrigo Pérez', av: 3, hcp: 5, course: 'Campestre', holes: 18, score: 75, toPar: 3, fw: 72, gir: 67, putts: 29, when: 'hace 2 h', cmt: 5, likes: 24, cap: 'Tres birdies seguidos en los hoyos 5 al 7. Día redondo.', media: { type: 'photo', src: 'assets/feed-swing.jpg' }, top: { by: 'Diego', txt: 'Crack absoluto, te alcanzo el finde.' } },
+  { id: 'f1', name: 'Diego Salinas', av: 1, hcp: 8, course: 'Tres Marías', holes: 18, score: 82, toPar: 10, fw: 61, gir: 50, putts: 31, when: 'hace 4 h', cmt: 3, likes: 12, cap: 'Por fin rompí 85. El putt cayó hoy.', media: { type: 'photo', src: 'assets/feed-cart.jpg' }, top: { by: 'Mariana', txt: 'Ese putt del 18 estuvo brutal.' } },
   { id: 'f2', name: 'Mariana Ortiz', av: 2, hcp: 14, course: 'Altozano', holes: 9, score: 44, toPar: 8, fw: 55, gir: 33, putts: 17, when: 'hace 6 h', cmt: 1, likes: 6, cap: 'Vientos pesados en la trasera nueve.', top: { by: 'Andrés', txt: 'Igual aguantaste bien el viento.' } },
   { id: 'f5', name: 'Andrés Gil', av: 5, hcp: 11, course: 'Altozano', holes: 18, score: 88, toPar: 16, fw: 50, gir: 44, putts: 33, when: 'ayer', cmt: 2, likes: 9, cap: 'El bunker del 14 me tiene de cliente.', top: { by: 'Rodrigo', txt: 'Jaja ese bunker es trampa segura.' } },
-  { id: 'f4', name: 'Sofía Lara', av: 4, hcp: 19, course: 'Tres Marías', holes: 18, score: 95, toPar: 23, fw: 44, gir: 22, putts: 36, when: 'ayer', cmt: 4, likes: 7, cap: 'Salí a jugar aunque no estaba fina. Vale la pena igual.', top: { by: 'Sofía', txt: 'Esa actitud es la que cuenta.' } },
+  { id: 'f4', name: 'Sofía Lara', av: 4, hcp: 19, course: 'Tres Marías', holes: 18, score: 95, toPar: 23, fw: 44, gir: 22, putts: 36, when: 'ayer', cmt: 4, likes: 7, cap: 'Salí a jugar aunque no estaba fina. Vale la pena igual.', media: { type: 'photo', src: 'assets/feed-social.jpg' }, top: { by: 'Sofía', txt: 'Esa actitud es la que cuenta.' } },
 ];
 
 /* tira de tarjeta compacta con scroll horizontal (no ocupa alto) */
