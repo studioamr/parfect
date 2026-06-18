@@ -590,7 +590,11 @@ function vLanding() {
       </div>
       <div class="lp-inst reveal">
         <span class="lp-inst-lab">Torneos juveniles y universidades del camino · ejemplos</span>
-        <div class="lp-inst-reel"><div class="lp-inst-track">${(() => { const b = ['Gira Mexicana Juvenil', 'FMG', 'AGEM', 'U. of Arizona', 'Texas A&M', 'Oklahoma State', 'TCU', 'Stanford', 'Pepperdine', 'Tec de Monterrey', 'Anáhuac'].map(n => `<span class="lp-instbadge">${n}</span>`).join(''); return b + b; })()}</div></div>
+        <div class="lp-inst-reel"><div class="lp-inst-track">${(() => {
+          const inst = [['GMJ', '#1c4a23'], ['FMG', '#2f7d3a'], ['AGEM', '#3f8f46'], ['UA', '#0C234B'], ['A&M', '#500000'], ['OSU', '#FF7300'], ['TCU', '#4D1979'], ['STA', '#8C1515'], ['PEP', '#00205B'], ['TEC', '#003DA5'], ['ANÁ', '#C8102E']];
+          const b = inst.map(([m, c]) => `<span class="lp-emblem" style="--c:${c}">${m}</span>`).join('');
+          return b + b;
+        })()}</div></div>
       </div>
       <div class="lp-statrow reveal" style="margin-top:18px">
         <div class="lp-stat"><b>+10</b><span>campos aliados</span></div>
@@ -599,6 +603,24 @@ function vLanding() {
       </div>
     </section>
 
+
+    <section class="lp-sec lp-tj">
+      <div class="lp-tj-card reveal">
+        <span class="lp-tj-eyebrow">⛳ Convocatoria abierta</span>
+        <h2 class="lp-tj-h">Torneo PARFECT Juvenil</h2>
+        <p class="lp-tj-sub">Buscamos al próximo talento del golf mexicano. Si eres juvenil —o tu hijo lo es— este es tu lugar para competir y que te vean.</p>
+        <div class="lp-tj-steps">
+          <div class="lp-tj-step"><span class="lp-tj-n">1</span><div class="lp-tj-tx"><b>Síguenos en redes</b><span>@parfect.golf en Instagram</span></div></div>
+          <div class="lp-tj-step"><span class="lp-tj-n">2</span><div class="lp-tj-tx"><b>Crea tu cuenta gratis</b><span>Regístrate en la app en 60 segundos</span></div></div>
+          <div class="lp-tj-step"><span class="lp-tj-n">3</span><div class="lp-tj-tx"><b>¡Listo, estás dentro!</b><span>Te avisamos fecha y sede</span></div></div>
+        </div>
+        <div class="lp-tj-cta">
+          <button class="lp-order" data-act="go" data-view="signup">Registrarme gratis →</button>
+          <a class="lp-tj-ig" href="https://instagram.com/parfect.golf" target="_blank" rel="noopener">Seguir @parfect.golf</a>
+        </div>
+        <p class="lp-tj-note">Gratis · Sin costo de inscripción · Categorías por edad</p>
+      </div>
+    </section>
 
     <section class="lp-sec lpc-sec">
       <span class="lp-eyebrow reveal">PARFECT para clubes</span>

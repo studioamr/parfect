@@ -4403,9 +4403,23 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 .lp-inst-lab { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .lp-inst-reel { overflow: hidden; -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
 .lp-inst-track { display: flex; width: max-content; animation: lpInst 36s linear infinite; }
-.lp-instbadge { flex: none; margin-right: 10px; font-size: 13px; font-weight: 800; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; box-shadow: 0 6px 16px rgba(20,40,15,.06); white-space: nowrap; }
+.lp-emblem { flex: none; margin-right: 14px; width: 64px; height: 64px; border-radius: 50%; background: var(--c, #1c4a23); color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 900; letter-spacing: .01em; box-shadow: 0 8px 18px rgba(20,40,15,.2); border: 2.5px solid rgba(255,255,255,.85); }
 @keyframes lpInst { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .lp-inst-track { animation: none; flex-wrap: wrap; justify-content: center; gap: 8px; } }
+/* Convocatoria: Torneo PARFECT Juvenil */
+.lp-tj { text-align: center; }
+.lp-tj-card { max-width: 600px; margin: 0 auto; background: radial-gradient(120% 130% at 80% 0%, #1c4a23, #0c1f12); color: #fff; border-radius: 26px; padding: clamp(26px,6vw,40px) clamp(22px,5vw,34px); box-shadow: 0 26px 60px rgba(20,40,15,.28); text-align: left; }
+.lp-tj-eyebrow { display: inline-block; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #0c2913; background: var(--lime); padding: 6px 13px; border-radius: 999px; }
+.lp-tj-h { font-family: inherit; font-size: clamp(26px,5vw,40px); font-weight: 900; letter-spacing: -.02em; line-height: 1.05; margin: 16px 0 10px; color: #fff; }
+.lp-tj-sub { font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.82); margin: 0 0 20px; max-width: 46ch; }
+.lp-tj-steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+.lp-tj-step { display: flex; align-items: center; gap: 13px; }
+.lp-tj-n { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--lime); color: #0c2913; font-weight: 900; font-size: 16px; display: grid; place-items: center; }
+.lp-tj-tx b { display: block; font-size: 15.5px; font-weight: 800; color: #fff; line-height: 1.1; }
+.lp-tj-tx span { font-size: 13px; color: rgba(255,255,255,.72); }
+.lp-tj-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.lp-tj-ig { color: var(--lime); font-weight: 800; font-size: 14px; text-decoration: none; }
+.lp-tj-note { margin: 16px 0 0; font-size: 12.5px; color: rgba(255,255,255,.6); }
 /* adornos del camino juvenil: aviones, banderas, trofeos flotando */
 .lp-presence { position: relative; overflow: hidden; }
 .lp-pres-orn { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
