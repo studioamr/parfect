@@ -887,14 +887,14 @@ function vSocialFeed() {
   if (typeof Feed !== 'undefined' && Feed.on()) {
     Feed.ensure();
     const st = Feed.state();
-    const body = st.posts.length
-      ? st.posts.map(p => feedCardReal(p, u)).join('')
-      : (st.loaded ? `<p class="note" style="margin:10px 2px">Aún no hay rondas compartidas. ¡Sé el primero en publicar la tuya!</p>`
-                   : `<p class="note" style="margin:10px 2px">Cargando el feed…</p>`);
-    return `<div class="sec-h" style="margin-top:6px"><h2>Feed de amigos</h2></div>
-      <div class="fd-list">${body}</div>
-      ${V.shareDraft ? vShareComposer(u) : ''}
-      ${V.commentsFor ? vCommentsSheet(V.commentsFor) : ''}`;
+    if (st.posts.length) {
+      const body = st.posts.map(p => feedCardReal(p, u)).join('');
+      return `<div class="sec-h" style="margin-top:6px"><h2>Feed de amigos</h2></div>
+        <div class="fd-list">${body}</div>
+        ${V.shareDraft ? vShareComposer(u) : ''}
+        ${V.commentsFor ? vCommentsSheet(V.commentsFor) : ''}`;
+    }
+    // si aún no hay rondas en la nube, cae al feed demo (diseño de antes)
   }
   // ---- modo local (sin nube): feed demo, como antes ----
   const likes = u.likes || {};
@@ -994,7 +994,9 @@ function socialLeaders(u) {
       };
       if (!best[p.user_id] || toPar18 < best[p.user_id].toPar18) best[p.user_id] = entry;
     }
-    return Object.values(best).sort((a, b) => a.toPar18 - b.toPar18);
+    const cloudLead = Object.values(best).sort((a, b) => a.toPar18 - b.toPar18);
+    if (cloudLead.length) return cloudLead;
+    // si aún no hay datos en la nube, cae al demo (diseño de antes)
   }
   // ---- modo local: demo ----
   const mine = myRounds();
@@ -1018,8 +1020,8 @@ function vStories(u) {
     const oCells = others.map(p => `<button class="story story-link" data-act="friend" data-id="${esc(p.user_id)}">
       <span class="story-ring"><img class="story-img golfer" src="${AVATARS[(p.author && p.author.avatar) || 0] || AVATARS[0]}" alt="" loading="lazy"></span>
       <span class="story-nm">${esc(((p.author && p.author.name) || 'Jugador').split(' ')[0])}</span></button>`).join('');
-    const cells = me + oCells;
-    return `<div class="story-row"><div class="story-track">${cells}${others.length ? cells : ''}</div></div>`;
+    if (others.length) { const cells = me + oCells; return `<div class="story-row"><div class="story-track">${cells}${cells}</div></div>`; }
+    // si nadie ha publicado en la nube, cae al demo (diseño de antes)
   }
   // ---- modo local: demo ----
   const cells = me + FRIENDS_FEED.map(f => `<button class="story story-link" data-act="friend" data-id="${esc(f.id)}">
@@ -1072,13 +1074,7 @@ const TOURNAMENT = {
   ],
 };
 function vTorneo(u) {
-  // ---- modo nube: SOLO eventos reales (sin torneos/feeds demo) ----
-  if (typeof Events !== 'undefined' && Events.on()) {
-    return `<div class="sec-h" style="margin-top:4px"><h2>Próximos eventos ${golfIcon('flag')}</h2><button class="sec-link" data-act="event-new">+ Crear evento</button></div>
-      ${vEventsList(u)}
-      ${V.eventDraft ? vEventComposer(u) : ''}`;
-  }
-  // ---- modo local (sin nube): tablero demo ----
+  // Mismo diseño (tablero demo + próximos eventos); en la nube se añaden los eventos reales.
   const t = TOURNAMENT.active;
   const rows = t.leaders.slice().sort((a, b) => a.score - b.score).map((p, i) => {
     const pos = i + 1;
@@ -1119,7 +1115,7 @@ function vEventsList(u) {
   if (typeof Events !== 'undefined' && Events.on()) {
     Events.ensure();
     const st = Events.state();
-    if (!st.events.length) return st.loaded ? `<p class="note" style="margin:6px 2px">No hay eventos próximos. Crea uno y aparecerá aquí para todos.</p>` : `<p class="note" style="margin:6px 2px">Cargando eventos…</p>`;
+    if (!st.events.length) return '';
     return st.events.map(e => {
       const avs = e.goingPeople.slice(0, 8).map(p => `<span class="ev-inv st-yes" title="${esc(p.name)}">${esc(initials(p.name))}</span>`).join('');
       const going = e.goingCount;
