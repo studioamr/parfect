@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PARFECT para Clubes — Llena tus torneos, forma a tus juveniles</title>
+  <meta name="description" content="PARFECT lleva la vida social de tu campo y el desarrollo de tu cantera juvenil a una sola app: torneos con leaderboard en vivo y academia juvenil con reporte a padres." />
+  <style>
+    :root{
+      --ink:#0c1f12; --green:#14321c; --green2:#1c4a23; --lime:#c4ff5d; --lime2:#7cc24a;
+      --sand:#f3efe4; --card:#ffffff; --line:#e6e2d6; --muted:#5c6b5c; --red:#e8392b;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--sand);line-height:1.5;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+    section{padding:64px 0}
+    h1,h2,h3{line-height:1.08;letter-spacing:-.02em}
+    .eyebrow{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--lime2)}
+    .flag{display:inline-block;width:20px;height:20px;vertical-align:-4px}
+    /* hero */
+    .hero{background:radial-gradient(120% 100% at 70% 0%, #1c4a23 0%, #0c1f12 70%);color:#fff;padding:72px 0 64px;position:relative;overflow:hidden}
+    .hero .wrap{position:relative;z-index:1}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:.18em}
+    .brand .dot{width:26px;height:26px;border-radius:7px;background:var(--lime);display:grid;place-items:center}
+    .hero h1{font-size:clamp(34px,6vw,60px);font-weight:900;margin:26px 0 14px}
+    .hero h1 .hl{color:var(--lime)}
+    .hero p.lead{font-size:clamp(16px,2.4vw,20px);color:#d7e6d2;max-width:46ch}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:rgba(196,255,93,.12);border:1px solid rgba(196,255,93,.45);color:var(--lime);font-weight:800;font-size:14px;padding:9px 14px;border-radius:99px}
+    .hero-sun{position:absolute;top:-60px;right:-40px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle at 40% 38%,rgba(196,255,93,.5),transparent 62%)}
+    /* sections */
+    .lead2{font-size:18px;color:var(--muted);max-width:60ch;margin-top:10px}
+    h2.big{font-size:clamp(26px,4.4vw,40px);font-weight:900;margin-top:8px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:30px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 12px 30px rgba(20,40,15,.06)}
+    .card .ic{width:46px;height:46px;border-radius:13px;background:#eef7e6;display:grid;place-items:center;margin-bottom:14px}
+    .card .ic svg{width:26px;height:26px}
+    .card h3{font-size:20px;font-weight:900}
+    .card p{color:var(--muted);font-size:15px;margin-top:8px}
+    .card ul{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:7px}
+    .card li{font-size:14.5px;padding-left:22px;position:relative}
+    .card li::before{content:'✓';position:absolute;left:0;color:var(--lime2);font-weight:900}
+    .problem{background:#fff}
+    .problem .grid3 .card{background:var(--sand);box-shadow:none}
+    .dark{background:var(--green);color:#fff}
+    .dark .card{background:#173a20;border-color:#27502f;color:#fff}
+    .dark .card p{color:#bcd2bb}
+    .dark .card .ic{background:rgba(196,255,93,.14)}
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+    .stat{background:#173a20;border:1px solid #27502f;border-radius:16px;padding:18px;text-align:center}
+    .stat b{display:block;font-size:30px;font-weight:900;color:var(--lime)}
+    .stat span{font-size:12.5px;color:#bcd2bb}
+    /* pricing */
+    .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+    .price{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;position:relative}
+    .price.hot{border:2px solid var(--lime2);box-shadow:0 16px 40px rgba(124,194,74,.2)}
+    .price .tag{position:absolute;top:-12px;right:18px;background:var(--lime);color:#0c2913;font-weight:900;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border-radius:99px}
+    .price .nm{font-size:18px;font-weight:900}
+    .price .amt{font-size:38px;font-weight:900;margin:4px 0 14px}
+    .price .amt span{font-size:14px;font-weight:700;color:var(--muted)}
+    .cta{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;font-weight:900;font-size:16px;padding:15px 26px;border-radius:14px;text-decoration:none}
+    .cta.lime{background:var(--lime2);color:#0c2913}
+    .final{background:radial-gradient(120% 100% at 30% 0%, #1c4a23 0%, #0c1f12 75%);color:#fff;text-align:center}
+    .final h2{font-size:clamp(26px,4.6vw,42px);font-weight:900}
+    .final p{color:#cfe0cd;margin:12px auto 26px;max-width:48ch}
+    .foot{padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:720px){.grid2,.grid3,.price-grid{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <!-- HERO -->
+  <section class="hero">
+    <span class="hero-sun"></span>
+    <div class="wrap">
+      <div class="brand"><span class="dot"><svg width="16" height="16" viewBox="0 0 32 32"><path d="M16 5 L27 9 L16 13 Z" fill="#0c2913"/><rect x="14.6" y="5" width="1.8" height="22" rx=".9" fill="#0c2913"/></svg></span> PARFECT</div>
+      <h1>Llena tus torneos.<br><span class="hl">Forma a tus juveniles.</span></h1>
+      <p class="lead">PARFECT lleva la vida social de tu campo y el desarrollo de tu cantera a una sola app — sin hojas de cálculo, sin WhatsApp disperso.</p>
+      <div class="chips">
+        <span class="chip">🏆 Torneos con leaderboard en vivo</span>
+        <span class="chip">🎓 Academia juvenil → beca</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section class="problem">
+    <div class="wrap">
+      <span class="eyebrow">El reto de tu club</span>
+      <h2 class="big">Tienes el campo. Falta la experiencia digital.</h2>
+      <div class="grid3">
+        <div class="card"><h3>Torneos en papel</h3><p>Resultados a mano, leaderboard que nadie ve hasta el final, poca emoción en vivo.</p></div>
+        <div class="card"><h3>Juveniles sin rumbo</h3><p>No hay seguimiento del progreso ni un camino claro hacia becas o selecciones.</p></div>
+        <div class="card"><h3>Socios desconectados</h3><p>Cuesta llenar eventos y mantener viva la comunidad entre rondas.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUCION: 2 pilares -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">La solución, en 2 pilares</span>
+      <h2 class="big">Una app, con tu marca, para todo tu club.</h2>
+      <div class="grid2">
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 32 32"><path d="M12 23h8v3h-8z" fill="#cf9a36"/><path d="M10 6h12v5a6 6 0 0 1-12 0Z" fill="#ffcf5a"/></svg></span>
+          <h3>Torneos en vivo</h3>
+          <p>La vida social del campo, digital.</p>
+          <ul>
+            <li>Crea torneos en minutos (gross y neto)</li>
+            <li>Leaderboard que se actualiza en vivo</li>
+            <li>Categorías, podio y ganadores automáticos</li>
+            <li>Cuelga a tus patrocinadores a cada torneo</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="ic"><svg viewBox="0 0 32 32"><path d="M16 5 L27 9 L16 13 Z" fill="#e8392b"/><rect x="14.6" y="5" width="1.8" height="22" rx=".9" fill="#2f6b39"/><ellipse cx="16" cy="28" rx="9" ry="2" fill="#2f6b39"/></svg></span>
+          <h3>Academia juvenil</h3>
+          <p>Impulsa el talento y fideliza familias.</p>
+          <ul>
+            <li>Plan de entrenamiento por juvenil</li>
+            <li>Progreso medido y “camino a la beca”</li>
+            <li>Reporte automático para los padres</li>
+            <li>Ranking de desarrollo del club</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="dark">
+    <div class="wrap">
+      <span class="eyebrow">Cómo se vive</span>
+      <h2 class="big" style="color:#fff">Tu club, en la palma de la mano.</h2>
+      <div class="grid3">
+        <div class="card"><span class="ic"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#c4ff5d"/></svg></span><h3>Leaderboard en vivo</h3><p>Los jugadores ven su posición en tiempo real durante el torneo.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 32 32"><rect x="7" y="6" width="18" height="20" rx="3" fill="#c4ff5d"/></svg></span><h3>Reporte a padres</h3><p>Cada juvenil genera un reporte de progreso que el coach comparte con la familia.</p></div>
+        <div class="card"><span class="ic"><svg viewBox="0 0 32 32"><path d="M4 26 L14 8 L20 18 L28 26 Z" fill="#c4ff5d"/></svg></span><h3>Camino a la beca</h3><p>Hitos claros que motivan al juvenil y posicionan a tu club como cantera.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POR QUE / ACTIVOS -->
+  <section>
+    <div class="wrap">
+      <span class="eyebrow">Por qué con PARFECT</span>
+      <h2 class="big">Hecho en México, para el golf de aquí.</h2>
+      <p class="lead2">Producto vivo, en español, con relaciones reales en el golf nacional y un enfoque único en la cantera juvenil.</p>
+      <div class="stat-row">
+        <div class="stat"><b>2</b><span>ganchos: social + cantera</span></div>
+        <div class="stat"><b>0</b><span>hardware requerido</span></div>
+        <div class="stat"><b>100%</b><span>en español</span></div>
+        <div class="stat"><b>Tu</b><span>marca en su espacio</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANES -->
+  <section class="problem">
+    <div class="wrap">
+      <span class="eyebrow">Planes</span>
+      <h2 class="big">Empieza una temporada. Cancela cuando quieras.</h2>
+      <div class="price-grid">
+        <div class="price">
+          <div class="nm">Club</div>
+          <div class="amt">$1,490<span>/mes</span></div>
+          <ul class="card" style="border:none;box-shadow:none;padding:0;background:none">
+            <li>Hasta 150 miembros</li>
+            <li>Torneos con leaderboard en vivo</li>
+            <li>Academia juvenil + reportes</li>
+            <li>Soporte por correo</li>
+          </ul>
+        </div>
+        <div class="price hot">
+          <span class="tag">Recomendado</span>
+          <div class="nm">Club Pro</div>
+          <div class="amt">$2,990<span>/mes</span></div>
+          <ul class="card" style="border:none;box-shadow:none;padding:0;background:none">
+            <li>Miembros ilimitados</li>
+            <li>Patrocinios por torneo (ingreso compartido)</li>
+            <li>Panel de talento y becas</li>
+            <li>Onboarding dedicado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="final">
+    <div class="wrap">
+      <h2>Pongamos a tu club en PARFECT.</h2>
+      <p>Te montamos un club de demostración con tus torneos y tu cantera en una llamada. Una temporada de piloto, sin compromiso.</p>
+      <a class="cta lime" href="mailto:andremacouzetruiz@gmail.com?subject=PARFECT%20para%20mi%20club">Agendar demo →</a>
+    </div>
+  </section>
+  <div class="foot">PARFECT — Golf Analytics · IA · Comunidad. Hecho en Morelia, México.</div>
+</body>
+</html>
