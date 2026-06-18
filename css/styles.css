@@ -540,6 +540,11 @@ body.is-scrolling .fly { animation-play-state: paused !important; }
 .auth-sub { color: var(--muted); margin-top: 8px; font-size: 14.5px; }
 .auth-alt { text-align: center; color: var(--muted); font-size: 14px; margin-top: 22px; }
 .auth-alt button { background: none; border: none; color: var(--lime-ink); font-weight: 800; font-size: 14px; }
+.auth-or { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--muted); font-size: 12px; }
+.auth-or::before, .auth-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.gbtn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: #fff; color: #1f2937; border: 1px solid var(--line); font-weight: 700; }
+.gbtn:active { transform: scale(.99); }
+.gico { width: 18px; height: 18px; flex: none; }
 
 /* ============ Dashboard ============ */
 .greet { padding-top: 12px; }

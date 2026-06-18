@@ -15,7 +15,7 @@ const Cloud = (() => {
   let sb = null;
   if (ON) {
     sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
   }
 
@@ -211,6 +211,14 @@ const Cloud = (() => {
     return { ok: true };
   }
 
+  async function signInWithGoogle() {
+    if (!ON) return { ok: false, msg: 'Nube no configurada.' };
+    const redirectTo = location.origin + location.pathname; // vuelve a esta misma página
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+    if (error) return { ok: false, msg: mapErr(error) };
+    return { ok: true }; // el navegador se va a Google y regresa con la sesión
+  }
+
   async function signOut() {
     currentUid = null; hydrated = false;
     if (ON) { try { await sb.auth.signOut(); } catch (e) {} }
@@ -235,5 +243,5 @@ const Cloud = (() => {
     } catch (e) {}
   }
 
-  return { enabled, restore, signIn, signUp, signOut, pushSoon, push, remove, wipeMine, client: () => sb, uid: () => currentUid };
+  return { enabled, restore, signIn, signUp, signInWithGoogle, signOut, pushSoon, push, remove, wipeMine, client: () => sb, uid: () => currentUid };
 })();

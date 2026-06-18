@@ -474,6 +474,13 @@ const actions = {
   },
 
   /* ---- auth ---- */
+  async 'google-login'() {
+    if (typeof Cloud === 'undefined' || !Cloud.enabled()) { V.err = 'El inicio con Google aún no está configurado.'; render(); return; }
+    V.err = null;
+    const res = await Cloud.signInWithGoogle();
+    if (!res.ok) { V.err = res.msg || 'No se pudo conectar con Google.'; render(); }
+    // si ok, el navegador redirige a Google y vuelve con la sesión iniciada
+  },
   async login() {
     const email = val('f-email').toLowerCase();
     const pass = document.getElementById('f-pass').value;
