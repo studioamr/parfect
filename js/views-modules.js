@@ -247,11 +247,22 @@ function vDiag() {
       <div class="aiq-drills"><span class="aiq-drilllab">Qué entrenar ${drills.length ? `<i>${doneN}/${drills.length} hoy</i>` : ''}</span>${rows}</div>
     </div>`;
   }).join('');
+  const ai = V.diagAI;
+  const birdieCard = ai ? `<div class="aiq-birdie">
+       <span class="aiq-birdie-ava">${chatBotIcon()}</span>
+       <div class="aiq-birdie-tx">
+         <span class="aiq-birdie-lab">Birdie · tu coach IA</span>
+         ${ai.loading
+            ? `<p class="aiq-birdie-load">Leyendo tus rondas<span class="chat-typing"><i></i><i></i><i></i></span></p>`
+            : `<p>${esc(ai.text).replace(/\n/g, '<br>')}</p>`}
+       </div>
+     </div>` : '';
   return warn +
     `<div class="aiq-hero">
        <span class="aiq-hero-ava">${golfIcon('flag')}</span>
        <div class="aiq-hero-tx"><span class="aiq-hero-lab">Análisis IA · ${agg.rounds} ronda${agg.rounds === 1 ? '' : 's'}</span><b class="aiq-hero-h">Tu enfoque ahora: ${esc((top.titulo || 'tu juego').split('·')[0].trim())}</b><p class="aiq-hero-p">${d.focus.length} prioridades para bajar golpes, ordenadas por impacto.</p></div>
      </div>
+     ${birdieCard}
      <div class="aiq-list">${cards}</div>
      <button class="btn primary big" data-act="diag-aicoach" style="margin-top:14px">${golfIcon('flag')} Entrenar este plan con AI Coach →</button>
      <p class="note" style="text-align:center;margin-top:8px">El AI Coach arma tu sesión según tu tiempo y estas prioridades.</p>

@@ -62,5 +62,14 @@ const AI = (() => {
     } catch (e) { return { ok: false }; }
   }
 
-  return { on, chat, statsBlurb };
+  /* análisis de coach en una frase larga, personalizado con tus rondas */
+  async function coachNarrative() {
+    if (!on()) return { ok: false };
+    const stats = statsBlurb();
+    if (!stats) return { ok: false };
+    const prompt = 'Con mis datos, dame un análisis breve y personalizado de mi juego en 2 o 3 frases: cuál es mi mayor fuga de golpes ahora mismo, por qué, y el cambio concreto que más bajaría mi score esta semana. Háblame de tú, directo y motivador. Solo el párrafo, sin listas ni encabezados.';
+    return chat([{ from: 'me', text: prompt }], { stats });
+  }
+
+  return { on, chat, statsBlurb, coachNarrative };
 })();

@@ -878,11 +878,18 @@ const actions = {
   /* ---- trainer / tracker ---- */
   'trainer-tab'(d) { V.trainerTab = d.t; V.err = null; V.planSkipMode = false; if (d.t === 'cal') ensureWeekPlan(cur()); render(); },
   diagnose() {
-    V.diagBusy = true; V.diag = null;
+    V.diagBusy = true; V.diag = null; V.diagAI = null;
     render();
     setTimeout(() => {
       V.diagBusy = false;
       V.diag = Trainer.analyze(Stats.aggregate(myRounds()), cur());
+      if (typeof AI !== 'undefined' && AI.on()) {
+        V.diagAI = { loading: true };
+        AI.coachNarrative().then(res => {
+          V.diagAI = (res && res.ok && res.text) ? { text: res.text } : null;
+          render();
+        });
+      }
       render();
       window.scrollTo(0, 0);
     }, 700);
