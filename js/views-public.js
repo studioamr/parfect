@@ -643,30 +643,6 @@ function vLanding() {
         <div class="lpc-stat reveal"><b>Tu</b><span>marca en su espacio</span></div>
       </div>
 
-      <div class="lpc-plans">
-        <div class="lpc-plan reveal">
-          <span class="lpc-pl-nm">Club</span>
-          <span class="lpc-pl-amt">$1,490<i>/mes</i></span>
-          <ul class="lpc-ul">
-            <li>Hasta 150 miembros</li>
-            <li>Torneos con leaderboard en vivo</li>
-            <li>Academia juvenil + reportes IA</li>
-            <li>Soporte por correo</li>
-          </ul>
-        </div>
-        <div class="lpc-plan hot reveal">
-          <span class="lpc-pl-tag">Recomendado</span>
-          <span class="lpc-pl-nm">Club Pro</span>
-          <span class="lpc-pl-amt">$2,990<i>/mes</i></span>
-          <ul class="lpc-ul">
-            <li>Miembros ilimitados</li>
-            <li>Patrocinios por torneo (ingreso compartido)</li>
-            <li>Panel de talento y becas</li>
-            <li>Onboarding dedicado</li>
-          </ul>
-        </div>
-      </div>
-
       <div class="lpc-cta reveal">
         <a class="lp-order" href="mailto:andremacouzetruiz@gmail.com?subject=PARFECT%20para%20mi%20club">Agendar demo para mi club →</a>
         <a class="lpc-deck" href="deck/" target="_blank" rel="noopener">Ver la presentación completa →</a>
