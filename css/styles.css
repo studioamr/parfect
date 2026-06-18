@@ -3757,6 +3757,26 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
 .lp-realwrap .pl-hero { margin: 0 0 12px; padding: 16px 18px; }
 .lp-realwrap .pst-rings { margin: 0; }
 .lp-realwrap .pst-grid { margin-top: 10px; }
+/* home en vivo del hero: carrusel infinito de perfiles */
+.lph-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 48px 0 14px; }
+.lph-greet b { font-size: 19px; font-weight: 900; color: var(--text); display: block; letter-spacing: -.01em; line-height: 1.1; }
+.lph-greet span { font-size: 12px; color: var(--muted); }
+.lph-live { font-size: 11px; font-weight: 800; color: #2f7d3a; background: rgba(124,194,74,.18); padding: 6px 11px; border-radius: 999px; white-space: nowrap; flex: none; }
+.lph-reel { overflow: hidden; margin: 0 -13px; padding: 2px 13px 6px; -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.lph-track { display: flex; width: max-content; animation: lphScroll 30s linear infinite; }
+.lph-prof { flex: none; width: 174px; margin-right: 12px; background: linear-gradient(150deg, #2f6d34, #1c4a23); border-radius: 20px; padding: 14px; color: #fff; box-shadow: 0 12px 24px rgba(20,40,15,.22); }
+.lph-ptop { display: flex; align-items: center; gap: 10px; }
+.lph-av { width: 42px; height: 42px; border-radius: 13px; object-fit: cover; background: rgba(255,255,255,.18); flex: none; }
+.lph-pid b { font-size: 15px; font-weight: 900; display: block; line-height: 1.1; }
+.lph-pid span { font-size: 11px; color: rgba(255,255,255,.8); }
+.lph-pst { display: flex; gap: 6px; margin-top: 13px; }
+.lph-pst div { flex: 1; background: rgba(255,255,255,.13); border-radius: 11px; padding: 8px 4px; text-align: center; }
+.lph-pst b { font-size: 16px; font-weight: 900; display: block; color: #eaffcf; line-height: 1; }
+.lph-pst span { font-size: 9.5px; color: rgba(255,255,255,.74); display: block; margin-top: 3px; }
+.lph-sub { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 9px; }
+.lph-foot { margin-top: 16px; text-align: center; font-size: 12.5px; font-weight: 700; color: #2f7d3a; background: rgba(124,194,74,.14); border-radius: 12px; padding: 11px; }
+@keyframes lphScroll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .lph-track { animation: none; } }
 /* slot de screenshot real (assets/) sobre el componente */
 .lp-shotimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
 .lp-shotcomp { width: 100%; height: 100%; }
