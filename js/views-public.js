@@ -580,15 +580,18 @@ function vLanding() {
         <span class="lp-j lp-j-b">🎓<small>Beca afuera</small></span>
       </div>
       <div class="lp-presgrid">
-        ${[['🏆', 'Torneos que cuentan', 'Cada torneo suma para el ranking juvenil nacional. Tus resultados te posicionan.'],
-           ['🇲🇽', 'Equipos representativos', 'Los mejores forman los equipos juveniles que representan a México.'],
-           ['🎓', 'Becas en el extranjero', 'Exposición ante universidades y academias de golf fuera del país.'],
-           ['🤝', 'Patrocinios', 'Conecta con marcas que apuestan por las promesas del golf mexicano.'],
-           ['⛳', 'Green fees con descuento', 'Tarifas preferentes en campos aliados para que juegues y compitas más.'],
-           ['🌱', 'Impulso al talento joven', 'PARFECT existe para que el golfista juvenil mexicano crezca, compita y llegue más lejos.']]
-          .map(([ic, t, d]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p></div>`).join('')}
+        ${[['🏆', 'Torneos que cuentan', 'Cada torneo suma para el ranking juvenil nacional. Tus resultados te posicionan.', ['Gira Mexicana Juvenil', 'FMG', 'AGEM', 'Tour Infantil-Juvenil']],
+           ['🇲🇽', 'Equipos representativos', 'Los mejores forman los equipos juveniles que representan a México.', ['Selección estatal', 'Equipos universitarios', 'Interescolar']],
+           ['🎓', 'Becas en el extranjero', 'Exposición ante universidades y academias de golf fuera del país.', ['Arizona', 'Texas A&M', 'Oklahoma State', 'TCU']],
+           ['🤝', 'Patrocinios', 'Conecta con marcas que apuestan por las promesas del golf mexicano.', ['Titleist', 'Mercedes-Benz', 'Electrolit', 'Ping']],
+           ['⛳', 'Green fees con descuento', 'Tarifas preferentes en campos aliados para que juegues y compitas más.', ['Campestre Morelia', 'Tres Marías', 'Clubes aliados']],
+           ['🌱', 'Impulso al talento joven', 'PARFECT existe para que el golfista juvenil mexicano crezca, compita y llegue más lejos.', ['Ranking nacional', 'Coaches certificados', 'Academias']]]
+          .map(([ic, t, d, ex]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p><div class="lp-pres-ex">${(ex || []).map(e => `<span class="lp-ex">${esc(e)}</span>`).join('')}</div></div>`).join('')}
       </div>
-      <div class="lp-flagstrip reveal"><span class="lp-flagstrip-lab">Destinos</span><span class="lp-flags">🇺🇸 🇪🇸 🇬🇧 🇨🇦 🇦🇺</span></div>
+      <div class="lp-inst reveal">
+        <span class="lp-inst-lab">Torneos juveniles y universidades del camino · ejemplos</span>
+        <div class="lp-inst-reel"><div class="lp-inst-track">${(() => { const b = ['Gira Mexicana Juvenil', 'FMG', 'AGEM', 'U. of Arizona', 'Texas A&M', 'Oklahoma State', 'TCU', 'Stanford', 'Pepperdine', 'Tec de Monterrey', 'Anáhuac'].map(n => `<span class="lp-instbadge">${n}</span>`).join(''); return b + b; })()}</div></div>
+      </div>
       <div class="lp-statrow reveal" style="margin-top:18px">
         <div class="lp-stat"><b>+10</b><span>campos aliados</span></div>
         <div class="lp-stat"><b>+50</b><span>juveniles activos</span></div>
