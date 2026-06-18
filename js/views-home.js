@@ -1240,7 +1240,7 @@ function vClub() {
       <div class="cl-hubtop"><span class="cl-role">${CLUB_ROLE_LABEL[role] || role}</span>${isStaff ? `<span class="cl-code">Código <b>${esc(c.code)}</b></span>` : ''}</div>
       <div class="cl-actions">
         <button class="cl-tile" data-act="club-tourns-open">${golfIcon('trophy')}<span>Torneos</span><i>${(c.tournaments || []).length || 'crear'} ${(c.tournaments || []).length === 1 ? 'torneo' : 'torneos'}</i></button>
-        <button class="cl-tile soon" disabled>${golfIcon('flag')}<span>Academia juvenil</span><i>${juniors} juveniles</i></button>
+        <button class="cl-tile" data-act="club-academy-open">${golfIcon('flag')}<span>Academia juvenil</span><i>${juniors} juveniles</i></button>
       </div>
     </div>
     <div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Miembros</h2>${isStaff ? `<span class="small muted">${juniors} juveniles</span>` : ''}</div>
@@ -1323,6 +1323,78 @@ function vTournCapture(t) {
     <p class="auth-sub">Score total (gross) de cada jugador. El neto se calcula con su hándicap.</p>
     <div class="cap-list">${rows}</div>
     <button class="btn primary big" data-act="tourn-save">Guardar leaderboard</button>
+  </div></div>`;
+}
+
+/* ============ Academia juvenil del club ============ */
+function jrData(c, id) { return (c.academy && c.academy[id]) || { plan: [], done: {} }; }
+function vClubAcademy() {
+  const u = cur(); const c = myClub(); if (!c) return vClub();
+  if (V.jrId) { const m = (c.members || []).find(x => x.userId === V.jrId && x.role === 'junior'); if (m) return vJuniorDetail(c, m, u); V.jrId = null; }
+  const jrs = (c.members || []).filter(m => m.role === 'junior');
+  const ranked = jrs.slice().sort((a, b) => (a.hcp != null ? a.hcp : 99) - (b.hcp != null ? b.hcp : 99));
+  const cards = ranked.length ? ranked.map((m, i) => {
+    const d = jrData(c, m.userId); const N = (d.plan || []).length; const done = (d.plan || []).filter(x => d.done && d.done[x]).length; const pct = N ? Math.round(done / N * 100) : 0;
+    return `<button class="jr-card" data-act="jr-open" data-id="${esc(m.userId)}">
+      <span class="jr-rk ${i < 3 ? 'top' + (i + 1) : ''}">${i + 1}</span>
+      <span class="trn-av" style="--ci:${(m.name || '').length % 6}">${clubInitials(m.name)}</span>
+      <div class="jr-info"><b>${esc(m.name)}</b><span>${esc(m.category || 'Juvenil')} · HCP ${fmtHcp(m.hcp)}</span><span class="jr-bar"><i style="width:${pct}%"></i></span></div>
+      <span class="jr-pct">${N ? pct + '%' : '—'}</span>
+    </button>`;
+  }).join('') : `<p class="note" style="margin:8px 2px">Aún no hay juveniles en el club. Agrégalos al roster con rol Juvenil.</p>`;
+  return `<div class="sec-h"><button class="sec-link" data-act="club-back">← ${esc(c.name)}</button></div>
+    <div class="sec-h" style="margin-top:2px"><h2>Academia juvenil</h2><span class="small muted">${jrs.length} juveniles</span></div>
+    <p class="note" style="margin:0 2px 10px">Ranking de desarrollo · camino a la beca</p>
+    <div class="jr-list">${cards}</div>`;
+}
+function vJuniorDetail(c, m, u) {
+  const staff = clubIsStaff(c, u);
+  const d = jrData(c, m.userId);
+  const plan = d.plan || []; const N = plan.length; const done = plan.filter(x => d.done && d.done[x]).length; const pct = N ? Math.round(done / N * 100) : 0;
+  const hitos = [
+    { t: 'Plan de entrenamiento asignado', ok: N > 0 },
+    { t: 'Plan de la semana completado', ok: N > 0 && done >= N },
+    { t: 'Hándicap meta (bajo 12)', ok: (m.hcp != null && m.hcp < 12) },
+    { t: 'Top 3 en torneo del club', ok: !!d.podium },
+  ];
+  const hd = hitos.filter(h => h.ok).length;
+  const planRows = N ? plan.map(name => {
+    const isDone = !!(d.done && d.done[name]);
+    return `<div class="jr-drill ${isDone ? 'done' : ''}"><button class="jr-chk" ${staff ? `data-act="jr-drill-done" data-name="${esc(name)}"` : 'disabled'}>${isDone ? '✓' : ''}</button><span class="jr-dname">${esc(name)}</span></div>`;
+  }).join('') : `<p class="note" style="margin:6px 2px">Sin plan asignado todavía.</p>`;
+  return `<div class="sec-h"><button class="sec-link" data-act="jr-back">← Academia</button></div>
+    <div class="card jr-head"><span class="trn-av lg" style="--ci:${(m.name || '').length % 6}">${clubInitials(m.name)}</span><div class="jr-headtx"><b>${esc(m.name)}</b><span>${esc(m.category || 'Juvenil')} · HCP ${fmtHcp(m.hcp)}</span></div></div>
+    <div class="card">
+      <div class="jr-prog-h"><span class="label" style="margin:0">Plan de entrenamiento</span>${staff ? `<button class="sec-link" data-act="jr-plan-open">${N ? 'Editar' : 'Asignar'}</button>` : ''}</div>
+      ${N ? `<div class="jr-bigbar"><i style="width:${pct}%"></i></div><p class="note" style="margin:6px 0 4px">${done}/${N} completados</p>` : ''}
+      <div class="jr-drills">${planRows}</div>
+    </div>
+    <div class="card">
+      <span class="label">${golfIcon('flag')} Camino a la beca <span class="jr-hcount">${hd}/${hitos.length}</span></span>
+      <div class="jr-hitos">${hitos.map(h => `<div class="jr-hito ${h.ok ? 'ok' : ''}"><span class="jr-hito-ic">${h.ok ? '✓' : '○'}</span>${esc(h.t)}</div>`).join('')}</div>
+    </div>
+    <div class="card">
+      <span class="label">${golfIcon('card')} Reporte para padres</span>
+      <p class="note" style="margin:4px 0 10px">${esc((m.name || '').split(' ')[0])} lleva <b>${done}/${N || 0}</b> ejercicios y <b>${hd}/${hitos.length}</b> hitos rumbo a la beca.</p>
+      <button class="btn primary" data-act="jr-report" data-id="${esc(m.userId)}">Compartir con los padres →</button>
+    </div>
+    ${V.jrPlanOpen ? vJrPlanSheet(c, m) : ''}`;
+}
+function vJrPlanSheet(c, m) {
+  const cat = (V.libCat && DRILL_CATS.some(x => x.id === V.libCat)) ? V.libCat : DRILL_CATS[0].id;
+  const pick = V.jrPlanPick || [];
+  const tabs = DRILL_CATS.map(x => `<button class="lib-tab ${x.id === cat ? 'on' : ''}" data-act="jr-plan-cat" data-c="${x.id}">${esc(x.label)}</button>`).join('');
+  const list = DRILL_LIBRARY.filter(x => x.cat === cat).map(dr => {
+    const on = pick.includes(dr.name);
+    return `<div class="splib-item ${on ? 'on' : ''}" data-act="jr-plan-toggle" data-name="${esc(dr.name)}" role="button" tabindex="0"><span class="splib-chk">${on ? '✓' : '+'}</span><span class="splib-tx"><b>${esc(dr.name)}</b><span>${esc(dr.desc)}</span></span></div>`;
+  }).join('');
+  return `<div class="overlay" data-act="jr-plan-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>Plan para ${esc((m.name || '').split(' ')[0])}</h2>
+    <p class="auth-sub">Elige los ejercicios de su plan${pick.length ? ' · ' + pick.length + ' elegidos' : ''}.</p>
+    <div class="lib-tabs">${tabs}</div>
+    <div class="splib-list">${list}</div>
+    <button class="btn primary big" data-act="jr-plan-save">Guardar plan (${pick.length})</button>
   </div></div>`;
 }
 

@@ -176,6 +176,7 @@ function App() {
     social: vSocial,
     club: vClub,
     'club-tourn': vClubTourn,
+    'club-academy': vClubAcademy,
   }[V.view] || vDashboard;
   return vShell(content());
 }
@@ -317,6 +318,41 @@ const actions = {
     const c = myClub(); const t = c && (c.tournaments || []).find(x => x.id === V.tournId); if (!t) return;
     (t.players || []).forEach(p => { const el = document.getElementById('cap-' + p.userId); if (el) { const v = (el.value || '').trim(); p.gross = v === '' ? null : Number(v); } });
     V.tournCapture = false; commit();
+  },
+
+  /* ---- Academia juvenil ---- */
+  'club-academy-open'() { V.jrId = null; V.jrPlanOpen = false; V.view = 'club-academy'; render(); window.scrollTo(0, 0); },
+  'jr-open'(d) { V.jrId = d.id; V.jrPlanOpen = false; render(); window.scrollTo(0, 0); },
+  'jr-back'() { V.jrId = null; V.jrPlanOpen = false; render(); window.scrollTo(0, 0); },
+  'jr-plan-open'() { const c = myClub(); const cur2 = c && c.academy && c.academy[V.jrId]; V.jrPlanPick = (cur2 && cur2.plan) ? cur2.plan.slice() : ((c && jrData(c, V.jrId).plan) || []).slice(); V.libCat = V.libCat || DRILL_CATS[0].id; V.jrPlanOpen = true; render(); },
+  'jr-plan-cat'(d) { V.libCat = d.c; render(); },
+  'jr-plan-toggle'(d) { V.jrPlanPick = V.jrPlanPick || []; const i = V.jrPlanPick.indexOf(d.name); if (i >= 0) V.jrPlanPick.splice(i, 1); else V.jrPlanPick.push(d.name); render(); },
+  'jr-plan-close'() { V.jrPlanOpen = false; render(); },
+  'jr-plan-save'() {
+    const c = myClub(); if (!c || !V.jrId) return;
+    c.academy = c.academy || {}; c.academy[V.jrId] = c.academy[V.jrId] || { plan: [], done: {} };
+    c.academy[V.jrId].plan = (V.jrPlanPick || []).slice();
+    // limpia "done" de drills que ya no están en el plan
+    const keep = {}; (c.academy[V.jrId].plan).forEach(n => { if (c.academy[V.jrId].done && c.academy[V.jrId].done[n]) keep[n] = true; });
+    c.academy[V.jrId].done = keep;
+    V.jrPlanOpen = false; commit();
+  },
+  'jr-drill-done'(d) {
+    const c = myClub(); if (!c || !V.jrId) return;
+    c.academy = c.academy || {}; c.academy[V.jrId] = c.academy[V.jrId] || { plan: [], done: {} };
+    const done = c.academy[V.jrId].done = c.academy[V.jrId].done || {};
+    if (done[d.name]) delete done[d.name]; else done[d.name] = true;
+    commit();
+  },
+  'jr-report'(d) {
+    const c = myClub(); const m = c && (c.members || []).find(x => x.userId === d.id); if (!m) return;
+    const dd = jrData(c, m.userId); const N = (dd.plan || []).length; const done = (dd.plan || []).filter(x => dd.done && dd.done[x]).length;
+    const txt = `PARFECT · Reporte de ${m.name} (${m.category || 'Juvenil'})\nClub: ${c.name}\nHándicap: ${fmtHcp(m.hcp)}\nPlan: ${done}/${N} ejercicios completados\n¡Vamos por la beca!`;
+    try {
+      if (navigator.share) { navigator.share({ title: 'Reporte PARFECT', text: txt }).catch(() => {}); }
+      else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(() => { if (typeof celebrate === 'function') celebrate(false, 'Reporte copiado ✓'); }); }
+      else if (typeof celebrate === 'function') celebrate(false, 'Reporte listo');
+    } catch (e) { if (typeof celebrate === 'function') celebrate(false, 'Reporte listo'); }
   },
 
   /* ---- auth ---- */
