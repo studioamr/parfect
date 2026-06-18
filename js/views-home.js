@@ -1243,9 +1243,22 @@ function vClub() {
         <button class="cl-tile" data-act="club-academy-open">${golfIcon('flag')}<span>Academia juvenil</span><i>${juniors} juveniles</i></button>
       </div>
     </div>
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Miembros</h2>${isStaff ? `<span class="small muted">${juniors} juveniles</span>` : ''}</div>
+    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:18px">Miembros</h2>${isStaff ? `<button class="sec-link" data-act="club-invite">+ Invitar</button>` : ''}</div>
     <div class="card cl-roster">${roster}</div>
-    <button class="btn ghost" data-act="club-leave" style="margin-top:12px">Salir del club</button>`;
+    <button class="btn ghost" data-act="club-leave" style="margin-top:12px">Salir del club</button>
+    ${V.inviteOpen ? vInviteSheet(c) : ''}`;
+}
+function vInviteSheet(c) {
+  const url = location.origin + location.pathname + '?club=' + c.code;
+  const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=' + encodeURIComponent(url);
+  return `<div class="overlay" data-act="club-invite-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>Invitar al club</h2>
+    <p class="auth-sub">Comparte el código o el QR. Tus socios y juveniles se unen en segundos.</p>
+    <div class="inv-qr"><img src="${qr}" alt="QR" onerror="this.style.display='none'"></div>
+    <div class="inv-code">Código del club<b>${esc(c.code)}</b></div>
+    <button class="btn primary big" data-act="club-invite-share">Compartir invitación →</button>
+  </div></div>`;
 }
 
 /* ============ Torneos del club + leaderboard en vivo ============ */
@@ -1373,12 +1386,33 @@ function vJuniorDetail(c, m, u) {
       <span class="label">${golfIcon('flag')} Camino a la beca <span class="jr-hcount">${hd}/${hitos.length}</span></span>
       <div class="jr-hitos">${hitos.map(h => `<div class="jr-hito ${h.ok ? 'ok' : ''}"><span class="jr-hito-ic">${h.ok ? '✓' : '○'}</span>${esc(h.t)}</div>`).join('')}</div>
     </div>
+    <div class="card cons-card ${m.consent ? 'ok' : ''}">
+      <span class="label">${golfIcon('hand')} Consentimiento de los padres</span>
+      ${m.consent
+      ? `<p class="note" style="margin:4px 0 0">✓ Autorizado por <b>${esc(m.consent.by)}</b> · ${esc(m.consent.date)}</p>`
+      : `<p class="note" style="margin:4px 0 10px">Pendiente. Requerido para procesar los datos del menor.</p>${staff ? `<button class="btn" data-act="jr-consent-open">Registrar consentimiento</button>` : ''}`}
+    </div>
     <div class="card">
       <span class="label">${golfIcon('card')} Reporte para padres</span>
       <p class="note" style="margin:4px 0 10px">${esc((m.name || '').split(' ')[0])} lleva <b>${done}/${N || 0}</b> ejercicios y <b>${hd}/${hitos.length}</b> hitos rumbo a la beca.</p>
-      <button class="btn primary" data-act="jr-report" data-id="${esc(m.userId)}">Compartir con los padres →</button>
+      ${m.consent
+      ? `<button class="btn primary" data-act="jr-report" data-id="${esc(m.userId)}">Compartir con los padres →</button>`
+      : `<button class="btn" disabled>Falta el consentimiento de los padres</button>`}
     </div>
+    ${V.consentOpen ? vConsentSheet(m) : ''}
     ${V.jrPlanOpen ? vJrPlanSheet(c, m) : ''}`;
+}
+function vConsentSheet(m) {
+  const nm = (m.name || '').split(' ')[0];
+  return `<div class="overlay" data-act="jr-consent-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>Consentimiento de los padres</h2>
+    <p class="auth-sub">Para ${esc(nm)} (menor) necesitamos la autorización de su padre, madre o tutor.</p>
+    <div class="field"><label>Nombre del padre / madre / tutor</label><input id="consent-name" placeholder="Nombre completo" value="${esc(V.consentName || '')}"></div>
+    <label class="cons-check"><input type="checkbox" id="consent-ok"> Autorizo a PARFECT y al club a registrar el progreso de ${esc(nm)} con fines de su desarrollo deportivo.</label>
+    <button class="btn primary big" data-act="jr-consent-save" style="margin-top:12px">Registrar consentimiento</button>
+    ${V.consentErr ? `<p class="note err">${esc(V.consentErr)}</p>` : ''}
+  </div></div>`;
 }
 function vJrPlanSheet(c, m) {
   const cat = (V.libCat && DRILL_CATS.some(x => x.id === V.libCat)) ? V.libCat : DRILL_CATS[0].id;

@@ -285,6 +285,18 @@ const actions = {
     if (c) { c.members = (c.members || []).filter(m => m.userId !== u.id); if (!c.members.length) S.clubs = (S.clubs || []).filter(x => x.id !== c.id); }
     commit();
   },
+  'club-invite'() { V.inviteOpen = true; render(); },
+  'club-invite-close'() { V.inviteOpen = false; render(); },
+  'club-invite-share'() {
+    const c = myClub(); if (!c) return;
+    const url = location.origin + location.pathname + '?club=' + c.code;
+    const txt = `Únete a ${c.name} en PARFECT con el código ${c.code}\n${url}`;
+    try {
+      if (navigator.share) navigator.share({ title: 'Únete a ' + c.name, text: txt, url }).catch(() => {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => { if (typeof celebrate === 'function') celebrate(false, 'Invitación copiada ✓'); });
+      else if (typeof celebrate === 'function') celebrate(false, 'Código: ' + c.code);
+    } catch (e) { if (typeof celebrate === 'function') celebrate(false, 'Código: ' + c.code); }
+  },
   'club-back'() { V.view = 'club'; V.tournId = null; V.tournCreating = false; V.tournCapture = false; render(); window.scrollTo(0, 0); },
 
   /* ---- Torneos del club ---- */
@@ -316,7 +328,7 @@ const actions = {
   'tourn-capture-close'() { V.tournCapture = false; render(); },
   'tourn-save'() {
     const c = myClub(); const t = c && (c.tournaments || []).find(x => x.id === V.tournId); if (!t) return;
-    (t.players || []).forEach(p => { const el = document.getElementById('cap-' + p.userId); if (el) { const v = (el.value || '').trim(); p.gross = v === '' ? null : Number(v); } });
+    (t.players || []).forEach(p => { const el = document.getElementById('cap-' + p.userId); if (el) { const v = (el.value || '').trim(); const n = Number(v); p.gross = (v === '' || isNaN(n) || n < t.holes || n > 200) ? (v === '' ? null : p.gross) : n; } });
     V.tournCapture = false; commit();
   },
 
@@ -344,8 +356,20 @@ const actions = {
     if (done[d.name]) delete done[d.name]; else done[d.name] = true;
     commit();
   },
+  'jr-consent-open'() { V.consentOpen = true; V.consentErr = null; V.consentName = ''; render(); },
+  'jr-consent-close'() { V.consentOpen = false; V.consentErr = null; render(); },
+  'jr-consent-save'() {
+    const c = myClub(); const m = c && (c.members || []).find(x => x.userId === V.jrId); if (!m) return;
+    const name = ((document.getElementById('consent-name') || {}).value || '').trim();
+    const okBox = (document.getElementById('consent-ok') || {}).checked;
+    if (!name) { V.consentErr = 'Escribe el nombre del padre o tutor.'; render(); return; }
+    if (!okBox) { V.consentErr = 'Marca la casilla de autorización.'; render(); return; }
+    m.consent = { by: name, date: today() };
+    V.consentOpen = false; V.consentErr = null; commit();
+  },
   'jr-report'(d) {
     const c = myClub(); const m = c && (c.members || []).find(x => x.userId === d.id); if (!m) return;
+    if (!m.consent) { if (typeof celebrate === 'function') celebrate(false, 'Falta el consentimiento de los padres'); return; }
     const dd = jrData(c, m.userId); const N = (dd.plan || []).length; const done = (dd.plan || []).filter(x => dd.done && dd.done[x]).length;
     const txt = `PARFECT · Reporte de ${m.name} (${m.category || 'Juvenil'})\nClub: ${c.name}\nHándicap: ${fmtHcp(m.hcp)}\nPlan: ${done}/${N} ejercicios completados\n¡Vamos por la beca!`;
     try {

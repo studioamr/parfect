@@ -2500,6 +2500,14 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .jr-hito.ok { color: var(--text); }
 .jr-hito-ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 900; background: var(--card2); color: var(--muted); border: 1px solid var(--line); }
 .jr-hito.ok .jr-hito-ic { background: var(--lime); color: #0c2913; border-color: var(--lime); }
+/* ===== Club · consentimiento + invitación ===== */
+.cons-card.ok { border-color: var(--lime); background: var(--lime-faint); }
+.cons-check { display: flex; gap: 9px; align-items: flex-start; font-size: 12.5px; color: var(--text); line-height: 1.4; margin-top: 6px; cursor: pointer; }
+.cons-check input { margin-top: 2px; width: 18px; height: 18px; flex: none; accent-color: #2f7d3a; }
+.inv-qr { display: grid; place-items: center; margin: 8px 0 12px; }
+.inv-qr img { width: 200px; height: 200px; border-radius: 14px; border: 1px solid var(--line); background: #fff; padding: 6px; }
+.inv-code { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.inv-code b { display: block; font-size: 30px; font-weight: 900; letter-spacing: 4px; color: var(--text); margin-top: 2px; }
 /* Historial de entrenamientos */
 .th-card { padding: 14px; }
 .th-sum { display: flex; gap: 10px; margin-bottom: 12px; }
