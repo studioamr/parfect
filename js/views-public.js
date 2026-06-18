@@ -162,30 +162,11 @@ function lpScrLoading() {
     <div class="lp-load-foot">Cargando tu juego…</div>
   </div>`;
 }
-/* primer iPhone: home en vivo con carrusel infinito de perfiles de la comunidad */
-function lpIntroPhone() { return lpPhone(lpScrHome()); }
-function lpScrHome() {
-  const profs = [
-    { n: 'Diego', h: '7', c: 'Campestre', a: 1, fw: 62, gir: 49, p: 29 },
-    { n: 'Mariana', h: '12', c: 'Tres Marías', a: 2, fw: 55, gir: 41, p: 31 },
-    { n: 'Rodrigo', h: '4', c: 'Campestre', a: 3, fw: 71, gir: 60, p: 28 },
-    { n: 'Sofía', h: '9', c: 'Las Cañadas', a: 4, fw: 58, gir: 47, p: 30 },
-    { n: 'Andrés', h: '18', c: 'Club de Golf', a: 5, fw: 44, gir: 30, p: 33 },
-    { n: 'Luis', h: '2', c: 'Campestre', a: 6, fw: 76, gir: 64, p: 27 },
-  ];
-  const card = p => `<div class="lph-prof">
-    <div class="lph-ptop"><img class="lph-av" src="assets/avatars/a${p.a}.png" alt="" onerror="this.style.visibility='hidden'"><div class="lph-pid"><b>${p.n}</b><span>HCP ${p.h} · ${esc(p.c)}</span></div></div>
-    <div class="lph-pst"><div><b>${p.fw}%</b><span>Calle</span></div><div><b>${p.gir}%</b><span>Green</span></div><div><b>${p.p}</b><span>Putts</span></div></div>
-  </div>`;
-  const reel = profs.map(card).join('');
-  const rings = [['fw', 60, 'Fairways'], ['gir', 49, 'GIR'], ['ud', 58, 'Up & down']]
-    .map(([k, p, l]) => (typeof pstSceneStatic === 'function') ? pstSceneStatic(k, p, l) : '').join('');
-  return lpReal(`
-    <div class="lph-top"><div class="lph-greet"><b>Comunidad PARFECT</b><span>Jugadores mejorando hoy</span></div><span class="lph-live">● En vivo</span></div>
-    <div class="lph-reel"><div class="lph-track">${reel}${reel}</div></div>
-    <div class="lph-sub">Promedio de la comunidad</div>
-    <div class="pst-rings">${rings}</div>
-    <div class="lph-foot">+1,200 hoyos registrados esta semana</div>`);
+/* primer iPhone: pantalla de inicio (screenshot estático, ya sin el saludo) */
+function lpIntroPhone() {
+  const scr = `<img class="lp-shotimg" src="assets/shot-inicio.png?v=388" alt="" onload="if(this.naturalWidth){var c=this.parentElement.querySelector('.lp-shotcomp');if(c)c.style.display='none'}else{this.remove()}" onerror="this.remove()">
+    <div class="lp-shotcomp">${lpScrStats()}</div>`;
+  return lpPhone(scr);
 }
 function lpScrStats() {
   const rings = [['fw', 61, 'Fairways'], ['gir', 53, 'GIR'], ['ud', 51, 'Up & down']]
