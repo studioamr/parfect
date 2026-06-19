@@ -3,8 +3,8 @@
 Datos de tu proyecto (ya en el código):
 - **Supabase URL:** `https://xvkbkhyznwoaljjnsxue.supabase.co`
 - **Callback de Google (para Supabase):** `https://xvkbkhyznwoaljjnsxue.supabase.co/auth/v1/callback`
-- **URL actual de la app:** `https://rorropirrorro69.github.io/parfect/`
-- **URL final (tras renombrar):** `https://parfectgolf.github.io`
+- **URL actual de la app:** `https://parfectapp.github.io/parfect/`
+- **URL raíz limpia (opcional, si renombras el repo a `parfectapp.github.io`):** `https://parfectapp.github.io`
 
 El código de "Continuar con Google" y email ya está desplegado. Faltan estos pasos en tus cuentas.
 
@@ -20,8 +20,7 @@ El código de "Continuar con Google" y email ya está desplegado. Faltan estos p
    - Guarda. (Puedes dejarlo en "Testing" con tu correo agregado como usuario de prueba, o **Publicar** para que entre cualquiera.)
 3. **APIs y servicios → Credenciales → Crear credenciales → ID de cliente de OAuth** → tipo **Aplicación web**:
    - **Orígenes de JavaScript autorizados:**
-     - `https://rorropirrorro69.github.io`
-     - `https://parfectgolf.github.io` (agrégalo también para cuando renombres)
+     - `https://parfectapp.github.io`
    - **URI de redireccionamiento autorizados:**
      - `https://xvkbkhyznwoaljjnsxue.supabase.co/auth/v1/callback`
    - Crear → **copia el Client ID y el Client Secret**.
@@ -29,10 +28,9 @@ El código de "Continuar con Google" y email ya está desplegado. Faltan estos p
 ### 2. Supabase — https://app.supabase.com (tu proyecto)
 1. **Authentication → Providers → Google** → **Enable** → pega **Client ID** y **Client Secret** → **Save**.
 2. **Authentication → URL Configuration**:
-   - **Site URL:** `https://rorropirrorro69.github.io/parfect/` (cámbiala a `https://parfectgolf.github.io` cuando renombres)
-   - **Redirect URLs** (agrega estas dos, con `/**` al final):
-     - `https://rorropirrorro69.github.io/parfect/**`
-     - `https://parfectgolf.github.io/**`
+   - **Site URL:** `https://parfectapp.github.io/parfect/`
+   - **Redirect URLs** (con `/**` al final):
+     - `https://parfectapp.github.io/parfect/**`
 
 Listo: el botón "Continuar con Google" ya inicia sesión.
 
@@ -46,15 +44,12 @@ Listo: el botón "Continuar con Google" ya inicia sesión.
 
 ---
 
-## C) URL limpia gratis (github.io)
-1. github.com → tu foto → **Settings → Account → Change username** → **parfectgolf**.
-2. Repo → **Settings → General → Repository name** → **parfectgolf.github.io** → **Rename**.
-3. Repo → **Settings → Pages** → Branch **main** / **(root)** → **Save**.
-   → Tu sitio queda en **https://parfectgolf.github.io** (el deck en `/deck/`).
-4. Dime **"listo"** y yo actualizo el remoto de git y verifico.
-5. Después del rename, agrega `https://parfectgolf.github.io` en Google Cloud (orígenes) y Supabase (Site URL + Redirect URLs).
+## C) URL del sitio
+✅ Ya renombraste el usuario a **parfectapp**. Tu sitio vive en **https://parfectapp.github.io/parfect/** (el deck en `/parfect/deck/`). El remoto de git ya apunta ahí.
 
-> Recomendado: haz **C primero** y configura A/B con la URL final, para no repetir.
+¿Quieres la URL raíz sin `/parfect/` (**https://parfectapp.github.io**)?
+1. Repo → **Settings → General → Repository name** → renómbralo a **parfectapp.github.io** → **Rename**.
+2. Avísame y actualizo el remoto + los dominios en Google/Supabase a la URL raíz.
 
 ---
 
@@ -79,9 +74,9 @@ supabase secrets set ANTHROPIC_API_KEY=sk-ant-xxxxxxxx
 - [x] Supabase: Email habilitado + autoconfirmación → login por correo funciona ✅
 - [x] Storage: bucket público `round-media` (fotos/videos) ✅
 - [ ] **Supabase: Google provider con Client ID/Secret** ← pendiente
-- [ ] **Google Cloud: OAuth client** (origen `https://rorropirrorro69.github.io` + redirect `https://xvkbkhyznwoaljjnsxue.supabase.co/auth/v1/callback`) ← pendiente
+- [ ] **Google Cloud: OAuth client** (origen `https://parfectapp.github.io` + redirect `https://xvkbkhyznwoaljjnsxue.supabase.co/auth/v1/callback`) ← pendiente
 - [ ] Supabase: Site URL + Redirect URLs (para el regreso de Google)
 - [ ] **Desplegar Edge Function `coach` + secreto `ANTHROPIC_API_KEY`** (Birdie con IA real) ← pendiente
 - [ ] Correr la migración `supabase/migrations/05_clubs.sql` (clubes en la nube) ← pendiente
-- [ ] (Opcional) Renombrar usuario/repo → parfectgolf.github.io → avísame
+- [x] Usuario renombrado a **parfectapp** → sitio en `https://parfectapp.github.io/parfect/` ✅ (repo sigue "parfect"; renómbralo a `parfectapp.github.io` si quieres URL raíz)
 - [ ] (Después) Pasarela de pago para planes de club (Stripe/Mercado Pago)
