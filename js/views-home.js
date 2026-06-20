@@ -1581,26 +1581,55 @@ function onbSaveStep() {
 }
 
 const ONB_STEPS = ['Bienvenida', 'Tu golfista', 'Cómo juegas', 'Tu bolsa', '¡Listo!'];
+const ONB_META = [
+  null,
+  { ic: 'bird', t: 'Crea tu golfista', s: 'Elige tu monito, color y fondo — lo cambias cuando quieras.', ac: '#7cc24a' },
+  { ic: 'flag', t: '¿Cómo juegas?', s: 'Tu hándicap y tu meta. Si no los sabes, pon un estimado — lo afinamos con tus rondas.', ac: '#3aa0e0' },
+  { ic: 'bucket', t: 'Tu bolsa', s: 'Cuánto vuela cada palo, para que el coach te diga qué usar en cada tiro.', ac: '#e0a23a' },
+  null,
+];
+/* mini-escena decorativa para los headers de la intro: lomas + bandera + bola */
+function onbHills(accent) {
+  return `<svg class="onb-hills" viewBox="0 0 300 64" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40 Q75 18 150 34 Q225 50 300 30 V64 H0 Z" fill="#8fcf63"/>
+    <path d="M0 52 Q90 36 170 48 Q240 58 300 46 V64 H0 Z" fill="#6fb74a"/>
+    <g><rect x="244" y="14" width="2.4" height="30" rx="1.2" fill="#e8efe0"/><path d="M246.4 15 l13 4 -13 4 z" fill="${accent || '#e7513f'}"/><ellipse cx="245" cy="45" rx="9" ry="2.6" fill="#5aa23c"/></g>
+    <circle cx="118" cy="50" r="3" fill="#fff" stroke="#d6e0cb" stroke-width="1"/>
+  </svg>`;
+}
+/* escena cinematográfica (águila volando sobre el campo) para bienvenida y cierre */
+function onbCine(small) {
+  return `<div class="onb-cine ${small ? 'sm' : ''}">
+    <span class="onb-sun"></span>
+    <span class="onb-cloud c1"></span><span class="onb-cloud c2"></span>
+    <div class="onb-eagle">${chatBotIcon()}</div>
+    ${onbHills()}
+  </div>`;
+}
 function vOnboard() {
   const u = cur();
   const N = ONB_STEPS.length;
   const step = Math.max(0, Math.min(N - 1, V.onbStep || 0));
   const first = esc((u.name || '').split(' ')[0] || 'golfista');
-  const dots = ONB_STEPS.map((_, i) => `<span class="onb-dot ${i === step ? 'on' : ''} ${i < step ? 'done' : ''}"></span>`).join('');
+  const pct = Math.round(step / (N - 1) * 100);
+  const bar = `<div class="onb-bar"><span class="onb-bar-fill" style="width:${pct}%"></span><span class="onb-bar-ball" style="left:${pct}%"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#fff" stroke="#cdd9c0"/><circle cx="6" cy="6" r="1" fill="#cdd9c0"/><circle cx="10" cy="7" r="1" fill="#cdd9c0"/><circle cx="8" cy="10" r="1" fill="#cdd9c0"/></svg></span></div>`;
   let body = '';
   if (step === 0) {
-    body = `<div class="onb-hero">
-      <div class="onb-bird onb-bird-xl">${chatBotIcon()}</div>
-      <h1 class="onb-h1">¡Hola,<br><span class="lime">${first}</span>!</h1>
-      <p class="onb-sub">Soy <b>Birdie</b>, tu coach con IA. En menos de un minuto armamos tu perfil. Empiezas <b>de cero</b>: tú decides qué registrar y la IA hace el resto.</p>
-      <button class="btn ghost" data-act="onboard-academy">${golfIcon('flag')} ¿Nuevo en el golf? Tour rápido</button>
-    </div>`;
+    body = `${onbCine()}
+      <div class="onb-glass onb-welcome">
+        <span class="onb-kicker">Bienvenido a PARFECT</span>
+        <h1 class="onb-h1">Hola,<br><span class="lime">${first}</span></h1>
+        <p class="onb-sub">Soy <b>Birdie</b>, tu coach con IA. En menos de un minuto armamos tu perfil. Empiezas <b>de cero</b>: tú decides qué registrar y la IA hace el resto.</p>
+        <button class="btn ghost onb-tour" data-act="onboard-academy">${golfIcon('flag')} ¿Nuevo en el golf? Tour rápido</button>
+      </div>`;
   } else if (step === 1) {
-    body = `<div class="onb-stephead"><span class="onb-bird">${chatBotIcon()}</span><div class="onb-sh-tx"><b>Crea tu golfista</b><span>Elige tu monito, color y fondo — lo cambias cuando quieras.</span></div></div>
+    const m = ONB_META[1];
+    body = `<div class="onb-banner" style="--ac:${m.ac}"><div class="onb-banner-ic">${golfIcon(m.ic)}</div><div class="onb-banner-tx"><b>${m.t}</b><span>${m.s}</span></div>${onbHills(m.ac)}</div>
       <div class="card"><div class="field"><label>Tu nombre</label><input id="p-name" value="${esc(u.name || '')}" placeholder="¿Cómo te llamas?"></div></div>
       ${vAvatarCreator(u)}`;
   } else if (step === 2) {
-    body = `<div class="onb-stephead"><span class="onb-bird">${chatBotIcon()}</span><div class="onb-sh-tx"><b>¿Cómo juegas?</b><span>Tu hándicap y tu meta. Si no lo sabes, pon un estimado — lo afinamos con tus rondas.</span></div></div>
+    const m = ONB_META[2];
+    body = `<div class="onb-banner" style="--ac:${m.ac}"><div class="onb-banner-ic">${golfIcon(m.ic)}</div><div class="onb-banner-tx"><b>${m.t}</b><span>${m.s}</span></div>${onbHills(m.ac)}</div>
       <div class="card">
         <div class="field-row">
           <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
@@ -1611,6 +1640,7 @@ function vOnboard() {
         </div>
       </div>`;
   } else if (step === 3) {
+    const m = ONB_META[3];
     const clubs = u.clubs || {};
     const groupName = { largo: 'Maderas e híbridos', hierros: 'Hierros', wedges: 'Wedges' };
     const sections = ['largo', 'hierros', 'wedges'].map(g => {
@@ -1620,18 +1650,19 @@ function vOnboard() {
       }).join('');
       return `<div class="card"><span class="label">${golfIcon(GROUP_META[g].icon)} ${groupName[g]}</span><p class="note" style="margin:0 0 6px">Carry (cuánto vuela), en yardas. Deja en blanco los que no lleves.</p>${rows}</div>`;
     }).join('');
-    body = `<div class="onb-stephead"><span class="onb-bird">${chatBotIcon()}</span><div class="onb-sh-tx"><b>Tu bolsa</b><span>Anota cuánto vuela cada palo. Así el coach te dice qué palo usar en cada tiro. (Opcional: usamos promedios si lo saltas.)</span></div></div>${sections}`;
+    body = `<div class="onb-banner" style="--ac:${m.ac}"><div class="onb-banner-ic">${golfIcon(m.ic)}</div><div class="onb-banner-tx"><b>${m.t}</b><span>${m.s} <i>Opcional.</i></span></div>${onbHills(m.ac)}</div>${sections}`;
   } else {
-    body = `<div class="onb-hero">
-      <div class="onb-bird onb-bird-xl">${chatBotIcon()}</div>
-      <h1 class="onb-h1">¡Todo listo,<br><span class="lime">${first}</span>!</h1>
-      <p class="onb-sub">Así funciona PARFECT:</p>
-      <div class="onb-steps">${[
-        ['flag', 'Registra tu ronda', 'Con el botón verde P anotas fairway, green, up & down y putts, hoyo por hoyo.'],
-        ['green', 'La IA te analiza', 'En Análisis IA verás dónde pierdes golpes y qué priorizar.'],
-        ['bucket', 'Entrena lo que toca', 'El AI Coach arma tu sesión según tu tiempo; o entrena libre.'],
-        ['trophy', 'Sube de rango', 'Cada meta cumplida desbloquea logros y baja tu hándicap.'],
-      ].map((s, i) => `<div class="onb-step"><span class="onb-stepn">${i + 1}</span><span class="onb-stepic">${golfIcon(s[0])}</span><div class="onb-steptx"><b>${s[1]}</b><span>${s[2]}</span></div></div>`).join('')}</div>`;
+    body = `${onbCine(true)}
+      <div class="onb-glass onb-welcome">
+        <span class="onb-kicker">¡Todo listo, ${first}!</span>
+        <h2 class="onb-ready-h">Así funciona PARFECT</h2>
+        <div class="onb-steps">${[
+          ['flag', 'Registra tu ronda', 'Con el botón verde P anotas fairway, green, up & down y putts, hoyo por hoyo.'],
+          ['green', 'La IA te analiza', 'En Análisis IA verás dónde pierdes golpes y qué priorizar.'],
+          ['bucket', 'Entrena lo que toca', 'El AI Coach arma tu sesión según tu tiempo; o entrena libre.'],
+          ['trophy', 'Sube de rango', 'Cada meta cumplida desbloquea logros y baja tu hándicap.'],
+        ].map((s, i) => `<div class="onb-step"><span class="onb-stepn">${i + 1}</span><span class="onb-stepic">${golfIcon(s[0])}</span><div class="onb-steptx"><b>${s[1]}</b><span>${s[2]}</span></div></div>`).join('')}</div>
+      </div>`;
   }
   const back = step > 0 ? `<button class="btn ghost onb-back" data-act="onb-back">← Atrás</button>` : '';
   const next = step < N - 1
@@ -1643,7 +1674,7 @@ function vOnboard() {
       <span class="onb-steplab">Paso ${step + 1} de ${N} · ${ONB_STEPS[step]}</span>
       <button class="onb-skip" data-act="finish-onboard">Saltar</button>
     </div>
-    <div class="onb-prog">${dots}</div>
+    <div class="onb-prog">${bar}</div>
     <div class="onb-body view-in">${body}</div>
     <div class="onb-nav">${back}${next}</div>
   </div>`;

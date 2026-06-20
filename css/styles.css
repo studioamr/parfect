@@ -1105,7 +1105,53 @@ button.row { cursor: pointer; }
 .onb-intro p { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: 6px 0 14px; }
 .onb-intro .btn { width: 100%; }
 .onb-or { display: block; margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--muted); }
-.onb-sub { color: var(--text); opacity: .8; font-size: 15px; margin-top: 12px; font-weight: 600; }
+.onb-sub { color: var(--text); opacity: .85; font-size: 14.5px; margin-top: 10px; font-weight: 600; line-height: 1.5; }
+
+/* ===== Intro rediseñada: barra de progreso con bola ===== */
+.onb-prog { display: block; padding: 2px 22px 12px; }
+.onb-bar { position: relative; height: 7px; border-radius: 99px; background: rgba(20,40,15,.12); }
+.onb-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, var(--lime), #2fa84a); transition: width .42s cubic-bezier(.2,.8,.2,1); }
+.onb-bar-ball { position: absolute; top: 50%; width: 18px; height: 18px; transform: translate(-50%,-50%); transition: left .42s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 2px 3px rgba(20,40,15,.3)); }
+.onb-bar-ball svg { width: 18px; height: 18px; display: block; }
+
+/* ===== escena cinematográfica (águila volando) ===== */
+.onb-cine { position: relative; height: 188px; margin: 4px 2px 14px; border-radius: 24px; overflow: hidden; background: linear-gradient(180deg,#7ec8f2 0%,#a7dcf3 42%,#d9eecb 78%,#bfe39a 100%); box-shadow: 0 16px 40px rgba(20,50,20,.18), inset 0 1px 0 rgba(255,255,255,.4); }
+.onb-cine.sm { height: 150px; }
+.onb-cine .onb-sun { position: absolute; top: 20px; left: 26px; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff7cc, #ffdf8e 72%); box-shadow: 0 0 34px 8px rgba(255,216,107,.5); }
+.onb-cine .onb-cloud { position: absolute; height: 16px; border-radius: 99px; background: rgba(255,255,255,.82); box-shadow: 14px 4px 0 -2px rgba(255,255,255,.7), -12px 3px 0 -3px rgba(255,255,255,.7); }
+.onb-cine .onb-cloud.c1 { top: 34px; right: 18%; width: 50px; animation: onbCloud 16s linear infinite; }
+.onb-cine .onb-cloud.c2 { top: 64px; right: 50%; width: 36px; opacity: .75; animation: onbCloud 22s linear infinite reverse; }
+.onb-eagle { position: absolute; top: 40px; left: 50%; width: 116px; height: 116px; margin-left: -58px; z-index: 2; animation: onbSoar 6s ease-in-out infinite; }
+.onb-cine.sm .onb-eagle { width: 96px; height: 96px; margin-left: -48px; top: 30px; }
+.onb-eagle .chatico { width: 100%; height: 100%; filter: drop-shadow(0 10px 14px rgba(20,40,15,.28)); }
+.onb-hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 64px; display: block; }
+@keyframes onbSoar { 0%,100% { transform: translate(-14px,4px) rotate(-3deg); } 50% { transform: translate(14px,-8px) rotate(3deg); } }
+@keyframes onbCloud { from { transform: translateX(0); } to { transform: translateX(-40px); } }
+
+/* ===== tarjeta glass de texto (bienvenida / cierre) ===== */
+.onb-glass { position: relative; border-radius: 22px; padding: 20px 18px; text-align: center; background: rgba(255,255,255,.66); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 14px 34px rgba(20,40,15,.12); }
+[data-theme="dark"] .onb-glass { background: rgba(18,26,24,.6); border-color: rgba(255,255,255,.1); }
+.onb-kicker { display: inline-block; font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--lime-ink); background: var(--lime-faint); padding: 5px 12px; border-radius: 99px; }
+.onb-welcome .onb-h1 { margin-top: 12px; }
+.onb-tour { width: 100%; margin-top: 16px; }
+.onb-ready-h { font-size: 23px; font-weight: 900; letter-spacing: -.02em; margin: 12px 0 14px; }
+.onb-glass .onb-steps { text-align: left; }
+
+/* ===== banner por paso (golfista / cómo juegas / bolsa) ===== */
+.onb-banner { --ac: #7cc24a; position: relative; overflow: hidden; display: flex; align-items: flex-start; gap: 13px; padding: 16px 16px 30px; margin: 2px 0 14px; border-radius: 22px; background: linear-gradient(135deg, color-mix(in srgb, var(--ac) 26%, #ffffff) 0%, color-mix(in srgb, var(--ac) 8%, #ffffff) 100%); border: 1px solid color-mix(in srgb, var(--ac) 30%, transparent); box-shadow: 0 12px 30px rgba(20,40,15,.12); }
+[data-theme="dark"] .onb-banner { background: linear-gradient(135deg, color-mix(in srgb, var(--ac) 30%, #11201a) 0%, color-mix(in srgb, var(--ac) 12%, #11201a) 100%); }
+.onb-banner-ic { flex: none; width: 50px; height: 50px; border-radius: 15px; display: grid; place-items: center; background: #fff; border: 1.5px solid color-mix(in srgb, var(--ac) 40%, transparent); box-shadow: 0 6px 16px color-mix(in srgb, var(--ac) 38%, transparent); z-index: 2; }
+[data-theme="dark"] .onb-banner-ic { background: rgba(255,255,255,.94); }
+.onb-banner-ic .gi { width: 28px; height: 28px; }
+.onb-banner-tx { z-index: 2; padding-top: 2px; }
+.onb-banner-tx b { display: block; font-size: 18px; font-weight: 900; letter-spacing: -.01em; color: var(--text); }
+.onb-banner-tx span { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+.onb-banner-tx i { font-style: normal; color: var(--lime-ink); font-weight: 800; }
+.onb-banner .onb-hills { height: 40px; opacity: .92; }
+
+/* tarjetas de la intro: look glass sobre el fondo del campo */
+.onb .card { background: rgba(255,255,255,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-color: rgba(255,255,255,.6); box-shadow: 0 8px 22px rgba(20,40,15,.08); }
+[data-theme="dark"] .onb .card { background: rgba(18,26,24,.62); border-color: rgba(255,255,255,.08); }
 
 /* ====== Inicio: aura morada ====== */
 .dash { position: relative; }
