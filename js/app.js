@@ -1279,6 +1279,19 @@ const actions = {
     V.feedCard = id; go('feedcard');
   },
   'friend-soon'() { alert('Agregar amigos de otros dispositivos llegará con las cuentas en la nube (backend). Por ahora puedes invitarlos a una Party con el código.'); },
+  'add-friend'() { V.addFriend = true; V.friendDraft = { name: '', hcp: '', av: 0 }; render(); },
+  'add-friend-close'() { V.addFriend = false; V.friendDraft = null; render(); },
+  'afriend-av'(d) { const dr = V.friendDraft = V.friendDraft || { name: '', hcp: '', av: 0 }; dr.name = val('af-name') || dr.name; const h = val('af-hcp'); if (h !== '') dr.hcp = h; dr.av = Number(d.i); render(); },
+  'afriend-save'() {
+    const u = cur(); const dr = V.friendDraft || {};
+    const name = (val('af-name') || dr.name || '').trim();
+    const hcpV = val('af-hcp') !== '' ? val('af-hcp') : dr.hcp;
+    if (!name) { V.friendDraft = { name: '', hcp: hcpV, av: dr.av || 0, err: 'Escribe el nombre de tu amigo.' }; render(); return; }
+    u.friends = u.friends || [];
+    u.friends.push({ id: 'fr_' + Store.uid(), name, hcp: Math.round(Number(hcpV)) || 0, av: dr.av || 0 });
+    V.addFriend = false; V.friendDraft = null; commit(); window.scrollTo(0, 0);
+  },
+  'friend-del'(d) { const u = cur(); u.friends = (u.friends || []).filter(f => f.id !== d.id); commit(); },
   'invite-wa'() {
     const u = cur();
     const link = 'https://parfectapp.github.io/parfect/' + (u && u.id ? '?ref=' + encodeURIComponent(u.id) : '');

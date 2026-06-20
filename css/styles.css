@@ -3001,6 +3001,22 @@ body.is-scrolling .gi *, body.is-scrolling [class*="gi-"], body.is-scrolling .lp
 .invite-tx span { font-size: 12px; color: var(--muted); }
 .invite-go { font-weight: 800; color: #1f9d4d; font-size: 13px; white-space: nowrap; }
 .invite-card:active { transform: scale(.99); }
+/* Agregar amigo */
+.add-friend-card { border-color: rgba(124,194,74,.45); background: linear-gradient(135deg, var(--lime-faint), var(--card)); }
+.addf-ic { display: grid; place-items: center; border-radius: 12px; background: var(--lime); color: #0c2913; font-size: 26px; font-weight: 800; line-height: 1; }
+.frl { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.frl-row { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); cursor: pointer; text-align: left; width: 100%; }
+.frl-row:active { transform: scale(.995); }
+.frl-av { width: 40px; height: 40px; border-radius: 50%; object-fit: contain; flex: none; background: var(--lime-faint); }
+.frl-tx { flex: 1; min-width: 0; }
+.frl-tx b { display: block; font-size: 14.5px; font-weight: 800; }
+.frl-tx span { font-size: 12px; color: var(--muted); }
+.frl-del { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card2); color: var(--muted); font-size: 12px; font-weight: 800; cursor: pointer; }
+.frl-del:active { transform: scale(.92); }
+.afa-grid { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 6px; -webkit-overflow-scrolling: touch; }
+.afa { flex: none; width: 52px; height: 52px; border-radius: 14px; border: 2px solid var(--line); background: var(--card2); padding: 3px; cursor: pointer; }
+.afa.on { border-color: var(--lime); background: var(--lime-faint); }
+.afa img { width: 100%; height: 100%; object-fit: contain; }
 .fd-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 15px 16px 14px; box-shadow: 0 8px 22px rgba(20,40,15,.06); overflow: hidden; transition: transform .14s, box-shadow .2s; }
 .fd-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #7cc24a, #46b0e0, #9a5cd0); opacity: .9; }
 .fd-card:active { transform: scale(.995); }

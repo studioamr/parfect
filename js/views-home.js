@@ -930,9 +930,11 @@ function vSocialFeed() {
     if (st.posts.length) {
       const body = st.posts.map(p => feedCardReal(p, u)).join('');
       return `<div class="sec-h" style="margin-top:6px"><h2>Feed de amigos</h2></div>
+        ${friendsBlock(u)}
         <div class="fd-list">${body}</div>
         ${V.shareDraft ? vShareComposer(u) : ''}
-        ${V.commentsFor ? vCommentsSheet(V.commentsFor) : ''}`;
+        ${V.commentsFor ? vCommentsSheet(V.commentsFor) : ''}
+        ${V.addFriend ? vAddFriend(u) : ''}`;
     }
     // si aún no hay rondas en la nube, cae al feed demo (diseño de antes)
   }
@@ -979,9 +981,10 @@ function vSocialFeed() {
     </div>`;
   }).join('');
   return `<div class="sec-h" style="margin-top:6px"><h2>Feed de amigos</h2></div>
-    ${inviteCard()}
+    ${friendsBlock(u)}
     ${cards ? `<div class="fd-list">${cards}</div>` : `<div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Tu feed está listo</h3><p>Comparte una ronda e invita a tus cuates por WhatsApp para verlos aquí.</p></div>`}
-    ${V.shareDraft ? vShareComposer(u) : ''}`;
+    ${V.shareDraft ? vShareComposer(u) : ''}
+    ${V.addFriend ? vAddFriend(u) : ''}`;
 }
 
 /* tarjeta para invitar amigos por WhatsApp con tu link */
@@ -991,6 +994,46 @@ function inviteCard() {
     <div class="invite-tx"><b>Invita a tus amigos</b><span>Mándales el link por WhatsApp y armen su liga</span></div>
     <span class="invite-go">Invitar ›</span>
   </button>`;
+}
+
+/* bloque "Tus amigos" + botón Agregar amigo (Social) */
+function friendsBlock(u) {
+  const fr = (u && u.friends) || [];
+  const list = fr.length ? `<div class="frl">${fr.map(f => `<div class="frl-row" data-act="friend" data-id="${esc(f.id)}">
+      <img class="frl-av golfer" src="${AVATARS[f.av || 0] || AVATARS[0]}" alt="" loading="lazy">
+      <div class="frl-tx"><b>${esc(f.name)}</b><span>HCP ${fmtHcp(f.hcp)}</span></div>
+      <button class="frl-del" data-act="friend-del" data-id="${esc(f.id)}" aria-label="Quitar amigo">✕</button>
+    </div>`).join('')}</div>` : '';
+  return `<div class="sec-h" style="margin-top:8px"><h2>Tus amigos${fr.length ? ` · ${fr.length}` : ''}</h2></div>
+    <button class="card invite-card add-friend-card" data-act="add-friend">
+      <span class="invite-ic addf-ic" aria-hidden="true">+</span>
+      <div class="invite-tx"><b>Agregar amigo</b><span>Invítalo por WhatsApp o agrégalo a tu liga</span></div>
+      <span class="invite-go">Agregar ›</span>
+    </button>
+    ${list}`;
+}
+
+/* hoja para agregar un amigo: invitar por WhatsApp o agregar a mano */
+function vAddFriend(u) {
+  const d = V.friendDraft || (V.friendDraft = { name: '', hcp: '', av: 0 });
+  const avs = AVATARS.map((src, i) => `<button class="afa ${d.av === i ? 'on' : ''}" data-act="afriend-av" data-i="${i}" aria-label="Monito ${i + 1}"><img class="golfer" src="${src}" alt="" loading="lazy"></button>`).join('');
+  return `<div class="overlay" data-act="add-friend-close"><div class="sheet" data-act="noop">
+    <div class="grab"></div>
+    <h2>Agregar amigo</h2>
+    <button class="card invite-card" data-act="invite-wa" style="margin:6px 0 0">
+      <span class="invite-ic" aria-hidden="true"><svg viewBox="0 0 32 32"><path fill="#25D366" d="M16 3a13 13 0 0 0-11 19.7L3 29l6.5-1.9A13 13 0 1 0 16 3z"/><path fill="#fff" d="M22.6 19.2c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.8.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1a8.6 8.6 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.9.9-1.2 2.1-.6 3.6a10.4 10.4 0 0 0 5.6 5.3c2.4 1 2.9.8 3.5.8.7-.1 1.9-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4z"/></svg></span>
+      <div class="invite-tx"><b>Invitar por WhatsApp</b><span>Le llega tu link y se une a la app</span></div>
+      <span class="invite-go">Invitar ›</span>
+    </button>
+    <div class="auth-or"><span>o agrégalo tú</span></div>
+    ${d.err ? `<p class="auth-err" style="margin:0 2px 8px">${esc(d.err)}</p>` : ''}
+    <div class="field-row">
+      <div class="field" style="flex:2"><label>Nombre</label><input id="af-name" value="${esc(d.name)}" placeholder="Nombre de tu amigo" autocomplete="off"></div>
+      <div class="field" style="flex:1"><label>Hándicap</label><input id="af-hcp" type="number" inputmode="numeric" value="${esc(d.hcp)}" placeholder="15"></div>
+    </div>
+    <div class="field"><label>Monito</label><div class="afa-grid">${avs}</div></div>
+    <button class="btn primary big" data-act="afriend-save" style="width:100%">${golfIcon('flag')} Agregar a mi liga</button>
+  </div></div>`;
 }
 
 /* Composer para compartir una ronda con caption + foto/video */
@@ -1049,6 +1092,8 @@ function socialLeaders(u) {
   // ---- modo local: demo ----
   const mine = myRounds();
   const e = (isDemoUser(u) ? FRIENDS_FEED : []).map(f => ({ id: f.id, name: f.name, av: f.av, hcp: f.hcp, toPar18: Math.round(f.toPar / f.holes * 18), score: f.score }));
+  // amigos agregados a mano: se rankean por su hándicap (proxy a 18 hoyos)
+  for (const f of (u.friends || [])) e.push({ id: f.id, name: f.name, av: f.av || 0, hcp: f.hcp, toPar18: Math.round(Number(f.hcp) || 0), score: null });
   if (mine.length) {
     const s = Stats.roundStats(mine[0]);
     e.push({ me: true, name: u.name, hcp: u.hcp, toPar18: Math.round(s.toPar / Math.max(1, s.holes) * 18), score: s.score });
@@ -1071,9 +1116,9 @@ function vStories(u) {
     if (others.length) { const cells = me + oCells; return `<div class="story-row"><div class="story-track">${cells}${cells}</div></div>`; }
     // si nadie ha publicado en la nube, cae al demo (diseño de antes)
   }
-  // ---- modo local: demo ----
-  const fr = isDemoUser(u) ? FRIENDS_FEED : [];
-  if (!fr.length) return '';   // usuario real: sin amigos demo, no mostramos la fila de historias
+  // ---- modo local: demo + amigos agregados ----
+  const fr = [...(isDemoUser(u) ? FRIENDS_FEED : []), ...((u.friends || []).map(f => ({ id: f.id, name: f.name, av: f.av || 0 })))];
+  if (!fr.length) return '';   // sin amigos: no mostramos la fila de historias
   const cells = me + fr.map(f => `<button class="story story-link" data-act="friend" data-id="${esc(f.id)}">
       <span class="story-ring"><img class="story-img golfer" src="${AVATARS[f.av] || AVATARS[0]}" alt="" loading="lazy"></span>
       <span class="story-nm">${esc(f.name.split(' ')[0])}</span></button>`).join('');
@@ -1082,7 +1127,7 @@ function vStories(u) {
 
 /* liga de amigos: ranking */
 function vRanking(u) {
-  if (!isDemoUser(u) && !(typeof Feed !== 'undefined' && Feed.on())) return '';   // usuario real sin amigos en la nube: sin liga demo
+  if (!isDemoUser(u) && !((u.friends || []).length) && !(typeof Feed !== 'undefined' && Feed.on())) return '';   // sin amigos (agregados ni en la nube): sin liga
   const lead = socialLeaders(u);
   if (typeof Feed !== 'undefined' && Feed.on() && !lead.length) {
     return `<div class="sec-h"><h2>Liga de amigos</h2></div>

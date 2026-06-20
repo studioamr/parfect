@@ -1053,6 +1053,18 @@ function vFriend() {
   }
   const ff = (typeof FRIENDS_FEED !== 'undefined' ? FRIENDS_FEED : []).find(x => x.id === V.friendId);
   if (ff) return vFriendFeed(ff);
+  const af = ((cur() && cur().friends) || []).find(x => x.id === V.friendId);
+  if (af) {
+    return `<button class="auth-back" data-act="nav" data-view="social">← Social</button>
+      <div class="greet" style="padding-top:6px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span style="flex:0 0 auto;width:56px;height:56px"><img class="golfer" src="${AVATARS[af.av || 0] || AVATARS[0]}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:contain;background:var(--lime-faint)"></span>
+          <div><h1 style="font-size:26px">${esc(af.name)}</h1><p class="hcp">HCP ${fmtHcp(af.hcp)}</p></div>
+        </div>
+      </div>
+      <div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Amigo de tu liga</h3><p>Lo agregaste tú. Invítalo a la app por WhatsApp para ver sus rondas reales aquí.</p></div>
+      <button class="btn ghost" data-act="friend-del" data-id="${esc(af.id)}" style="width:100%;margin-top:4px">Quitar de mi liga</button>`;
+  }
   const p = S.users.find(x => x.id === V.friendId);
   if (!p) { V.view = 'social'; return vSocial(); }
   const me = p.id === S.session;
