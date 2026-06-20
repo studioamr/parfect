@@ -797,8 +797,8 @@ function vPlay() {
       const tabLab = { tee: 'Fairway', app: 'Green', ud: 'Up&D', putts: 'Putts', score: 'Score' };
       // mapa del hoyo en perspectiva, según el momento actual (salida → approach → green)
       const capH = cur === 'tee' ? { ...h, app: null, putts: null, dist: null }
-        : cur === 'app' ? { ...h, app: (h.app && h.app !== 'gir' ? h.app : 'corto'), putts: null, dist: null }
-          : { ...h, app: (h.app || 'gir'), dist: (h.dist != null ? h.dist : 8), putts: (h.putts != null ? h.putts : 0) };
+        : cur === 'app' ? { ...h, app: (h.app || 'gir'), putts: null, dist: null }
+          : { ...h, app: (h.app && h.app !== 'gir' ? h.app : 'gir'), dist: (h.dist != null ? h.dist : 8), putts: (h.putts != null ? h.putts : 0) };
       const capArt = (typeof captureSchematic === 'function') ? captureSchematic(capH, chole) : '';
       const ansOf = k => {
         if (k === 'tee') return h.teeLie === 'calle' ? 'Sí' : h.teeLie === 'ob' ? 'OB' : h.teeLie ? 'No' : null;
@@ -817,8 +817,28 @@ function vPlay() {
         </div>${extra || ''}`;
       const penPill = `<div class="wz-extra"><button class="wz-pen ${h.pen ? 'on' : ''}" data-act="fast-pen">${h.pen ? '✓ ' : ''}Penalti / OB en este hoyo</button></div>`;
       let body;
-      if (cur === 'tee') body = yn('fw', h.teeLie === 'calle', !!h.teeLie && h.teeLie !== 'calle' && h.teeLie !== 'ob', 'data-k="tee" data-lie="calle" data-dir="c"', 'data-k="tee" data-lie="rough" data-dir="c"', '¿Pegaste al fairway?', penPill);
-      else if (cur === 'app') body = yn('gir', h.app === 'gir', !!h.app && h.app !== 'gir', 'data-k="app" data-v="gir"', 'data-k="app" data-v="miss"', '¿Llegaste al green en regulación?', h.par === 3 ? penPill : '');
+      // chips de dirección (en chico) cuando se falla: a dónde se fue el tiro
+      const dirChips = (rows) => `<div class="wz-dir"><span class="wz-dir-lab">¿A dónde se fue?</span><div class="wz-dir-row">${rows.map(r => `<button class="wz-dirchip ${r.on ? 'on' : ''}" data-act="fast" ${r.attr}>${r.lab}</button>`).join('')}</div></div>`;
+      if (cur === 'tee') {
+        const teeMiss = !!h.teeLie && h.teeLie !== 'calle';
+        const chips = teeMiss ? dirChips([
+          { lab: 'Izquierda', on: h.teeLie === 'rough' && h.tee === 'izq', attr: 'data-k="tee" data-lie="rough" data-dir="izq"' },
+          { lab: 'Derecha', on: h.teeLie === 'rough' && h.tee === 'der', attr: 'data-k="tee" data-lie="rough" data-dir="der"' },
+          { lab: 'Búnker', on: h.teeLie === 'bunker', attr: 'data-k="tee" data-lie="bunker" data-dir="c"' },
+          { lab: 'OB / agua', on: h.teeLie === 'ob', attr: 'data-k="tee" data-lie="ob" data-dir="c"' },
+        ]) : '';
+        body = yn('fw', h.teeLie === 'calle', teeMiss, 'data-k="tee" data-lie="calle" data-dir="c"', 'data-k="tee" data-lie="rough" data-dir="c"', '¿Pegaste al fairway?', chips + (h.teeLie === 'ob' ? '' : penPill));
+      }
+      else if (cur === 'app') {
+        const appMiss = !!h.app && h.app !== 'gir';
+        const chips = appMiss ? dirChips([
+          { lab: 'Corto', on: h.app === 'corto', attr: 'data-k="app" data-v="corto"' },
+          { lab: 'Largo', on: h.app === 'largo', attr: 'data-k="app" data-v="largo"' },
+          { lab: 'Izquierda', on: h.app === 'izq', attr: 'data-k="app" data-v="izq"' },
+          { lab: 'Derecha', on: h.app === 'der', attr: 'data-k="app" data-v="der"' },
+        ]) : '';
+        body = yn('gir', h.app === 'gir', appMiss, 'data-k="app" data-v="gir"', 'data-k="app" data-v="corto"', '¿Llegaste al green en regulación?', chips + (h.par === 3 ? penPill : ''));
+      }
       else if (cur === 'ud') body = yn('ud', h.upDown === true, h.upDown === false, 'data-k="ud" data-v="si"', 'data-k="ud" data-v="no"', '¿Salvaste el par? (up &amp; down)');
       else if (cur === 'putts') {
         const opts = h.upDown === true ? [[0, '0'], [1, '1']] : [[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']];

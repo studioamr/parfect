@@ -3389,6 +3389,12 @@ button.story.story-link:active { transform: scale(.96); }
 
 /* ===== Registro paso a paso (wizard) ===== */
 .wz { padding: 14px 14px 16px; }
+.wz-dir { margin-top: 12px; text-align: center; }
+.wz-dir-lab { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.wz-dir-row { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-top: 7px; }
+.wz-dirchip { font-size: 12.5px; font-weight: 700; color: var(--text); background: var(--card2); border: 1px solid var(--line); border-radius: 99px; padding: 7px 13px; cursor: pointer; transition: transform .1s, background .12s; }
+.wz-dirchip.on { background: var(--lime); color: #0c2913; border-color: var(--lime); }
+.wz-dirchip:active { transform: scale(.96); }
 .wz-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; }
 .wz-tabs::-webkit-scrollbar { display: none; }
 .wz-tab { flex: 1 0 auto; min-width: 54px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 8px; border-radius: 12px; background: var(--card2); border: 1.5px solid transparent; cursor: pointer; }
