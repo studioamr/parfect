@@ -123,7 +123,8 @@ function vPartyLobby() {
     <div class="code-box">
       <span class="label">Código para unirse</span> ${syncBadge()}
       <div class="code">${esc(p.code)}</div>
-      <p class="note" style="text-align:center">Tus amigos abren PARFECT en su teléfono → Social → "Unirse con código".</p>
+      <p class="note" style="text-align:center">Cada quien abre PARFECT en SU teléfono → Social → "Unirse con código" y anota su propia tarjeta.</p>
+      <button class="btn primary sm" data-act="party-share-wa" style="margin-top:6px"><svg viewBox="0 0 32 32" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><path fill="#fff" d="M16 3a13 13 0 0 0-11 19.7L3 29l6.5-1.9A13 13 0 1 0 16 3z"/><path fill="#1f9d4d" d="M22.6 19.2c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.8.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1a8.6 8.6 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.9.9-1.2 2.1-.6 3.6a10.4 10.4 0 0 0 5.6 5.3c2.4 1 2.9.8 3.5.8.7-.1 1.9-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4z"/></svg>Compartir código por WhatsApp</button>
     </div>
     <div class="card">
       <span class="label">${esc(p.course)} · ${p.holesCount} hoyos</span>
@@ -645,6 +646,13 @@ const partyActions = {
     const pl = p.players.find(x => x.pid === d.pid); if (!pl) return;
     pl.strokes = Math.max(0, Math.min(36, (pl.strokes || 0) + Number(d.d)));
     pcommit(p);
+  },
+  'party-share-wa'() {
+    const p = activeParty(); if (!p) return;
+    const link = 'https://parfectapp.github.io/parfect/';
+    const msg = `¡Te invito a mi party en PARFECT! 🏌️⛳️ Entra desde TU teléfono a ${link} → Social → "Unirse con código" y pon: ${p.code}. Cada quien anota su propia tarjeta.`;
+    const wa = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    try { window.open(wa, '_blank'); } catch (e) { location.href = wa; }
   },
   'party-join'() {
     const code = val('join-code').toUpperCase().trim();
