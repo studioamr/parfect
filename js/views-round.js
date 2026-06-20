@@ -421,6 +421,7 @@ function approachView(h, chole, G, pf, px) {
   else if (h.app === 'der') land = { x: Math.min(276, gx + gw + 12), y: gy + 4 };
   else { land = { x: pin.x, y: pin.y }; ok = true; }
   const chip = (h.app !== 'gir' && h.upDown != null);
+  if (chip) { land = { x: gx + px * gw * 0.18, y: gy + gh * 0.5 }; ok = true; }   // up&down: el chip SÍ aterriza sobre el green, luego putt al hoyo
   const arc = (a, b, peak) => `Q${((a.x + b.x) / 2).toFixed(1)},${((a.y + b.y) / 2 - peak).toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}`;
   let ballPath = `M${start.x},${start.y} ${arc(start, land, 120)}`;
   let shadowPath = `M${start.x},${start.y} L${land.x.toFixed(1)},${land.y.toFixed(1)}`;
@@ -819,7 +820,7 @@ function vPlay() {
       const penPill = `<div class="wz-extra"><button class="wz-pen ${h.pen ? 'on' : ''}" data-act="fast-pen">${h.pen ? '✓ ' : ''}Penalti / OB en este hoyo</button></div>`;
       let body;
       if (cur === 'tee') body = yn('fw', h.teeLie === 'calle', !!h.teeLie && h.teeLie !== 'calle' && h.teeLie !== 'ob', 'data-k="tee" data-lie="calle" data-dir="c"', 'data-k="tee" data-lie="rough" data-dir="c"', '¿Pegaste al fairway?', penPill);
-      else if (cur === 'app') body = yn('gir', h.app === 'gir', !!h.app && h.app !== 'gir', 'data-k="app" data-v="gir"', 'data-k="app" data-v="miss"', '¿Llegaste al green en regulación?', h.par === 3 ? penPill : '');
+      else if (cur === 'app') body = yn('gir', h.app === 'gir', !!h.app && h.app !== 'gir', 'data-k="app" data-v="gir"', 'data-k="app" data-v="miss"', '¿Llegaste al green en regulación?', penPill);
       else if (cur === 'ud') body = yn('ud', h.upDown === true, h.upDown === false, 'data-k="ud" data-v="si"', 'data-k="ud" data-v="no"', '¿Salvaste el par? (up &amp; down)');
       else if (cur === 'putts') {
         const opts = h.upDown === true ? [[0, '0'], [1, '1']] : [[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4+']];
