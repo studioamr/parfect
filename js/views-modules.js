@@ -182,16 +182,15 @@ function vWeekStrip() {
 
 function vTrainer() {
   const u = cur();
-  const tab = ['entreno', 'logros', 'academia', 'coach'].includes(V.trainerTab) ? V.trainerTab : 'diag';
+  const tab = ['entreno', 'logros', 'coach'].includes(V.trainerTab) ? V.trainerTab : 'diag';   // Academia quitada por ahora
   const showHist = (!V.planStep || V.planStep === 'time') && !V.sessionRun && !V.sessionSummary;
   const body = tab === 'entreno' ? (vSessionPlanner() + (showHist ? vTrainHistory() : ''))
     : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-      : tab === 'academia' ? vAcademyLaunch()
-        : tab === 'coach' ? vCoach()
-          : vDiag();
+      : tab === 'coach' ? vCoach()
+        : vDiag();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('entreno', 'Entrenamiento')}${T('logros', 'Logros')}${T('academia', 'Academia')}${T('coach', 'Coach')}</div>
+    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('entreno', 'Entrenamiento')}${T('logros', 'Logros')}${T('coach', 'Coach')}</div>
     ${body}`;
 }
 

@@ -1270,8 +1270,7 @@ function vPerfil() {
   return `${vStories(u)}
     ${vTorneo(u)}
     ${vRanking(u)}
-    ${vSocialFeed()}
-    ${vClubEntry(u)}`;
+    ${vSocialFeed()}`;
 }
 
 /* ============ Club (B2B): multi-tenant local-first, listo para Supabase ============ */
@@ -1750,6 +1749,8 @@ function vProfile() {
         </div>
         <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('sec_bag')}</h2></div>
         ${vBagEditor(u)}
+        <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">Tu club</h2></div>
+        ${vClubEntry(u)}
         <div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${t('settings')}</h2></div>
         <div class="card">
           <div class="set-row"><span class="set-lab">${t('language')}</span><div class="chips">
