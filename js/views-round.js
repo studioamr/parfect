@@ -452,7 +452,9 @@ function approachView(h, chole, G, pf, px) {
     <ellipse cx="150" cy="262" rx="92" ry="26" fill="${lieCol}"/>
     <ellipse cx="150" cy="256" rx="56" ry="13" fill="#ffffff" opacity="0.08"/>`;
   const landDot = `<ellipse cx="${land.x.toFixed(0)}" cy="${(land.y + 2).toFixed(0)}" rx="4.4" ry="1.7" fill="#000" opacity="0.2"/><circle cx="${land.x.toFixed(0)}" cy="${land.y.toFixed(0)}" r="4" fill="${ok ? '#7cc24a' : '#e3c887'}" stroke="#16301a" stroke-width="0.8"/>`;
-  const ball = `<circle r="6.2" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.9" style="filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${ballPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+  const at1 = parseFloat(kt[1] || '0.6');
+  const aPulse = `<animate attributeName="r" dur="${dur}s" repeatCount="indefinite" keyTimes="0;${(at1 * 0.5).toFixed(3)};${at1.toFixed(3)};1" values="6.2;11;6.2;6.2"/>`;
+  const ball = `<circle r="6.2" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.9" style="filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${ballPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/>${aPulse}</circle>`;
   const shadow = `<ellipse rx="5" ry="1.8" fill="#000" opacity="0.2"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${shadowPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></ellipse>`;
   return `<div class="cap"><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tu tiro al green">
     <g clip-path="url(#capClip)">${field}
@@ -613,7 +615,7 @@ function captureSchematic(h, chole, noZoom, clean) {
     const a = nodes[i - 1], b = nodes[i];
     shadowPath += ` L${b.x.toFixed(1)},${b.y.toFixed(1)}`;
     const segLen = Math.hypot(b.x - a.x, b.y - a.y);
-    const peak = Math.max(6, Math.min(62, segLen * 0.34));
+    const peak = Math.max(18, Math.min(120, segLen * 0.62));   // arco más alto: se aprecia cómo sube y baja
     ballPath += ` Q${((a.x + b.x) / 2).toFixed(1)},${((a.y + b.y) / 2 - peak).toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}`;
   }
   // marca de origen (desde dónde tiras) + puntos de caída
@@ -630,7 +632,9 @@ function captureSchematic(h, chole, noZoom, clean) {
     const TT = ev.reduce((a, e) => a + e.d, 0); let ac = 0; const kp = [], kt = []; ev.forEach(e => { ac += e.d; kp.push(e.p.toFixed(3)); kt.push((ac / TT).toFixed(3)); });
     const dur = Math.min(9, 1.1 + (nodes.length - 1) * 1.2).toFixed(1);
     const bs = stage === 'approach' ? 5.4 : 4.6;
-    ball = `<circle r="${bs}" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 2px 1.4px rgba(0,0,0,.35))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${ballPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></circle>`;
+    const t1 = parseFloat(kt[1] || '0.6');   // momento de aterrizaje del 1er vuelo
+    const rPulse = `<animate attributeName="r" dur="${dur}s" repeatCount="indefinite" keyTimes="0;${(t1 * 0.5).toFixed(3)};${t1.toFixed(3)};1" values="${bs};${(bs * 1.85).toFixed(1)};${bs};${bs}"/>`;
+    ball = `<circle r="${bs}" fill="url(#g3dBall)" stroke="#16301a" stroke-width="0.8" style="filter:drop-shadow(0 2px 1.4px rgba(0,0,0,.35))"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${ballPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/>${rPulse}</circle>`;
     shadow = `<ellipse rx="4.2" ry="1.6" fill="#000" opacity="0.22"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${shadowPath}" keyPoints="${kp.join(';')}" keyTimes="${kt.join(';')}" calcMode="linear"/></ellipse>`;
   }
 
@@ -797,7 +801,7 @@ function vPlay() {
       const cur = steps[ci];
       const tabLab = { tee: 'Fairway', app: 'Green', ud: 'Up&D', putts: 'Putts', score: 'Score' };
       // mapa del hoyo en perspectiva, según el momento actual (salida → approach → green)
-      const capH = cur === 'tee' ? { ...h, app: null, putts: null, dist: null }
+      const capH = cur === 'tee' ? { ...h, teeLie: (h.teeLie || 'calle'), tee: (h.tee || 'c'), app: null, putts: null, dist: null }
         : cur === 'app' ? { ...h, app: (h.app || 'gir'), putts: null, dist: null }
           : cur === 'ud' ? { ...h, app: 'corto', upDown: true, putts: null, dist: null }   // chip que sube al green y se mete (up & down)
             : { ...h, app: 'gir', dist: (h.dist != null ? h.dist : 8), putts: (h.putts != null ? h.putts : 1) };   // green closeup: anima según nº de putts
