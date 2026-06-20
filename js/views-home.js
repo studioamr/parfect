@@ -218,10 +218,10 @@ function statScene(kind) {
   </svg>`;
   if (kind === 'threeputt') return `<svg viewBox="0 0 170 100" class="rscene" aria-hidden="true">${bg}
     ${green3d(85, 56, 50, 30)}
-    <path d="M85 86 L85 32" stroke="#06120a" stroke-width="1" stroke-dasharray="2 4" opacity="0.35"/>
-    <ellipse cx="85" cy="33" rx="5.5" ry="2.6" fill="#04100a"/><ellipse cx="85" cy="32" rx="4.6" ry="2.1" fill="#0c1c11"/>${flag(85, 31, 16)}
-    <circle cx="85" cy="56" r="1.6" fill="#ff9f43" opacity="0.7"/><circle cx="85" cy="43" r="1.6" fill="#ff9f43" opacity="0.7"/>
-    <circle r="4" ${ball}><animateMotion dur="3.6s" repeatCount="indefinite" calcMode="linear" path="M85 86 L85 56 L85 43 L85 32" keyPoints="0;0.55;0.55;0.79;0.79;1;1" keyTimes="0;.26;.4;.55;.68;.84;1"/></circle>
+    <path d="M85 86 L85 56" stroke="#06120a" stroke-width="1" stroke-dasharray="2 4" opacity="0.35"/>
+    <ellipse cx="85" cy="57" rx="5.5" ry="2.6" fill="#04100a"/><ellipse cx="85" cy="56" rx="4.6" ry="2.1" fill="#0c1c11"/>${flag(85, 55, 16)}
+    <circle cx="85" cy="76" r="1.6" fill="#ff9f43" opacity="0.7"/><circle cx="85" cy="65" r="1.6" fill="#ff9f43" opacity="0.7"/>
+    <circle r="4" ${ball}><animateMotion dur="3.6s" repeatCount="indefinite" calcMode="linear" path="M85 92 L85 76 L85 65 L85 56" keyPoints="0;0.44;0.44;0.76;0.76;1;1" keyTimes="0;.26;.4;.55;.68;.84;1"/></circle>
     <g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.84;.88;.96;1" dur="3.6s" repeatCount="indefinite"/>
       <circle cx="116" cy="26" r="10" fill="#ff9f43"/><text x="116" y="29.6" fill="#0a0f06" font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="900" text-anchor="middle">×3</text></g>
   </svg>`;
