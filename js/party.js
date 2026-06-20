@@ -21,7 +21,8 @@ const Party = (() => {
     if ((h.sandy || []).includes(pid)) bonus += 1;                   // sandy
     if ((h.holeout || []).includes(pid)) bonus += 1;                 // hole-out
     if (h.longputt && !Array.isArray(h.longputt) && h.longputt[pid]) bonus += h.longputt[pid]; // putt largo: +1 por bandera
-    if ((h.threeputt || []).includes(pid)) penalty += 1;            // 3-putt
+    const np = (h.putts && h.putts[pid] != null) ? h.putts[pid] : null;
+    if (np != null ? np >= 3 : (h.threeputt || []).includes(pid)) penalty += 1; // 3-putt: por cantidad de putts (1,2,3,4…)
     if ((h.espanol || []).includes(pid)) penalty += 1;             // español (doble del par)
     return { bonus, penalty };
   }
@@ -144,7 +145,7 @@ const Party = (() => {
         }
       }
       if (party.games.larga && h.par === 5 && h.larga && played.includes(h.larga)) pay(h.larga, 1, 'La larga', i + 1, played, 'larga');
-      if (party.games.gogo) for (const p of (h.gogos || [])) if (played.includes(p)) pay(p, 1, 'Gogo', i + 1, played, 'gogo');
+      if (party.games.gogo) for (const p of ((h.ud && h.ud.length) ? h.ud : (h.gogos || []))) if (played.includes(p)) pay(p, 1, 'Gogo', i + 1, played, 'gogo'); // up&down salvado = se captura en h.ud
       if (party.games.birdie) {
         for (const p of played) {
           const d = h.scores[p] - h.par;
