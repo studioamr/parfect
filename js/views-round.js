@@ -307,7 +307,9 @@ function vSetup() {
   const teeSheet = V.teeSheet ? `<div class="overlay" data-act="tee-cancel"><div class="sheet" data-act="noop">
       <div class="grab"></div>
       <h2>Ajusta tu ronda</h2>
-      <p class="auth-sub">Cuántos hoyos, desde dónde y tu salida en ${esc(sname(cid))}.</p>
+      <p class="auth-sub">Campo, hoyos, desde dónde y tu salida.</p>
+      <span class="su-lab" style="display:block;margin-bottom:6px">Campo</span>
+      <div class="su-courses" style="margin-bottom:14px">${courseCards}</div>
       ${holesNineBlock}
       <span class="su-lab" style="display:block;margin-top:4px">Salida</span>
       <div class="tee-opts" style="margin-top:6px">${TEES.map(t => `<button class="tee-opt ${tid === t.id ? 'on' : ''}" data-act="confirm-tee" data-t="${t.id}">
@@ -316,8 +318,7 @@ function vSetup() {
         <span class="tee-opt-go">→</span>
       </button>`).join('')}</div>
     </div></div>` : '';
-  const body = `<div class="su-block"><span class="su-lab">Campo</span><div class="su-courses">${courseCards}</div></div>
-      <button class="btn primary big su-go" data-act="start-round">${pMark(19)} Comenzar ronda</button>`;
+  const body = `<button class="btn primary big su-go" data-act="start-round">${pMark(19)} Comenzar ronda</button>`;
   const u = cur();
   const act = (typeof activeParty === 'function') ? activeParty() : null;
   const myActive = act && (act.hostUserId === u.id || act.players.some(x => x.userId === u.id));
