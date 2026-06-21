@@ -1330,7 +1330,7 @@ function vClubEntry(u) {
   }
   return `<button class="club-entry" data-act="nav" data-view="club">
     <span class="club-entry-ic">${golfIcon('flag')}</span>
-    <div class="club-entry-tx"><b>¿Eres de un club?</b><span>Llévalo a PARFECT: torneos y cantera juvenil</span></div>
+    <div class="club-entry-tx"><b>Únete a un club</b></div>
     <span class="club-entry-go">›</span></button>`;
 }
 
