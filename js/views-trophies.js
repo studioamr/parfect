@@ -44,22 +44,42 @@ function vTrophies() {
 }
 
 /* Solo logros (sin metas) — su propia sección */
+/* Aviario: 50 pájaros coleccionables. Cada ronda y cada birdie desbloquea uno. */
+const AVIARY = ['Birdie', 'Eagle', 'Albatros', 'Cóndor', 'Águila real', 'Halcón', 'Búho', 'Quetzal', 'Colibrí', 'Cardenal', 'Tucán', 'Guacamaya', 'Pavorreal', 'Flamenco', 'Cisne', 'Garza', 'Pelícano', 'Martín pescador', 'Petirrojo', 'Golondrina', 'Ruiseñor', 'Jilguero', 'Canario', 'Periquito', 'Gorrión', 'Mirlo', 'Urraca', 'Cuervo', 'Pingüino', 'Avestruz', 'Cigüeña', 'Lechuza', 'Águila calva', 'Gavilán', 'Cernícalo', 'Faisán', 'Codorniz', 'Paloma', 'Tórtola', 'Carpintero', 'Calandria', 'Zopilote', 'Ibis', 'Cormorán', 'Gaviota', 'Chara', 'Tángara', 'Mosquero', 'Chipe', 'Fénix'];
+function aviBird(i, locked) {
+  const hue = Math.round(i * 360 / AVIARY.length);
+  const body = locked ? '#c4cec2' : `hsl(${hue},66%,57%)`;
+  const wing = locked ? '#a9b5a8' : `hsl(${hue},66%,43%)`;
+  const beak = locked ? '#b9b0a0' : '#f7a13a';
+  const eye = locked ? '#8a958a' : '#10210f';
+  const crest = (i % 3 === 0) ? `<path d="M33 6 q2 -5 4.5 -1.5" stroke="${wing}" stroke-width="2.6" fill="none" stroke-linecap="round"/>` : '';
+  return `<svg viewBox="0 0 50 44" width="100%" height="100%" aria-hidden="true">
+    <path d="M9 31 Q0 31 -1 39 Q8 37 14 33 Z" fill="${wing}"/>
+    <ellipse cx="23" cy="26" rx="14" ry="11.5" fill="${body}"/>
+    <ellipse cx="21" cy="30" rx="9" ry="6" fill="#ffffff" opacity="${locked ? 0 : .22}"/>
+    <circle cx="35" cy="16" r="8.5" fill="${body}"/>
+    ${crest}
+    <path d="M19 24 q-7 -7 0 -15 q5 7 9 12 z" fill="${wing}"/>
+    <path d="M43 15 l8 -1.5 -7 5 z" fill="${beak}"/>
+    <circle cx="37" cy="14.5" r="1.8" fill="${eye}"/>${locked ? '' : `<circle cx="37.5" cy="14" r=".66" fill="#fff"/>`}
+  </svg>`;
+}
 function vLogros() {
-  const list = Trophies.evaluate();
-  const unlocked = list.filter(a => a.done).length;
-  const cards = list.map(a => `<div class="trophy ${a.done ? 'on' : ''}">
-    <div class="t-ic">${golfIcon(a.ic, a.done ? 'gi-spin' : '')}</div>
-    <div class="t-body">
-      <b>${esc(a.t)}</b>
-      <span>${esc(a.d)}</span>
-      ${!a.done && a.prog > 0 && a.prog < 1 ? `<div class="bar mini"><i style="width:${Math.round(a.prog * 100)}%"></i></div>` : ''}
-      ${a.sub ? `<span class="t-sub">${esc(a.sub)}</span>` : ''}
-    </div>
-    <div class="t-state">${a.done ? '✓' : ''}</div>
-  </div>`).join('');
-  return `<div class="sec-h"><h2>Logros</h2><span class="small muted">${unlocked}/${list.length} desbloqueados</span></div>
-    <div class="trophy-grid">${cards}</div>
-    ${unlocked === 0 ? `<p class="note">Registra rondas y prácticas para empezar a desbloquear logros.</p>` : ''}`;
+  const rounds = (typeof myRounds === 'function') ? myRounds() : [];
+  const agg = rounds.length ? Stats.aggregate(rounds) : null;
+  const birdies = agg ? ((agg.scoreDist.birdie || 0) + (agg.scoreDist.eagle || 0)) : 0;
+  const unlocked = Math.min(AVIARY.length, (rounds.length ? 1 : 0) + rounds.length + birdies);
+  const cards = AVIARY.map((nm, i) => {
+    const on = i < unlocked;
+    return `<div class="avi ${on ? 'on' : ''}">
+      <div class="avi-ic">${aviBird(i, !on)}</div>
+      <span class="avi-nm">${esc(nm)}</span>
+      ${on ? '' : '<span class="avi-lock">🔒</span>'}
+    </div>`;
+  }).join('');
+  return `<div class="sec-h"><h2>Aviario</h2><span class="small muted">${unlocked}/${AVIARY.length} pájaros</span></div>
+    <p class="note" style="margin:0 2px 10px">Colecciona pájaros: cada ronda y cada <b>birdie</b> desbloquea uno nuevo.</p>
+    <div class="avi-grid">${cards}</div>`;
 }
 
 /* Números clave para llegar a tu meta (según tu HCP objetivo) */
