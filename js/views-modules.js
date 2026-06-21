@@ -218,31 +218,44 @@ function avatarStatsBlock(u) {
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:7px">${segs.map(s => `<span style="font-size:11px;color:var(--muted)"><b style="color:var(--text)">${p(s[1])}%</b> ${s[0]}</span>`).join('')}</div>`;
   return head + `<div class="card">${grid}<span class="label" style="margin-top:12px;display:block">Reparto de score</span>${bar}</div>`;
 }
+const TRK_CAT_IC = { 'Long game': 'club', 'Fierros': 'tee', 'Wedges': 'green', 'Approach': 'bucket', 'Putt': 'putter' };
+function trkHits(e, reps) { return e ? (e.hits != null ? Math.max(0, Math.min(reps, e.hits)) : (e.pct != null ? Math.round(e.pct / 100 * reps) : 0)) : 0; }
 function vCourse(u) {
   const log = (u && u.tracker) || {};
   const anyBag = Object.keys((u && u.clubs) || {}).length;
-  const groups = trackerDrills(u);
+  if (!anyBag) return `<div class="card"><p class="note" style="margin:6px 2px">Primero llena tu <b>bolsa</b> (carrys) en tu perfil — con eso genero tus drills.</p></div>`;
+  const groups = trackerDrills(u).filter(([t, arr]) => arr.length);
   const drillCard = d => {
-    const e = log[d.key];
-    const pct = e ? (e.pct != null ? e.pct : (e.reps ? Math.round(e.hits / e.reps * 100) : 0)) : 0;
-    const has = !!e; const done = has && pct >= 85;
-    const pc = !has ? 'var(--muted)' : pct >= 85 ? '#3aa055' : pct >= 50 ? '#e0a23a' : 'var(--danger)';
+    const hits = trkHits(log[d.key], d.reps);
+    const done = hits >= d.reps;
+    const pct = Math.round(hits / d.reps * 100);
     const tmRun = V.trkTimer && V.trkTimer.key === d.key && V.trkTimer.running;
-    return `<div class="card trk-card ${done ? 'trk-done' : ''}" style="padding:12px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-        <div style="min-width:0"><b style="font-size:14.5px">${esc(d.name)}</b><span style="display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px">${esc(d.goal)}</span></div>
-        <span id="trkpct-${d.key}" style="font-weight:900;font-size:16px;color:${pc};flex:none">${has ? pct + '%' : '—'}</span>
+    return `<div class="card trk-card ${done ? 'trk-done' : ''}">
+      <div class="trk-top">
+        <div class="trk-info"><b>${esc(d.name)}</b><span>${esc(d.goal)}</span></div>
+        ${done ? '<span class="trk-chk">✓</span>' : ''}
       </div>
-      <input type="range" min="0" max="100" step="5" value="${pct}" class="trk-slider" oninput="trkFill('${d.key}',this.value)" aria-label="${esc(d.name)} % de aciertos">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-        <span class="small muted">% de aciertos (0–100)</span>
-        <button class="chip sm ${tmRun ? 'on' : ''}" data-act="trk-timer" data-k="${d.key}" id="trktm-${d.key}" style="white-space:nowrap">⏱ ${tmRun ? fmtClock(V.trkTimer.left) : '20 min'}</button>
+      <div class="trk-controls">
+        <div class="trk-rep">
+          <button class="trk-step" data-act="trk-set" data-k="${d.key}" data-reps="${d.reps}" data-d="-1" aria-label="Menos">−</button>
+          <span class="trk-cnt"><b>${hits}</b><i>/${d.reps}</i></span>
+          <button class="trk-step" data-act="trk-set" data-k="${d.key}" data-reps="${d.reps}" data-d="1" aria-label="Más">+</button>
+        </div>
+        <button class="chip sm trk-tm ${tmRun ? 'on' : ''}" data-act="trk-timer" data-k="${d.key}" id="trktm-${d.key}">⏱ ${tmRun ? fmtClock(V.trkTimer.left) : '20 min'}</button>
       </div>
+      <div class="trk-pbar"><i style="width:${pct}%"></i></div>
     </div>`;
   };
-  const sec = ([title, arr]) => arr.length ? `<div class="sec-h" style="margin-top:16px"><h2 style="font-size:15px">${esc(title)}</h2></div>${arr.map(drillCard).join('')}` : '';
-  return `<p class="note" style="margin:2px 2px 10px">Pega tus reps y <b>desliza tu % de aciertos</b> (0–100) por palo. Eso alimenta tu plan.</p>
-    ${!anyBag ? `<div class="card"><p class="note" style="margin:6px 2px">Primero llena tu <b>bolsa</b> (carrys) en tu perfil — con eso genero tus drills.</p></div>` : groups.map(sec).join('')}`;
+  const blocks = groups.map(([title, arr]) => {
+    const on = V.trkCat === title;
+    const doneN = arr.filter(d => trkHits(log[d.key], d.reps) >= d.reps).length;
+    return `<button class="trk-cat ${on ? 'on' : ''}" data-act="trk-cat" data-c="${esc(title)}">
+        <span class="trk-cat-ic">${golfIcon(TRK_CAT_IC[title] || 'flag')}</span>
+        <span class="trk-cat-tx"><b>${esc(title)}</b><span>${arr.length} ejercicio${arr.length === 1 ? '' : 's'} · ${doneN}/${arr.length} ✓</span></span>
+        <span class="trk-cat-go">${on ? '▾' : '▸'}</span>
+      </button>${on ? `<div class="trk-drills">${arr.map(drillCard).join('')}</div>` : ''}`;
+  }).join('');
+  return `<p class="note" style="margin:2px 2px 10px">Elige <b>qué quieres entrenar</b> y registra tus reps (ej. 7/7).</p>${blocks}`;
 }
 
 /* ============ Camino: progreso gamificado (Romper 100 / 90 / 80…) ============ */

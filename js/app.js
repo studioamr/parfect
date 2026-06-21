@@ -1025,6 +1025,7 @@ const actions = {
     u.tracker[d.k] = { hits, reps, date: today() };
     commit();
   },
+  'trk-cat'(d) { V.trkCat = (V.trkCat === d.c) ? null : d.c; render(); },
   'trk-timer'(d) {
     clearInterval(window.__trkInt);
     if (V.trkTimer && V.trkTimer.key === d.k && V.trkTimer.running) { V.trkTimer = null; render(); return; }  // toca de nuevo = parar
