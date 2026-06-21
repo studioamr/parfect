@@ -166,10 +166,13 @@ function lpScrLoading() {
 function lpIntroPhone() {
   // monitos que aparecen y desaparecen SOLO sobre el avatar del hero (tapa al ninja del screenshot)
   const monos = ['🏌️‍♂️', '🏌️‍♀️', '👦', '👧', '👴', '👵'];
+  const hcps = ['7.2', '12', '25', '19', '15', '9'];   // cambian junto con el avatar
   const cyc = monos.map((e, i) => `<span class="lp-em" style="animation-delay:${(i * 1.5).toFixed(1)}s">${e}</span>`).join('');
+  const hc = hcps.map((h, i) => `<span class="lp-hc" style="animation-delay:${(i * 1.5).toFixed(1)}s">${h}</span>`).join('');
   const scr = `<img class="lp-shotimg" src="assets/shot-inicio.png?v=388" alt="" onload="if(this.naturalWidth){var c=this.parentElement.querySelector('.lp-shotcomp');if(c)c.style.display='none'}else{this.remove()}" onerror="this.remove()">
     <div class="lp-shotcomp">${lpScrStats()}</div>
-    <div class="lp-ninja" aria-hidden="true">${cyc}</div>`;
+    <div class="lp-ninja" aria-hidden="true">${cyc}</div>
+    <div class="lp-hcp" aria-hidden="true">${hc}</div>`;
   return lpPhone(scr);
 }
 function lpScrStats() {

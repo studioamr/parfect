@@ -3973,6 +3973,10 @@ body.is-scrolling .ht-trace, body.is-scrolling .ht-ball { animation-play-state: 
   100% { opacity: 0; transform: scale(.6); }
 }
 @media (prefers-reduced-motion: reduce) { .lp-ninja .lp-em { animation: none; } .lp-ninja .lp-em:first-child { opacity: 1; } }
+/* hándicap que cambia junto con el avatar (tapa el número del screenshot) */
+.lp-hcp { position: absolute; left: 6%; top: 22.5%; width: 38%; height: 11%; z-index: 3; background: linear-gradient(160deg, #b3da78 0%, #a4cc71 58%, #99c26a 100%); overflow: hidden; }
+.lp-hcp .lp-hc { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 8%; font-weight: 900; font-size: clamp(20px, 7.6vw, 42px); color: #fff; letter-spacing: -0.03em; line-height: 1; opacity: 0; text-shadow: 0 2px 5px rgba(20,50,15,.22); animation: lpEmCycle 9s infinite both; }
+@media (prefers-reduced-motion: reduce) { .lp-hcp .lp-hc { animation: none; } .lp-hcp .lp-hc:first-child { opacity: 1; } }
 /* encabezado de pantalla (Tus rondas / Análisis IA / Logros) */
 .lps-rhd { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
 .lps-rhd b { font-size: 21px; font-weight: 900; color: var(--text); }
