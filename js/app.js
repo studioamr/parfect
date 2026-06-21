@@ -1001,6 +1001,15 @@ const actions = {
 
   /* ---- trainer / tracker ---- */
   'trainer-tab'(d) { V.trainerTab = d.t; V.err = null; V.planSkipMode = false; if (d.t === 'cal') ensureWeekPlan(cur()); render(); },
+  'trk-set'(d) {
+    const u = cur(); if (!u) return;
+    u.tracker = u.tracker || {};
+    const reps = Number(d.reps) || 7;
+    const prev = (u.tracker[d.k] && u.tracker[d.k].hits) || 0;
+    const hits = Math.max(0, Math.min(reps, prev + Number(d.d)));
+    u.tracker[d.k] = { hits, reps, date: today() };
+    commit();
+  },
   diagnose() {
     V.diagBusy = true; V.diag = null; V.diagAI = null;
     render();

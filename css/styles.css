@@ -4647,3 +4647,5 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 .lp-allies-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 22px; }
 .lp-allies-row .lp-ally img { max-height: 38px; width: auto; opacity: .9; }
 .lp-allies-row .lp-ally .lp-org-fb { display: none; font-size: 13px; font-weight: 800; color: var(--text); opacity: .82; align-items: center; padding: 7px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+
+.trk-done { border-color: var(--lime) !important; }

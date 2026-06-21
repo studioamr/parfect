@@ -180,17 +180,65 @@ function vWeekStrip() {
   return `<div class="card wk-card"><div class="wk-head"><span class="label" style="margin:0">Tu próxima semana</span><button class="sec-link" data-act="nav" data-view="social">Ver mes →</button></div><div class="wk-strip">${cells}</div></div>`;
 }
 
+/* ============ PARFECT Tracker: curso de drills por palo (genera desde tus carrys) ============ */
+function trackerDrills(u) {
+  const bag = (u && u.clubs) || {};
+  const carry = id => (typeof clubC === 'function') ? clubC(bag, id) : (bag[id] && bag[id].c);
+  const clubDrill = c => ({ key: 'c_' + c.id, name: c.name, reps: 7, goal: `Carry de ${carry(c.id)} yds en un gap de ${c.gap} yds · 7/7` });
+  const has = c => carry(c.id) != null;
+  const long = CLUBS.filter(c => c.group === 'largo' && has(c)).map(clubDrill);
+  const irons = CLUBS.filter(c => c.group === 'hierros' && has(c)).map(clubDrill);
+  const wedges = CLUBS.filter(c => c.group === 'wedges' && has(c)).map(clubDrill);
+  const approach = [40, 30, 10].map(d => ({ key: 'app_' + d, name: 'Up & down ' + d + ' yds', reps: 7, goal: `7/7 up & downs desde ${d} yds al azar` }));
+  const putt = [
+    { key: 'p_3', name: '3 pies', reps: 10, goal: '10/10 desde 3 pies, en línea' },
+    { key: 'p_5', name: '5 pies', reps: 10, goal: '10/10 desde 5 pies, en línea' },
+    { key: 'p_7', name: '7 pies', reps: 10, goal: '10/10 desde 7 pies' },
+    { key: 'p_10', name: '10 pies', reps: 10, goal: '10/10 desde 10 pies' },
+    { key: 'p_15', name: '15 pies', reps: 10, goal: '10/10 dejándola a 3 pies (gimme) desde 15 pies' },
+    { key: 'p_20', name: '20 pies', reps: 10, goal: '10/10 dadas desde 20 pies' },
+    { key: 'p_30', name: '30 pies', reps: 10, goal: '10/10 dadas desde 30 pies' },
+  ];
+  return [['Long game', long], ['Fierros', irons], ['Wedges', wedges], ['Approach', approach], ['Putt', putt]];
+}
+function vCourse(u) {
+  const log = (u && u.tracker) || {};
+  const anyBag = Object.keys((u && u.clubs) || {}).length;
+  const groups = trackerDrills(u);
+  const drillCard = d => {
+    const e = log[d.key]; const hits = e ? e.hits : 0; const reps = d.reps; const pct = reps ? Math.round(hits / reps * 100) : 0; const done = e && hits >= reps;
+    const pc = !e ? 'var(--muted)' : pct >= 85 ? '#3aa055' : pct >= 50 ? '#e0a23a' : 'var(--danger)';
+    return `<div class="card trk-card ${done ? 'trk-done' : ''}" style="padding:12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+        <div style="min-width:0"><b style="font-size:14.5px">${esc(d.name)}</b><span style="display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px">${esc(d.goal)}</span></div>
+        <span style="font-weight:900;font-size:15px;color:${pc};flex:none">${e ? pct + '%' : '—'}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+        <button class="ph-pbtn" data-act="trk-set" data-k="${d.key}" data-reps="${reps}" data-d="-1">−</button>
+        <b style="min-width:44px;text-align:center;font-size:15px">${hits}/${reps}</b>
+        <button class="ph-pbtn" data-act="trk-set" data-k="${d.key}" data-reps="${reps}" data-d="1">+</button>
+        <span style="flex:1"></span>
+        <span class="small muted" style="white-space:nowrap">⏱ 20 min</span>
+      </div>
+    </div>`;
+  };
+  const sec = ([title, arr]) => arr.length ? `<div class="sec-h" style="margin-top:16px"><h2 style="font-size:15px">${esc(title)}</h2></div>${arr.map(drillCard).join('')}` : '';
+  return `<p class="note" style="margin:2px 2px 10px">Elige un carry, pega tus reps y registra cuántas caíste en el gap. Tu <b>% por palo</b> alimenta tu plan.</p>
+    ${!anyBag ? `<div class="card"><p class="note" style="margin:6px 2px">Primero llena tu <b>bolsa</b> (carrys) en tu perfil — con eso genero tus drills.</p></div>` : groups.map(sec).join('')}`;
+}
+
 function vTrainer() {
   const u = cur();
-  const tab = ['entreno', 'logros', 'coach'].includes(V.trainerTab) ? V.trainerTab : 'diag';   // Academia quitada por ahora
+  const tab = ['entreno', 'tracker', 'logros', 'coach'].includes(V.trainerTab) ? V.trainerTab : 'diag';
   const showHist = (!V.planStep || V.planStep === 'time') && !V.sessionRun && !V.sessionSummary;
   const body = tab === 'entreno' ? (vSessionPlanner() + (showHist ? vTrainHistory() : ''))
-    : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
-      : tab === 'coach' ? vCoach()
-        : vDiag();
+    : tab === 'tracker' ? vCourse(u)
+      : tab === 'logros' ? (vKeyTargets(u) + `<div style="margin-top:22px"></div>` + vLogros())
+        : tab === 'coach' ? vCoach()
+          : vDiag();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('entreno', 'Entrenamiento')}${T('logros', 'Logros')}${T('coach', 'Coach')}</div>
+    <div class="tabs scroll">${T('diag', 'Análisis IA')}${T('tracker', 'Tracker')}${T('entreno', 'Entrenamiento')}${T('logros', 'Logros')}${T('coach', 'Coach')}</div>
     ${body}`;
 }
 
