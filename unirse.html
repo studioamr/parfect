@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PARFECT · Cómo unirse</title>
+<style>
+  :root { --lima:#a8e063; --lima-ink:#3a7d1e; --dark:#0e2417; --ink:#14301c; --muted:#5c7a63; --line:#dfeed4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #eef6e6; color: var(--ink); -webkit-font-smoothing: antialiased; padding: 24px 16px 40px; }
+  .sheet { max-width: 480px; margin: 0 auto; background: #fff; border-radius: 28px; box-shadow: 0 20px 50px rgba(20,50,20,.12); overflow: hidden; }
+  .top { background: linear-gradient(135deg, var(--dark), #14512a); color: #fff; text-align: center; padding: 28px 22px 24px; position: relative; }
+  .logo { font-size: 30px; font-weight: 900; letter-spacing: -.02em; }
+  .logo b { color: var(--lima); }
+  .tag { font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #bfe39a; margin-top: 4px; display: inline-block; }
+  .beta { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 800; background: rgba(168,224,99,.2); color: var(--lima); border: 1px solid rgba(168,224,99,.5); padding: 5px 12px; border-radius: 999px; }
+  .hero { text-align: center; padding: 22px 22px 6px; }
+  .hero h1 { font-size: 23px; font-weight: 900; letter-spacing: -.01em; }
+  .hero p { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .qr-wrap { text-align: center; padding: 14px 22px 4px; }
+  .qr-card { display: inline-block; padding: 14px; background: #fff; border: 2px solid var(--line); border-radius: 20px; }
+  .qr-card img { width: 240px; height: 240px; display: block; }
+  .url { display: block; margin: 12px auto 0; font-size: 14px; font-weight: 800; color: var(--lima-ink); word-break: break-all; }
+  .steps { padding: 18px 22px 8px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); }
+  .step:first-child { border-top: 0; }
+  .n { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--lima); color: var(--dark); font-weight: 900; font-size: 15px; display: grid; place-items: center; }
+  .tx b { display: block; font-size: 15.5px; font-weight: 800; }
+  .tx span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .codebox { margin: 10px 22px 0; background: #f3faec; border: 1.5px dashed var(--lima); border-radius: 16px; padding: 14px 16px; text-align: center; }
+  .codebox b { font-size: 13px; color: var(--lima-ink); font-weight: 800; }
+  .codebox .blank { display: inline-block; min-width: 120px; border-bottom: 2.5px solid var(--ink); margin-left: 8px; }
+  .foot { text-align: center; font-size: 12px; color: var(--muted); padding: 16px 22px 24px; }
+  .foot b { color: var(--ink); }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .sheet { box-shadow: none; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="top">
+      <span class="beta">Beta</span>
+      <div class="logo">PAR<b>FECT</b></div>
+      <span class="tag">Golf Analytics</span>
+    </div>
+
+    <div class="hero">
+      <h1>Únete al juego 🏌️⛳️</h1>
+      <p>Anota tu ronda, mídete con tus amigos y apuesten en vivo.</p>
+    </div>
+
+    <div class="qr-wrap">
+      <div class="qr-card">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=0&data=https%3A%2F%2Fparfectapp.github.io%2Fparfect%2F" alt="QR para abrir PARFECT">
+      </div>
+      <span class="url">parfectapp.github.io/parfect</span>
+    </div>
+
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div class="tx"><b>Escanea el QR</b><span>O abre el link de arriba en tu teléfono.</span></div></div>
+      <div class="step"><span class="n">2</span><div class="tx"><b>Agrégala a tu inicio</b><span>iPhone: Compartir → “Agregar a inicio”. Android: menú ⋮ → “Instalar app”. (Opcional, pero se siente como app.)</span></div></div>
+      <div class="step"><span class="n">3</span><div class="tx"><b>Crea tu cuenta</b><span>Con tu correo y una contraseña. Toma 30 segundos — entras al instante.</span></div></div>
+      <div class="step"><span class="n">4</span><div class="tx"><b>Únete a tu grupo</b><span>Social → “Unirse con código” y escribe el código de tu foursome.</span></div></div>
+    </div>
+
+    <div class="codebox"><b>CÓDIGO DE TU GRUPO:</b><span class="blank"></span></div>
+
+    <p class="foot"><b>PARFECT está en beta.</b> Cada quien anota su propia tarjeta en su teléfono.<br>Gratis · Tus datos viven en tu dispositivo.</p>
+  </div>
+</body>
+</html>
