@@ -184,21 +184,14 @@ function vWeekStrip() {
 function trackerDrills(u) {
   const bag = (u && u.clubs) || {};
   const carry = id => (typeof clubC === 'function') ? clubC(bag, id) : (bag[id] && bag[id].c);
-  const clubDrill = c => ({ key: 'c_' + c.id, name: c.name, reps: 7, goal: `Carry de ${carry(c.id)} yds en un gap de ${c.gap} yds · 7/7` });
+  const clubDrill = c => ({ key: 'c_' + c.id, name: c.name, reps: 7, kind: 'carry', carry: carry(c.id), gap: c.gap, goal: `Carry de ${carry(c.id)} yds en un gap de ${c.gap} yds · 7/7` });
   const has = c => carry(c.id) != null;
   const long = CLUBS.filter(c => c.group === 'largo' && has(c)).map(clubDrill);
   const irons = CLUBS.filter(c => c.group === 'hierros' && has(c)).map(clubDrill);
   const wedges = CLUBS.filter(c => c.group === 'wedges' && has(c)).map(clubDrill);
-  const approach = [40, 30, 10].map(d => ({ key: 'app_' + d, name: 'Up & down ' + d + ' yds', reps: 7, goal: `7/7 up & downs desde ${d} yds al azar` }));
-  const putt = [
-    { key: 'p_3', name: '3 pies', reps: 10, goal: '10/10 desde 3 pies, en línea' },
-    { key: 'p_5', name: '5 pies', reps: 10, goal: '10/10 desde 5 pies, en línea' },
-    { key: 'p_7', name: '7 pies', reps: 10, goal: '10/10 desde 7 pies' },
-    { key: 'p_10', name: '10 pies', reps: 10, goal: '10/10 desde 10 pies' },
-    { key: 'p_15', name: '15 pies', reps: 10, goal: '10/10 dejándola a 3 pies (gimme) desde 15 pies' },
-    { key: 'p_20', name: '20 pies', reps: 10, goal: '10/10 dadas desde 20 pies' },
-    { key: 'p_30', name: '30 pies', reps: 10, goal: '10/10 dadas desde 30 pies' },
-  ];
+  const approach = [40, 30, 10].map(d => ({ key: 'app_' + d, name: 'Up & down ' + d + ' yds', reps: 7, kind: 'updown', dist: d, goal: `7/7 up & downs desde ${d} yds al azar` }));
+  const puttDefs = [[3, 'desde 3 pies, en línea'], [5, 'desde 5 pies, en línea'], [7, 'desde 7 pies'], [10, 'desde 10 pies'], [15, 'dejándola a 3 pies (gimme) desde 15 pies'], [20, 'dadas desde 20 pies'], [30, 'dadas desde 30 pies']];
+  const putt = puttDefs.map(([f, txt]) => ({ key: 'p_' + f, name: f + ' pies', reps: 10, kind: 'putt', feet: f, goal: '10/10 ' + txt }));
   return [['Long game', long], ['Fierros', irons], ['Wedges', wedges], ['Approach', approach], ['Putt', putt]];
 }
 /* Avatar Stats: resumen de números (de tus rondas) arriba del Tracker */
@@ -220,6 +213,37 @@ function avatarStatsBlock(u) {
 }
 const TRK_CAT_IC = { 'Long game': 'club', 'Fierros': 'tee', 'Wedges': 'green', 'Approach': 'bucket', 'Putt': 'putter' };
 function trkHits(e, reps) { return e ? (e.hits != null ? Math.max(0, Math.min(reps, e.hits)) : (e.pct != null ? Math.round(e.pct / 100 * reps) : 0)) : 0; }
+/* Diagrama visual del ejercicio (para que se entienda de un vistazo) */
+function drillVisual(d) {
+  if (d.kind === 'putt') {
+    return `<svg class="trk-viz" viewBox="0 0 280 56" aria-hidden="true">
+      <rect width="280" height="56" rx="10" fill="#cdeccb"/>
+      <line x1="34" y1="38" x2="242" y2="38" stroke="#8aa07f" stroke-width="2" stroke-dasharray="3 5"/>
+      <circle cx="34" cy="38" r="6" fill="#fff" stroke="#b9c4b4"/>
+      <circle cx="244" cy="38" r="6" fill="#243018"/>
+      <rect x="244" y="14" width="2.5" height="24" fill="#c23a2a"/><path d="M246.5 15 l12 4 -12 4 z" fill="#e0653a"/>
+      <text x="138" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#3a5230">${d.feet} pies · en línea</text>
+    </svg>`;
+  }
+  if (d.kind === 'updown') {
+    return `<svg class="trk-viz" viewBox="0 0 280 56" aria-hidden="true">
+      <rect width="280" height="56" rx="10" fill="#dff0d8"/>
+      <ellipse cx="214" cy="44" rx="56" ry="11" fill="#7cc24a"/>
+      <path d="M30 47 Q120 -4 206 40" fill="none" stroke="#e0a23a" stroke-width="2.5" stroke-dasharray="4 4"/>
+      <circle cx="30" cy="47" r="5" fill="#fff" stroke="#b9c4b4"/>
+      <circle cx="214" cy="42" r="4" fill="#243018"/>
+      <rect x="214" y="18" width="2.5" height="24" fill="#c23a2a"/><path d="M216.5 19 l11 4 -11 4 z" fill="#e0653a"/>
+      <text x="100" y="18" text-anchor="middle" font-size="12" font-weight="800" fill="#7a5a1f">chip & putt · ${d.dist} yds</text>
+    </svg>`;
+  }
+  return `<svg class="trk-viz" viewBox="0 0 280 56" aria-hidden="true">
+    <rect width="280" height="56" rx="10" fill="#dff0d8"/>
+    <path d="M22 47 Q150 -8 250 47" fill="none" stroke="#54b85a" stroke-width="2.5" stroke-dasharray="4 4"/>
+    <ellipse cx="250" cy="48" rx="22" ry="5" fill="#3f9f4a" opacity=".5"/>
+    <circle cx="22" cy="47" r="5" fill="#fff" stroke="#b9c4b4"/>
+    <text x="150" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#2f6b32">carry ${d.carry} y · gap ±${d.gap}</text>
+  </svg>`;
+}
 function vCourse(u) {
   const log = (u && u.tracker) || {};
   const anyBag = Object.keys((u && u.clubs) || {}).length;
@@ -230,7 +254,8 @@ function vCourse(u) {
     const done = hits >= d.reps;
     const pct = Math.round(hits / d.reps * 100);
     const tmRun = V.trkTimer && V.trkTimer.key === d.key && V.trkTimer.running;
-    return `<div class="card trk-card ${done ? 'trk-done' : ''}">
+    return `<div class="trk-card ${done ? 'trk-done' : ''}">
+      ${drillVisual(d)}
       <div class="trk-top">
         <div class="trk-info"><b>${esc(d.name)}</b><span>${esc(d.goal)}</span></div>
         ${done ? '<span class="trk-chk">✓</span>' : ''}
@@ -250,19 +275,9 @@ function vCourse(u) {
   const total = all.length;
   const doneTotal = all.filter(d => trkHits(log[d.key], d.reps) >= d.reps).length;
   const pct = total ? Math.round(doneTotal / total * 100) : 0;
-  const progress = `<div class="card trk-prog">
-      <div class="trk-prog-top"><span class="label" style="margin:0">${golfIcon('bucket')} Tu progreso · Tracker</span><b class="trk-prog-pct">${pct}%</b></div>
-      <div class="trk-pbar big"><i style="width:${pct}%"></i></div>
-      <span class="small muted">${doneTotal}/${total} ejercicios completos</span>
-    </div>`;
-  const open = !!V.trkOpen;
-  const toggle = `<button class="trk-open ${open ? 'on' : ''}" data-act="trk-open">
-      <span class="trk-open-ic">${golfIcon('bucket')}</span>
-      <span class="trk-open-tx"><b>${open ? 'Ocultar ejercicios' : 'Abrir tracker'}</b><span>${total} ejercicios · ${doneTotal} completos</span></span>
-      <span class="trk-open-go">${open ? '▾' : '▸'}</span>
-    </button>`;
-  const blocks = !open ? '' : groups.map(([title, arr]) => {
-    const on = V.trkCat === title;
+  const activeCat = V.trkCat !== undefined ? V.trkCat : (groups[0] && groups[0][0]);
+  const blocks = groups.map(([title, arr]) => {
+    const on = activeCat === title;
     const doneN = arr.filter(d => trkHits(log[d.key], d.reps) >= d.reps).length;
     return `<button class="trk-cat ${on ? 'on' : ''}" data-act="trk-cat" data-c="${esc(title)}">
         <span class="trk-cat-ic">${golfIcon(TRK_CAT_IC[title] || 'flag')}</span>
@@ -270,7 +285,13 @@ function vCourse(u) {
         <span class="trk-cat-go">${on ? '▾' : '▸'}</span>
       </button>${on ? `<div class="trk-drills">${arr.map(drillCard).join('')}</div>` : ''}`;
   }).join('');
-  return progress + toggle + (open ? `<p class="note" style="margin:2px 2px 10px">Elige <b>qué quieres entrenar</b> y registra tus reps (ej. 7/7).</p>${blocks}` : '');
+  return `<div class="card trk-prog">
+      <div class="trk-prog-top"><span class="label" style="margin:0">${golfIcon('bucket')} Tu progreso</span><b class="trk-prog-pct">${pct}%</b></div>
+      <div class="trk-pbar big"><i style="width:${pct}%"></i></div>
+      <span class="small muted">${doneTotal}/${total} ejercicios completos</span>
+      <p class="note" style="margin:12px 2px 8px">Elige <b>qué quieres entrenar</b> y registra tus reps (ej. 7/7).</p>
+      <div class="trk-cats">${blocks}</div>
+    </div>`;
 }
 
 /* ============ Camino: progreso gamificado (Romper 100 / 90 / 80…) ============ */
@@ -314,7 +335,7 @@ function vTrainer() {
   if (tab === 'tracker' || tab === 'camino' || tab === 'objetivos') tab = 'logros';
   tab = ['diag', 'entreno', 'logros'].includes(tab) ? tab : 'diag';
   const showHist = (!V.planStep || V.planStep === 'time') && !V.sessionRun && !V.sessionSummary;
-  const body = tab === 'entreno' ? (vSessionPlanner() + (showHist ? (`<div class="sec-h" style="margin-top:18px"><h2 style="font-size:16px">${golfIcon('bucket')} Tracker</h2></div>` + vCourse(u) + vTrainHistory()) : ''))
+  const body = tab === 'entreno' ? (vSessionPlanner() + (showHist ? (`<div style="margin-top:18px"></div>` + vCourse(u) + vTrainHistory()) : ''))
     : tab === 'logros' ? vLogros()
       : vDiag();
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;

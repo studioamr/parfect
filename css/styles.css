@@ -4699,7 +4699,9 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 .trk-cat-tx span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
 .trk-cat-go { font-size: 14px; color: var(--muted); flex: none; }
 .trk-drills { margin: 0 0 12px; }
-.trk-card { padding: 12px; margin-bottom: 8px; }
+.trk-card { padding: 12px; margin-bottom: 8px; background: var(--card2, #f1f5ee); border: 1px solid var(--line); border-radius: 14px; }
+.trk-cats { margin-top: 14px; }
+.trk-viz { width: 100%; height: auto; display: block; border-radius: 10px; margin-bottom: 10px; }
 .trk-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .trk-info { min-width: 0; }
 .trk-info b { font-size: 14px; }
