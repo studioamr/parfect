@@ -24,7 +24,7 @@ let V = {
   setupCourseId: null, setupTee: 'blancas', setupHoles: 18, setupStart: 0, setupWhen: 'ahora',
   hole: null, scoreTouched: false, confirmExit: false,
   detail: null, delArm: null,
-  trainerTab: 'camino', diag: null, diagBusy: false, sessionMin: 60, planStep: 'time', planMode: 'ai', planAreas: ['driving', 'approach', 'short', 'putting'],
+  trainerTab: 'tracker', diag: null, diagBusy: false, sessionMin: 60, planStep: 'time', planMode: 'ai', planAreas: ['driving', 'approach', 'short', 'putting'],
   trackVals: null, trkTab: 'plan', drillLog: null, drillCat: 'fw',
   calY: null, calM: null, calSel: null, calAddType: 'entreno', friendId: null, holeIdx: 0,
   courseId: 'campestre', addFriend: false, teeClubId: null, attack2: false, sim: null, shadowHcp: null, camposHcp: null,
@@ -1029,7 +1029,7 @@ const actions = {
     render();
   },
   diagnose() {
-    V.diagBusy = true; V.diag = null; V.diagAI = null;
+    V.diagBusy = true; V.diag = null; V.diagAI = null; V.trainerTab = 'plan';
     render();
     setTimeout(() => {
       V.diagBusy = false;

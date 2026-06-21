@@ -241,9 +241,7 @@ function vCourse(u) {
     </div>`;
   };
   const sec = ([title, arr]) => arr.length ? `<div class="sec-h" style="margin-top:16px"><h2 style="font-size:15px">${esc(title)}</h2></div>${arr.map(drillCard).join('')}` : '';
-  return `${avatarStatsBlock(u)}
-    <div class="sec-h" style="margin-top:18px"><h2 style="font-size:15px">${golfIcon('bucket')} Tracker · drills</h2></div>
-    <p class="note" style="margin:2px 2px 10px">Elige un carry, pega tus reps y registra cuántas caíste en el gap. Tu <b>% por palo</b> alimenta tu plan.</p>
+  return `<p class="note" style="margin:2px 2px 10px">Elige un carry, pega tus reps y registra cuántas caíste en el gap. Tu <b>% por palo</b> alimenta tu plan.</p>
     ${!anyBag ? `<div class="card"><p class="note" style="margin:6px 2px">Primero llena tu <b>bolsa</b> (carrys) en tu perfil — con eso genero tus drills.</p></div>` : groups.map(sec).join('')}`;
 }
 
@@ -286,16 +284,22 @@ function vTrainer() {
   let tab = V.trainerTab;
   if (tab === 'diag') tab = 'plan';                              // alias heredados
   if (tab === 'logros' || tab === 'objetivos') tab = 'camino';
-  tab = ['tracker', 'plan', 'entreno', 'coach'].includes(tab) ? tab : 'camino';
+  tab = ['tracker', 'plan', 'entreno', 'camino', 'coach'].includes(tab) ? tab : 'tracker';
   const showHist = (!V.planStep || V.planStep === 'time') && !V.sessionRun && !V.sessionSummary;
+  const aiCta = Stats.aggregate(myRounds()) ? `<div class="diag-cta" style="margin-top:18px">
+        <span class="diag-cta-ic">${golfIcon('green')}</span>
+        <h2 class="diag-cta-h">Análisis IA</h2>
+        <p class="diag-cta-p">La IA cruza tus rondas y te dice dónde se te van los golpes y qué entrenar. El resultado aparece en <b>Plan</b>.</p>
+        <button class="btn primary big" data-act="diagnose">${golfIcon('flag')} Generar análisis IA</button>
+      </div>` : '';
   const body = tab === 'tracker' ? vCourse(u)
     : tab === 'plan' ? vDiag()
-      : tab === 'entreno' ? (vSessionPlanner() + (showHist ? vTrainHistory() : ''))
+      : tab === 'entreno' ? (vSessionPlanner() + (showHist ? vTrainHistory() : '') + aiCta)
         : tab === 'coach' ? vCoach()
           : (vCamino(u) + `<div class="sec-h" style="margin-top:22px"><h2 style="font-size:15px">${golfIcon('trophy')} Logros</h2></div>` + vKeyTargets(u) + `<div style="margin-top:12px"></div>` + vLogros());
   const T = (id, label) => `<button class="tab ${tab === id ? 'on' : ''}" data-act="trainer-tab" data-t="${id}">${label}</button>`;
   return `<div class="sec-h"><h2>Parfect Trainer</h2></div>
-    <div class="tabs scroll">${T('camino', 'Camino')}${T('tracker', 'Tracker')}${T('plan', 'Plan')}${T('entreno', 'Entreno')}${T('coach', 'Coach')}</div>
+    <div class="tabs scroll">${T('tracker', 'Tracker')}${T('plan', 'Plan')}${T('entreno', 'Entreno')}${T('camino', 'Camino')}${T('coach', 'Coach')}</div>
     ${body}`;
 }
 
@@ -354,12 +358,7 @@ function vDiag() {
       <p>Correlacionando ${agg.holesPlayed} hoyos, ${agg.rounds} rondas y 12+ métricas.</p></div>`;
   }
   if (!V.diag) {
-    return dd + `<div class="diag-cta" style="margin-top:18px">
-        <span class="diag-cta-ic">${golfIcon('green')}</span>
-        <h2 class="diag-cta-h">¿Quieres el análisis profundo?</h2>
-        <p class="diag-cta-p">La IA cruza tus ${agg.holesPlayed} hoyos y ${agg.rounds} ronda${agg.rounds === 1 ? '' : 's'} para un diagnóstico aún más fino.</p>
-        <button class="btn primary big" data-act="diagnose">${golfIcon('flag')} Generar análisis IA</button>
-      </div>`;
+    return dd + `<p class="note" style="text-align:center;margin-top:14px">¿Quieres el análisis profundo con IA? Genéralo desde la pestaña <b>Entreno</b>.</p>`;
   }
   const d = V.diag;
   const done = (cur() || {}).drillsDone || {};
