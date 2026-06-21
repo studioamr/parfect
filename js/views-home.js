@@ -921,10 +921,16 @@ function vCommentsSheet(postId) {
   </div></div>`;
 }
 
+/* ¿el usuario ya participa en lo social? (tiene amigos o compartió una ronda)
+   Si no, arranca DESDE CERO: nada de feed/liga/historias de la comunidad. */
+function socialReady(u) {
+  return !!((u && u.friends && u.friends.length) || (u && u.shared && u.shared.length));
+}
+
 function vSocialFeed() {
   const u = cur();
-  // ---- modo nube: feed real desde Supabase ----
-  if (typeof Feed !== 'undefined' && Feed.on()) {
+  // ---- modo nube: feed real desde Supabase (solo si ya participas) ----
+  if (typeof Feed !== 'undefined' && Feed.on() && socialReady(u)) {
     Feed.ensure();
     const st = Feed.state();
     if (st.posts.length) {
@@ -1103,6 +1109,7 @@ function socialLeaders(u) {
 
 /* fila de historias: quién está jugando */
 function vStories(u) {
+  if (!isDemoUser(u) && !socialReady(u)) return '';   // usuario nuevo: sin historias de la comunidad
   const me = `<div class="story me"><span class="story-ring">${avatarImg(u, 'story-img')}</span><span class="story-nm">Tú</span></div>`;
   // ---- modo nube: historias de quienes han publicado en el feed ----
   if (typeof Feed !== 'undefined' && Feed.on()) {
@@ -1127,12 +1134,9 @@ function vStories(u) {
 
 /* liga de amigos: ranking */
 function vRanking(u) {
-  if (!isDemoUser(u) && !((u.friends || []).length) && !(typeof Feed !== 'undefined' && Feed.on())) return '';   // sin amigos (agregados ni en la nube): sin liga
+  if (!isDemoUser(u) && !socialReady(u)) return '';   // usuario nuevo: sin liga hasta que participe
   const lead = socialLeaders(u);
-  if (typeof Feed !== 'undefined' && Feed.on() && !lead.length) {
-    return `<div class="sec-h"><h2>Liga de amigos</h2></div>
-      <div class="rk-card"><p class="note" style="margin:8px 2px">Aún no hay rondas compartidas esta semana. Comparte la tuya para entrar al ranking.</p></div>`;
-  }
+  if (!lead.length) return '';                          // nada que rankear todavía: no mostramos liga vacía
   const myPos = lead.findIndex(e => e.me) + 1;
   const rows = lead.map((e, i) => {
     const pos = i + 1;
