@@ -1026,6 +1026,22 @@ const actions = {
     commit();
   },
   'trk-cat'(d) { V.trkCat = (V.trkCat === d.c) ? null : d.c; render(); },
+  'trk-finish'() {
+    const u = cur(); if (!u) return;
+    const log = u.tracker || {};
+    const all = (typeof trackerDrills === 'function' ? trackerDrills(u) : []).flatMap(g => g[1]);
+    let hits = 0, reps = 0, done = 0, touched = 0;
+    all.forEach(d => {
+      const e = log[d.key];
+      const h = e ? (e.hits != null ? Math.min(d.reps, e.hits) : (e.pct != null ? Math.round(e.pct / 100 * d.reps) : 0)) : 0;
+      if (h > 0) { touched++; hits += h; reps += d.reps; if (h >= d.reps) done++; }
+    });
+    if (!touched) { V.trkSaved = null; V.trkMsg = 'Registra al menos un ejercicio antes de guardar.'; render(); return; }
+    S.practices = S.practices || [];
+    S.practices.push({ id: Store.uid(), userId: S.session, date: today(), area: 'Tracker', drill: `Tracker · ${touched} ejercicio${touched === 1 ? '' : 's'} (${done} al 100%)`, attempts: reps, hits, notes: 'tracker' });
+    V.trkMsg = null; V.trkSaved = today();
+    commit();
+  },
   'trk-timer'(d) {
     clearInterval(window.__trkInt);
     if (V.trkTimer && V.trkTimer.key === d.k && V.trkTimer.running) { V.trkTimer = null; render(); return; }  // toca de nuevo = parar

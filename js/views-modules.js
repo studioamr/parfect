@@ -291,6 +291,8 @@ function vCourse(u) {
       <span class="small muted">${doneTotal}/${total} ejercicios completos</span>
       <p class="note" style="margin:12px 2px 8px">Elige <b>qué quieres entrenar</b> y registra tus reps (ej. 7/7).</p>
       <div class="trk-cats">${blocks}</div>
+      <button class="btn primary trk-finish" data-act="trk-finish">${golfIcon('flag')} Terminar y guardar entrenamiento</button>
+      ${V.trkSaved === today() ? `<p class="trk-saved">✓ Entrenamiento guardado en tu historial</p>` : (V.trkMsg ? `<p class="form-err" style="margin:8px 2px 0;text-align:center">${esc(V.trkMsg)}</p>` : '')}
     </div>`;
 }
 
