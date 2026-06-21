@@ -511,17 +511,9 @@ function vLanding() {
         <span class="lp-intro-logo">${pLogo()}</span>
         <span class="lp-intro-tag">Golf Analytics</span>
         <div class="lp-press2">
-          <div class="lp-stores">${lpStoreBadge()}${lpGooglePlay()}</div>
+          <span class="lp-beta">● Beta abierta · lanzamiento próximamente</span>
         </div>
       </div>
-    </section>
-    <section class="lp-reviews-sec">${lpReviews()}</section>
-    <section class="lp-sec lp-awards-sec">
-      ${lpAwardsDeco()}
-      <span class="lp-eyebrow reveal">Reconocida en todo el mundo</span>
-      <h2 class="lp-h2 reveal">La app que los golfistas<br/><span class="lime">no sueltan.</span></h2>
-      ${lpAwards()}
-      ${lpSponsors()}
     </section>
 
     <section class="lp-hero2 lp-appstage-sec">
@@ -571,9 +563,9 @@ function vLanding() {
         <span class="po po-flag">🚩</span>
         <span class="po po-tr2">🏆</span>
       </div>
-      <span class="lp-eyebrow reveal">Tu camino</span>
+      <span class="lp-eyebrow reveal">Nuestra visión</span>
       <h2 class="lp-h2 reveal">Del torneo local<br/><span class="lime">a una beca afuera.</span></h2>
-      <p class="lp-lead reveal" style="text-align:center;max-width:32ch;margin:0 auto 14px">Cada torneo que juegas abre puertas reales para el golfista juvenil mexicano.</p>
+      <p class="lp-lead reveal" style="text-align:center;max-width:34ch;margin:0 auto 14px">Para esto nace PARFECT: que el golf juvenil mexicano crezca, compita y llegue más lejos. Esto es lo que queremos construir.</p>
       <div class="lp-journey reveal" aria-hidden="true">
         <svg class="lp-jpath" viewBox="0 0 320 72" preserveAspectRatio="none">
           <defs><linearGradient id="jgrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--lime)" stop-opacity=".35"/><stop offset="1" stop-color="var(--lime)"/></linearGradient></defs>
@@ -584,22 +576,11 @@ function vLanding() {
         <span class="lp-j lp-j-b">🎓<small>Beca afuera</small></span>
       </div>
       <div class="lp-presgrid">
-        ${[['🏆', 'Torneos que cuentan', 'Cada torneo suma para el ranking juvenil nacional. Tus resultados te posicionan.', ['Gira Mexicana Juvenil', 'FMG', 'AGEM', 'Tour Infantil-Juvenil']],
-           ['🇲🇽', 'Equipos representativos', 'Los mejores forman los equipos juveniles que representan a México.', ['Selección estatal', 'Equipos universitarios', 'Interescolar']],
-           ['🎓', 'Becas en el extranjero', 'Exposición ante universidades y academias de golf fuera del país.', ['Arizona', 'Texas A&M', 'Oklahoma State', 'TCU']],
-           ['🤝', 'Patrocinios', 'Conecta con marcas que apuestan por las promesas del golf mexicano.', ['Titleist', 'Mercedes-Benz', 'Electrolit', 'Ping']],
-           ['⛳', 'Green fees con descuento', 'Tarifas preferentes en campos aliados para que juegues y compitas más.', ['Campestre Morelia', 'Tres Marías', 'Clubes aliados']],
-           ['🌱', 'Impulso al talento joven', 'PARFECT existe para que el golfista juvenil mexicano crezca, compita y llegue más lejos.', ['Ranking nacional', 'Coaches certificados', 'Academias']]]
-          .map(([ic, t, d, ex]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p><div class="lp-pres-ex">${(ex || []).map(e => `<span class="lp-ex">${esc(e)}</span>`).join('')}</div></div>`).join('')}
-      </div>
-      <div class="lp-inst reveal">
-        <span class="lp-inst-lab">Torneos juveniles y universidades del camino · ejemplos</span>
-        <div class="lp-inst-reel"><div class="lp-inst-track">${(() => { const b = ['Gira Mexicana Juvenil', 'FMG', 'AGEM', 'U. of Arizona', 'Texas A&M', 'Oklahoma State', 'TCU', 'Stanford', 'Pepperdine', 'Tec de Monterrey', 'Anáhuac'].map(n => `<span class="lp-instbadge">${n}</span>`).join(''); return b + b; })()}</div></div>
-      </div>
-      <div class="lp-statrow reveal" style="margin-top:18px">
-        <div class="lp-stat"><b>+10</b><span>campos aliados</span></div>
-        <div class="lp-stat"><b>+50</b><span>juveniles activos</span></div>
-        <div class="lp-stat"><b>+1,200</b><span>hoyos registrados</span></div>
+        ${[['🏆', 'Torneos que cuentan', 'La meta: que cada torneo sume para el ranking juvenil y posicione a los jugadores.'],
+           ['🇲🇽', 'Equipos representativos', 'Que los mejores formen los equipos que representan a México.'],
+           ['🎓', 'Becas en el extranjero', 'Dar exposición de los talentos ante universidades y academias de golf.'],
+           ['🌱', 'Impulso al talento joven', 'Acercar el juego a más niños y jóvenes y darles herramientas para crecer.']]
+          .map(([ic, t, d]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p></div>`).join('')}
       </div>
     </section>
 
@@ -636,7 +617,6 @@ function vLanding() {
             <li>Crea torneos en minutos (gross y neto)</li>
             <li>Leaderboard que se actualiza en vivo</li>
             <li>Podio y ganadores automáticos</li>
-            <li>Patrocinadores en cada torneo</li>
           </ul>
         </div>
         <div class="lpc-card reveal">

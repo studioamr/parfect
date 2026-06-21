@@ -1379,19 +1379,18 @@ function vMemberSheet(c) {
 function vClubPlans() {
   const c = myClub();
   const tiers = [
-    { n: 'Club', p: '$1,490', per: '/mes', f: ['Hasta 150 miembros', 'Torneos con leaderboard en vivo', 'Academia juvenil + reportes', 'Soporte por correo'], hot: false },
-    { n: 'Club Pro', p: '$2,990', per: '/mes', f: ['Miembros ilimitados', 'Todo lo de Club', 'Patrocinios por torneo (ingreso compartido)', 'Panel de talento y becas', 'Onboarding dedicado'], hot: true },
+    { n: 'Club · Beta', p: 'Gratis', per: 'durante el lanzamiento', f: ['Crea y corre torneos', 'Leaderboard en vivo', 'Academia juvenil + reportes', 'Sin límite de miembros en la beta'], hot: true },
   ];
   return `<div class="sec-h"><button class="sec-link" data-act="club-back">← ${esc(c ? c.name : 'Club')}</button></div>
     <div class="sec-h" style="margin-top:2px"><h2>Plan del club</h2></div>
-    <p class="note" style="margin:0 2px 12px">Lleva tu club a PARFECT. Cancela cuando quieras.</p>
+    <p class="note" style="margin:0 2px 12px">PARFECT está en beta: llevar tu club es <b>gratis</b> durante el lanzamiento.</p>
     <div class="plan-list">${tiers.map(t => `<div class="plan-card ${t.hot ? 'hot' : ''}">
-      ${t.hot ? '<span class="plan-tag">Recomendado</span>' : ''}
+      ${t.hot ? '<span class="plan-tag">Beta</span>' : ''}
       <b class="plan-name">${t.n}</b><div class="plan-price">${t.p}<span>${t.per}</span></div>
       <ul class="plan-f">${t.f.map(x => `<li>✓ ${esc(x)}</li>`).join('')}</ul>
-      <button class="btn ${t.hot ? 'primary' : ''} big" data-act="club-plan-pick" data-n="${esc(t.n)}">Activar ${esc(t.n)}</button>
+      <button class="btn ${t.hot ? 'primary' : ''} big" data-act="club-plan-pick" data-n="${esc(t.n)}">Empezar gratis</button>
     </div>`).join('')}</div>
-    <p class="note" style="text-align:center;margin-top:10px">El cobro se conecta con la cuenta de pagos del club. Te contactamos para activarlo.</p>`;
+    <p class="note" style="text-align:center;margin-top:10px">¿Quieres llevar tu club a PARFECT? Escríbenos y te ayudamos a montarlo.</p>`;
 }
 function vInviteSheet(c) {
   const url = location.origin + location.pathname + '?club=' + c.code;

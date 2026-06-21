@@ -4468,6 +4468,8 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 /* la P de PARFECT hecha bandera */
 .logo-fp { height: .92em; width: auto; vertical-align: -.11em; margin-right: -.02em; }
 .lp-intro-tag { display: block; font-size: 13px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.lp-beta { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; letter-spacing: .02em; color: #1f7a3a; background: rgba(124,194,74,.16); border: 1px solid rgba(124,194,74,.5); padding: 8px 16px; border-radius: 999px; }
+.lp-beta::first-letter { color: #2fa84a; }
 /* reconocimientos limpios (logos reales, estáticos) debajo del título */
 .lp-press2 { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .lp-press2-lab { font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); opacity: .85; }
