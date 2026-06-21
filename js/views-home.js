@@ -1777,7 +1777,12 @@ function vProfile() {
           <div class="field"><label>Nombre</label><input id="p-name" value="${esc(u.name)}"></div>
           <div class="field-row">
             <div class="field"><label>Hándicap</label><input id="p-hcp" type="number" step="1" value="${esc(u.hcp)}"></div>
-            <div class="field"><label>Meta</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
+            <div class="field"><label>HCP objetivo</label><input id="p-goal" type="number" step="1" value="${esc(u.goal)}"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Edad</label><input id="p-age" type="number" inputmode="numeric" step="1" value="${esc(u.age || '')}" placeholder="—"></div>
+            <div class="field"><label>Altura (m)</label><input id="p-height" type="number" inputmode="decimal" step="0.01" value="${esc(u.height || '')}" placeholder="1.80"></div>
+            <div class="field"><label>Peso (kg)</label><input id="p-weight" type="number" inputmode="decimal" step="0.1" value="${esc(u.weight || '')}" placeholder="—"></div>
           </div>
           <div class="field"><label>Campo de casa</label>
             <div class="chips">${COURSE_ORDER.map(id => `<button class="chip sm ${(u.homeCourse || 'campestre') === id ? 'on' : ''}" data-act="prof-campo" data-c="${id}">${esc(COURSES[id].name.split(' · ')[0].replace('Club ', '').replace(' Morelia', ''))}</button>`).join('')}</div>

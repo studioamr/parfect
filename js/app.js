@@ -759,6 +759,9 @@ const actions = {
     u.name = val('p-name') || u.name;
     u.hcp = Math.round(Number(val('p-hcp'))) || 0;
     u.goal = Math.round(Number(val('p-goal'))) || 0;
+    const age = val('p-age'); u.age = age !== '' ? Math.round(Number(age)) || null : null;
+    const ht = val('p-height'); u.height = ht !== '' ? Number(ht) || null : null;
+    const wt = val('p-weight'); u.weight = wt !== '' ? Number(wt) || null : null;
     V.diag = null;
     commit();
   },
@@ -1009,6 +1012,21 @@ const actions = {
     const hits = Math.max(0, Math.min(reps, prev + Number(d.d)));
     u.tracker[d.k] = { hits, reps, date: today() };
     commit();
+  },
+  'trk-timer'(d) {
+    clearInterval(window.__trkInt);
+    if (V.trkTimer && V.trkTimer.key === d.k && V.trkTimer.running) { V.trkTimer = null; render(); return; }  // toca de nuevo = parar
+    V.trkTimer = { key: d.k, left: 20 * 60, running: true };
+    try { srBeep(1); } catch (e) {}
+    window.__trkInt = setInterval(() => {
+      const t = V.trkTimer;
+      if (!t || !t.running) { clearInterval(window.__trkInt); return; }
+      t.left--;
+      const el = document.getElementById('trktm-' + t.key);
+      if (el) el.textContent = '⏱ ' + fmtClock(t.left);
+      if (t.left <= 0) { clearInterval(window.__trkInt); t.running = false; try { srBeep(3); } catch (e) {} const e2 = document.getElementById('trktm-' + t.key); if (e2) e2.textContent = '✓ Tiempo'; }
+    }, 1000);
+    render();
   },
   diagnose() {
     V.diagBusy = true; V.diag = null; V.diagAI = null;

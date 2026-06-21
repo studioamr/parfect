@@ -225,6 +225,7 @@ function vCourse(u) {
   const drillCard = d => {
     const e = log[d.key]; const hits = e ? e.hits : 0; const reps = d.reps; const pct = reps ? Math.round(hits / reps * 100) : 0; const done = e && hits >= reps;
     const pc = !e ? 'var(--muted)' : pct >= 85 ? '#3aa055' : pct >= 50 ? '#e0a23a' : 'var(--danger)';
+    const tmRun = V.trkTimer && V.trkTimer.key === d.key && V.trkTimer.running;
     return `<div class="card trk-card ${done ? 'trk-done' : ''}" style="padding:12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
         <div style="min-width:0"><b style="font-size:14.5px">${esc(d.name)}</b><span style="display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px">${esc(d.goal)}</span></div>
@@ -235,7 +236,7 @@ function vCourse(u) {
         <b style="min-width:44px;text-align:center;font-size:15px">${hits}/${reps}</b>
         <button class="ph-pbtn" data-act="trk-set" data-k="${d.key}" data-reps="${reps}" data-d="1">+</button>
         <span style="flex:1"></span>
-        <span class="small muted" style="white-space:nowrap">⏱ 20 min</span>
+        <button class="chip sm ${tmRun ? 'on' : ''}" data-act="trk-timer" data-k="${d.key}" id="trktm-${d.key}" style="white-space:nowrap">⏱ ${tmRun ? fmtClock(V.trkTimer.left) : '20 min'}</button>
       </div>
     </div>`;
   };
