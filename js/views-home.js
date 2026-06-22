@@ -1809,7 +1809,7 @@ function vProfile() {
             <button class="btn ghost" data-act="import-data">⬆ Importar copia</button>
           </div>
           <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="parfectImport(this)">
-          <p class="note">Tus datos viven en este dispositivo. Exporta una copia cada tanto para no perderlos si cambias de teléfono o limpias el navegador.</p>
+          <p class="note">Tu cuenta se sincroniza en la nube. Si quieres, exporta una copia de respaldo.</p>
           <hr class="set-div">
           <button class="btn ghost" data-act="seed-demo">${t('load_demo')}</button>
           <button class="btn danger" data-act="wipe-mine">${V.wipeArm ? t('wipe_confirm') : t('wipe')}</button>

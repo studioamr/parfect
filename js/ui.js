@@ -558,7 +558,7 @@ function botReply(text) {
   if (has('entren', 'practic', 'sesion', 'drill', 'ejercicio')) return 'En la pestaña Trainer eliges tu tiempo y luego: AI Coach (la IA arma tu sesión) o Entrenamiento libre (cronometra un bastón o un ejercicio de la biblioteca). Al terminar se guarda tu práctica.';
   if (has('academia', 'aprend', 'leccion', 'nivel', 'quiz', 'pregunt')) return 'La Academia tiene 18 niveles tipo trivia para aprender golf paso a paso. Pasa cada nivel para desbloquear el siguiente. La encuentras en la pestaña Trainer → Academia.';
   if (has('amigo', 'social', 'torneo', 'party', 'leaderboard', 'reta')) return 'En Social juegas con amigos: partidas por código, leaderboard en vivo y compartes tu tarjeta. ¡El golf es mejor en bola!';
-  if (has('gratis', 'precio', 'cuesta', 'costo', 'pago', 'pagar', 'plan')) return 'PARFECT es gratis para empezar y tus datos viven en tu dispositivo. Solo crea tu cuenta y a jugar.';
+  if (has('gratis', 'precio', 'cuesta', 'costo', 'pago', 'pagar', 'plan')) return 'PARFECT es gratis para empezar y tu cuenta se guarda en la nube. Solo crea tu cuenta y a jugar.';
   if (has('handicap', 'hcp', 'indice')) return 'PARFECT sigue tu hándicap automáticamente con cada ronda que registras y te muestra tu progreso hacia tu meta.';
   if (has('perfil', 'cuenta', 'avatar', 'foto', 'nombre')) return 'Toca tu avatar arriba a la derecha para personalizar tu perfil: tu golfista, hándicap, meta y campo de casa.';
   if (has('logro', 'trofeo', 'rango', 'meta')) return 'Cada meta que cumples desbloquea logros y trofeos míticos. Los ves en Trainer → Logros.';

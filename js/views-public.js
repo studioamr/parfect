@@ -523,7 +523,7 @@ function vLanding() {
           <button class="lp-order lp-cta-main" data-act="go" data-view="signup">${golfIcon('flag')} Crear cuenta gratis</button>
           <button class="lp-cta-login" data-act="go" data-view="login">Ya tengo cuenta · Iniciar sesión</button>
         </div>
-        <p class="lp-trust">Gratis para empezar · Tus datos viven en tu dispositivo</p>
+        <p class="lp-trust">Gratis para empezar · Tu cuenta se guarda en la nube</p>
       </div>
     </section>
 
@@ -862,7 +862,7 @@ function vAuth(mode) {
     <button class="auth-back" data-act="go" data-view="landing">← Volver</button>
     <div class="auth-card">
       <h1 class="auth-h">Crea tu cuenta</h1>
-      <p class="auth-sub">60 segundos y empiezas a registrar. Tus datos se guardan en este dispositivo.</p>
+      <p class="auth-sub">60 segundos y empiezas a registrar. Tu cuenta se guarda en la nube.</p>
       <div class="field"><label>Nombre</label><input id="f-name" type="text" autocomplete="name" placeholder="¿Cómo te llamamos?" value="${esc(vals.name || '')}"></div>
       <div class="field"><label>Email</label><input id="f-email" type="email" autocomplete="email" placeholder="tu@email.com" value="${esc(vals.email || '')}"></div>
       <div class="field"><label>Contraseña</label><input id="f-pass" type="password" autocomplete="new-password" placeholder="Mínimo 4 caracteres"></div>
