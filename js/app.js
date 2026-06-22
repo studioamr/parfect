@@ -180,7 +180,8 @@ function App() {
     if (V.view === 'login' || V.view === 'signup') return vAuth(V.view);
     return vLanding();
   }
-  // Sin intro/presentación: los usuarios nuevos entran directo a la app.
+  // Usuarios nuevos: intro guiado antes de entrar a la app (empiezan de cero).
+  if (u.onboarded === false) return vOnboard();
   if (V.view === 'play') {
     if (!S.active || S.active.userId !== u.id) { V.view = 'ronda'; }
     else return vPlay();
@@ -555,7 +556,7 @@ const actions = {
     const email = val('f-email').toLowerCase();
     const pass = document.getElementById('f-pass').value;
     const hcpRaw = val('f-hcp'), goalRaw = val('f-goal');
-    const demo = document.getElementById('f-demo').checked;
+    const demoEl = document.getElementById('f-demo'); const demo = demoEl ? demoEl.checked : false;
     V.authVals = { name, email, hcp: hcpRaw, goal: goalRaw, demo };
     if (!name) { V.err = 'Dinos tu nombre.'; render(); return; }
     if (!/^\S+@\S+\.\S+$/.test(email)) { V.err = 'Ese email no parece válido.'; render(); return; }
@@ -573,7 +574,7 @@ const actions = {
     }
     // ---- modo local (sin nube configurada) ----
     if (S.users.some(x => x.email === email)) { V.err = 'Ya existe una cuenta con ese email en este dispositivo.'; render(); return; }
-    const u = { id: Store.uid(), name, email, pass: await hashPass(pass), hcp, goal, createdAt: Date.now(), onboarded: true };
+    const u = { id: Store.uid(), name, email, pass: await hashPass(pass), hcp, goal, createdAt: Date.now(), onboarded: !!demo };
     S.users.push(u);
     S.session = u.id;
     if (demo) {

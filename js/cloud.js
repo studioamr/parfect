@@ -183,7 +183,8 @@ const Cloud = (() => {
     if (!ON || !uid) return;
     if (localStorage.getItem('parfect_claimed')) return;
     const cloudIds = new Set(S.users.filter(u => u.cloud).map(u => u.id));
-    const isLocal = r => !cloudIds.has(r.userId) && r.userId !== uid;
+    const demoIds = new Set(S.users.filter(u => /@parfect\.golf$/.test(u.email || '')).map(u => u.id)); // nunca reclamar la demo
+    const isLocal = r => !cloudIds.has(r.userId) && !demoIds.has(r.userId) && r.userId !== uid;
     const lr = S.rounds.filter(isLocal);
     const lp = S.practices.filter(isLocal);
     localStorage.setItem('parfect_claimed', '1'); // marca: no reclamar de nuevo en este dispositivo
