@@ -853,7 +853,7 @@ function vPlay() {
           <button class="qlog-chip neg ${h.app != null && h.app !== 'gir' ? 'on' : ''}" data-act="fast" data-k="app" data-v="miss">Falló</button>
         </div>
         ${(h.app != null && h.app !== 'gir') ? `<span class="qlog-lab">Up &amp; down</span><div class="qlog-chips">
-          <button class="qlog-chip ${h.upDown === true ? 'on' : ''}" data-act="fast" data-k="ud" data-v="si">Salvé el par</button>
+          <button class="qlog-chip ${h.upDown === true ? 'on' : ''}" data-act="fast" data-k="ud" data-v="si">Sí</button>
           <button class="qlog-chip neg ${h.upDown === false ? 'on' : ''}" data-act="fast" data-k="ud" data-v="no">No</button>
         </div>` : ''}
         <span class="qlog-lab">Putts</span><div class="qlog-chips">
