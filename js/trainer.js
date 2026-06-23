@@ -57,7 +57,7 @@ const Trainer = (() => {
         diag += ` Además pierdes ~${agg.penals18.toFixed(1)} bolas penalizadas por ronda: golpes regalados.`;
         tips.push('Con peligro a un lado del hoyo, sal con madera 3 o híbrido: la distancia que cedes vale menos que el penal.');
       }
-      focus.push({ key: 'driving', titulo: 'Driving · Salidas', lost, diag, drills: DRILLS.driving, tips });
+      focus.push({ key: 'driving', titulo: 'Driving · Salidas', lost, diag, drills: DRILLS.driving, tips, met: Math.round(agg.fwPct) >= Math.round(bench.fwPct) });
     }
 
     /* ---- Approach / GIR ---- */
@@ -78,7 +78,7 @@ const Trainer = (() => {
       } else {
         tips.push('Apunta al centro del green: el GIR sube solo con objetivos más conservadores.');
       }
-      focus.push({ key: 'approach', titulo: 'Approach · Hierros', lost, diag, drills: DRILLS.approach, tips });
+      focus.push({ key: 'approach', titulo: 'Approach · Hierros', lost, diag, drills: DRILLS.approach, tips, met: Math.round(agg.girPct) >= Math.round(bench.girPct) });
     }
 
     /* ---- Juego corto ---- */
@@ -94,7 +94,7 @@ const Trainer = (() => {
       } else {
         tips.push('Tu juego corto sostiene tu score: mantenlo con 20 minutos de chipping por sesión de práctica.');
       }
-      focus.push({ key: 'short', titulo: 'Juego corto', lost, diag, drills: DRILLS.short, tips });
+      focus.push({ key: 'short', titulo: 'Juego corto', lost, diag, drills: DRILLS.short, tips, met: Math.round(agg.scrPct) >= Math.round(bench.scrPct) });
     }
 
     /* ---- Putting ---- */
@@ -114,7 +114,7 @@ const Trainer = (() => {
         tips.push('Rutina fija en putts cortos: una mirada al hoyo, golpe firme a la parte de atrás de la copa.');
       }
       if (tips.length === 0) tips.push('Tu putting está en línea con tu meta: protégelo con 2 vueltas del Reloj de 1.5 m por semana.');
-      focus.push({ key: 'putting', titulo: 'Putting', lost, diag, drills: DRILLS.putting, tips });
+      focus.push({ key: 'putting', titulo: 'Putting', lost, diag, drills: DRILLS.putting, tips, met: (+agg.putts18.toFixed(1)) <= (+bench.putts18.toFixed(1)) });
     }
 
     focus.sort((a, b) => b.lost - a.lost);

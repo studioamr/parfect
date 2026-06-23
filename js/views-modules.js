@@ -727,8 +727,8 @@ function vSessionPlanner() {
       const parts = String(f.diag || '').split('. ').map(s => s.trim()).filter(Boolean);
       let lead = parts[0] ? parts[0].replace(/\.$/, '') + '.' : '';
       lead = lead.replace(/referencia para meta/gi, 'meta objetivo').replace(/referencia/gi, 'meta objetivo');
-      return `<div class="aisum-row" style="--pc:${PC[f.key] || '#57a83e'}">
-        <span class="aisum-n">${i + 1}</span>
+      return `<div class="aisum-row ${f.met ? 'met' : ''}" style="--pc:${f.met ? '#3aa055' : (PC[f.key] || '#57a83e')}">
+        <span class="aisum-n">${f.met ? '✓' : (i + 1)}</span>
         <div class="aisum-tx"><b>${esc(f.titulo)}</b>${lead ? `<span>${esc(lead)}</span>` : ''}</div>
       </div>`;
     }).join('');
