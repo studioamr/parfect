@@ -756,6 +756,104 @@ def teoria_100y():
     M.cta_outro(frames,PAL,line1='PARFECT te dice dónde vive el tuyo')
     return M.render(frames,'theory-100y')
 
+# ============================================================
+# THEORY 4 · "El lado corto es la carcel del green"
+# ============================================================
+def teoria_ladocorto():
+    frames=[]
+    # gancho #5: split-wipe rojo/verde
+    lines=['EL LADO CORTO ES','LA CÁRCEL DEL GREEN.']; sub='(deja de fallar hacia la bandera)'
+    secs=max(3.0, M.dur_lectura(' '.join(lines)+' '+sub,1.0))
+    n=int(secs*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        sx=int(W*M.ease(min(t*1.6,1)))
+        d.rectangle([0,1180,max(sx//2,1),1900],fill=(60,22,20,150))
+        d.rectangle([W-max(sx//2,1),1180,W,1900],fill=(60,22,20,150))
+        d.rectangle([W//2-max(sx//4,1),1180,W//2+max(sx//4,1),1900],fill=(18,52,34,170))
+        def gl(dd):
+            dd.line([(W//2-sx//4,1180),(W//2-sx//4,1900)],fill=RED+(200,),width=4)
+            dd.line([(W//2+sx//4,1180),(W//2+sx//4,1900)],fill=GREEN+(220,),width=4)
+        glow(b,gl,14,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.5:
+            a=int(255*min((t-0.5)*4,1))
+            d2.text((W//2,1400),'ANCHO',font=BLACK(54),fill=GREEN+(a,),anchor='mm')
+            d2.text((170,1400),'CORTO',font=BLACK(44),fill=RED+(a,),anchor='lm')
+            d2.text((W-170,1400),'CORTO',font=BLACK(44),fill=RED+(a,),anchor='rm')
+        ty=560-66
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,88,(t-0.06*i)*2.4,GREEN if i==1 else INK,font=BLACK,maxw=W-120)
+            ty+=132
+        if t>0.28: d.text((W//2,ty+40),sub,font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.06*t,PAL); frames.append(V.fin(b))
+    # geometria: green con bandera pegada a la derecha
+    gcx,gcy=W//2,1120; flag=(gcx+270,gcy-40)
+    def green_lados(b,d,zonas=1.0,pulso=0.0):
+        gp=green_pts(gcx,gcy,430,300)
+        d.polygon(gp,fill=GREENDIM+(255,))
+        def gg(dd): dd.line(gp,fill=GREEN+(150,),width=4)
+        glow(b,gg,16,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if zonas>0:
+            a=int((90+40*pulso)*zonas)
+            d2.polygon([(flag[0]+40,gcy-300),(gcx+480,gcy-300),(gcx+500,gcy+300),(flag[0]+40,gcy+300)],fill=(200,60,50,a))
+            d2.polygon([(gcx-500,gcy-300),(flag[0]-60,gcy-300),(flag[0]-60,gcy+300),(gcx-520,gcy+300)],fill=(60,180,110,int(a*0.55)))
+        d2.line([(flag[0],flag[1]),(flag[0],flag[1]-110)],fill=INK,width=6)
+        d2.polygon([(flag[0],flag[1]-110),(flag[0]+58,flag[1]-90),(flag[0],flag[1]-70)],fill=RED)
+        d2.ellipse([flag[0]-12,flag[1]-5,flag[0]+12,flag[1]+7],fill=(10,20,14))
+        return d2
+    n1=int(3.6*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'Bandera pegada a la derecha:',GEO(58),INK,t)
+        d2=green_lados(b,d,zonas=M.ease(min(max(t*1.6-0.3,0),1)),pulso=math.sin(t*math.pi*4)*0.5+0.5)
+        if t>0.55:
+            a=min((t-0.55)*5,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
+            d2.text((W//2,1560),'De ese lado NO hay green para trabajar',font=BLACK(44),fill=RED+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.12+0.18*t,PAL); frames.append(V.fin(b))
+    # fase 2: los dos misses
+    n2=int(5.0*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'Mismo error, dos destinos:',GEO(58),INK,t)
+        d2=green_lados(b,d,zonas=1.0)
+        if t>0.1:
+            ft=min((t-0.1)*2.5,1)
+            mx,my=flag[0]+150,gcy+40
+            def gx(dd,a=int(255*ft)): 
+                dd.line([(mx-26,my-26),(mx+26,my+26)],fill=RED+(a,),width=10)
+                dd.line([(mx-26,my+26),(mx+26,my-26)],fill=RED+(a,),width=10)
+            glow(b,gx,10,1)
+            d3=ImageDraw.Draw(b,'RGBA')
+            if ft>0.6:
+                a=int(255*min((ft-0.6)*3,1))
+                d3.text((W//2,1500),'Miss al lado corto: bogey casi seguro',font=BLACK(42),fill=RED+(a,),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,a))
+        if t>0.55:
+            ft=min((t-0.55)*2.5,1)
+            mx2,my2=gcx-330,gcy+20
+            def gc(dd,a=int(255*ft)): dd.ellipse([mx2-22,my2-22,mx2+22,my2+22],outline=GREEN+(a,),width=9)
+            glow(b,gc,10,1)
+            d3=ImageDraw.Draw(b,'RGBA')
+            if ft>0.6:
+                a=int(255*min((ft-0.6)*3,1))
+                d3.text((W//2,1600),'Miss al lado ancho: up & down fácil',font=BLACK(42),fill=GREEN+(a,),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,a))
+        M.progressbar(d,0.3+0.3*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('cuando vayas a fallar falla del lado ancho el miss inteligente vale medio golpe',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,800,'Cuando vayas a fallar...',76,t*1.8,INK)
+        M.poptext(d,W//2,940,'falla del lado ANCHO.',82,max(t*1.8-0.25,0),GREEN)
+        if t>0.4:
+            ftxt(d,(W//2,1160),'El miss inteligente vale medio golpe.',BOLD(42),SUB,(t-0.4)/0.6,t_out=0.92)
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT mide tus up & down reales')
+    return M.render(frames,'theory-ladocorto')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -767,5 +865,6 @@ if __name__=='__main__':
     elif cmd=='wedges': teoria_wedges()
     elif cmd=='drive': teoria_drive()
     elif cmd=='100y': teoria_100y()
+    elif cmd=='ladocorto': teoria_ladocorto()
     else:
         teoria_bandera(); teoria_okay()
