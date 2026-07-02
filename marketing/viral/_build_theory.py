@@ -268,10 +268,101 @@ def teoria_velocidad():
     M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts reales')
     return M.render(frames,'theory-velocidad')
 
+# ============================================================
+# THEORY 2 · "Par 5: la meta no es eagle, es evitar el bogey"
+# ============================================================
+def teoria_par5():
+    tee=(W//2+40,1760); green_c=(W//2-40,560)
+    agua=(W//2+230,1050)
+    def hole(b,d,trace=1.0):
+        # fairway
+        fw=[(W//2-250,1780),(W//2-310,1300),(W//2-260,900),(W//2-190,640),
+            (W//2+120,620),(W//2+230,880),(W//2+280,1320),(W//2+240,1780)]
+        d.polygon(fw,fill=(18,42,30,255))
+        def g(dd):
+            k=max(2,int(len(fw)*min(trace,1)))
+            dd.line(fw[:k]+([fw[0]] if trace>=1 else []),fill=GREEN+(160,),width=4)
+        glow(b,g,18,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        # agua a la derecha a mitad de camino
+        d2.ellipse([agua[0]-150,agua[1]-110,agua[0]+170,agua[1]+120],fill=(30,48,74,255))
+        d2.text((agua[0]+8,agua[1]),'AGUA',font=BOLD(30),fill=(120,150,190),anchor='mm')
+        # green arriba
+        d2.ellipse([green_c[0]-150,green_c[1]-95,green_c[0]+150,green_c[1]+95],fill=GREENDIM)
+        def g2(dd): dd.ellipse([green_c[0]-150,green_c[1]-95,green_c[0]+150,green_c[1]+95],outline=GREEN+(220,),width=4)
+        glow(b,g2,16,1)
+        d2.line([(green_c[0]+40,green_c[1]),(green_c[0]+40,green_c[1]-95)],fill=INK,width=5)
+        d2.polygon([(green_c[0]+40,green_c[1]-95),(green_c[0]+92,green_c[1]-78),(green_c[0]+40,green_c[1]-58)],fill=RED)
+        # tee
+        d2.ellipse([tee[0]-16,tee[1]-16,tee[0]+16,tee[1]+16],fill=INK)
+    def arco(b,pts,t,color,dash=False):
+        (x0,y0),(x1,y1)=pts
+        n=26; seg=[]
+        for i in range(int(n*min(t,1))+1):
+            u=i/n
+            x=x0+(x1-x0)*u; y=y0+(y1-y0)*u-math.sin(u*math.pi)*130
+            seg.append((x,y))
+        if len(seg)>1:
+            def g(dd): dd.line(seg,fill=color+(240,),width=7)
+            glow(b,g,14,1)
+        return seg[-1] if seg else pts[0]
+    frames=[]
+    titlecard(frames,['EN EL PAR 5 LA META','NO ES EAGLE.'],'(es evitar el BOGEY)',2.8,accent_idx=1)
+    # fase 1: el mapa se dibuja
+    n1=int(1.4*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,340),'El hoyo más peligroso del campo:',font=GEO(54),fill=INK,anchor='mm')
+        hole(b,d,trace=t)
+        M.progressbar(d,0.1+0.1*t,PAL); frames.append(V.fin(b))
+    # fase 2: ruta HEROE (2 canonazos, el 2o al agua)
+    n2=int(3.4*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,340),'La ruta del HÉROE: llegar en 2',font=GEO(54),fill=RED,anchor='mm')
+        hole(b,d)
+        p1=arco(b,[tee,(W//2-60,1180)],t*2,RED)
+        if t>0.5:
+            arco(b,[(W//2-60,1180),(agua[0]-10,agua[1]+10)],(t-0.5)*2.4,RED)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.72:
+            r=int(28+40*((t-0.72)/0.28))
+            def gs(dd): dd.ellipse([agua[0]-10-r,agua[1]+10-r,agua[0]-10+r,agua[1]+10+r],outline=RED+(255,),width=8)
+            glow(b,gs,12,1)
+            d2.text((W//2,1560),'SPLASH. Doble bogey.',font=BLACK(56),fill=RED,anchor='mm')
+        M.progressbar(d,0.2+0.2*t,PAL); frames.append(V.fin(b))
+    # fase 3: ruta INTELIGENTE (3 tiros comodos)
+    n3=int(3.8*FPS)
+    for k in range(n3):
+        t=k/(n3-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,340),'La ruta del que SÍ baja: 3 tiros',font=GEO(54),fill=GREEN,anchor='mm')
+        hole(b,d)
+        arco(b,[tee,(W//2-140,1330)],t*3,GREEN)
+        if t>0.33: arco(b,[(W//2-140,1330),(W//2-190,900)],(t-0.33)*3,GREEN)
+        if t>0.66: arco(b,[(W//2-190,900),green_c],(t-0.66)*3,GREEN)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.85:
+            d2.text((W//2,1560),'PAR fácil. Birdie de regalo.',font=BLACK(56),fill=GREEN,anchor='mm')
+        M.progressbar(d,0.42+0.22*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('tres tiros aburridos ganan a un tiro de heroe',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,880,'3 tiros aburridos',88,t*1.8,INK)
+        M.poptext(d,W//2,1020,'> 1 tiro de héroe.',88,max(t*1.8-0.25,0),GREEN)
+        d.text((W//2,1240),'El eagle vende. El par paga.',font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.66+0.2*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT mide tus pares 5 reales')
+    return M.render(frames,'theory-par5')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
     elif cmd=='okay': teoria_okay()
     elif cmd=='velocidad': teoria_velocidad()
+    elif cmd=='par5': teoria_par5()
     else:
         teoria_bandera(); teoria_okay()
