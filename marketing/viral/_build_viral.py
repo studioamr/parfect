@@ -9,6 +9,7 @@ HERE   = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.normpath(os.path.join(HERE, '..', '..', 'assets'))
 OUT    = HERE
 S = 1080
+H = S   # lienzo cuadrado 1080x1080
 
 FP='/System/Library/Fonts/Supplemental/'
 BLACK  = lambda s: ImageFont.truetype(FP+'Arial Black.ttf', s)
@@ -64,6 +65,104 @@ def light_base():
     corner_glow(b,S-50,40,240,(150,220,90),60)
     d=ImageDraw.Draw(b,'RGBA')
     wordmark(d,S//2,60,color=LIME,textcolor=LIMEINK); return b,d
+
+# ============================================================
+# ESTILO PARFECT — escena de día en el campo (como la landing)
+# ============================================================
+SKYDAY=[(95,189,239),(134,201,239),(182,224,245),(216,237,200),(191,227,154),(169,216,119)]
+INK2=(20,48,28); GREENINK=(29,122,58); MUT2=(90,120,80)
+HILL1=(121,189,84); HILL2=(159,207,126); HILL3=(106,169,74)
+
+def draw_sun(b, cx=S-190, cy=180, r=95):
+    glow=Image.new('RGBA',(S,S),(0,0,0,0))
+    ImageDraw.Draw(glow).ellipse([cx-r*2.2,cy-r*2.2,cx+r*2.2,cy+r*2.2],fill=(255,228,135,120))
+    glow=glow.filter(ImageFilter.GaussianBlur(60)); b.alpha_composite(glow)
+    d=ImageDraw.Draw(b); d.ellipse([cx-r,cy-r,cx+r,cy+r],fill=(255,236,150))
+    d.ellipse([cx-r*0.7,cy-r*0.7,cx+r*0.7,cy+r*0.7],fill=(255,246,196))
+
+def draw_clouds(b):
+    layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
+    def cloud(cx,cy,s):
+        for dx,dy,r in [(-40,4,26),(-12,-8,34),(24,-4,30),(52,8,24),(6,14,30)]:
+            dl.ellipse([cx+dx*s-r*s,cy+dy*s-r*s,cx+dx*s+r*s,cy+dy*s+r*s],fill=(255,255,255,235))
+    cloud(180,150,1.1); cloud(690,120,0.8); cloud(430,250,0.6)
+    b.alpha_composite(layer)
+
+def _hue(im, deg):
+    if deg==0: return im
+    r,g,bl,a=im.split(); hsv=Image.merge('RGB',(r,g,bl)).convert('HSV')
+    h,s,v=hsv.split(); h=h.point(lambda p:(p+int(deg/360*255))%256)
+    rgb=Image.merge('HSV',(h,s,v)).convert('RGB'); r2,g2,b2=rgb.split()
+    return Image.merge('RGBA',(r2,g2,b2,a))
+
+def paste_bird(b, cx, cy, h, hue=0, flip=False):
+    im=Image.open(os.path.join(ASSETS,'bird.png')).convert('RGBA')
+    im=_hue(im,hue)
+    if flip: im=im.transpose(Image.FLIP_LEFT_RIGHT)
+    r=h/im.height; im=im.resize((round(im.width*r),h))
+    x,y=round(cx-im.width/2),round(cy-im.height/2)
+    sh=Image.new('RGBA',im.size,(0,0,0,0)); sa=im.split()[3].point(lambda p:int(p*0.28))
+    ImageDraw.Draw(sh); shimg=Image.new('RGBA',im.size,(20,40,15,0)); shimg.putalpha(sa)
+    shimg=shimg.filter(ImageFilter.GaussianBlur(6)); b.alpha_composite(shimg,(x+4,y+8))
+    b.alpha_composite(im,(x,y))
+
+def draw_bee(d, cx, cy, s=1.0):
+    d.ellipse([cx-8*s,cy-13*s,cx+8*s,cy-3*s],fill=(234,246,255,220))
+    d.ellipse([cx+2*s,cy-12*s,cx+15*s,cy-3*s],fill=(234,246,255,220))
+    d.ellipse([cx-9*s,cy-2*s,cx+11*s,cy+10*s],fill=(246,198,60))
+    d.line([(cx-4*s,cy-2*s),(cx-4*s,cy+9*s)],fill=(43,33,19),width=max(2,int(2.4*s)))
+    d.line([(cx+2*s,cy-2*s),(cx+2*s,cy+9*s)],fill=(43,33,19),width=max(2,int(2.4*s)))
+    d.ellipse([cx+8*s,cy,cx+15*s,cy+7*s],fill=(43,33,19))
+
+def draw_tree2(d,cx,cy,s):
+    d.rectangle([cx-4*s,cy-4*s,cx+4*s,cy+22*s],fill=(122,82,48))
+    d.ellipse([cx-26*s,cy-40*s,cx+26*s,cy+6*s],fill=HILL3)
+    d.ellipse([cx-18*s,cy-30*s,cx+18*s,cy+2*s],fill=HILL2)
+
+def draw_flag2(d,cx,cy,h):
+    d.ellipse([cx-h*0.32,cy-4,cx+h*0.32,cy+10],fill=HILL3)
+    d.line([(cx,cy-h),(cx,cy+4)],fill=(238,242,224),width=max(3,int(h*0.05)))
+    d.polygon([(cx,cy-h),(cx+h*0.5,cy-h*0.8),(cx,cy-h*0.62)],fill=(231,81,63))
+
+def draw_flowers(b):
+    import random as _r; rnd=_r.Random(7); layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
+    cols=[(255,120,150),(255,210,90),(255,255,255),(180,130,230),(255,150,90)]
+    for _ in range(46):
+        x=rnd.randint(20,S-20); y=rnd.randint(S-70,S-16); r=rnd.choice([4,5,6,7])
+        dl.ellipse([x-r,y-r,x+r,y+r],fill=rnd.choice(cols)+(235,))
+    b.alpha_composite(layer)
+
+def scene_course(b, hilltop=H-360):
+    layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
+    dl.polygon([(0,H),(0,hilltop+40),(S*0.3,hilltop-30),(S*0.62,hilltop+34),(S,hilltop-10),(S,H)],fill=HILL2+(255,))
+    dl.polygon([(0,H),(0,hilltop+120),(S*0.4,hilltop+70),(S*0.75,hilltop+120),(S,hilltop+80),(S,H)],fill=HILL1+(255,))
+    b.alpha_composite(layer)
+    d=ImageDraw.Draw(b)
+    draw_tree2(d,80,hilltop+150,1.7); draw_tree2(d,S-70,hilltop+180,1.35)
+    draw_flag2(d,S-150,hilltop+150,120)
+    draw_flowers(b)
+
+def sky_scene(b, birds=True, strip_y=648):
+    draw_sun(b); draw_clouds(b)
+    if birds:
+        paste_bird(b,150,strip_y,56,hue=0)
+        paste_bird(b,915,strip_y-6,48,hue=210,flip=True)
+        paste_bird(b,120,120,40,hue=110)
+    draw_bee(ImageDraw.Draw(b,'RGBA'),300,strip_y+6,1.7)
+
+def bright_base(with_course=True):
+    b=vgrad(S,S,SKYDAY).convert('RGBA')
+    sky_scene(b)
+    if with_course: scene_course(b)
+    d=ImageDraw.Draw(b,'RGBA')
+    wordmark(d,S//2,64,color=LIME,textcolor=INK2)
+    return b,d
+
+def white_card(b, x, y, w, h, r=34):
+    sh=Image.new('RGBA',(S,S),(0,0,0,0))
+    ImageDraw.Draw(sh).rounded_rectangle([x,y+10,x+w,y+h+12],r,fill=(20,45,20,55))
+    sh=sh.filter(ImageFilter.GaussianBlur(12)); b.alpha_composite(sh)
+    ImageDraw.Draw(b).rounded_rectangle([x,y,x+w,y+h],r,fill=(255,255,255,250))
 
 def draw_hill(b,top_y,color,alpha=200,wave=18):
     layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
@@ -172,66 +271,64 @@ def paste_char(base, name, cx, cy, h, glow=True):
 
 ITEM_ICONS=['check','target','chart','flag','bolt']
 
-# ---------- slide de titulo (fondo oscuro, ilustracion grande) ----------
+# ---------- slide de titulo (escena PARFECT de dia) ----------
 def slide_title(kicker, title_lines, n, total):
-    b,d=dark_base(seed=100); pagepill(d,n,total,dark=True)
-    d.rounded_rectangle([S//2-220,150,S//2+220,204],27,fill=LIME)
-    d.text((S//2,177),kicker,font=BLACK(28),fill=LIMEINK,anchor='mm')
-    y=260
+    b,d=bright_base(); pagepill(d,n,total,dark=False)
+    cw=S-120; cx=60; cy=150; ch=90+len(title_lines)*84+40
+    white_card(b,cx,cy,cw,ch)
+    d=ImageDraw.Draw(b,'RGBA')
+    d.rounded_rectangle([S//2-210,cy+30,S//2+210,cy+84],27,fill=LIME)
+    d.text((S//2,cy+57),kicker,font=BLACK(28),fill=LIMEINK,anchor='mm')
+    ty=cy+150
     for ln in title_lines:
-        d.text((S//2,y),ln,font=BLACK(70),fill=CREAM,anchor='mm'); y+=82
-    golf_scene_title(b,d)
-    paste_char(b, 'golfer.png', S//2, 680, 330)
-    feats=[('target','MIDES'),('chart','ANALIZAS'),('bolt','MEJORAS')]
-    fx=[S//2-260,S//2,S//2+260]
-    for x,(k,lab) in zip(fx,feats):
-        feature_chip(d,x,918,k,lab,CREAM,bg=(32,44,28))
-    swipe_dots(d,n,total,cy=1012,dark=True)
-    footer_dark(d,'desliza →'); return fin(b)
-
-# ---------- slide de item numerado (fondo oscuro) ----------
-def slide_item(num, text, n, total):
-    b,d=dark_base(seed=n*7+total); pagepill(d,n,total,dark=True)
-    cy=172
-    icon=ITEM_ICONS[(num-1)%len(ITEM_ICONS)]
-    mini_icon(d,icon,S//2-118,cy,34,LIMEINK,bg=LIME)
-    d.text((S//2+18,cy),str(num),font=BLACK(120),fill=LIME,anchor='mm')
-    d.line([(S//2-70,cy+76),(S//2+70,cy+76)],fill=LIME,width=6)
-    lines=wraptext(d,text,BLACK(54),860)
-    total_h=len(lines)*68
-    ty=430-total_h//2
-    for ln in lines:
-        d.text((S//2,ty),ln,font=BLACK(54),fill=CREAM,anchor='mm'); ty+=68
-    golf_scene_item(b,d)
-    paste_char(b, 'eagle.png', S//2, 850, 230)
-    d.rounded_rectangle([S//2-186,978,S//2+186,1020],21,fill=(255,255,255,18))
-    d.text((S//2,999),'PARFECT · GOLF DATA',font=BOLD(19),fill=MUT_D,anchor='mm')
-    swipe_dots(d,n,total,cy=1050,dark=True)
+        d.text((S//2,ty),ln,font=BLACK(66),fill=INK2,anchor='mm'); ty+=84
+    paste_char(b, 'golfer.png', S//2, H-360, 300)
+    swipe_dots(d,n,total,cy=H-70,dark=False)
+    d.text((S//2,H-34),'desliza →',font=BOLD(26),fill=INK2,anchor='mm')
     return fin(b)
 
-# ---------- slide CTA final (fondo CLARO = marca real, sin badges falsos) ----------
+# ---------- slide de item numerado (escena PARFECT) ----------
+def slide_item(num, text, n, total):
+    b,d=bright_base(); pagepill(d,n,total,dark=False)
+    tmp=ImageDraw.Draw(Image.new('RGB',(10,10)))
+    lines=wraptext(tmp,text,BLACK(52),820)
+    cy=150; ch=150+len(lines)*66+40
+    white_card(b,60,cy,S-120,ch)
+    d=ImageDraw.Draw(b,'RGBA')
+    icon=ITEM_ICONS[(num-1)%len(ITEM_ICONS)]
+    mini_icon(d,icon,S//2-96,cy+70,32,LIMEINK,bg=LIME)
+    d.text((S//2+22,cy+70),str(num),font=BLACK(96),fill=GREENINK,anchor='mm')
+    ty=cy+185
+    for ln in lines:
+        d.text((S//2,ty),ln,font=BLACK(52),fill=INK2,anchor='mm'); ty+=66
+    paste_char(b, 'eagle.png', S//2, H-330, 210)
+    swipe_dots(d,n,total,cy=H-64,dark=False)
+    return fin(b)
+
+# ---------- slide CTA final (escena PARFECT + screenshot real) ----------
 def slide_cta(headline, sub, shotfile='shot-inicio.png', n=None, total=None):
-    b,d=light_base()
+    b,d=bright_base(with_course=False)
     if n and total: pagepill(d,n,total,dark=False)
-    d.text((S//2,150),headline,font=BLACK(54),fill=INK,anchor='mm')
-    d.text((S//2,212),sub,font=BOLD(30),fill=MUT_L,anchor='mm')
+    white_card(b,60,150,S-120,170)
+    d=ImageDraw.Draw(b,'RGBA')
+    d.text((S//2,212),headline,font=BLACK(52),fill=INK2,anchor='mm')
+    for i,ln in enumerate(wraptext(d,sub,BOLD(30),820)):
+        d.text((S//2,262+i*38),ln,font=BOLD(30),fill=MUT2,anchor='mm')
     try:
         shot=Image.open(os.path.join(ASSETS,shotfile)).convert('RGBA')
-        r=490/shot.height; shot=shot.resize((round(shot.width*r),490))
-        fx,fy=S//2-shot.width//2, 268
+        r=470/shot.height; shot=shot.resize((round(shot.width*r),470))
+        fx,fy=S//2-shot.width//2, 360
         sh=Image.new('RGBA',(S,S),(0,0,0,0))
-        ImageDraw.Draw(sh).rounded_rectangle([fx-14,fy+14,fx+shot.width+14,fy+shot.height+34],36,fill=(44,58,22,60))
-        b.alpha_composite(sh); b.alpha_composite(shot,(fx,fy))
+        ImageDraw.Draw(sh).rounded_rectangle([fx-14,fy+16,fx+shot.width+14,fy+shot.height+36],36,fill=(20,45,20,70))
+        sh=sh.filter(ImageFilter.GaussianBlur(10)); b.alpha_composite(sh); b.alpha_composite(shot,(fx,fy))
     except Exception:
         pass
-    feats=[('target','SIN ADIVINAR'),('chart','DATOS REALES'),('check','GRATIS')]
-    fx2=[S//2-260,S//2,S//2+260]
-    for x,(k,lab) in zip(fx2,feats):
-        feature_chip(d,x,808,k,lab,LIMEINK,bg=(219,233,183))
-    d.rounded_rectangle([S//2-330,910,S//2+330,978],34,fill=LIME)
-    d.text((S//2,944),'REGÍSTRATE GRATIS · LINK EN BIO',font=BLACK(26),fill=LIMEINK,anchor='mm')
-    if n and total: swipe_dots(d,n,total,cy=1006,dark=False)
-    footer_light(d,'parfectapp.github.io/parfect'); return fin(b)
+    d=ImageDraw.Draw(b,'RGBA')
+    d.rounded_rectangle([S//2-330,H-150,S//2+330,H-82],34,fill=LIME)
+    d.text((S//2,H-116),'REGÍSTRATE GRATIS · LINK EN BIO',font=BLACK(26),fill=LIMEINK,anchor='mm')
+    if n and total: swipe_dots(d,n,total,cy=H-50,dark=False)
+    d.text((S//2,H-20),'parfectapp.github.io/parfect',font=BOLD(22),fill=MUT2,anchor='mm')
+    return fin(b)
 
 def save(img,folder,name):
     p=os.path.join(OUT,folder); os.makedirs(p,exist_ok=True)
