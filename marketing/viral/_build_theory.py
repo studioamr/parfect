@@ -119,6 +119,45 @@ def titlecard_rain(frames,lines,sub,seconds,accent_idx=None):
         M.progressbar(d,0.05+0.05*t,PAL)
         frames.append(V.fin(b))
 
+def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86):
+    """texto con fade-in/out: nunca se encima con el siguiente mensaje"""
+    a=min(t*5,1.0) if t<t_out else max(0.0,(1.0-t)/(1.0-t_out))
+    if a<=0.02: return
+    d.text(xy,txt,font=font,fill=fill+(int(255*a),),anchor=anchor)
+
+def titlecard_cone(frames,lines,sub,seconds,accent_idx=None):
+    """gancho #3: ABANICO de trayectorias abriendose desde el tee"""
+    full=' '.join(lines)+' '+(sub or '')
+    seconds=max(seconds, M.dur_lectura(full,1.0))
+    n=int(seconds*FPS)
+    tee=(W//2,1830)
+    angs=[-38,-25,-13,0,13,25,38]
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        for i,ang in enumerate(angs):
+            ft=min(max(t*2.2-i*0.12,0),1)
+            if ft<=0: continue
+            L=560*M.ease(ft)
+            rad=math.radians(ang)
+            ex,ey=tee[0]+math.sin(rad)*L, tee[1]-math.cos(rad)*L
+            col=GREEN if abs(ang)<20 else RED
+            def gl(dd,ex=ex,ey=ey,col=col,ft=ft):
+                dd.line([tee,(ex,ey)],fill=col+(int(200*ft),),width=5)
+                dd.ellipse([ex-9,ey-9,ex+9,ey+9],fill=col+(int(255*ft),))
+            glow(b,gl,10,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([tee[0]-14,tee[1]-8,tee[0]+14,tee[1]+10],fill=(240,240,230))
+        ty=620-(len(lines)-1)*66
+        for i,ln in enumerate(lines):
+            col=GREEN if i==accent_idx else INK
+            M.poptext(d,W//2,ty,ln,92,(t-0.06*i)*2.4,col,font=BLACK,maxw=W-140)
+            ty+=132
+        if sub and t>0.28:
+            d.text((W//2,ty+40),sub,font=BOLD(44),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.05*t,PAL)
+        frames.append(V.fin(b))
+
 # ---------- geometría del green (vista cenital) ----------
 def green_pts(cx,cy,rx,ry,n=64):
     pts=[]
@@ -561,6 +600,83 @@ def teoria_wedges():
     M.cta_outro(frames,PAL,line1='PARFECT mide tu juego corto real')
     return M.render(frames,'theory-wedges')
 
+# ============================================================
+# THEORY 20 · "Tu drive cae en una ELIPSE, no en un punto"
+# ============================================================
+def teoria_drive():
+    frames=[]
+    titlecard_cone(frames,['TU DRIVE NO CAE','EN UN PUNTO.'],'(cae en una elipse)',3.0,accent_idx=1)
+    tee=(W//2,1800)
+    import random as _r; rnd=_r.Random(20)
+    drives=[(rnd.gauss(0,120),rnd.gauss(0,70)) for _ in range(12)]
+    cx,cy=W//2,900   # centro de aterrizaje
+    def fairway(b,d):
+        fw=[(W//2-210,1840),(W//2-260,1250),(W//2-215,760),(W//2-140,540),
+            (W//2+150,560),(W//2+235,800),(W//2+265,1300),(W//2+220,1840)]
+        d.polygon(fw,fill=(18,42,30,255))
+        def g(dd): dd.line(fw+[fw[0]],fill=GREEN+(140,),width=4)
+        glow(b,g,16,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([tee[0]-13,tee[1]-8,tee[0]+13,tee[1]+9],fill=(240,240,230))
+        return d2
+    # fase 1: la fantasia (una linea recta al centro)
+    n1=int(3.2*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'En tu cabeza, tu drive va AQUÍ:',GEO(58),INK,t)
+        fairway(b,d)
+        L=M.ease(min(t*1.6,1))
+        def gl(dd): dd.line([tee,(tee[0]+(cx-tee[0])*L,tee[1]+(cy-tee[1])*L)],fill=GREEN+(230,),width=6)
+        glow(b,gl,12,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.55:
+            def gp(dd): dd.ellipse([cx-13,cy-13,cx+13,cy+13],fill=GREEN+(255,))
+            glow(b,gp,10,1)
+            tt=(t-0.55)/0.45
+            a=min(tt*5,1.0) if tt<0.86 else max(0.0,(1.0-tt)/0.14)
+            if a>0.02:
+                d2.text((W//2,1560),'Un punto perfecto.',font=BLACK(50),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.1+0.16*t,PAL); frames.append(V.fin(b))
+    # fase 2: la realidad (12 drives = elipse)
+    n2=int(5.4*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'Tus 12 drives REALES del mes:',GEO(58),INK,t)
+        d2=fairway(b,d)
+        fuera=0
+        vis=int(len(drives)*min(t*1.25,1))
+        for i in range(vis):
+            dx,dy=drives[i]; px,py=cx+dx,cy+dy
+            enf=abs(dx)<205
+            if not enf: fuera+=1
+            col=GREEN if enf else RED
+            def gd(dd,px=px,py=py,col=col): dd.ellipse([px-11,py-11,px+11,py+11],fill=col+(255,))
+            glow(b,gd,9,1)
+        if t>0.62:
+            et=(t-0.62)/0.38
+            rr=290*M.ease(min(et*1.4,1)); ry=rr*0.55
+            def ge(dd): dd.ellipse([cx-rr,cy-ry,cx+rr,cy+ry],outline=(238,205,90,240),width=5)
+            glow(b,ge,12,1)
+            d3=ImageDraw.Draw(b,'RGBA')
+            a=min(et*5,1.0) if et<0.86 else max(0.0,(1.0-et)/0.14)
+            if a>0.02:
+                d3.text((W//2,1560),f'Esto es una ELIPSE de 40 m — {fuera} al rough',font=BLACK(44),fill=(238,205,90,int(255*a)),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.26+0.28*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('no juegues tu mejor drive juega tu elipse completa apunta donde quepa',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,780,'No juegues tu MEJOR drive.',76,t*1.8,INK)
+        M.poptext(d,W//2,920,'Juega tu ELIPSE completa.',80,max(t*1.8-0.25,0),GREEN)
+        if t>0.4:
+            ftxt(d,(W//2,1140),'Apunta donde tu elipse quepa entera.',BOLD(42),SUB,(t-0.4)/0.6,t_out=0.92)
+        M.progressbar(d,0.62+0.26*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT mide tus fairways reales')
+    return M.render(frames,'theory-drive')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -570,5 +686,6 @@ if __name__=='__main__':
     elif cmd=='putts30': teoria_putts30()
     elif cmd=='3putts': teoria_3putts()
     elif cmd=='wedges': teoria_wedges()
+    elif cmd=='drive': teoria_drive()
     else:
         teoria_bandera(); teoria_okay()
