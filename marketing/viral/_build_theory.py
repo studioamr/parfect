@@ -1029,6 +1029,102 @@ def teoria_bogey():
     M.cta_outro(frames,PAL,line1='PARFECT calcula TU par personal')
     return M.render(frames,'theory-bogey')
 
+# ============================================================
+# THEORY 33 · "Practicar sin objetivo es pasear con palos"
+# ============================================================
+def teoria_practica():
+    import random
+    frames=[]
+    # gancho #8: trazo que deambula sin rumbo
+    lines=['PRACTICAR SIN OBJETIVO','ES PASEAR CON PALOS.']; sub='(50 bolas, 0 datos)'
+    secs=max(3.2,M.dur_lectura(' '.join(lines)+' '+sub,1.0))
+    n=int(secs*FPS)
+    rnd=random.Random(7); pts=[(W//2,1520)]
+    for i in range(60):
+        px,py=pts[-1]
+        pts.append((min(max(px+rnd.uniform(-90,90),150),W-150),min(max(py+rnd.uniform(-70,42),1040),1580)))
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        m=int(len(pts)*min(t*1.6,1))
+        if m>1:
+            def path(dd,m=m):
+                dd.line(pts[:m],fill=GREEN+(200,),width=6)
+                x,y=pts[m-1]; dd.ellipse([x-13,y-13,x+13,y+13],fill=(250,250,246,255))
+            glow(b,path,9,1)
+        ty=520
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,72,(t-0.06*i)*2.4,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=122
+        if t>0.3: d.text((W//2,ty+36),sub,font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.06*t,PAL); frames.append(V.fin(b))
+    def range_base(b,d,title,t):
+        ftxt(d,(W//2,360),title,GEO(50),INK,t)
+        for yy,lab in [(1180,'50'),(950,'100'),(720,'150')]:
+            def dl(dd,yy=yy):
+                dd.line([(150,yy),(W-190,yy)],fill=GREENDIM+(210,),width=3)
+            glow(b,dl,5,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W-170,yy),lab,font=BOLD(32),fill=SUB+(220,),anchor='lm')
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([W//2-15,1405,W//2+15,1435],fill=(250,250,246,255))
+    # fase 1: bolas por todos lados
+    rnd2=random.Random(11)
+    dots=[(rnd2.uniform(190,W-210),rnd2.uniform(640,1330)) for _ in range(26)]
+    n1=int(4.8*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        range_base(b,d,'Tu cubeta de 50 bolas, sin objetivo:',t)
+        for i,(px,py) in enumerate(dots):
+            ft=min(max(t*3.0-i*0.09,0),1)
+            if ft<=0: continue
+            def dot(dd,px=px,py=py,ft=ft):
+                dd.ellipse([px-11,py-11,px+11,py+11],fill=GREEN+(int(200*ft),))
+            glow(b,dot,6,1)
+        if t>0.62:
+            a=min((t-0.62)*5,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1560),'0 objetivos. 0 datos. 0 mejora.',font=BLACK(48),fill=RED+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.12+0.22*t,PAL); frames.append(V.fin(b))
+    # fase 2: con objetivo
+    rnd3=random.Random(23)
+    cl=[(W//2+rnd3.gauss(0,58),950+rnd3.gauss(0,52)) for _ in range(12)]
+    n2=int(4.8*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        range_base(b,d,'La misma cubeta, CON objetivo:',t)
+        def tgt(dd,t=t):
+            e=M.ease(min(t*2.2,1))
+            for rr in (46,90,134):
+                r=rr*e
+                dd.ellipse([W//2-r,950-r,W//2+r,950+r],outline=GREEN+(235,),width=5)
+        glow(b,tgt,8,1)
+        for i,(px,py) in enumerate(cl):
+            ft=min(max(t*2.6-0.5-i*0.12,0),1)
+            if ft<=0: continue
+            def dot(dd,px=px,py=py,ft=ft):
+                dd.ellipse([px-11,py-11,px+11,py+11],fill=(250,250,246,int(255*ft)))
+            glow(b,dot,5,1)
+        if t>0.62:
+            a=min((t-0.62)*5,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1560),'Cada bola = un DATO.',font=BLACK(50),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.36+0.26*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('el range no es terapia es un laboratorio 10 bolas con objetivo ganan a 50 sin rumbo',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,790,'El range no es terapia.',64,t*1.9,INK)
+        M.poptext(d,W//2,920,'Es un LABORATORIO.',78,max(t*1.9-0.25,0),GREEN)
+        if t>0.45:
+            ftxt(d,(W//2,1140),'10 bolas con objetivo > 50 sin rumbo.',BOLD(44),SUB,(t-0.45)/0.55,t_out=0.92)
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT convierte tu práctica en plan')
+    return M.render(frames,'theory-practica')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1043,5 +1139,6 @@ if __name__=='__main__':
     elif cmd=='ladocorto': teoria_ladocorto()
     elif cmd=='putt1m': teoria_putt1m()
     elif cmd=='bogey': teoria_bogey()
+    elif cmd=='practica': teoria_practica()
     else:
         teoria_bandera(); teoria_okay()
