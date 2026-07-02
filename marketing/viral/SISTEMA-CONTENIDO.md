@@ -1,5 +1,10 @@
 # Sistema de contenido PARFECT — pide y confirma
 
+> **v3 (2026-07-01):** todo el diseño migró al estilo profesional
+> "EDITORIAL DE DATOS" (navy+lima / papel editorial) y ahora existe el
+> **departamento automático** (`_dept.py` + rutina diaria 9:47 am).
+> Manual completo: `OPERACION.md`.
+
 Tú NO tienes que escribir copy ni diseñar. Me pides un formato con un tema, yo lo
 genero al instante con la marca, te lo enseño, y tú solo dices "va" o "cámbiale X".
 
