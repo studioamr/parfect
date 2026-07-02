@@ -16,6 +16,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 | 15 | practica | — | gancho #8 garabato; narrativa antes/después |
 | 16 | tarjeta | fades lineales se sentían duros | **ftxt v2: smoothstep + deslizamiento 18px** (entra subiendo, sale flotando); poptext con alpha suave y overshoot 1.12 |
 
+| 17 | brecha | el deslizamiento de ftxt se veía con lag (PIL mueve por píxeles ENTEROS a 30fps) | **ftxt v3 subpíxel**: el offset fraccional se reparte en 2 draws ponderados por alpha + recorrido corto (8px); fondo con gradiente+viñeta precalculados; **chrome v2 con branding de la app**: chip lima "THEORY · EP nn" + @parfectapp |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
@@ -23,4 +25,5 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 4. Gancho de apertura NUEVO cada video (9 en catálogo, seguir inventando).
 5. Música: Keinemusik ↔ Black Coffee alternando, track NO repetido.
 6. Caption verificado en pantalla antes de Publicar.
-7. Después de publicar: anotar aquí la observación del día.
+7. Branding de la app en cada frame: wordmark + chip EP lima + @parfectapp.
+8. Después de publicar: anotar aquí la observación del día.

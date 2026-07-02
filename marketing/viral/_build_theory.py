@@ -25,8 +25,23 @@ LIME=(199,238,84)           # acento de marca (CTA)
 RED=(239,96,84)
 BOLD=M.BOLD; BLACK=M.BLACK; GEO=M.GEO
 
+def _bg_img():
+    g=Image.new('RGB',(64,114),BG); dg=ImageDraw.Draw(g)
+    top=(11,19,15); mid=BG; bot=(5,9,7)
+    for y in range(114):
+        t=y/113
+        c=(tuple(int(top[i]+(mid[i]-top[i])*(t/0.45)) for i in range(3)) if t<0.45
+           else tuple(int(mid[i]+(bot[i]-mid[i])*((t-0.45)/0.55)) for i in range(3)))
+        dg.line([(0,y),(64,y)],fill=c)
+    img=g.resize((W,H),Image.BILINEAR).convert('RGBA')
+    hal=Image.new('RGBA',(W,H),(0,0,0,0))
+    ImageDraw.Draw(hal).ellipse([W//2-640,H//2-860,W//2+640,H//2+860],fill=(17,32,23,64))
+    img.alpha_composite(hal.filter(ImageFilter.GaussianBlur(230)))
+    return img
+BGIMG=_bg_img()
+
 def canvas():
-    b=Image.new('RGB',(W,H),BG).convert('RGBA')
+    b=BGIMG.copy()
     return b,ImageDraw.Draw(b,'RGBA')
 
 def glow(base, draw_fn, blur=22, boost=2):
@@ -36,8 +51,11 @@ def glow(base, draw_fn, blur=22, boost=2):
     for _ in range(boost): base.alpha_composite(halo)
     base.alpha_composite(layer)
 
-def chrome(d,alpha=255):
+def chrome(d,alpha=255,ep=None):
     M.wordmark(d,W//2,170,INK,52,alpha=alpha)
+    if ep:
+        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=LIME+(min(alpha,215),),anchor='rm')
+        d.text((84,172),'@parfectapp',font=BOLD(27),fill=SUB+(min(alpha,170),),anchor='lm')
 
 def titlecard(frames,lines,sub,seconds,accent_idx=None):
     """portada/hook: gancho VISUAL (putt con estela al pin) + titulo, legible"""
@@ -119,17 +137,20 @@ def titlecard_rain(frames,lines,sub,seconds,accent_idx=None):
         M.progressbar(d,0.05+0.05*t,PAL)
         frames.append(V.fin(b))
 
-def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86,rise=18):
-    """texto smooth: smoothstep in/out + deslizamiento sutil; nunca se encima"""
+def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86,rise=8):
+    """texto smooth SUBPIXEL: el offset fraccional se reparte entre dos draws
+    ponderados -> el movimiento se ve continuo a 30fps (sin brincos de pixel)"""
     if t<=0: return
     if t<t_out:
         p=min(t*3.2,1.0); a=p*p*(3-2*p)
-        off=rise*(1-p)**2            # entra subiendo, frena suave
+        off=rise*(1-p)**2
     else:
         q=min((t-t_out)/(1.0-t_out),1.0); a=1-q*q*(3-2*q)
-        off=-rise*0.45*q*q           # sale flotando hacia arriba
+        off=-rise*0.45*q*q
     if a<=0.02: return
-    d.text((xy[0],xy[1]+off),txt,font=font,fill=fill+(int(255*a),),anchor=anchor)
+    yf=xy[1]+off; y0=math.floor(yf); fr=yf-y0
+    d.text((xy[0],y0),txt,font=font,fill=fill+(int(255*a*(1-fr)),),anchor=anchor)
+    if fr>0.04: d.text((xy[0],y0+1),txt,font=font,fill=fill+(int(255*a*fr),),anchor=anchor)
 
 def titlecard_cone(frames,lines,sub,seconds,accent_idx=None):
     """gancho #3: ABANICO de trayectorias abriendose desde el tee"""
@@ -1209,6 +1230,102 @@ def teoria_tarjeta():
     M.cta_outro(frames,PAL,line1='PARFECT recuerda tu ronda por ti')
     return M.render(frames,'theory-tarjeta')
 
+# ============================================================
+# THEORY 44 · "Tus expectativas estan 10 golpes arriba de tu HCP"
+# ============================================================
+def teoria_brecha():
+    frames=[]
+    # gancho #10: compuertas que se abren revelando la brecha
+    lines=['TUS EXPECTATIVAS ESTÁN','10 GOLPES ARRIBA','DE TU REALIDAD.']
+    secs=max(3.8,M.dur_lectura(' '.join(lines),1.1))
+    n=int(secs*FPS); cy=1210
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=17)
+        gap=M.ease(min(t*1.8,1))*330
+        def doors(dd,gap=gap):
+            dd.line([(120,cy-gap),(W-120,cy-gap)],fill=GREEN+(235,),width=6)
+            dd.line([(120,cy+gap),(W-120,cy+gap)],fill=GREEN+(235,),width=6)
+        glow(b,doors,10,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if gap>60:
+            a=int(255*min((gap-60)/160,1))
+            num=int(10*min(max((t-0.25)/0.5,0),1))
+            d2.text((W//2,cy),f'+{num}',font=BLACK(185),fill=RED+(a,),anchor='mm')
+        ty=470
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,64,(t-0.07*i)*2.2,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=106
+        M.progressbar(d,0.05+0.07*t,PAL); frames.append(V.fin(b))
+    # fase 1: la regla — cabeza vs tarjeta
+    x0=340
+    def y_of(sc): return 620+(sc-80)*560/20.0
+    n1=int(5.6*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=17)
+        ftxt(d,(W//2,380),'Tu cabeza vs tu tarjeta:',GEO(54),INK,t)
+        e=M.ease(min(t*2.0,1))
+        def ruler(dd,e=e):
+            dd.line([(x0,620),(x0,620+560*e)],fill=GREEN+(220,),width=5)
+        glow(b,ruler,8,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for sc in range(80,101,5):
+            if (y_of(sc)-620)<=560*e+1:
+                d2.line([(x0-16,y_of(sc)),(x0,y_of(sc))],fill=SUB+(200,),width=3)
+                d2.text((x0-32,y_of(sc)),str(sc),font=BOLD(30),fill=SUB+(220,),anchor='rm')
+        f1=min(max((t-0.28)*3,0),1)
+        if f1>0:
+            a=int(255*(f1*f1*(3-2*f1)))
+            d2.line([(x0,y_of(84)),(x0+230,y_of(84))],fill=INK+(a,),width=4)
+            d2.text((x0+254,y_of(84)-2),'"Hoy rompo 85"',font=GEO(42),fill=INK+(a,),anchor='lm')
+        f2=min(max((t-0.5)*3,0),1)
+        if f2>0:
+            a=int(255*(f2*f2*(3-2*f2)))
+            def mk(dd,a=a):
+                dd.line([(x0,y_of(94)),(x0+230,y_of(94))],fill=GREEN+(a,),width=5)
+            glow(b,mk,7,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((x0+254,y_of(94)-2),'tu promedio real: 94',font=BOLD(38),fill=GREEN+(a,),anchor='lm')
+        f3=min(max((t-0.66)*3.4,0),1)
+        if f3>0:
+            d2.rectangle([x0+8,y_of(84)+4,x0+560,y_of(94)-4],fill=RED+(int(80*f3),))
+            d2.text((x0+284,(y_of(84)+y_of(94))/2),'LA BRECHA',font=BLACK(46),fill=RED+(int(255*f3),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*f3)))
+        M.progressbar(d,0.14+0.2*t,PAL); frames.append(V.fin(b))
+    # fase 2: como se cobra
+    pasos=['Expectativa rota en el hoyo 3','Tiros de héroe para "recuperar"','Doble. Y otro. Y otro.']
+    n2=int(M.dur_lectura(' '.join(pasos),1.5)*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=17)
+        ftxt(d,(W//2,380),'Y la brecha se cobra así:',GEO(54),INK,t)
+        for i,p in enumerate(pasos):
+            ft=min(max(t*3.2-i*0.6,0),1)
+            if ft<=0: continue
+            a=int(255*(ft*ft*(3-2*ft)))
+            y=660+i*250; col=RED if i==2 else INK
+            def chip(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([170,y-70,W-170,y+70],26,outline=(RED if col==RED else GREEN)+(int(200*ft),),width=4)
+            glow(b,chip,7,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,y),p,font=BOLD(40),fill=col+(a,),anchor='mm')
+            if i<2 and ft>0.7:
+                aa=int(255*min((ft-0.7)*3.3,1))
+                d2.text((W//2,y+125),'↓',font=BLACK(52),fill=SUB+(aa,),anchor='mm')
+        M.progressbar(d,0.36+0.26*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('juega tu handicap de hoy no el de tus sueños la brecha se cierra midiendo no deseando',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=17)
+        M.poptext(d,W//2,790,'Juega tu hándicap de HOY.',64,t*1.9,INK)
+        M.poptext(d,W//2,930,'No el de tus sueños.',64,max(t*1.9-0.25,0),SUB)
+        if t>0.5:
+            ftxt(d,(W//2,1150),'La brecha se cierra midiendo, no deseando.',BOLD(42),GREEN,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT te dice tu número REAL')
+    return M.render(frames,'theory-brecha')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1225,5 +1342,6 @@ if __name__=='__main__':
     elif cmd=='bogey': teoria_bogey()
     elif cmd=='practica': teoria_practica()
     elif cmd=='tarjeta': teoria_tarjeta()
+    elif cmd=='brecha': teoria_brecha()
     else:
         teoria_bandera(); teoria_okay()
