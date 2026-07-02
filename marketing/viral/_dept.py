@@ -91,8 +91,7 @@ RETOS=[('RETO: CERO 3-PUTTS','una semana de green disciplinado',['Cuenta tus put
 
 # --- THEORY: cola de videos pre-renderizados (ver TEORIA-50.md) ---
 # solo SIN publicar (los publicados salen de la cola)
-THEORY_COLA=[('theory-3putts.mp4','Cada 3-putt son 2 golpes regalados. 6 por ronda = la diferencia entre 95 y 89 🩸'),
- ]  # se agregan conforme se rendericen (tandas semanales)
+THEORY_COLA=[]  # vacia = todo publicado; renderizar siguiente tanda de TEORIA-50.md  # se agregan conforme se rendericen (tandas semanales)
 QUIZES=[('¿Cuál es el par más común en un campo de 18 hoyos?',['70','72','74'],1,'Par 72: cuatro pares 3, cuatro pares 5 y diez pares 4.'),
  ('¿Desde dónde se pierden más golpes?',['El tee','100 yardas y menos','El green'],1,'Más de la mitad de tu score se hace en 100 yardas y menos.'),
  ('¿Cuántos greens en regulación toma un HCP 36?',['1 de 3','1 de 6','1 de 12'],2,'Apenas 1 de cada 12. Ahí está la mina de golpes.'),
@@ -123,7 +122,10 @@ def pieza_del_dia(fecha):
         c=COLA_CARRUSELES[w%len(COLA_CARRUSELES)]
         return t,c,GANCHO_CARRUSEL[c]
     if t=='theory':
-        k=nth_del_tipo(fecha,'theory')%max(len(THEORY_COLA),1)
+        if not THEORY_COLA:
+            item=STATS[nth_del_tipo(fecha,'theory')%len(STATS)]
+            return 'stat',item,f'El dato de hoy: {item[0]} {item[1]} 📊 (cola THEORY vacía: renderizar tanda de TEORIA-50.md)'
+        k=nth_del_tipo(fecha,'theory')%len(THEORY_COLA)
         f,g=THEORY_COLA[k]; return t,f,g
     if t=='quiz':
         item=QUIZES[nth_del_tipo(fecha,'quiz')%len(QUIZES)]
