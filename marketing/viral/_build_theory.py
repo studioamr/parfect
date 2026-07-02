@@ -17,8 +17,8 @@ import _build_motion as M
 
 W,H,FPS=M.W,M.H,M.FPS
 BG=(8,14,11)
-PAL=dict(bg=(14,44,22), ink=(236,241,237), sub=(148,163,152))
-INK=PAL['ink']; SUB=(206,223,203)
+PAL=dict(bg=BG, ink=(236,241,237), sub=(148,163,152))
+INK=PAL['ink']; SUB=PAL['sub']
 GREEN=(96,235,140)          # glow verde menta (diagramas)
 GREENDIM=(24,62,42)         # superficie del green
 LIME=(199,238,84)           # acento de marca (CTA)
@@ -26,37 +26,17 @@ RED=(239,96,84)
 BOLD=M.BOLD; BLACK=M.BLACK; GEO=M.GEO
 
 def _bg_img():
-    """fondo 'PARFECT DAY': el mundo de la landing (cielo/sol/nubes/lomas)
-    y el contenido sobre campo verde profundo (los glow leen como TV tracer)"""
-    img=Image.new('RGB',(W,H),(31,82,40)).convert('RGBA')
-    d=ImageDraw.Draw(img)
-    for y in range(360):
-        t=y/359
-        d.line([(0,y),(W,y)],fill=(int(121+86*t),int(205+33*t),int(236+15*t)))
-    sun=Image.new('RGBA',(W,H),(0,0,0,0))
-    ImageDraw.Draw(sun).ellipse([W-320,30,W-100,250],fill=(255,224,122,225))
-    img.alpha_composite(sun.filter(ImageFilter.GaussianBlur(60)))
-    cl=Image.new('RGBA',(W,H),(0,0,0,0)); dc=ImageDraw.Draw(cl)
-    dc.ellipse([80,110,430,215],fill=(255,255,255,215))
-    dc.ellipse([610,195,880,275],fill=(255,255,255,180))
-    img.alpha_composite(cl.filter(ImageFilter.GaussianBlur(14)))
-    hl=Image.new('RGBA',(W,H),(0,0,0,0)); dh=ImageDraw.Draw(hl)
-    dh.ellipse([-320,250,720,600],fill=(121,185,79,255))
-    dh.ellipse([420,270,1420,640],fill=(93,160,66,255))
-    img.alpha_composite(hl)
-    fld=Image.new('RGBA',(W,H),(0,0,0,0)); df=ImageDraw.Draw(fld)
-    top=(56,128,64); bot=(16,50,24)
-    for y in range(395,H):
-        t=(y-395)/(H-395)
-        df.line([(0,y),(W,y)],fill=tuple(int(top[i]+(bot[i]-top[i])*t) for i in range(3))+(255,))
-    img.alpha_composite(fld)
-    st=Image.new('RGBA',(W,H),(0,0,0,0)); ds=ImageDraw.Draw(st)
-    for i,x in enumerate(range(-260,W+420,180)):
-        if i%2==0: ds.polygon([(x,395),(x+180,395),(x+70,H),(x-110,H)],fill=(255,255,255,9))
-    img.alpha_composite(st)
-    vg=Image.new('RGBA',(W,H),(0,0,0,0))
-    ImageDraw.Draw(vg).rectangle([0,H-460,W,H],fill=(0,18,8,66))
-    img.alpha_composite(vg.filter(ImageFilter.GaussianBlur(150)))
+    g=Image.new('RGB',(64,114),BG); dg=ImageDraw.Draw(g)
+    top=(11,19,15); mid=BG; bot=(5,9,7)
+    for y in range(114):
+        t=y/113
+        c=(tuple(int(top[i]+(mid[i]-top[i])*(t/0.45)) for i in range(3)) if t<0.45
+           else tuple(int(mid[i]+(bot[i]-mid[i])*((t-0.45)/0.55)) for i in range(3)))
+        dg.line([(0,y),(64,y)],fill=c)
+    img=g.resize((W,H),Image.BILINEAR).convert('RGBA')
+    hal=Image.new('RGBA',(W,H),(0,0,0,0))
+    ImageDraw.Draw(hal).ellipse([W//2-640,H//2-860,W//2+640,H//2+860],fill=(17,32,23,64))
+    img.alpha_composite(hal.filter(ImageFilter.GaussianBlur(230)))
     return img
 BGIMG=_bg_img()
 
@@ -71,12 +51,11 @@ def glow(base, draw_fn, blur=22, boost=2):
     for _ in range(boost): base.alpha_composite(halo)
     base.alpha_composite(layer)
 
-DINK=(18,46,25)   # tinta bosque para el cielo
 def chrome(d,alpha=255,ep=None):
-    M.wordmark(d,W//2,170,DINK,52,alpha=alpha)
+    M.wordmark(d,W//2,170,INK,52,alpha=alpha)
     if ep:
-        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=DINK+(min(alpha,220),),anchor='rm')
-        d.text((84,172),'@parfectapp',font=BOLD(27),fill=DINK+(min(alpha,180),),anchor='lm')
+        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=LIME+(min(alpha,215),),anchor='rm')
+        d.text((84,172),'@parfectapp',font=BOLD(27),fill=SUB+(min(alpha,170),),anchor='lm')
 
 def titlecard(frames,lines,sub,seconds,accent_idx=None):
     """portada/hook: gancho VISUAL (putt con estela al pin) + titulo, legible"""
@@ -170,8 +149,8 @@ def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86,rise=8):
         off=-rise*0.45*q*q
     if a<=0.02: return
     yf=xy[1]+off; y0=math.floor(yf); fr=yf-y0
-    d.text((xy[0],y0),txt,font=font,fill=fill+(int(255*a*(1-fr)),),anchor=anchor,stroke_width=4,stroke_fill=(10,30,16,int(210*a*(1-fr))))
-    if fr>0.04: d.text((xy[0],y0+1),txt,font=font,fill=fill+(int(255*a*fr),),anchor=anchor,stroke_width=4,stroke_fill=(10,30,16,int(210*a*fr)))
+    d.text((xy[0],y0),txt,font=font,fill=fill+(int(255*a*(1-fr)),),anchor=anchor)
+    if fr>0.04: d.text((xy[0],y0+1),txt,font=font,fill=fill+(int(255*a*fr),),anchor=anchor)
 
 def titlecard_cone(frames,lines,sub,seconds,accent_idx=None):
     """gancho #3: ABANICO de trayectorias abriendose desde el tee"""
@@ -1399,11 +1378,11 @@ def teoria_updown():
         def arc(dd,e=e):
             dd.arc([cx-rr,cy-rr,cx+rr,cy+rr],-90,-90+360*0.41*e,fill=GREEN+(245,),width=46)
         glow(b,arc,12,1)
-        d2.text((cx,cy-26),f'{int(41*e)}%',font=BLACK(132),fill=(250,250,246,255),anchor='mm',stroke_width=6,stroke_fill=(10,30,16,255))
+        d2.text((cx,cy-26),f'{int(41*e)}%',font=BLACK(132),fill=(250,250,246,255),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,255))
         d2.text((cx,cy+86),'up & down · HCP 15',font=BOLD(38),fill=SUB+(240,),anchor='mm')
         if t>0.62:
             a=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
-            d2.text((W//2,1440),'(los pros: 58%. No estás tan lejos.)',font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(10,30,16,int(255*a)))
+            d2.text((W//2,1440),'(los pros: 58%. No estás tan lejos.)',font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
         M.progressbar(d,0.16+0.2*t,PAL); frames.append(V.fin(b))
     # fase 2: 10 greens fallados
     n2=int(4.8*FPS)
@@ -1425,7 +1404,7 @@ def teoria_updown():
         if t>0.6:
             a=min((t-0.6)*5,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
             d2=ImageDraw.Draw(b,'RGBA')
-            d2.text((W//2,1250),'4 pares salvados = tu ronda entera',font=BLACK(52),fill=LIME+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(10,30,16,int(255*a)))
+            d2.text((W//2,1250),'4 pares salvados = tu ronda entera',font=BLACK(52),fill=LIME+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
         M.progressbar(d,0.38+0.26*t,PAL); frames.append(V.fin(b))
     # insight
     nin=int(M.dur_lectura('el score no se salva en el tee se salva a 30 metros del hoyo',1.3)*FPS)
