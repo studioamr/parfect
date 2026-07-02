@@ -65,6 +65,42 @@ def light_base():
     d=ImageDraw.Draw(b,'RGBA')
     wordmark(d,S//2,60,color=LIME,textcolor=LIMEINK); return b,d
 
+def draw_hill(b,top_y,color,alpha=200,wave=18):
+    layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
+    pts=[(0,S),(0,top_y+wave),(S*0.22,top_y-wave*0.6),(S*0.5,top_y+wave*0.7),
+         (S*0.78,top_y-wave*0.5),(S,top_y+wave),(S,S)]
+    dl.polygon(pts,fill=(color[0],color[1],color[2],alpha))
+    b.alpha_composite(layer)
+
+def draw_tree(d,cx,cy,s,color):
+    d.rectangle([cx-3*s,cy-2*s,cx+3*s,cy+16*s],fill=color)
+    d.ellipse([cx-20*s,cy-46*s,cx+20*s,cy-4*s],fill=color)
+    d.ellipse([cx-15*s,cy-64*s,cx+15*s,cy-30*s],fill=color)
+
+def draw_flag_scene(d,cx,cy,h,color):
+    d.line([(cx,cy-h),(cx,cy+6)],fill=color,width=max(3,int(h*0.05)))
+    d.polygon([(cx,cy-h),(cx+h*0.55,cy-h*0.82),(cx,cy-h*0.62)],fill=color)
+    d.ellipse([cx-h*0.34,cy,cx+h*0.34,cy+h*0.12],fill=color)
+
+def draw_ball_trail(d,x0,y0,x1,y1,n,color):
+    for i in range(n):
+        t=i/(n-1); x=x0+(x1-x0)*t; y=y0+(y1-y0)*t-math.sin(t*math.pi)*70
+        r=max(2,7-i*0.9)
+        d.ellipse([x-r,y-r,x+r,y+r],fill=color)
+
+def golf_scene_title(b,d):
+    draw_hill(b,800,(38,58,30),170,wave=22)
+    draw_hill(b,860,(28,44,24),210,wave=14)
+    draw_tree(d,120,930,1.15,(30,46,26))
+    draw_tree(d,955,955,0.95,(26,40,22))
+    draw_flag_scene(d,890,760,150,(60,84,44))
+    draw_ball_trail(d,150,760,430,660,7,(90,120,55))
+
+def golf_scene_item(b,d):
+    draw_hill(b,930,(30,46,26),170,wave=16)
+    draw_tree(d,90,990,0.8,(28,42,24))
+    draw_flag_scene(d,970,905,110,(56,78,42))
+
 def swipe_dots(d,n,total,cy=1006,dark=True):
     w=14; gap=22; startx=S//2-((total-1)*gap)//2
     for i in range(total):
@@ -144,6 +180,7 @@ def slide_title(kicker, title_lines, n, total):
     y=260
     for ln in title_lines:
         d.text((S//2,y),ln,font=BLACK(70),fill=CREAM,anchor='mm'); y+=82
+    golf_scene_title(b,d)
     paste_char(b, 'golfer.png', S//2, 680, 330)
     feats=[('target','MIDES'),('chart','ANALIZAS'),('bolt','MEJORAS')]
     fx=[S//2-260,S//2,S//2+260]
@@ -165,6 +202,7 @@ def slide_item(num, text, n, total):
     ty=430-total_h//2
     for ln in lines:
         d.text((S//2,ty),ln,font=BLACK(54),fill=CREAM,anchor='mm'); ty+=68
+    golf_scene_item(b,d)
     paste_char(b, 'eagle.png', S//2, 850, 230)
     d.rounded_rectangle([S//2-186,978,S//2+186,1020],21,fill=(255,255,255,18))
     d.text((S//2,999),'PARFECT · GOLF DATA',font=BOLD(19),fill=MUT_D,anchor='mm')
