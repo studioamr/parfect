@@ -40,20 +40,44 @@ def chrome(d,alpha=255):
     M.wordmark(d,W//2,170,INK,52,alpha=alpha)
 
 def titlecard(frames,lines,sub,seconds,accent_idx=None):
-    """portada/hook: COMPUESTA desde el frame 1 (nada de fundidos vacios)"""
+    """portada/hook: gancho VISUAL (putt con estela al pin) + titulo, legible"""
+    full=' '.join(lines)+' '+(sub or '')
+    seconds=max(seconds, M.dur_lectura(full,1.0))
     n=int(seconds*FPS)
+    pinx,gy=W-240,1560
     for k in range(n):
         t=k/max(n-1,1)
         b,d=canvas(); chrome(d)
-        ty=760-(len(lines)-1)*66
+        # ----- gancho visual abajo: bola rodando al hoyo -----
+        def gl(dd): dd.line([(90,gy),(W-90,gy)],fill=GREEN+(80,),width=3)
+        glow(b,gl,14,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([pinx-40,gy-8,pinx+40,gy+10],fill=(14,24,18,255))
+        d2.ellipse([pinx-14,gy-4,pinx+14,gy+6],fill=(6,10,8,255))
+        wob=math.sin(t*math.pi*5)*10
+        d2.line([(pinx,gy),(pinx,gy-150)],fill=INK,width=5)
+        d2.polygon([(pinx,gy-150),(pinx+66+wob,gy-128),(pinx,gy-104)],fill=RED)
+        bt=min(t/0.5,1.0); be=M.ease(bt)
+        bx=150+(pinx-26-150)*be
+        if bt<1.0:
+            for j in range(6):
+                tx=bx-(j+1)*26
+                if tx>140:
+                    def gt(dd,tx=tx,a=int(150*(1-j/6))): dd.ellipse([tx-5,gy-11,tx+5,gy-1],fill=GREEN+(a,))
+                    glow(b,gt,8,1)
+            d2.ellipse([bx-13,gy-19,bx+13,gy+7],fill=(250,250,246))
+        else:
+            rp=((t-0.5)*2.2)%1.0; rr=16+rp*55
+            def gr(dd): dd.ellipse([pinx-rr,gy-6-rr*0.35,pinx+rr,gy+6+rr*0.35],outline=GREEN+(int(220*(1-rp)),),width=5)
+            glow(b,gr,10,1)
+        # ----- titulo con pop escalonado -----
+        ty=700-(len(lines)-1)*66
         for i,ln in enumerate(lines):
             col=GREEN if i==accent_idx else INK
-            d.text((W//2,ty),ln,font=BLACK(92),fill=col,anchor='mm'); ty+=132
-        if sub:
-            pu=1+0.02*math.sin(t*math.pi*3)
-            d.text((W//2,ty+40),sub,font=BOLD(int(44*pu)),fill=SUB,anchor='mm')
-        def g(dd): dd.line([(W//2-330,ty+140),(W//2+330,ty+140)],fill=GREEN+(120,),width=3)
-        glow(b,g,16,1)
+            M.poptext(d,W//2,ty,ln,92,(t-0.06*i)*2.4,col,font=BLACK,maxw=W-140)
+            ty+=132
+        if sub and t>0.28:
+            d.text((W//2,ty+40),sub,font=BOLD(44),fill=SUB,anchor='mm')
         M.progressbar(d,0.05+0.05*t,PAL)
         frames.append(V.fin(b))
 
@@ -106,7 +130,7 @@ def teoria_bandera():
     frames=[]
     titlecard(frames,['DEJA DE TIRARLE','A LA BANDERA.'],'(te está costando golpes)',2.6,accent_idx=1)
     # fase 1: green se dibuja
-    n1=int(1.6*FPS)
+    n1=int(2.2*FPS)
     for k in range(n1):
         t=k/(n1-1)
         b,d=canvas(); chrome(d)
@@ -115,7 +139,7 @@ def teoria_bandera():
         draw_green(b,d,trace=t)
         M.progressbar(d,0.1+0.12*t,PAL); frames.append(V.fin(b))
     # fase 2: tiros a la BANDERA (caen uno a uno; los que fallan, rojos)
-    n2=int(3.4*FPS)
+    n2=int(4.6*FPS)
     for k in range(n2):
         t=k/(n2-1)
         b,d=canvas(); chrome(d)
@@ -134,11 +158,11 @@ def teoria_bandera():
             def g3(dd,px=px,py=py,col=col,r=r): dd.ellipse([px-r,py-r,px+r,py+r],fill=col+(255,))
             glow(b,g3,10,1)
         d2=ImageDraw.Draw(b,'RGBA')
-        if t>0.75:
+        if t>0.55:
             d2.text((W//2,1560),f'{miss} de 12 FALLAN el green',font=BLACK(56),fill=RED,anchor='mm')
         M.progressbar(d,0.22+0.2*t,PAL); frames.append(V.fin(b))
     # fase 3: misma nube al CENTRO
-    n3=int(3.6*FPS)
+    n3=int(4.8*FPS)
     for k in range(n3):
         t=k/(n3-1)
         b,d=canvas(); chrome(d)
@@ -156,7 +180,7 @@ def teoria_bandera():
             def g3(dd,px=px,py=py,col=col,r=r): dd.ellipse([px-r,py-r,px+r,py+r],fill=col+(255,))
             glow(b,g3,10,1)
         d2=ImageDraw.Draw(b,'RGBA')
-        if t>0.75:
+        if t>0.55:
             d2.text((W//2,1560),f'{12-miss} de 12 EN el green',font=BLACK(56),fill=GREEN,anchor='mm')
         M.progressbar(d,0.42+0.2*t,PAL); frames.append(V.fin(b))
     # insight
@@ -192,24 +216,24 @@ def teoria_okay():
             d2.text((x1,by),f'{int(shown*min(t*1.3,1))}%',font=BLACK(40),fill=col,anchor='rm')
             by+=170
         return by
-    n1=int(3.0*FPS)
+    n1=int(4.2*FPS)
     for k in range(n1):
         t=k/(n1-1)
         b,d=canvas(); chrome(d)
         d.text((W//2,430),'Lo que crees que necesitas:',font=GEO(58),fill=INK,anchor='mm')
         bars(b,d,[100,100,100,100],t,RED)
         d=ImageDraw.Draw(b,'RGBA')
-        if t>0.7:
+        if t>0.5:
             d.text((W//2,1560),'NADIE juega así. Ni Tiger.',font=BLACK(54),fill=RED,anchor='mm')
         M.progressbar(d,0.1+0.22*t,PAL); frames.append(V.fin(b))
-    n2=int(3.4*FPS)
+    n2=int(4.6*FPS)
     for k in range(n2):
         t=k/(n2-1)
         b,d=canvas(); chrome(d)
         d.text((W//2,430),'Lo que tira un HCP 10 REAL:',font=GEO(58),fill=GREEN,anchor='mm')
         bars(b,d,[s[1] for s in stats],t,GREEN)
         d=ImageDraw.Draw(b,'RGBA')
-        if t>0.7:
+        if t>0.5:
             d.text((W//2,1560),'Solo necesitas jugar OKAY.',font=BLACK(54),fill=GREEN,anchor='mm')
         M.progressbar(d,0.34+0.24*t,PAL); frames.append(V.fin(b))
     nin=int(M.dur_lectura('okay y saber exactamente donde mejorar con datos',1.2)*FPS)
@@ -309,7 +333,7 @@ def teoria_par5():
     frames=[]
     titlecard(frames,['EN EL PAR 5 LA META','NO ES EAGLE.'],'(es evitar el BOGEY)',2.8,accent_idx=1)
     # fase 1: el mapa se dibuja
-    n1=int(1.4*FPS)
+    n1=int(2.0*FPS)
     for k in range(n1):
         t=k/(n1-1)
         b,d=canvas(); chrome(d)
@@ -317,7 +341,7 @@ def teoria_par5():
         hole(b,d,trace=t)
         M.progressbar(d,0.1+0.1*t,PAL); frames.append(V.fin(b))
     # fase 2: ruta HEROE (2 canonazos, el 2o al agua)
-    n2=int(3.4*FPS)
+    n2=int(4.6*FPS)
     for k in range(n2):
         t=k/(n2-1)
         b,d=canvas(); chrome(d)
@@ -327,14 +351,14 @@ def teoria_par5():
         if t>0.5:
             arco(b,[(W//2-60,1180),(agua[0]-10,agua[1]+10)],(t-0.5)*2.4,RED)
         d2=ImageDraw.Draw(b,'RGBA')
-        if t>0.72:
+        if t>0.55:
             r=int(28+40*((t-0.72)/0.28))
             def gs(dd): dd.ellipse([agua[0]-10-r,agua[1]+10-r,agua[0]-10+r,agua[1]+10+r],outline=RED+(255,),width=8)
             glow(b,gs,12,1)
             d2.text((W//2,1560),'SPLASH. Doble bogey.',font=BLACK(56),fill=RED,anchor='mm')
         M.progressbar(d,0.2+0.2*t,PAL); frames.append(V.fin(b))
     # fase 3: ruta INTELIGENTE (3 tiros comodos)
-    n3=int(3.8*FPS)
+    n3=int(5.0*FPS)
     for k in range(n3):
         t=k/(n3-1)
         b,d=canvas(); chrome(d)
@@ -344,7 +368,7 @@ def teoria_par5():
         if t>0.33: arco(b,[(W//2-140,1330),(W//2-190,900)],(t-0.33)*3,GREEN)
         if t>0.66: arco(b,[(W//2-190,900),green_c],(t-0.66)*3,GREEN)
         d2=ImageDraw.Draw(b,'RGBA')
-        if t>0.85:
+        if t>0.62:
             d2.text((W//2,1560),'PAR fácil. Birdie de regalo.',font=BLACK(56),fill=GREEN,anchor='mm')
         M.progressbar(d,0.42+0.22*t,PAL); frames.append(V.fin(b))
     nin=int(M.dur_lectura('tres tiros aburridos ganan a un tiro de heroe',1.2)*FPS)
