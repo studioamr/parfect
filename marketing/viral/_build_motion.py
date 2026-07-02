@@ -172,15 +172,25 @@ def video_razones(title,items,pal=CREAM):
 # ============================================================
 # FORMATO 3 · DEMO DE LA APP (pantallas reales con paneo + pasos)
 # ============================================================
-def video_app(pal=FOREST):
-    pasos=[('shot-rondas.png','1. Anotas tu ronda','fairway, green y putts en segundos'),
-           ('shot-analisis.png','2. La IA encuentra tu fuga','te dice dónde pierdes golpes'),
-           ('shot-inicio.png','3. Entrenas lo que importa','y tu hándicap empieza a bajar')]
+def video_app(pal=FOREST,variant=0):
+    HOOKS=['Así se baja el hándicap en 2026','La app que te dice qué practicar hoy',
+           'Deja de adivinar por qué juegas mal','Tu coach de golf vive en tu bolsillo']
+    PASOS=[[('shot-rondas.png','1. Anotas tu ronda','fairway, green y putts en segundos'),
+            ('shot-analisis.png','2. La IA encuentra tu fuga','te dice dónde pierdes golpes'),
+            ('shot-inicio.png','3. Entrenas lo que importa','y tu hándicap empieza a bajar')],
+           [('shot-analisis.png','1. La IA lee tus rondas','encuentra tu fuga de golpes'),
+            ('shot-logros.png','2. Ves tu progreso real','logros por hitos de tu juego'),
+            ('shot-rondas.png','3. Cada ronda cuenta','historial completo, hoyo por hoyo')],
+           [('shot-inicio.png','1. Todo tu golf en una pantalla','hándicap, tendencia y plan'),
+            ('shot-social.png','2. Tu liga de amigos','scores en vivo, cero peleas'),
+            ('shot-analisis.png','3. Y la IA te entrena','con tus datos, no con tips genéricos')]]
+    hook=HOOKS[variant%len(HOOKS)]; pasos=PASOS[variant%len(PASOS)]
+    if pal is FOREST and variant%2: pal=CREAM
     frames=[]
     for k in range(int(1.0*FPS)):
         t=k/(1.0*FPS)
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
-        poptext(d,W//2,900,'Así se baja el hándicap en 2026',96,t*1.6,pal['ink'])
+        poptext(d,W//2,900,hook,96,t*1.6,pal['ink'])
         progressbar(d,0.06*t,pal); frames.append(V.fin(b))
     per=3.0
     for i,(shotf,cap,sub) in enumerate(pasos):
@@ -211,7 +221,7 @@ def video_app(pal=FOREST):
                           outline=LIME+(int(255*(1-rt)),),width=8)
             progressbar(d,0.06+0.64*((i+t)/len(pasos)),pal); frames.append(V.fin(b))
     cta_outro(frames,pal,line1='Gratis. Hecha en México.')
-    return render(frames,'demo-app-parfect')
+    return render(frames,f'demo-app-parfect-v{variant%3}')
 
 # ============================================================
 # FORMATO 4 · MEME ANIMADO (bola que se queda corta)

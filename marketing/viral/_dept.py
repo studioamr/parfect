@@ -155,7 +155,7 @@ def video_motion(t,item,dest_mp4):
         elif t=='quote': p=MO.video_razones('Mentalidad de scratch',[item[0]])
         elif t=='meme':
             p=MO.video_meme_putt(item[0],item[1]) if 'putt' in (item[0]+item[1]).lower() else MO.video_razones(item[0],[item[1]])
-        elif t=='feature': p=MO.video_app()
+        elif t=='feature': p=MO.video_app(variant=1+idx(dt.date.today())%2)
         else: return False
         if p: shutil.copy(p,dest_mp4); return True
     except Exception as e:
