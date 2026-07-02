@@ -34,6 +34,9 @@ FOREST=dict(bg=(28,56,42), ink=(240,231,206), sub=(172,186,164))
 def ease(t): return 1-(1-min(max(t,0),1))**3          # ease-out cubic
 def spring(t):
     t=min(max(t,0),1); return 1+ (1.15-1)*math.sin(t*math.pi) if t<1 else 1.0
+def dur_lectura(txt,base=1.1):
+    return max(2.6, base + len(str(txt).split())*0.38)
+
 def slug(t): return re.sub(r'[^a-z0-9]+','-',t.lower()).strip('-')[:36] or 'video'
 
 def canvas(pal):
@@ -64,7 +67,7 @@ def poptext(d,cx,cy,txt,base_fs,t,ink,font=GEO,maxw=W-160):
     for ln in lines:
         d.text((cx,ty),ln,font=f,fill=ink+(a,),anchor='mm'); ty+=fs+14
 
-def cta_outro(frames,pal,seconds=2.2,line1='PRUÉBALA GRATIS',line2='link en bio'):
+def cta_outro(frames,pal,seconds=2.8,line1='PRUÉBALA GRATIS',line2='link en bio'):
     n=int(seconds*FPS)
     for k in range(n):
         t=k/max(n-1,1)
@@ -104,9 +107,9 @@ def video_dato(big,label,sub,pal=FOREST):
     frames=[]
     m=re.match(r'^(\d+)',big.strip()); target=int(m.group(1)) if m else 0
     suf=big.strip()[len(m.group(1)):] if m else big
-    # hook 0.9s
-    for k in range(int(0.9*FPS)):
-        t=k/(0.9*FPS)
+    # hook legible
+    for k in range(int(1.6*FPS)):
+        t=k/(1.6*FPS)
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         poptext(d,W//2,900,'EL DATO QUE TE',96,t*2,pal['ink'],font=BLACK)
         poptext(d,W//2,1030,'CUESTA GOLPES',96,max(t*2-0.3,0),LIME if pal is FOREST else LIMEDK,font=BLACK)
@@ -125,8 +128,8 @@ def video_dato(big,label,sub,pal=FOREST):
         pct=min(target/100.0,1.0) if '%' in suf else 0.75
         d.rounded_rectangle([x0,1180,x0+int((x1-x0)*pct*ease(t)),1210],15,fill=LIME)
         progressbar(d,0.08+0.42*t,pal); frames.append(V.fin(b))
-    # sub 2.2s
-    n2=int(2.2*FPS)
+    # sub con tiempo de lectura
+    n2=int(dur_lectura(sub)*FPS)
     for k in range(n2):
         t=k/(n2-1)
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
@@ -146,14 +149,14 @@ def video_dato(big,label,sub,pal=FOREST):
 # ============================================================
 def video_razones(title,items,pal=CREAM):
     frames=[]
-    for k in range(int(1.1*FPS)):
-        t=k/(1.1*FPS)
+    nin=int(dur_lectura(title,0.8)*FPS)
+    for k in range(nin):
+        t=k/nin
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         poptext(d,W//2,930,title,104,t*1.6,pal['ink'])
         progressbar(d,0.1*t,pal); frames.append(V.fin(b))
-    per=2.1
     for i,item in enumerate(items):
-        n=int(per*FPS)
+        n=int(dur_lectura(item)*FPS)
         for k in range(n):
             t=k/(n-1)
             b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
@@ -192,14 +195,13 @@ def video_app(pal=FOREST,variant=0):
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         poptext(d,W//2,900,hook,96,t*1.6,pal['ink'])
         progressbar(d,0.06*t,pal); frames.append(V.fin(b))
-    per=3.0
     for i,(shotf,cap,sub) in enumerate(pasos):
         try: shot=Image.open(os.path.join(V.ASSETS,shotf)).convert('RGBA')
         except Exception: continue
         ph=1140; r=(ph-80)/shot.height
         sc=shot.resize((round(shot.width*r),ph-80),Image.LANCZOS)
         pw=sc.width+80
-        n=int(per*FPS)
+        n=int(dur_lectura(cap+' '+sub,1.6)*FPS)
         for k in range(n):
             t=k/(n-1)
             b,d=canvas(pal); wordmark(d,W//2,150,pal['ink'])
@@ -228,12 +230,13 @@ def video_app(pal=FOREST,variant=0):
 # ============================================================
 def video_meme_putt(setup='POV: tu putt de 1 metro',punch='de pronto mide 4 kilómetros',pal=CREAM):
     frames=[]
-    for k in range(int(1.0*FPS)):
-        t=k/(1.0*FPS)
+    nst=int(dur_lectura(setup,0.7)*FPS)
+    for k in range(nst):
+        t=k/nst
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         poptext(d,W//2,820,setup,88,t*1.6,pal['ink'])
         progressbar(d,0.1*t,pal); frames.append(V.fin(b))
-    n=int(3.2*FPS)
+    n=int(4.4*FPS)
     for k in range(n):
         t=k/(n-1)
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
@@ -249,8 +252,8 @@ def video_meme_putt(setup='POV: tu putt de 1 metro',punch='de pronto mide 4 kil�
         bx=170+ (hx-170-170)*ease(min(t*1.15,1))
         d.ellipse([bx-26,gy-6,bx+26,gy+46],fill=(252,252,248))
         d.arc([bx-14,gy+6,bx+12,gy+34],20,200,fill=(200,200,192),width=3)
-        if t>0.78:
-            poptext(d,W//2,1050,punch,92,(t-0.78)/0.22*1.4,(178,58,46),font=BLACK,maxw=W-200)
+        if t>0.55:
+            poptext(d,W//2,1050,punch,92,(t-0.55)/0.25*1.4,(178,58,46),font=BLACK,maxw=W-200)
         progressbar(d,0.1+0.6*t,pal); frames.append(V.fin(b))
     cta_outro(frames,pal,line1='Cuenta tus putts de verdad')
     return render(frames,'meme-'+slug(setup))
