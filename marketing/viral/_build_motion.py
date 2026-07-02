@@ -59,11 +59,11 @@ def poptext(d,cx,cy,txt,base_fs,t,ink,font=GEO,maxw=W-160):
     if t<=0: return
     sc=0.6+0.4*ease(t*1.4)
     if t>0.35: sc=spring(min((t-0.35)/0.65,1))*1.0
-    fs=max(10,int(base_fs*min(sc,1.18)))
+    fs=max(10,int(base_fs*min(sc,1.12)))
     f=font(fs)
     tmp=ImageDraw.Draw(Image.new('RGB',(4,4)))
     lines=V.wraptext(tmp,txt,f,maxw)
-    a=int(255*min(t*3,1))
+    p=min(t*2.8,1.0); a=int(255*(p*p*(3-2*p)))
     ty=cy-(len(lines)-1)*(fs+14)//2
     for ln in lines:
         d.text((cx,ty),ln,font=f,fill=ink+(a,),anchor='mm'); ty+=fs+14

@@ -119,11 +119,17 @@ def titlecard_rain(frames,lines,sub,seconds,accent_idx=None):
         M.progressbar(d,0.05+0.05*t,PAL)
         frames.append(V.fin(b))
 
-def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86):
-    """texto con fade-in/out: nunca se encima con el siguiente mensaje"""
-    a=min(t*5,1.0) if t<t_out else max(0.0,(1.0-t)/(1.0-t_out))
+def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86,rise=18):
+    """texto smooth: smoothstep in/out + deslizamiento sutil; nunca se encima"""
+    if t<=0: return
+    if t<t_out:
+        p=min(t*3.2,1.0); a=p*p*(3-2*p)
+        off=rise*(1-p)**2            # entra subiendo, frena suave
+    else:
+        q=min((t-t_out)/(1.0-t_out),1.0); a=1-q*q*(3-2*q)
+        off=-rise*0.45*q*q           # sale flotando hacia arriba
     if a<=0.02: return
-    d.text(xy,txt,font=font,fill=fill+(int(255*a),),anchor=anchor)
+    d.text((xy[0],xy[1]+off),txt,font=font,fill=fill+(int(255*a),),anchor=anchor)
 
 def titlecard_cone(frames,lines,sub,seconds,accent_idx=None):
     """gancho #3: ABANICO de trayectorias abriendose desde el tee"""
@@ -1125,6 +1131,84 @@ def teoria_practica():
     M.cta_outro(frames,PAL,line1='PARFECT convierte tu práctica en plan')
     return M.render(frames,'theory-practica')
 
+# ============================================================
+# THEORY 41 · "La tarjeta no miente; tu memoria sí"
+# ============================================================
+def teoria_tarjeta():
+    frames=[]
+    # gancho #9: el recuerdo (88) se desvanece, la tarjeta (94) lo corrige
+    lines=['LA TARJETA NO MIENTE.','TU MEMORIA SÍ.']; sub='(y por eso no bajas)'
+    secs=max(3.6,M.dur_lectura(' '.join(lines)+' '+sub,1.1))
+    n=int(secs*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        mem_a=1.0 if t<0.30 else max(0.22,1-(t-0.30)*2.2)
+        def m88(dd,mem_a=mem_a,t=t):
+            wob=math.sin(t*14)*3*(1 if t<0.5 else 0)
+            dd.text((W//2+wob,1180),'88',font=BLACK(220),fill=GREEN+(int(200*mem_a),),anchor='mm')
+        glow(b,m88,14,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.text((W//2,1020),'tu recuerdo',font=BOLD(36),fill=SUB+(int(220*mem_a),),anchor='mm')
+        if t>0.42:
+            st=min((t-0.42)*4,1)
+            fs=int(150+70*(1-M.ease(st)))
+            d2.text((W//2,1470),'94',font=BLACK(fs),fill=(250,250,246,int(255*st)),anchor='mm',stroke_width=8,stroke_fill=(8,14,11,int(255*st)))
+            d2.text((W//2,1610),'tu tarjeta',font=BOLD(36),fill=INK+(int(230*st),),anchor='mm')
+        ty=470
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,78,(t-0.07*i)*2.2,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=126
+        if t>0.32: ftxt(d,(W//2,ty+30),sub,BOLD(42),SUB,(t-0.32)/0.68,t_out=0.95)
+        M.progressbar(d,0.05+0.07*t,PAL); frames.append(V.fin(b))
+    # fase 1: la memoria (frases que se apagan)
+    frases=['"Pegué bien el drive"','"Fallé como dos putts"','"El 7 fue pura mala suerte"']
+    n1=int(M.dur_lectura(' '.join(frases),1.7)*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,380),'Tu memoria después de la ronda:',GEO(52),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for i,fr in enumerate(frases):
+            ap=min(max(t*3.4-i*0.55,0),1)
+            if ap<=0: continue
+            p=ap*ap*(3-2*ap)
+            dim=1.0-0.62*min(max((t*3.4-i*0.55-1.25)/0.8,0),1)
+            d2.text((W//2,760+i*150+18*(1-p)**2),fr,font=GEO(54),fill=SUB+(int(255*p*dim),),anchor='mm')
+        if t>0.66:
+            a=min((t-0.66)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1360),'Recuerdos ≠ datos.',font=BLACK(56),fill=RED+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.14+0.2*t,PAL); frames.append(V.fin(b))
+    # fase 2: la tarjeta del mismo dia
+    datos=[('3','three-putts que "no pasaron"'),('41%','de fairways (no "buen drive")'),('+3','en el hoyo 7 (no fue suerte)')]
+    n2=int(5.4*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,380),'La tarjeta del MISMO día:',GEO(54),INK,t)
+        for i,(num,lab) in enumerate(datos):
+            ft=min(max(t*2.8-i*0.5,0),1)
+            if ft<=0: continue
+            y=680+i*260
+            def lnr(dd,y=y,ft=ft):
+                dd.line([(150,y+96),(150+(W-300)*M.ease(ft),y+96)],fill=GREENDIM+(190,),width=3)
+            glow(b,lnr,5,1)
+            d2=ImageDraw.Draw(b,'RGBA'); a=int(255*(ft*ft*(3-2*ft)))
+            d2.text((150,y),num,font=BLACK(92),fill=GREEN+(a,),anchor='lm')
+            d2.text((W-150,y+8),lab,font=BOLD(36),fill=INK+(a,),anchor='rm')
+        M.progressbar(d,0.36+0.26*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('no puedes mejorar lo que recuerdas bonito solo lo que mides',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,780,'No puedes mejorar',64,t*1.9,INK)
+        M.poptext(d,W//2,905,'lo que recuerdas bonito.',64,max(t*1.9-0.2,0),SUB)
+        M.poptext(d,W//2,1120,'Solo lo que MIDES.',82,max(t*1.9-0.55,0),GREEN)
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT recuerda tu ronda por ti')
+    return M.render(frames,'theory-tarjeta')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1140,5 +1224,6 @@ if __name__=='__main__':
     elif cmd=='putt1m': teoria_putt1m()
     elif cmd=='bogey': teoria_bogey()
     elif cmd=='practica': teoria_practica()
+    elif cmd=='tarjeta': teoria_tarjeta()
     else:
         teoria_bandera(); teoria_okay()
