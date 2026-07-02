@@ -10,7 +10,7 @@
 #   python3 _build_theory.py demo      # ambos
 # Salida: motion/theory-*.mp4
 # ============================================================
-import os, sys, math, random
+import os, sys, math, random, json
 from PIL import Image, ImageDraw, ImageFilter
 import _build_viral as V
 import _build_motion as M
@@ -386,10 +386,12 @@ def teoria_par5():
 # THEORY 17 · "Un scratch hace 30 putts. Tu, ¿cuantos?"
 # ============================================================
 def teoria_putts30():
+    tj=os.path.join(os.path.dirname(os.path.abspath(__file__)),'_voz','theory-putts30','timing.json')
+    T=json.load(open(tj)) if os.path.exists(tj) else {}
     frames=[]
-    titlecard(frames,['UN SCRATCH HACE','30 PUTTS.'],'(tú, ¿cuántos haces?)',2.8,accent_idx=1)
+    titlecard(frames,['UN SCRATCH HACE','30 PUTTS.'],'(tú, ¿cuántos haces?)',T.get('title',2.8),accent_idx=1)
     filas=[('SCRATCH (HCP 0)',30,GREEN),('HCP 10',32,(238,205,90)),('HCP 20',34,(238,150,84)),('AMATEUR PROMEDIO',36,RED)]
-    n1=int(5.2*FPS)
+    n1=int(T.get('bars',5.2)*FPS)
     for k in range(n1):
         t=k/(n1-1)
         b,d=canvas(); chrome(d)
@@ -411,7 +413,7 @@ def teoria_putts30():
         if t>0.72:
             d.text((W//2,1500),'6 golpes de diferencia. En el GREEN.',font=BLACK(50),fill=RED,anchor='mm')
         M.progressbar(d,0.12+0.5*t,PAL); frames.append(V.fin(b))
-    nin=int(M.dur_lectura('esos 6 golpes no estan en tu swing estan en tu putter y no los cuentas',1.2)*FPS)
+    nin=int(max(M.dur_lectura('esos 6 golpes no estan en tu swing estan en tu putter y no los cuentas',1.2),T.get('insight',0))*FPS)
     for k in range(nin):
         t=k/(nin-1)
         b,d=canvas(); chrome(d)
@@ -420,7 +422,7 @@ def teoria_putts30():
         M.poptext(d,W//2,1120,'Están en tu putter.',84,max(t*1.8-0.45,0),GREEN)
         d.text((W//2,1330),'Y no los estás contando.',font=BOLD(42),fill=SUB,anchor='mm')
         M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
-    M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts, hoyo x hoyo')
+    M.cta_outro(frames,PAL,seconds=T.get('outro',2.8),line1='PARFECT cuenta tus putts, hoyo x hoyo')
     return M.render(frames,'theory-putts30')
 
 if __name__=='__main__':
