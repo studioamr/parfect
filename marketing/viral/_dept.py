@@ -63,12 +63,12 @@ MEMES=[('Cuando dices "solo tiro unas bolas"','y llevas 3 horas en el driving ra
  ('El palo no era.','Tampoco el anterior. Ni el que sigue.'),
  ('POV: tu putt de 1 metro','de pronto mide 4 kilómetros'),
  ('"Última bola y nos vamos"','— nadie se fue, temporada 47')]
-STATS=[('41%','up & down','es lo que salva un HCP 15 en sus greens fallados. ¿Y tú?'),
- ('56%','de fairways','es lo que tira un HCP 10 en promedio.'),
+STATS=[('56%','de fairways','es lo que tira un HCP 10 en promedio.'),
  ('32','putts por ronda','el amateur promedio. Un scratch hace 30.'),
  ('8%','de GIR','es todo lo que tiene un HCP 36. La mejora está ahí.'),
  ('1 de 3','greens en regulación','toma el jugador amateur promedio.'),
- ('3','golpes por ronda','se van solo en 3-putts que no cuentas.')]
+ ('3','golpes por ronda','se van solo en 3-putts que no cuentas.'),
+ ('41%','up & down','es lo que salva un HCP 15 en sus greens fallados. ¿Y tú?')]
 QUOTES=[('El golf no premia al que pega más lejos, sino al que falla menos.',''),
  ('No puedes mejorar lo que no mides.',''),
  ('Cada putt de 1 metro vale un golpe. Trátalo así.',''),
