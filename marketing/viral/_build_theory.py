@@ -425,6 +425,41 @@ def teoria_putts30():
     M.cta_outro(frames,PAL,seconds=T.get('outro',2.8),line1='PARFECT cuenta tus putts, hoyo x hoyo')
     return M.render(frames,'theory-putts30')
 
+# ============================================================
+# THEORY 16 · "Cada 3-putt son 2 golpes regalados"
+# ============================================================
+def teoria_3putts():
+    frames=[]
+    titlecard(frames,['CADA 3-PUTT SON','2 GOLPES REGALADOS.'],'(y no los estás contando)',2.8,accent_idx=1)
+    eventos=[('Hoyo 4','3 putts',2),('Hoyo 9','3 putts',4),('Hoyo 15','3 putts',6)]
+    per=3.2
+    for i,(hoyo,que,total) in enumerate(eventos):
+        n=int(per*FPS)
+        for k in range(n):
+            t=k/(n-1)
+            b,d=canvas(); chrome(d)
+            d.text((W//2,400),'Tu ronda del sábado:',font=GEO(56),fill=INK,anchor='mm')
+            d.text((W//2,620),hoyo,font=BOLD(54),fill=SUB,anchor='mm')
+            sc=1.3-0.3*M.ease(min(t*2,1))
+            d.text((W//2,850),que,font=BLACK(int(96*sc)),fill=RED,anchor='mm',stroke_width=3,stroke_fill=(90,30,26))
+            if t>0.35:
+                M.poptext(d,W//2,1050,'+2 golpes',66,(t-0.35)*2.2,RED,font=BLACK)
+            d.text((W//2,1350),'REGALADOS HOY:',font=BOLD(40),fill=SUB,anchor='mm')
+            val=total-2+int(2*M.ease(min(max(t*2-0.6,0),1)))
+            def g(dd,val=val): dd.text((W//2,1500),str(val),font=BLACK(150),fill=GREEN+(255,),anchor='mm')
+            glow(b,g,18,1)
+            M.progressbar(d,0.12+0.5*((i+t)/len(eventos)),PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('seis golpes por ronda son la diferencia entre 95 y 89 y estan en el green',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,780,'6 golpes por ronda.',88,t*1.8,INK)
+        M.poptext(d,W//2,920,'La diferencia entre 95 y 89.',72,max(t*1.8-0.25,0),GREEN)
+        d.text((W//2,1140),'Y todos viven en el green.',font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT cuenta tus 3-putts solos')
+    return M.render(frames,'theory-3putts')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -432,5 +467,6 @@ if __name__=='__main__':
     elif cmd=='velocidad': teoria_velocidad()
     elif cmd=='par5': teoria_par5()
     elif cmd=='putts30': teoria_putts30()
+    elif cmd=='3putts': teoria_3putts()
     else:
         teoria_bandera(); teoria_okay()
