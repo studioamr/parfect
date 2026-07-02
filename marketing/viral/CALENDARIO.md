@@ -8,6 +8,8 @@ orden (01, 02, 03…) como carrusel, pega el caption, publica.
 
 ---
 
+> **Nota:** todo el contenido ya está en el estilo CLARO de marca PARFECT (cielo de día, pájaros, campo verde, tarjeta blanca). El carrusel se sube como VIDEO a TikTok.
+
 ### ☐ Mié 1 jul — `carrusel1-verdades/`
 > 8 verdades del golf que nadie te dice 🏌️⛳ (la 5 me dolió)
 > Las mido con PARFECT — anotas tu ronda y te dice en qué pierdes golpes de verdad.

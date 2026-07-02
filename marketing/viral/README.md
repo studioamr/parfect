@@ -35,7 +35,9 @@ Gancho de un solo dato — formato rápido para Reels/Stories.
 > #golf #golfstats #golftips
 
 ## Carruseles 4–14 (81 slides más, 100 en total)
-Mismo estilo (fondo oscuro, golfista 3D real, mascota Birdie en cada item, CTA claro):
+Mismo estilo de marca PARFECT (cielo de día con sol y nubes, pájaros de colores +
+abeja, campo verde con banderín/árboles/flores, golfista 3D real, tarjeta blanca con
+el texto, CTA claro):
 
 | # | Carpeta | Tema |
 |---|---|---|
