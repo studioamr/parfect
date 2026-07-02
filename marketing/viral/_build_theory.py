@@ -677,6 +677,85 @@ def teoria_drive():
     M.cta_outro(frames,PAL,line1='PARFECT mide tus fairways reales')
     return M.render(frames,'theory-drive')
 
+# ============================================================
+# THEORY 23 · "Tu score vive en 100 yardas y menos" (dona)
+# ============================================================
+def teoria_100y():
+    frames=[]
+    # gancho #4: anillo dibujandose + % fantasma
+    lines=['TU SCORE NO SE HACE','CON EL DRIVER.']; sub='(se hace en 100 yardas)'
+    secs=max(3.0, M.dur_lectura(' '.join(lines)+' '+sub,1.0))
+    n=int(secs*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        ccx,ccy,rr=W//2,1520,240
+        pct=int(61*M.ease(min(t*1.4,1)))
+        def ga(dd):
+            dd.arc([ccx-rr,ccy-rr,ccx+rr,ccy+rr],-90,-90+360*0.61*M.ease(min(t*1.4,1)),fill=GREEN+(240,),width=26)
+        glow(b,ga,14,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.arc([ccx-rr,ccy-rr,ccx+rr,ccy+rr],0,360,fill=(255,255,255,26),width=26)
+        d2.text((ccx,ccy),f'{pct}%',font=BLACK(110),fill=INK,anchor='mm')
+        ty=620-66
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,90,(t-0.06*i)*2.4,GREEN if i==1 else INK,font=BLACK,maxw=W-140)
+            ty+=132
+        if t>0.28: d.text((W//2,ty+40),sub,font=BOLD(44),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: la dona parte tu ronda en dos
+    ccx,ccy,rr=W//2,1080,330
+    n1=int(5.0*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'Una ronda de 90, partida en dos:',GEO(56),INK,t)
+        gt=M.ease(min(t*1.5,1))
+        def g1(dd): dd.arc([ccx-rr,ccy-rr,ccx+rr,ccy+rr],-90+360*0.61*gt,-90+360*0.61*gt+360*0.39*gt,fill=(150,160,155,220),width=64)
+        def g2(dd): dd.arc([ccx-rr,ccy-rr,ccx+rr,ccy+rr],-90,-90+360*0.61*gt,fill=GREEN+(250,),width=64)
+        glow(b,g1,10,1); glow(b,g2,14,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.text((ccx,ccy-40),f'{int(55*gt)}',font=BLACK(150),fill=GREEN,anchor='mm')
+        d2.text((ccx,ccy+90),'golpes',font=BOLD(40),fill=SUB,anchor='mm')
+        if t>0.5:
+            a=min((t-0.5)*5,1.0) if t<0.86 else max(0.0,(1.0-t)/0.14)
+            d2.text((W//2,1560),'55 de 90 son de 100 yardas o MENOS',font=BLACK(46),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.12+0.24*t,PAL); frames.append(V.fin(b))
+    # fase 2: desglose secuencial
+    partes=[('Wedges',19),('Chips y bunker',8),('Putts',28)]
+    n2=int(4.6*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'¿Y dónde exactamente?',GEO(58),GREEN,t)
+        by=700
+        for i,(lab,val) in enumerate(partes):
+            ft=min(max(t*3.2-i*0.9,0),1)
+            if ft<=0: continue
+            d.text((170,by),lab,font=BOLD(46),fill=SUB,anchor='lm')
+            x0,x1=170,W-170
+            d.rounded_rectangle([x0,by+40,x1,by+66],13,fill=(255,255,255,22))
+            wv=(x1-x0)*(val/33)*M.ease(ft)
+            def g(dd,wv=wv,by=by): dd.rounded_rectangle([x0,by+40,x0+wv,by+66],13,fill=GREEN+(255,))
+            glow(b,g,12,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((x1,by),f'{int(val*M.ease(ft))}',font=BLACK(48),fill=GREEN,anchor='rm')
+            by+=210
+        d=ImageDraw.Draw(b,'RGBA')
+        if t>0.72:
+            a=min((t-0.72)*5,1.0)
+            d.text((W//2,1560),'¿Y tú qué practicas? El driver.',font=BLACK(48),fill=RED+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.38+0.26*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('practica donde vive tu score no donde vive tu ego',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,800,'Practica donde vive tu SCORE,',74,t*1.8,INK)
+        M.poptext(d,W//2,940,'no donde vive tu ego.',78,max(t*1.8-0.25,0),GREEN)
+        M.progressbar(d,0.66+0.22*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT te dice dónde vive el tuyo')
+    return M.render(frames,'theory-100y')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -687,5 +766,6 @@ if __name__=='__main__':
     elif cmd=='3putts': teoria_3putts()
     elif cmd=='wedges': teoria_wedges()
     elif cmd=='drive': teoria_drive()
+    elif cmd=='100y': teoria_100y()
     else:
         teoria_bandera(); teoria_okay()
