@@ -382,11 +382,53 @@ def teoria_par5():
     M.cta_outro(frames,PAL,line1='PARFECT mide tus pares 5 reales')
     return M.render(frames,'theory-par5')
 
+# ============================================================
+# THEORY 17 · "Un scratch hace 30 putts. Tu, ¿cuantos?"
+# ============================================================
+def teoria_putts30():
+    frames=[]
+    titlecard(frames,['UN SCRATCH HACE','30 PUTTS.'],'(tú, ¿cuántos haces?)',2.8,accent_idx=1)
+    filas=[('SCRATCH (HCP 0)',30,GREEN),('HCP 10',32,(238,205,90)),('HCP 20',34,(238,150,84)),('AMATEUR PROMEDIO',36,RED)]
+    n1=int(5.2*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,400),'Putts por ronda:',font=GEO(60),fill=INK,anchor='mm')
+        by=640
+        for i,(lab,val,col) in enumerate(filas):
+            ft=min(max(t*len(filas)-i,0),1)
+            d.text((150,by),lab,font=BOLD(38),fill=SUB,anchor='lm')
+            x0,x1=150,W-150
+            d.rounded_rectangle([x0,by+34,x1,by+58],12,fill=(255,255,255,22))
+            wv=(x1-x0)*(val/40)*M.ease(ft)
+            if wv>4:
+                def g(dd,wv=wv,by=by,col=col): dd.rounded_rectangle([x0,by+34,x0+wv,by+58],12,fill=col+(255,))
+                glow(b,g,14,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            if ft>0: d2.text((x1,by),str(int(val*M.ease(ft))),font=BLACK(44),fill=col,anchor='rm')
+            by+=170
+        d=ImageDraw.Draw(b,'RGBA')
+        if t>0.72:
+            d.text((W//2,1500),'6 golpes de diferencia. En el GREEN.',font=BLACK(50),fill=RED,anchor='mm')
+        M.progressbar(d,0.12+0.5*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('esos 6 golpes no estan en tu swing estan en tu putter y no los cuentas',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,820,'Esos 6 golpes no están',80,t*1.8,INK)
+        M.poptext(d,W//2,950,'en tu swing.',80,max(t*1.8-0.2,0),INK)
+        M.poptext(d,W//2,1120,'Están en tu putter.',84,max(t*1.8-0.45,0),GREEN)
+        d.text((W//2,1330),'Y no los estás contando.',font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.64+0.24*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts, hoyo x hoyo')
+    return M.render(frames,'theory-putts30')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
     elif cmd=='okay': teoria_okay()
     elif cmd=='velocidad': teoria_velocidad()
     elif cmd=='par5': teoria_par5()
+    elif cmd=='putts30': teoria_putts30()
     else:
         teoria_bandera(); teoria_okay()

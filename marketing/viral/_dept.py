@@ -91,7 +91,7 @@ RETOS=[('RETO: CERO 3-PUTTS','una semana de green disciplinado',['Cuenta tus put
 
 # --- THEORY: cola de videos pre-renderizados (ver TEORIA-50.md) ---
 # solo SIN publicar (los publicados salen de la cola)
-THEORY_COLA=[('theory-par5.mp4','En el par 5 la meta no es eagle: es evitar el BOGEY 🎯 3 tiros aburridos > 1 tiro de héroe.'),
+THEORY_COLA=[('theory-putts30.mp4','Un scratch hace 30 putts. ¿Tú cuántos? Esos 6 golpes están en tu putter 🥶'),
  ]  # se agregan conforme se rendericen (tandas semanales)
 QUIZES=[('¿Cuál es el par más común en un campo de 18 hoyos?',['70','72','74'],1,'Par 72: cuatro pares 3, cuatro pares 5 y diez pares 4.'),
  ('¿Desde dónde se pierden más golpes?',['El tee','100 yardas y menos','El green'],1,'Más de la mitad de tu score se hace en 100 yardas y menos.'),
