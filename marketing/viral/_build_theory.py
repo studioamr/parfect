@@ -940,6 +940,95 @@ def teoria_putt1m():
     M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts de 1 metro')
     return M.render(frames,'theory-putt1m')
 
+# ============================================================
+# THEORY 19 · "El bogey es tu amigo"
+# ============================================================
+def teoria_bogey():
+    frames=[]
+    # gancho #7: tarjeta de score dibujandose
+    lines=['EL BOGEY ES','TU AMIGO.']; sub='(y te va a bajar el score)'
+    secs=max(3.2, M.dur_lectura(' '.join(lines)+' '+sub,1.0))
+    n=int(secs*FPS)
+    scores=[5,5,4,6,5,5,4,5,5]; cw=(W-240)/9
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        for i in range(9):
+            ft=min(max(t*3.2-i*0.22,0),1)
+            if ft<=0: continue
+            x0=120+i*cw; y0=1150
+            def cell(dd,x0=x0,y0=y0,ft=ft):
+                dd.rectangle([x0+6,y0,x0+cw-6,y0+150],outline=GREEN+(int(230*ft),),width=4)
+            glow(b,cell,7,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            if ft>0.5:
+                col=GREEN if scores[i]==5 else INK
+                d2.text((x0+cw/2,y0+75),str(scores[i]),font=BLACK(60),fill=col+(int(255*min((ft-0.5)*2,1)),),anchor='mm')
+        ty=520
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,92,(t-0.06*i)*2.4,GREEN if i==1 else INK,font=BLACK,maxw=W-120)
+            ty+=145
+        if t>0.3: d.text((W//2,ty+40),sub,font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: tabla tu par real por handicap
+    n1=int(5.4*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,360),'Tu "par" real depende de tu hándicap:',GEO(50),INK,t)
+        for i,(hcp,par,es) in enumerate([('HCP 0','72','par golf'),('HCP 9','81','bogey en la mitad'),('HCP 18','90','PURO BOGEY'),('HCP 27','99','bogey y pico')]):
+            ft=min(max(t*3.0-i*0.45,0),1)
+            if ft<=0: continue
+            y=620+i*230; hot=(i==2); col=GREEN if hot else INK
+            def lnr(dd,y=y,ft=ft,hot=hot):
+                dd.line([(140,y+86),(140+(W-280)*M.ease(ft),y+86)],fill=(GREEN if hot else GREENDIM)+(170,),width=4 if hot else 3)
+            glow(b,lnr,6,1)
+            d2=ImageDraw.Draw(b,'RGBA'); a=int(255*ft)
+            d2.text((140,y-14),hcp,font=BOLD(46),fill=(GREEN if hot else SUB)+(a,),anchor='lm')
+            d2.text((W-140,y-4),par,font=BLACK(88),fill=col+(a,),anchor='rm')
+            if ft>0.6:
+                d2.text((140,y+44),es,font=BOLD(34),fill=(GREEN if hot else SUB)+(int(255*min((ft-0.6)*2.5,1)),),anchor='lm')
+        M.progressbar(d,0.12+0.22*t,PAL); frames.append(V.fin(b))
+    # fase 2: 18 bogeys -> 90
+    n2=int(4.8*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,360),'18 hoyos, puro bogey:',GEO(56),INK,t)
+        cw2=(W-200)/9
+        for i in range(18):
+            ft=min(max(t*3.0-i*0.09,0),1)
+            if ft<=0: continue
+            x0=100+(i%9)*cw2; y0=560+(i//9)*170
+            def cel(dd,x0=x0,y0=y0,ft=ft):
+                dd.rectangle([x0+5,y0,x0+cw2-5,y0+140],outline=GREEN+(int(200*ft),),width=3)
+            glow(b,cel,6,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            if ft>0.5:
+                d2.text((x0+cw2/2,y0+70),'+1',font=BLACK(42),fill=GREEN+(int(255*min((ft-0.5)*2,1)),),anchor='mm')
+        cnt=int(90*M.ease(min(max((t-0.2)/0.55,0),1)))
+        if cnt>0:
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1160),str(cnt),font=BLACK(170),fill=INK+(255,),anchor='mm')
+            d2.text((W//2,1300),'golpes',font=BOLD(40),fill=SUB+(255,),anchor='mm')
+        if t>0.72:
+            a=min((t-0.72)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1460),'Rompiste 100. Sin UN solo par.',font=BLACK(50),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.34+0.28*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('persigue pares y haras dobles acepta el bogey y romperas 90',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,760,'Persigue pares:',64,t*1.9,SUB)
+        M.poptext(d,W//2,884,'harás DOBLES.',82,max(t*1.9-0.2,0),RED)
+        M.poptext(d,W//2,1090,'Acepta el bogey:',64,max(t*1.9-0.55,0),SUB)
+        M.poptext(d,W//2,1216,'romperás 90.',86,max(t*1.9-0.75,0),GREEN)
+        M.progressbar(d,0.62+0.26*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT calcula TU par personal')
+    return M.render(frames,'theory-bogey')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -953,5 +1042,6 @@ if __name__=='__main__':
     elif cmd=='100y': teoria_100y()
     elif cmd=='ladocorto': teoria_ladocorto()
     elif cmd=='putt1m': teoria_putt1m()
+    elif cmd=='bogey': teoria_bogey()
     else:
         teoria_bandera(); teoria_okay()
