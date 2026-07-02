@@ -245,7 +245,7 @@ def teoria_velocidad():
                 lab2,size2,sub3,frac2=datos[j]
                 act=(j==i)
                 a=1.0 if act else 0.55
-                rr=int(95*frac2*(ease(t) if act else 1.0))
+                rr=int(95*frac2*(M.ease(t) if act else 1.0))
                 col=GREEN if frac2>0.5 else (RED if frac2<0.4 else (238,205,90))
                 def g(dd,rr=rr,ry=ry,col=col,a=a):
                     dd.ellipse([W//2-150-rr,ry-rr,W//2-150+rr,ry+rr],outline=col+(int(255*a),),width=6)
