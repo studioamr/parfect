@@ -2,8 +2,8 @@
 # Carruseles estilo "viral golf" (fondo oscuro, titulo gigante, ilustracion plana
 # grande) como las referencias tipo Scratch AI / TikTok de golf. Copy honesto:
 # el CTA final no usa badges falsos de tienda (la app aun no esta publicada).
-import os, math
-from PIL import Image, ImageDraw, ImageFont
+import os, math, random
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.normpath(os.path.join(HERE, '..', '..', 'assets'))
@@ -36,13 +36,69 @@ def wordmark(d,cx,y,size=38,color=LIME,textcolor=WHITE):
     d.polygon([(px,y-fl*0.5),(px+fl*0.7,y-fl*0.30),(px,y-fl*0.10)],fill=color)
     d.text((cx+int(size*0.18),y),txt,font=f,fill=textcolor,anchor='lm')
 
-def dark_base():
-    b=vgrad(S,S,[DARK,DARK2]).convert('RGBA'); d=ImageDraw.Draw(b)
+def corner_glow(b,cx,cy,r,color,alpha=90):
+    layer=Image.new('RGBA',(S,S),(0,0,0,0))
+    ImageDraw.Draw(layer).ellipse([cx-r,cy-r,cx+r,cy+r],fill=color+(alpha,))
+    layer=layer.filter(ImageFilter.GaussianBlur(r//2.2))
+    b.alpha_composite(layer)
+
+def dot_field(b,seed,n=14,box=(60,120,S-60,S-160)):
+    rnd=random.Random(seed); layer=Image.new('RGBA',(S,S),(0,0,0,0)); dl=ImageDraw.Draw(layer)
+    for _ in range(n):
+        x=rnd.randint(box[0],box[2]); y=rnd.randint(box[1],box[3])
+        r=rnd.choice([3,3,4,5,7]); col=rnd.choice([LIME,CREAM,LIME])
+        a=rnd.randint(90,200)
+        dl.ellipse([x-r,y-r,x+r,y+r],fill=col+(a,))
+    b.alpha_composite(layer)
+
+def dark_base(seed=1):
+    b=vgrad(S,S,[DARK,DARK2]).convert('RGBA')
+    corner_glow(b,60,60,260,LIME,55)
+    corner_glow(b,S-40,S-120,300,(70,110,40),70)
+    dot_field(b,seed)
+    d=ImageDraw.Draw(b,'RGBA')
     wordmark(d,S//2,60); return b,d
 
 def light_base():
-    b=vgrad(S,S,SKY).convert('RGBA'); d=ImageDraw.Draw(b)
+    b=vgrad(S,S,SKY).convert('RGBA')
+    corner_glow(b,S-50,40,240,(150,220,90),60)
+    d=ImageDraw.Draw(b,'RGBA')
     wordmark(d,S//2,60,color=LIME,textcolor=LIMEINK); return b,d
+
+def swipe_dots(d,n,total,cy=1006,dark=True):
+    w=14; gap=22; startx=S//2-((total-1)*gap)//2
+    for i in range(total):
+        on=(i==n-1)
+        r=6 if on else 4
+        col=LIME if on else ((90,102,84) if dark else (170,190,150))
+        x=startx+i*gap
+        d.ellipse([x-r,cy-r,x+r,cy+r],fill=col)
+
+def mini_icon(d,kind,cx,cy,r,color,bg=None):
+    if bg: d.ellipse([cx-r,cy-r,cx+r,cy+r],fill=bg)
+    if kind=='check':
+        d.line([(cx-r*0.5,cy),(cx-r*0.1,cy+r*0.4),(cx+r*0.55,cy-r*0.45)],fill=color,width=max(4,int(r*0.22)),joint='curve')
+    elif kind=='target':
+        d.ellipse([cx-r*0.9,cy-r*0.9,cx+r*0.9,cy+r*0.9],outline=color,width=max(3,int(r*0.14)))
+        d.ellipse([cx-r*0.45,cy-r*0.45,cx+r*0.45,cy+r*0.45],outline=color,width=max(3,int(r*0.14)))
+        d.ellipse([cx-r*0.12,cy-r*0.12,cx+r*0.12,cy+r*0.12],fill=color)
+    elif kind=='chart':
+        bw=r*0.34
+        for i,h in enumerate([0.5,0.85,1.15]):
+            x=cx-r*0.7+i*(bw+r*0.16)
+            d.rounded_rectangle([x,cy+r*0.75-r*h,x+bw,cy+r*0.75],3,fill=color)
+    elif kind=='flag':
+        d.line([(cx-r*0.3,cy-r*0.8),(cx-r*0.3,cy+r*0.8)],fill=color,width=max(3,int(r*0.14)))
+        d.polygon([(cx-r*0.3,cy-r*0.8),(cx+r*0.7,cy-r*0.5),(cx-r*0.3,cy-r*0.2)],fill=color)
+    elif kind=='bolt':
+        d.polygon([(cx+r*0.1,cy-r*0.9),(cx-r*0.5,cy+r*0.15),(cx-r*0.05,cy+r*0.15),(cx-r*0.15,cy+r*0.9),(cx+r*0.55,cy-r*0.1),(cx+r*0.05,cy-r*0.1)],fill=color)
+
+def feature_chip(d,cx,y,kind,label,fg,bg=None):
+    r=30
+    if bg: d.ellipse([cx-r,y-r,cx+r,y+r],fill=bg)
+    mini_icon(d,kind,cx,y,r*0.6,fg)
+    d.ellipse([cx-r,y-r,cx+r,y+r],outline=fg,width=3)
+    d.text((cx,y+r+26),label,font=BOLD(21),fill=fg,anchor='mm')
 
 def pagepill(d,n,total,dark=True):
     txt=f'{n}/{total}'
@@ -74,51 +130,69 @@ def paste_char(base, name, cx, cy, h, glow=True):
     if glow:
         a=im.split()[3].point(lambda p: min(255,int(p*0.55)))
         sh=Image.new('RGBA',im.size,LIME+(0,)); sh.putalpha(a)
-        sh=sh.filter(__import__('PIL.ImageFilter',fromlist=['ImageFilter']).GaussianBlur(18))
+        sh=sh.filter(ImageFilter.GaussianBlur(18))
         base.alpha_composite(sh,(x,y))
     base.alpha_composite(im,(x,y))
 
+ITEM_ICONS=['check','target','chart','flag','bolt']
+
 # ---------- slide de titulo (fondo oscuro, ilustracion grande) ----------
 def slide_title(kicker, title_lines, n, total):
-    b,d=dark_base(); pagepill(d,n,total,dark=True)
+    b,d=dark_base(seed=100); pagepill(d,n,total,dark=True)
     d.rounded_rectangle([S//2-220,150,S//2+220,204],27,fill=LIME)
     d.text((S//2,177),kicker,font=BLACK(28),fill=LIMEINK,anchor='mm')
     y=260
     for ln in title_lines:
         d.text((S//2,y),ln,font=BLACK(70),fill=CREAM,anchor='mm'); y+=82
-    paste_char(b, 'golfer.png', S//2, 760, 400)
-    footer_dark(d,'desliza → · @parfect.golf'); return fin(b)
+    paste_char(b, 'golfer.png', S//2, 680, 330)
+    feats=[('target','MIDES'),('chart','ANALIZAS'),('bolt','MEJORAS')]
+    fx=[S//2-260,S//2,S//2+260]
+    for x,(k,lab) in zip(fx,feats):
+        feature_chip(d,x,918,k,lab,CREAM,bg=(32,44,28))
+    swipe_dots(d,n,total,cy=1012,dark=True)
+    footer_dark(d,'desliza →'); return fin(b)
 
 # ---------- slide de item numerado (fondo oscuro) ----------
 def slide_item(num, text, n, total):
-    b,d=dark_base(); pagepill(d,n,total,dark=True)
-    cy=175
-    d.text((S//2,cy),str(num),font=BLACK(140),fill=LIME,anchor='mm')
-    d.line([(S//2-70,cy+84),(S//2+70,cy+84)],fill=LIME,width=6)
+    b,d=dark_base(seed=n*7+total); pagepill(d,n,total,dark=True)
+    cy=172
+    icon=ITEM_ICONS[(num-1)%len(ITEM_ICONS)]
+    mini_icon(d,icon,S//2-118,cy,34,LIMEINK,bg=LIME)
+    d.text((S//2+18,cy),str(num),font=BLACK(120),fill=LIME,anchor='mm')
+    d.line([(S//2-70,cy+76),(S//2+70,cy+76)],fill=LIME,width=6)
     lines=wraptext(d,text,BLACK(54),860)
     total_h=len(lines)*68
-    ty=440-total_h//2
+    ty=430-total_h//2
     for ln in lines:
         d.text((S//2,ty),ln,font=BLACK(54),fill=CREAM,anchor='mm'); ty+=68
-    paste_char(b, 'eagle.png', S//2, 870, 260)
-    footer_dark(d); return fin(b)
+    paste_char(b, 'eagle.png', S//2, 850, 230)
+    d.rounded_rectangle([S//2-186,978,S//2+186,1020],21,fill=(255,255,255,18))
+    d.text((S//2,999),'PARFECT · GOLF DATA',font=BOLD(19),fill=MUT_D,anchor='mm')
+    swipe_dots(d,n,total,cy=1050,dark=True)
+    return fin(b)
 
 # ---------- slide CTA final (fondo CLARO = marca real, sin badges falsos) ----------
-def slide_cta(headline, sub, shotfile='shot-inicio.png'):
+def slide_cta(headline, sub, shotfile='shot-inicio.png', n=None, total=None):
     b,d=light_base()
+    if n and total: pagepill(d,n,total,dark=False)
     d.text((S//2,150),headline,font=BLACK(54),fill=INK,anchor='mm')
     d.text((S//2,212),sub,font=BOLD(30),fill=MUT_L,anchor='mm')
     try:
         shot=Image.open(os.path.join(ASSETS,shotfile)).convert('RGBA')
-        r=560/shot.height; shot=shot.resize((round(shot.width*r),560))
-        fx,fy=S//2-shot.width//2, 300
+        r=490/shot.height; shot=shot.resize((round(shot.width*r),490))
+        fx,fy=S//2-shot.width//2, 268
         sh=Image.new('RGBA',(S,S),(0,0,0,0))
         ImageDraw.Draw(sh).rounded_rectangle([fx-14,fy+14,fx+shot.width+14,fy+shot.height+34],36,fill=(44,58,22,60))
         b.alpha_composite(sh); b.alpha_composite(shot,(fx,fy))
     except Exception:
         pass
+    feats=[('target','SIN ADIVINAR'),('chart','DATOS REALES'),('check','GRATIS')]
+    fx2=[S//2-260,S//2,S//2+260]
+    for x,(k,lab) in zip(fx2,feats):
+        feature_chip(d,x,808,k,lab,LIMEINK,bg=(219,233,183))
     d.rounded_rectangle([S//2-330,910,S//2+330,978],34,fill=LIME)
     d.text((S//2,944),'REGÍSTRATE GRATIS · LINK EN BIO',font=BLACK(26),fill=LIMEINK,anchor='mm')
+    if n and total: swipe_dots(d,n,total,cy=1006,dark=False)
     footer_light(d,'parfectapp.github.io/parfect'); return fin(b)
 
 def save(img,folder,name):
@@ -143,7 +217,7 @@ def build_c1():
     save(slide_title('GOLF · DATOS',['8 VERDADES DEL','GOLF QUE NADIE','TE DICE'],1,total),'carrusel1-verdades','01.png')
     for i,t in enumerate(C1_TRUTHS):
         save(slide_item(i+1,t,i+2,total),'carrusel1-verdades',f'{i+2:02d}.png')
-    save(slide_cta('¿Y TÚ EN QUÉ PIERDES','GOLPES SIN SABERLO?','shot-analisis.png'),'carrusel1-verdades',f'{total:02d}.png')
+    save(slide_cta('¿Y TÚ EN QUÉ PIERDES','GOLPES SIN SABERLO?','shot-analisis.png',total,total),'carrusel1-verdades',f'{total:02d}.png')
 
 # ============================================================
 # CARRUSEL 2 — "5 formas de bajar tu hándicap rápido"
@@ -160,7 +234,7 @@ def build_c2():
     save(slide_title('BAJA TU HÁNDICAP',['5 FORMAS DE','MEJORAR TU GOLF','MÁS RÁPIDO'],1,total),'carrusel2-bajar-hcp','01.png')
     for i,t in enumerate(C2_TIPS):
         save(slide_item(i+1,t,i+2,total),'carrusel2-bajar-hcp',f'{i+2:02d}.png')
-    save(slide_cta('PARFECT TE DICE','QUÉ PRACTICAR HOY','shot-rondas.png'),'carrusel2-bajar-hcp',f'{total:02d}.png')
+    save(slide_cta('PARFECT TE DICE','QUÉ PRACTICAR HOY','shot-rondas.png',total,total),'carrusel2-bajar-hcp',f'{total:02d}.png')
 
 # ============================================================
 # CARRUSEL 3 — gancho de un solo dato
@@ -175,7 +249,7 @@ def build_c3():
     d.text((S//2,708),'de tus greens fallados',font=BOLD(28),fill=CREAM,anchor='mm')
     d.text((S//2,860),'y ni te habías dado cuenta',font=BOLDIT(32),fill=MUT_D,anchor='mm')
     footer_dark(d); save(fin(b),'carrusel3-dato','01.png')
-    save(slide_cta('MIDE TU JUEGO','DE VERDAD','shot-logros.png'),'carrusel3-dato','02.png')
+    save(slide_cta('MIDE TU JUEGO','DE VERDAD','shot-logros.png',2,2),'carrusel3-dato','02.png')
 
 # ============================================================
 # builder generico: kicker + titulo + N items + CTA
@@ -185,7 +259,7 @@ def build_carousel(folder, kicker, title_lines, items, cta_headline, cta_sub, sh
     save(slide_title(kicker,title_lines,1,total),folder,'01.png')
     for i,t in enumerate(items):
         save(slide_item(i+1,t,i+2,total),folder,f'{i+2:02d}.png')
-    save(slide_cta(cta_headline,cta_sub,shotfile),folder,f'{total:02d}.png')
+    save(slide_cta(cta_headline,cta_sub,shotfile,total,total),folder,f'{total:02d}.png')
 
 CAROUSELS = [
     dict(folder='carrusel4-mitos', kicker='MITOS DEL GOLF', title_lines=['7 MITOS QUE TE','ESTÁN DETENIENDO'],
