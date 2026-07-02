@@ -16,7 +16,7 @@
 # Salida: outbox/<fecha>-<slug>/  → video.mp4, imagen .png,
 #         caption.txt, CHECKLIST.md
 # ============================================================
-import os, sys, csv, subprocess, datetime as dt
+import os, sys, csv, subprocess, shutil, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import _build_viral as V
 import _content_engine as E
@@ -145,6 +145,23 @@ def qc(png,mp4,caption):
     res.append(('tiene CTA', 'link en bio' in caption.lower()))
     return res
 
+def video_motion(t,item,dest_mp4):
+    """video animado nativo por tipo; regresa True si lo logro"""
+    import _build_motion as MO
+    try:
+        if t=='stat': p=MO.video_dato(item[0],item[1],item[2] if len(item)>2 else '')
+        elif t=='challenge': p=MO.video_razones(item[0],item[2])
+        elif t=='myth': p=MO.video_razones('Mito: '+item[0],['Realidad: '+item[1]])
+        elif t=='quote': p=MO.video_razones('Mentalidad de scratch',[item[0]])
+        elif t=='meme':
+            p=MO.video_meme_putt(item[0],item[1]) if 'putt' in (item[0]+item[1]).lower() else MO.video_razones(item[0],[item[1]])
+        elif t=='feature': p=MO.video_app()
+        else: return False
+        if p: shutil.copy(p,dest_mp4); return True
+    except Exception as e:
+        print('  motion fallback:',e)
+    return False
+
 def preparar(fecha):
     t,item,gancho=pieza_del_dia(fecha)
     i=idx(fecha)
@@ -163,9 +180,10 @@ def preparar(fecha):
     fdir=os.path.join(HERE,folder)
     pngs=sorted(f for f in os.listdir(fdir) if f.endswith('.png'))
     for f in pngs: Image.open(os.path.join(fdir,f)).save(os.path.join(dest,f))
-    # video vertical
+    # video vertical: piezas sueltas = ANIMADO nativo; carrusel = slideshow 4K
     mp4=os.path.join(dest,'video.mp4')
-    vok=video_de_pieza(folder,mp4)
+    vok=video_motion(t,item,mp4) if t!='carrusel' else False
+    if not vok: vok=video_de_pieza(folder,mp4)
     open(os.path.join(dest,'caption.txt'),'w').write(caption)
     rep=qc(os.path.join(dest,pngs[0]),mp4 if vok else None,caption)
     chk='\n'.join(f'- [{"x" if ok else " "}] {n}' for n,ok in rep)

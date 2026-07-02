@@ -4,7 +4,7 @@
 **Música sugerida:** TikTok → Sonidos → "Sin límites" → algo upbeat (ej. Bright Aura)
 
 ## QC automático
-- [x] imagen 1080x1080
+- [x] imagen cuadrada 1080/2160
 - [x] video existe y pesa >0.5MB
 - [x] caption <=2200 chars
 - [x] tiene hashtags
