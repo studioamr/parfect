@@ -17,8 +17,8 @@ import _build_motion as M
 
 W,H,FPS=M.W,M.H,M.FPS
 BG=(8,14,11)
-PAL=dict(bg=BG, ink=(236,241,237), sub=(148,163,152))
-INK=PAL['ink']; SUB=PAL['sub']
+PAL=dict(bg=(14,44,22), ink=(236,241,237), sub=(148,163,152))
+INK=PAL['ink']; SUB=(206,223,203)
 GREEN=(96,235,140)          # glow verde menta (diagramas)
 GREENDIM=(24,62,42)         # superficie del green
 LIME=(199,238,84)           # acento de marca (CTA)
@@ -26,17 +26,37 @@ RED=(239,96,84)
 BOLD=M.BOLD; BLACK=M.BLACK; GEO=M.GEO
 
 def _bg_img():
-    g=Image.new('RGB',(64,114),BG); dg=ImageDraw.Draw(g)
-    top=(11,19,15); mid=BG; bot=(5,9,7)
-    for y in range(114):
-        t=y/113
-        c=(tuple(int(top[i]+(mid[i]-top[i])*(t/0.45)) for i in range(3)) if t<0.45
-           else tuple(int(mid[i]+(bot[i]-mid[i])*((t-0.45)/0.55)) for i in range(3)))
-        dg.line([(0,y),(64,y)],fill=c)
-    img=g.resize((W,H),Image.BILINEAR).convert('RGBA')
-    hal=Image.new('RGBA',(W,H),(0,0,0,0))
-    ImageDraw.Draw(hal).ellipse([W//2-640,H//2-860,W//2+640,H//2+860],fill=(17,32,23,64))
-    img.alpha_composite(hal.filter(ImageFilter.GaussianBlur(230)))
+    """fondo 'PARFECT DAY': el mundo de la landing (cielo/sol/nubes/lomas)
+    y el contenido sobre campo verde profundo (los glow leen como TV tracer)"""
+    img=Image.new('RGB',(W,H),(31,82,40)).convert('RGBA')
+    d=ImageDraw.Draw(img)
+    for y in range(360):
+        t=y/359
+        d.line([(0,y),(W,y)],fill=(int(121+86*t),int(205+33*t),int(236+15*t)))
+    sun=Image.new('RGBA',(W,H),(0,0,0,0))
+    ImageDraw.Draw(sun).ellipse([W-320,30,W-100,250],fill=(255,224,122,225))
+    img.alpha_composite(sun.filter(ImageFilter.GaussianBlur(60)))
+    cl=Image.new('RGBA',(W,H),(0,0,0,0)); dc=ImageDraw.Draw(cl)
+    dc.ellipse([80,110,430,215],fill=(255,255,255,215))
+    dc.ellipse([610,195,880,275],fill=(255,255,255,180))
+    img.alpha_composite(cl.filter(ImageFilter.GaussianBlur(14)))
+    hl=Image.new('RGBA',(W,H),(0,0,0,0)); dh=ImageDraw.Draw(hl)
+    dh.ellipse([-320,250,720,600],fill=(121,185,79,255))
+    dh.ellipse([420,270,1420,640],fill=(93,160,66,255))
+    img.alpha_composite(hl)
+    fld=Image.new('RGBA',(W,H),(0,0,0,0)); df=ImageDraw.Draw(fld)
+    top=(56,128,64); bot=(16,50,24)
+    for y in range(395,H):
+        t=(y-395)/(H-395)
+        df.line([(0,y),(W,y)],fill=tuple(int(top[i]+(bot[i]-top[i])*t) for i in range(3))+(255,))
+    img.alpha_composite(fld)
+    st=Image.new('RGBA',(W,H),(0,0,0,0)); ds=ImageDraw.Draw(st)
+    for i,x in enumerate(range(-260,W+420,180)):
+        if i%2==0: ds.polygon([(x,395),(x+180,395),(x+70,H),(x-110,H)],fill=(255,255,255,9))
+    img.alpha_composite(st)
+    vg=Image.new('RGBA',(W,H),(0,0,0,0))
+    ImageDraw.Draw(vg).rectangle([0,H-460,W,H],fill=(0,18,8,66))
+    img.alpha_composite(vg.filter(ImageFilter.GaussianBlur(150)))
     return img
 BGIMG=_bg_img()
 
@@ -51,11 +71,12 @@ def glow(base, draw_fn, blur=22, boost=2):
     for _ in range(boost): base.alpha_composite(halo)
     base.alpha_composite(layer)
 
+DINK=(18,46,25)   # tinta bosque para el cielo
 def chrome(d,alpha=255,ep=None):
-    M.wordmark(d,W//2,170,INK,52,alpha=alpha)
+    M.wordmark(d,W//2,170,DINK,52,alpha=alpha)
     if ep:
-        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=LIME+(min(alpha,215),),anchor='rm')
-        d.text((84,172),'@parfectapp',font=BOLD(27),fill=SUB+(min(alpha,170),),anchor='lm')
+        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=DINK+(min(alpha,220),),anchor='rm')
+        d.text((84,172),'@parfectapp',font=BOLD(27),fill=DINK+(min(alpha,180),),anchor='lm')
 
 def titlecard(frames,lines,sub,seconds,accent_idx=None):
     """portada/hook: gancho VISUAL (putt con estela al pin) + titulo, legible"""
@@ -149,8 +170,8 @@ def ftxt(d,xy,txt,font,fill,t,anchor='mm',t_out=0.86,rise=8):
         off=-rise*0.45*q*q
     if a<=0.02: return
     yf=xy[1]+off; y0=math.floor(yf); fr=yf-y0
-    d.text((xy[0],y0),txt,font=font,fill=fill+(int(255*a*(1-fr)),),anchor=anchor)
-    if fr>0.04: d.text((xy[0],y0+1),txt,font=font,fill=fill+(int(255*a*fr),),anchor=anchor)
+    d.text((xy[0],y0),txt,font=font,fill=fill+(int(255*a*(1-fr)),),anchor=anchor,stroke_width=4,stroke_fill=(10,30,16,int(210*a*(1-fr))))
+    if fr>0.04: d.text((xy[0],y0+1),txt,font=font,fill=fill+(int(255*a*fr),),anchor=anchor,stroke_width=4,stroke_fill=(10,30,16,int(210*a*fr)))
 
 def titlecard_cone(frames,lines,sub,seconds,accent_idx=None):
     """gancho #3: ABANICO de trayectorias abriendose desde el tee"""
@@ -1326,6 +1347,99 @@ def teoria_brecha():
     M.cta_outro(frames,PAL,line1='PARFECT te dice tu número REAL')
     return M.render(frames,'theory-brecha')
 
+# ============================================================
+# THEORY 14 · "El 41% que salva tu ronda: up & down" (EP 18)
+# ============================================================
+def teoria_updown():
+    frames=[]
+    # gancho #11: rescate del bunker (arena de la landing)
+    lines=['FALLASTE EL GREEN.','¿Y AHORA QUÉ?']; sub='(el 41% que salva tu ronda)'
+    secs=max(3.8,M.dur_lectura(' '.join(lines)+' '+sub,1.1))
+    n=int(secs*FPS); gy=1560
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=18)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([180,gy-40,560,gy+70],fill=(243,231,189,255),outline=(199,173,116,255),width=4)
+        d2.ellipse([700,gy-46,1010,gy+64],fill=(20,56,34,255),outline=GREEN+(230,),width=4)
+        hx=905; d2.ellipse([hx-20,gy+2,hx+20,gy+22],fill=(6,12,8,255))
+        d2.line([(hx,gy+12),(hx,gy-170)],fill=(250,250,246,255),width=7)
+        d2.polygon([(hx,gy-170),(hx+70,gy-148),(hx,gy-122)],fill=LIME+(255,))
+        if t<0.45:
+            bt=M.ease(min(t/0.45,1)); bx=110+bt*260; by=gy-10-math.sin(bt*math.pi)*330
+        elif t<0.5:
+            bx,by=370,gy-10
+        else:
+            bt=M.ease(min((t-0.5)/0.42,1)); bx=370+bt*(hx-370); by=gy-10-math.sin(bt*math.pi)*260
+        def trb(dd,bx=bx,by=by):
+            dd.ellipse([bx-16,by-16,bx+16,by+16],fill=(250,250,246,255))
+        glow(b,trb,10,1)
+        if 0.42<t<0.64:
+            sp=(t-0.42)/0.22
+            for i in range(7):
+                ang=math.pi*(0.22+0.09*i); rr=95*M.ease(sp)
+                sx,sy=370+math.cos(ang)*rr,gy-24-math.sin(ang)*rr*1.35
+                d2.ellipse([sx-7,sy-7,sx+7,sy+7],fill=(243,231,189,int(235*(1-sp))))
+        ty=470
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,80,(t-0.07*i)*2.3,LIME if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=132
+        if t>0.32: ftxt(d,(W//2,ty+34),sub,BOLD(42),SUB,(t-0.32)/0.68,t_out=0.95)
+        M.progressbar(d,0.05+0.07*t,PAL); frames.append(V.fin(b))
+    # fase 1: donut 41%
+    cx,cy,rr=W//2,1010,300
+    n1=int(5.0*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=18)
+        ftxt(d,(W//2,420),'Green fallado: ¿salvas el par?',GEO(54),INK,t)
+        e=M.ease(min(t*1.6,1))
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.arc([cx-rr,cy-rr,cx+rr,cy+rr],0,360,fill=(255,255,255,66),width=46)
+        def arc(dd,e=e):
+            dd.arc([cx-rr,cy-rr,cx+rr,cy+rr],-90,-90+360*0.41*e,fill=GREEN+(245,),width=46)
+        glow(b,arc,12,1)
+        d2.text((cx,cy-26),f'{int(41*e)}%',font=BLACK(132),fill=(250,250,246,255),anchor='mm',stroke_width=6,stroke_fill=(10,30,16,255))
+        d2.text((cx,cy+86),'up & down · HCP 15',font=BOLD(38),fill=SUB+(240,),anchor='mm')
+        if t>0.62:
+            a=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1440),'(los pros: 58%. No estás tan lejos.)',font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(10,30,16,int(255*a)))
+        M.progressbar(d,0.16+0.2*t,PAL); frames.append(V.fin(b))
+    # fase 2: 10 greens fallados
+    n2=int(4.8*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=18)
+        ftxt(d,(W//2,420),'Fallas ~10 greens por ronda:',GEO(54),INK,t)
+        bx0=170; gap=(W-340)/9
+        for i in range(10):
+            ft=min(max(t*2.6-i*0.18,0),1)
+            if ft<=0: continue
+            salva=i<4; px=bx0+i*gap; py=950
+            def gb(dd,px=px,py=py,ft=ft,salva=salva):
+                if salva: dd.ellipse([px-26,py-26,px+26,py+26],fill=GREEN+(int(255*ft),))
+                else:
+                    dd.ellipse([px-26,py-26,px+26,py+26],outline=(250,250,246,int(200*ft)),width=5)
+                    dd.text((px,py),'+1',font=BOLD(28),fill=(250,250,246,int(230*ft)),anchor='mm')
+            glow(b,gb,7,1)
+        if t>0.6:
+            a=min((t-0.6)*5,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1250),'4 pares salvados = tu ronda entera',font=BLACK(52),fill=LIME+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(10,30,16,int(255*a)))
+        M.progressbar(d,0.38+0.26*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('el score no se salva en el tee se salva a 30 metros del hoyo',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=18)
+        M.poptext(d,W//2,800,'El score no se salva en el tee.',60,t*1.9,INK)
+        M.poptext(d,W//2,950,'Se salva a 30 METROS del hoyo.',66,max(t*1.9-0.3,0),GREEN)
+        if t>0.5:
+            ftxt(d,(W//2,1170),'Chip + putt = tu mina de oro.',BOLD(44),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.66+0.22*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT mide tus up & down')
+    return M.render(frames,'theory-updown')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1343,5 +1457,6 @@ if __name__=='__main__':
     elif cmd=='practica': teoria_practica()
     elif cmd=='tarjeta': teoria_tarjeta()
     elif cmd=='brecha': teoria_brecha()
+    elif cmd=='updown': teoria_updown()
     else:
         teoria_bandera(); teoria_okay()

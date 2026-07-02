@@ -18,6 +18,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 17 | brecha | el deslizamiento de ftxt se veía con lag (PIL mueve por píxeles ENTEROS a 30fps) | **ftxt v3 subpíxel**: el offset fraccional se reparte en 2 draws ponderados por alpha + recorrido corto (8px); fondo con gradiente+viñeta precalculados; **chrome v2 con branding de la app**: chip lima "THEORY · EP nn" + @parfectapp |
 
+| 18 | updown | André pidió el mundo de la app en los videos (como el avatar) | **Tema "PARFECT DAY"**: fondo = landing (cielo+sol+nubes+lomas) y contenido sobre campo verde profundo con franjas de podado; chrome en tinta bosque sobre el cielo; ftxt con delineado bosque; outro verde bosque; gancho #11 = rescate del bunker (arena) |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
