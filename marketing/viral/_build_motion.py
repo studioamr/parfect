@@ -258,6 +258,65 @@ def video_meme_putt(setup='POV: tu putt de 1 metro',punch='de pronto mide 4 kil�
     cta_outro(frames,pal,line1='Cuenta tus putts de verdad')
     return render(frames,'meme-'+slug(setup))
 
+# ============================================================
+# FORMATO 5 · QUIZ (pregunta -> opciones -> 3,2,1 -> respuesta)
+# ============================================================
+def video_quiz(pregunta,opciones,correcta,dato,pal=FOREST):
+    frames=[]
+    npre=int(dur_lectura(pregunta,1.0)*FPS)
+    for k in range(npre):
+        t=k/npre
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        d.rounded_rectangle([W//2-220,300,W//2+220,380],40,fill=LIME)
+        d.text((W//2,340),'QUIZ DE GOLF',font=BLACK(42),fill=(36,48,14),anchor='mm')
+        poptext(d,W//2,780,pregunta,88,t*1.6,pal['ink'])
+        progressbar(d,0.12*t,pal); frames.append(V.fin(b))
+    nop=int(2.6*FPS)
+    letras=['A','B','C']
+    tmpq=ImageDraw.Draw(Image.new('RGB',(4,4)))
+    fsq=68; qlines=V.wraptext(tmpq,pregunta,GEO(fsq),W-200)
+    while len(qlines)>2 and fsq>48:
+        fsq-=4; qlines=V.wraptext(tmpq,pregunta,GEO(fsq),W-200)
+    def draw_preg(d):
+        qy=560-(len(qlines)-1)*(fsq+16)//2
+        for ln in qlines:
+            d.text((W//2,qy),ln,font=GEO(fsq),fill=pal['ink'],anchor='mm'); qy+=fsq+16
+    def draw_ops(d,hl=None,dim=False):
+        oy=1050
+        for j,op in enumerate(opciones):
+            bg=LIME if hl==j else ((255,255,255,26) if pal is FOREST else (0,0,0,18))
+            fg=(36,48,14) if hl==j else (pal['ink'] if not dim else pal['sub'])
+            d.rounded_rectangle([140,oy-62,W-140,oy+62],40,fill=bg)
+            d.text((210,oy),letras[j]+')',font=BLACK(52),fill=fg,anchor='lm')
+            d.text((300,oy),op,font=BOLD(52),fill=fg,anchor='lm')
+            oy+=170
+    for k in range(nop):
+        t=k/nop
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        draw_preg(d)
+        draw_ops(d)
+        progressbar(d,0.12+0.2*t,pal); frames.append(V.fin(b))
+    for num in (3,2,1):
+        for k in range(FPS):
+            t=k/FPS
+            b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+            draw_preg(d)
+            draw_ops(d,dim=True)
+            sc=1.35-0.35*ease(t)
+            d.text((W//2,560+280),str(num),font=BLACK(int(220*sc)),fill=LIME,anchor='mm',
+                   stroke_width=6,stroke_fill=pal['ink'])
+            progressbar(d,0.32+0.3*((3-num)+t)/3,pal); frames.append(V.fin(b))
+    nrev=int(dur_lectura(dato,1.4)*FPS)
+    for k in range(nrev):
+        t=k/nrev
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        draw_preg(d)
+        draw_ops(d,hl=correcta)
+        poptext(d,W//2,1660,dato,54,t*1.8,pal['ink'])
+        progressbar(d,0.62+0.3*t,pal); frames.append(V.fin(b))
+    cta_outro(frames,pal,line1='¿Le atinaste? Mide tu golf')
+    return render(frames,'quiz-'+slug(pregunta))
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     a=sys.argv[2:]
@@ -273,4 +332,5 @@ if __name__=='__main__':
     elif cmd=='razones': video_razones(a[0],a[1:])
     elif cmd=='app': video_app()
     elif cmd=='meme': video_meme_putt(*a)
+    elif cmd=='quiz': video_quiz(a[0],a[1:4],int(a[4]),a[5])
     else: print(__doc__)
