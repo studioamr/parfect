@@ -223,9 +223,55 @@ def teoria_okay():
     M.cta_outro(frames,PAL,line1='PARFECT te dice tu DÓNDE')
     return M.render(frames,'theory-okay')
 
+# ============================================================
+# THEORY 25 · "Velocidad > linea" (hoyo efectivo por velocidad)
+# ============================================================
+def teoria_velocidad():
+    datos=[('MURIENDO en el hoyo','4.25\"','el hoyo completo',1.00),
+           ('0.5 m pasado','2.25\"','medio hoyo',0.53),
+           ('1 m pasado','1.9\"','menos de la mitad',0.45),
+           ('1.5 m pasado','1.4\"','más chico que la bola',0.33)]
+    frames=[]
+    titlecard(frames,['TU PUTT NO FALLA','POR LA LÍNEA.'],'(falla por la velocidad)',2.8,accent_idx=1)
+    total=len(datos); per=3.0
+    for i,(lab,size,sub2,frac) in enumerate(datos):
+        n=int(per*FPS)
+        for k in range(n):
+            t=k/(n-1)
+            b,d=canvas(); chrome(d)
+            d.text((W//2,420),'El hoyo "se encoge" si pasas:',font=GEO(58),fill=INK,anchor='mm')
+            ry=680
+            for j in range(i+1):
+                lab2,size2,sub3,frac2=datos[j]
+                act=(j==i)
+                a=1.0 if act else 0.55
+                rr=int(95*frac2*(ease(t) if act else 1.0))
+                col=GREEN if frac2>0.5 else (RED if frac2<0.4 else (238,205,90))
+                def g(dd,rr=rr,ry=ry,col=col,a=a):
+                    dd.ellipse([W//2-150-rr,ry-rr,W//2-150+rr,ry+rr],outline=col+(int(255*a),),width=6)
+                glow(b,g,14,1)
+                d2=ImageDraw.Draw(b,'RGBA')
+                d2.ellipse([W//2-150-14,ry-14,W//2-150+14,ry+14],fill=(240,240,236,int(255*a)))
+                d2.text((W//2+40,ry-26),lab2,font=BOLD(40),fill=(INK if act else SUB),anchor='lm')
+                d2.text((W//2+40,ry+30),f'{size2} — {sub3}',font=BOLD(34),fill=(col if act else SUB),anchor='lm')
+                ry+=250
+            d=ImageDraw.Draw(b,'RGBA')
+            M.progressbar(d,0.12+0.55*((i+t)/total),PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('llega muriendo al hoyo y la linea te perdona',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,860,'Llega MURIENDO al hoyo...',80,t*1.8,INK)
+        M.poptext(d,W//2,1000,'y la línea te perdona.',80,max(t*1.8-0.25,0),GREEN)
+        d.text((W//2,1220),'Practica velocidad, no lecturas perfectas.',font=BOLD(40),fill=SUB,anchor='mm')
+        M.progressbar(d,0.7+0.2*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts reales')
+    return M.render(frames,'theory-velocidad')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
     elif cmd=='okay': teoria_okay()
+    elif cmd=='velocidad': teoria_velocidad()
     else:
         teoria_bandera(); teoria_okay()

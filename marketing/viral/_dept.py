@@ -29,7 +29,7 @@ EPOCH  = dt.date(2026,7,2)          # arranque del plan
 HORA   = {0:'19:30',1:'13:00',2:'19:30',3:'13:00',4:'17:00',5:'11:00',6:'18:00'}
 
 # lunes=carrusel; resto formatos sueltos (variedad = algoritmo contento)
-PLAN_SEMANAL = {0:'carrusel',1:'meme',2:'stat',3:'myth',4:'feature',5:'quote',6:'challenge'}
+PLAN_SEMANAL = {0:'carrusel',1:'theory',2:'quiz',3:'theory',4:'feature',5:'entra',6:'theory'}
 
 COLA_CARRUSELES = ['v4-carrusel2-bajar-hcp','v4-carrusel4-mitos','v4-carrusel5-senales',
     'v4-carrusel6-tabla-hcp','v4-carrusel7-habitos','v4-carrusel8-errores-green',
@@ -89,6 +89,26 @@ RETOS=[('RETO: CERO 3-PUTTS','una semana de green disciplinado',['Cuenta tus put
  ('RETO: FAIRWAY FIRST','2 semanas de salidas inteligentes',['Anota cada salida: fairway sí o no','Cambia driver por madera 3 si fallas 3 seguidas','Compara tu % contra tu meta de HCP']),
  ('RETO: ROMPER 90','7 días midiendo cada ronda',['Registra tus próximas 3 rondas completas','Encuentra tu fuga #1 en Análisis IA','Entrena solo eso 20 min al día'])]
 
+# --- THEORY: cola de videos pre-renderizados (ver TEORIA-50.md) ---
+THEORY_COLA=[('theory-okay.mp4','No necesitas jugar perfecto. Ni Tiger juega perfecto 📊'),
+ ('theory-velocidad.mp4','Tu putt no falla por la línea. Falla por la velocidad ⛳'),
+ ]  # se agregan conforme se rendericen (tandas semanales)
+QUIZES=[('¿Cuál es el par más común en un campo de 18 hoyos?',['70','72','74'],1,'Par 72: cuatro pares 3, cuatro pares 5 y diez pares 4.'),
+ ('¿Desde dónde se pierden más golpes?',['El tee','100 yardas y menos','El green'],1,'Más de la mitad de tu score se hace en 100 yardas y menos.'),
+ ('¿Cuántos greens en regulación toma un HCP 36?',['1 de 3','1 de 6','1 de 12'],2,'Apenas 1 de cada 12. Ahí está la mina de golpes.'),
+ ('¿Qué baja más rápido tu score?',['Driver nuevo','Clases de swing','Medir tu juego'],2,'Sin datos practicas a ciegas. Mide primero.'),
+ ('¿Cuántos up & down salva un HCP 15?',['4 de 10','6 de 10','8 de 10'],0,'41%. El juego corto es la frontera del hándicap.'),
+ ('¿Qué vale igual que un drive de 250 yardas?',['Un putt de 1 metro','Un chip','Los dos'],2,'Todo golpe vale 1. Tu tarjeta no distingue.'),
+ ('¿Cuántos 3-putts hace el amateur por ronda?',['0 a 1','1 a 2','3 o más'],1,'Entre 1 y 2. Dos golpes regalados cada ronda.'),
+ ('¿Con qué palo pegas MÁS fairways?',['Driver','Madera 3','Híbrido'],1,'En hoyos cerrados la madera 3 gana score.')]
+
+def nth_del_tipo(fecha,tipo):
+    n=0; d=EPOCH
+    while d<=fecha:
+        if PLAN_SEMANAL[d.weekday()]==tipo and d<fecha: n+=1
+        d+=dt.timedelta(days=1)
+    return n
+
 HASHTAGS=['#golf #golftips #golfswing #handicap #golfmexico #golfmorelia',
  '#golf #golflife #golfstats #aprendegolf #golfmexico #morelia',
  '#golf #golftok #juegocorto #putting #golfmexico #golfista']
@@ -102,6 +122,15 @@ def pieza_del_dia(fecha):
     if t=='carrusel':
         c=COLA_CARRUSELES[w%len(COLA_CARRUSELES)]
         return t,c,GANCHO_CARRUSEL[c]
+    if t=='theory':
+        k=nth_del_tipo(fecha,'theory')%max(len(THEORY_COLA),1)
+        f,g=THEORY_COLA[k]; return t,f,g
+    if t=='quiz':
+        item=QUIZES[nth_del_tipo(fecha,'quiz')%len(QUIZES)]
+        return t,item,f'QUIZ ⛳ {item[0]} Responde antes del 3-2-1 👇'
+    if t=='entra':
+        si=nth_del_tipo(fecha,'entra')%2==0
+        return t,si,'¿ENTRA o NO ENTRA? 👀⛳ Di tu apuesta en los comentarios ANTES de que caiga…'
     banco={'meme':MEMES,'stat':STATS,'quote':QUOTES,'myth':MYTHS,'feature':FEATURES,'challenge':RETOS}[t]
     item=banco[w%len(banco)]
     gancho={'meme':f'{item[0]} 😂','stat':f'El dato de hoy: {item[0]} {item[1]} 📊',
@@ -156,6 +185,8 @@ def video_motion(t,item,dest_mp4):
         elif t=='meme':
             p=MO.video_meme_putt(item[0],item[1]) if 'putt' in (item[0]+item[1]).lower() else MO.video_razones(item[0],[item[1]])
         elif t=='feature': p=MO.video_app(variant=1+idx(dt.date.today())%2)
+        elif t=='quiz': p=MO.video_quiz(item[0],item[1],item[2],item[3])
+        elif t=='entra': p=MO.video_entra(item)
         else: return False
         if p: shutil.copy(p,dest_mp4); return True
     except Exception as e:
@@ -166,8 +197,13 @@ def preparar(fecha):
     t,item,gancho=pieza_del_dia(fecha)
     i=idx(fecha)
     caption=f'{gancho}\n{CTA_LINEA}\n{HASHTAGS[i%len(HASHTAGS)]}'
+    folder=None; pngs=[]
     if t=='carrusel':
         slugv=item; folder=item
+    elif t=='theory':
+        slugv=item.replace('.mp4','')
+    elif t in ('quiz','entra'):
+        slugv=E.slug(item[0]) if t=='quiz' else ('entra-si' if item else 'entra-no')
     else:
         img,slugv=genera_imagen(t,item,fecha)
         folder=f'pieza-{fecha.strftime("%Y%m%d")}'
@@ -176,16 +212,22 @@ def preparar(fecha):
         V.save(V.slide_cta('MIDE TU GOLF','DE VERDAD','shot-inicio.png'),folder,'02.png')
     dest=os.path.join(OUTBOX,f'{fecha.isoformat()}-{t}-{slugv[:30]}')
     os.makedirs(dest,exist_ok=True)
-    # copia imagenes
-    fdir=os.path.join(HERE,folder)
-    pngs=sorted(f for f in os.listdir(fdir) if f.endswith('.png'))
-    for f in pngs: Image.open(os.path.join(fdir,f)).save(os.path.join(dest,f))
-    # video vertical: piezas sueltas = ANIMADO nativo; carrusel = slideshow 4K
+    if folder:
+        fdir=os.path.join(HERE,folder)
+        pngs=sorted(f for f in os.listdir(fdir) if f.endswith('.png'))
+        for f in pngs: Image.open(os.path.join(fdir,f)).save(os.path.join(dest,f))
+    # video vertical
     mp4=os.path.join(dest,'video.mp4')
-    vok=video_motion(t,item,mp4) if t!='carrusel' else False
-    if not vok: vok=video_de_pieza(folder,mp4)
+    if t=='theory':
+        src=os.path.join(HERE,'motion',item)
+        vok=os.path.exists(src) and (shutil.copy(src,mp4) or True)
+    elif t=='carrusel':
+        vok=video_de_pieza(folder,mp4)
+    else:
+        vok=video_motion(t,item,mp4)
+        if not vok and folder: vok=video_de_pieza(folder,mp4)
     open(os.path.join(dest,'caption.txt'),'w').write(caption)
-    rep=qc(os.path.join(dest,pngs[0]),mp4 if vok else None,caption)
+    rep=qc(os.path.join(dest,pngs[0]) if pngs else None,mp4 if vok else None,caption)
     chk='\n'.join(f'- [{"x" if ok else " "}] {n}' for n,ok in rep)
     open(os.path.join(dest,'CHECKLIST.md'),'w').write(f'''# Publicación {fecha.isoformat()} · {t.upper()}
 
