@@ -31,27 +31,27 @@ HORA   = {0:'19:30',1:'13:00',2:'19:30',3:'13:00',4:'17:00',5:'11:00',6:'18:00'}
 # lunes=carrusel; resto formatos sueltos (variedad = algoritmo contento)
 PLAN_SEMANAL = {0:'carrusel',1:'meme',2:'stat',3:'myth',4:'feature',5:'quote',6:'challenge'}
 
-COLA_CARRUSELES = ['carrusel2-bajar-hcp','carrusel4-mitos','carrusel5-senales',
-    'carrusel6-tabla-hcp','carrusel7-habitos','carrusel8-errores-green',
-    'carrusel9-preguntas','carrusel10-cambia','carrusel11-amigos',
-    'carrusel12-practica','carrusel13-curiosos','carrusel14-no-bajas-90',
-    'carrusel3-dato','carrusel1-verdades']
+COLA_CARRUSELES = ['v4-carrusel2-bajar-hcp','v4-carrusel4-mitos','v4-carrusel5-senales',
+    'v4-carrusel6-tabla-hcp','v4-carrusel7-habitos','v4-carrusel8-errores-green',
+    'v4-carrusel9-preguntas','v4-carrusel10-cambia','v4-carrusel11-amigos',
+    'v4-carrusel12-practica','v4-carrusel13-curiosos','v4-carrusel14-no-bajas-90',
+    'v4-carrusel1-verdades']
 
 GANCHO_CARRUSEL = {
-    'carrusel2-bajar-hcp':'5 formas de bajar tu hándicap más rápido (sin pegarle más lejos) 👇',
-    'carrusel4-mitos':'7 mitos del golf que te están deteniendo 🚫',
-    'carrusel5-senales':'6 señales de que pierdes golpes sin darte cuenta 👀',
-    'carrusel6-tabla-hcp':'Así juega cada hándicap, del 36 al scratch 📊',
-    'carrusel7-habitos':'5 hábitos de golfistas de un solo dígito 🎯',
-    'carrusel8-errores-green':'7 errores que te cuestan golpes en el green ⛳',
-    'carrusel9-preguntas':'5 preguntas que debes hacerte después de cada ronda 🤔',
-    'carrusel10-cambia':'6 cosas que cambian cuando empiezas a medir tu golf 📈',
-    'carrusel11-amigos':'5 razones para llevar la cuenta con una app cuando juegas con amigos 🍺',
-    'carrusel12-practica':'5 formas de aprovechar mejor tu tiempo de práctica ⏱️',
-    'carrusel13-curiosos':'6 datos de golf que te van a sorprender 🤯',
-    'carrusel14-no-bajas-90':'3 razones por las que no bajas de 90 (y no es tu swing) 🔥',
-    'carrusel3-dato':'El dato que más golpes te cuesta y ni te habías dado cuenta 👀',
-    'carrusel1-verdades':'8 verdades del golf que nadie te dice (la 5 me dolió) ⛳',
+    'v4-carrusel2-bajar-hcp':'5 formas de bajar tu hándicap más rápido (sin pegarle más lejos) 👇',
+    'v4-carrusel4-mitos':'7 mitos del golf que te están deteniendo 🚫',
+    'v4-carrusel5-senales':'6 señales de que pierdes golpes sin darte cuenta 👀',
+    'v4-carrusel6-tabla-hcp':'Así juega cada hándicap, del 36 al scratch 📊',
+    'v4-carrusel7-habitos':'5 hábitos de golfistas de un solo dígito 🎯',
+    'v4-carrusel8-errores-green':'7 errores que te cuestan golpes en el green ⛳',
+    'v4-carrusel9-preguntas':'5 preguntas que debes hacerte después de cada ronda 🤔',
+    'v4-carrusel10-cambia':'6 cosas que cambian cuando empiezas a medir tu golf 📈',
+    'v4-carrusel11-amigos':'5 razones para llevar la cuenta con una app cuando juegas con amigos 🍺',
+    'v4-carrusel12-practica':'5 formas de aprovechar mejor tu tiempo de práctica ⏱️',
+    'v4-carrusel13-curiosos':'6 datos de golf que te van a sorprender 🤯',
+    'v4-carrusel14-no-bajas-90':'3 razones por las que no bajas de 90 (y no es tu swing) 🔥',
+    'v4-carrusel3-dato':'El dato que más golpes te cuesta y ni te habías dado cuenta 👀',
+    'v4-carrusel1-verdades':'8 verdades del golf que nadie te dice (la 5 me dolió) ⛳',
 }
 
 # --- bancos de contenido (rotan solos; agrega más cuando quieras) ---
@@ -119,12 +119,14 @@ def genera_imagen(t,item,fecha):
     return img,slugv
 
 def video_de_pieza(folder_rel, outmp4):
-    """carpeta de PNGs -> frames pro -> mp4 (usa _build_pro + _encode_pro)"""
-    r=subprocess.run(['python3',os.path.join(HERE,'_build_pro.py'),folder_rel],
+    """carpeta de PNGs -> frames -> mp4; v4-* sale en 4K (2160x3840)"""
+    uhd=folder_rel.startswith('v4-')
+    builder='_build_pro4.py' if uhd else '_build_pro.py'
+    r=subprocess.run(['python3',os.path.join(HERE,builder),folder_rel],
                      capture_output=True,text=True,cwd=HERE)
     if r.returncode!=0: print('  ✗ frames:',r.stderr.strip()[:200]); return False
     man=os.path.join(HERE,'_pro_frames',folder_rel+'.manifest.txt')
-    enc=os.path.join(HERE,'_encode_pro')
+    enc=os.path.join(HERE,'_encode_4k' if uhd else '_encode_pro')
     if not os.path.exists(enc): print('  ✗ falta _encode_pro'); return False
     r=subprocess.run([enc,man,outmp4],capture_output=True,text=True,cwd=HERE)
     ok=r.returncode==0 and os.path.exists(outmp4)
@@ -135,7 +137,7 @@ def qc(png,mp4,caption):
     res=[]
     if png and os.path.exists(png):
         w,h=Image.open(png).size
-        res.append(('imagen 1080x1080', w==1080 and h==1080))
+        res.append(('imagen cuadrada 1080/2160', w==h and w in (1080,2160)))
     if mp4:
         res.append(('video existe y pesa >0.5MB', os.path.exists(mp4) and os.path.getsize(mp4)>500_000))
     res.append(('caption <=2200 chars', len(caption)<=2200))
