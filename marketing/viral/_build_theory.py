@@ -854,6 +854,92 @@ def teoria_ladocorto():
     M.cta_outro(frames,PAL,line1='PARFECT mide tus up & down reales')
     return M.render(frames,'theory-ladocorto')
 
+# ============================================================
+# THEORY 26 · "El putt de 1 metro NO es automatico"
+# ============================================================
+def teoria_putt1m():
+    frames=[]
+    # gancho #6: pendulo de putter
+    lines=['EL PUTT DE 1 METRO','NO ES AUTOMÁTICO.']; sub='(y te está costando el par)'
+    secs=max(3.0, M.dur_lectura(' '.join(lines)+' '+sub,1.0))
+    n=int(secs*FPS)
+    pvx,pvy=W//2,1150; plen=430
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        ang=math.sin(t*math.pi*3)*0.55
+        hx,hy=pvx+math.sin(ang)*plen, pvy+math.cos(ang)*plen
+        def arc(dd):
+            pts=[(pvx+math.sin(a/40-0.55)*plen, pvy+math.cos(a/40-0.55)*plen) for a in range(0,45,3)]
+            for p in pts: dd.ellipse([p[0]-4,p[1]-4,p[0]+4,p[1]+4],fill=GREEN+(90,))
+        glow(b,arc,8,1)
+        def pend(dd):
+            dd.line([(pvx,pvy),(hx,hy)],fill=INK+(230,),width=8)
+            dd.rounded_rectangle([hx-52,hy-14,hx+52,hy+22],10,fill=GREEN+(255,))
+        glow(b,pend,10,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.ellipse([pvx-90-13,pvy+plen+30-13,pvx-90+13,pvy+plen+30+13],fill=(250,250,246))
+        ty=560-66
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,86,(t-0.06*i)*2.4,GREEN if i==1 else INK,font=BLACK,maxw=W-120)
+            ty+=130
+        if t>0.28: d.text((W//2,ty+40),sub,font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: gauges comparativos
+    n1=int(4.6*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'Desde 1 metro, ¿cuántos entran?',GEO(56),INK,t)
+        for i,(lab,val,col,cy) in enumerate([('UN PRO',85,GREEN,830),('TÚ',60,RED,1330)]):
+            ft=min(max(t*2.2-i*0.7,0),1)
+            if ft<=0: continue
+            rr=200
+            def ga(dd,val=val,col=col,cy=cy,ft=ft):
+                dd.arc([W//2-rr,cy-rr,W//2+rr,cy+rr],180,180+180*(val/100)*M.ease(ft),fill=col+(250,),width=30)
+            glow(b,ga,12,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.arc([W//2-rr,cy-rr,W//2+rr,cy+rr],180,360,fill=(255,255,255,26),width=30)
+            d2.text((W//2,cy-40),f'{int(val*M.ease(ft))}%',font=BLACK(92),fill=col,anchor='mm')
+            d2.text((W//2,cy+52),lab,font=BOLD(40),fill=SUB,anchor='mm')
+        M.progressbar(d,0.12+0.22*t,PAL); frames.append(V.fin(b))
+    # fase 2: 10 bolitas — 4 no entran
+    n2=int(4.2*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        ftxt(d,(W//2,390),'De tus 10 putts de 1 metro:',GEO(58),INK,t)
+        bx0=170; gap=(W-340)/9
+        for i in range(10):
+            ft=min(max(t*2.6-i*0.18,0),1)
+            if ft<=0: continue
+            entra=i<6
+            col=GREEN if entra else RED
+            px=bx0+i*gap; py=900
+            def gb(dd,px=px,py=py,col=col,ft=ft):
+                dd.ellipse([px-26,py-26,px+26,py+26],fill=col+(int(255*ft),) if col==GREEN else (0,0,0,0),outline=col+(int(255*ft),),width=6)
+                if col==RED:
+                    dd.line([(px-16,py-16),(px+16,py+16)],fill=col+(int(255*ft),),width=7)
+                    dd.line([(px-16,py+16),(px+16,py-16)],fill=col+(int(255*ft),),width=7)
+            glow(b,gb,8,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.6:
+            a=min((t-0.6)*4,1.0) if t<0.88 else max(0.0,(1.0-t)/0.12)
+            d2.text((W//2,1240),'4 fallados = 4 pares regalados',font=BLACK(52),fill=RED+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+            d2.text((W//2,1360),'cada ronda',font=BOLD(40),fill=SUB+(int(255*a),),anchor='mm')
+        M.progressbar(d,0.34+0.28*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('no es automatico es una habilidad practicala 10 minutos al dia',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,800,'No es automático.',80,t*1.8,INK)
+        M.poptext(d,W//2,940,'Es una HABILIDAD.',84,max(t*1.8-0.25,0),GREEN)
+        if t>0.4:
+            ftxt(d,(W//2,1160),'10 minutos al día y se vuelve tuya.',BOLD(42),SUB,(t-0.4)/0.6,t_out=0.92)
+        M.progressbar(d,0.62+0.26*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT cuenta tus putts de 1 metro')
+    return M.render(frames,'theory-putt1m')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -866,5 +952,6 @@ if __name__=='__main__':
     elif cmd=='drive': teoria_drive()
     elif cmd=='100y': teoria_100y()
     elif cmd=='ladocorto': teoria_ladocorto()
+    elif cmd=='putt1m': teoria_putt1m()
     else:
         teoria_bandera(); teoria_okay()
