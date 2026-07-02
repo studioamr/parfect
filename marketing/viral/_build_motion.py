@@ -16,6 +16,7 @@
 import os, sys, math, re, subprocess, shutil
 from PIL import Image, ImageDraw, ImageFilter
 import _build_viral as V
+import _build_v4 as B4
 
 HERE=os.path.dirname(os.path.abspath(__file__))
 W,H,FPS=1080,1920,30
@@ -66,6 +67,13 @@ def poptext(d,cx,cy,txt,base_fs,t,ink,font=GEO,maxw=W-160):
     ty=cy-(len(lines)-1)*(fs+14)//2
     for ln in lines:
         d.text((cx,ty),ln,font=f,fill=ink+(a,),anchor='mm'); ty+=fs+14
+
+def scene_strip(d,pal,y=1840):
+    gcol=(45,88,62) if pal is FOREST else (133,172,96)
+    d.ellipse([-320,y-36,W+320,y+250],fill=gcol)
+    B4.flagpin(d,W-160,y+40,200)
+    B4.golfer(d,150,y+95,200)
+    B4.tree(d,W//2+120,y+70,150)
 
 def cta_outro(frames,pal,seconds=2.8,line1='PRUÉBALA GRATIS',line2='link en bio'):
     n=int(seconds*FPS)
@@ -270,6 +278,7 @@ def video_quiz(pregunta,opciones,correcta,dato,pal=FOREST):
         d.rounded_rectangle([W//2-220,300,W//2+220,380],40,fill=LIME)
         d.text((W//2,340),'QUIZ DE GOLF',font=BLACK(42),fill=(36,48,14),anchor='mm')
         poptext(d,W//2,780,pregunta,88,t*1.6,pal['ink'])
+        scene_strip(d,pal)
         progressbar(d,0.12*t,pal); frames.append(V.fin(b))
     nop=int(2.6*FPS)
     letras=['A','B','C']
@@ -295,6 +304,7 @@ def video_quiz(pregunta,opciones,correcta,dato,pal=FOREST):
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         draw_preg(d)
         draw_ops(d)
+        scene_strip(d,pal)
         progressbar(d,0.12+0.2*t,pal); frames.append(V.fin(b))
     for num in (3,2,1):
         for k in range(FPS):
@@ -305,6 +315,7 @@ def video_quiz(pregunta,opciones,correcta,dato,pal=FOREST):
             sc=1.35-0.35*ease(t)
             d.text((W//2,560+280),str(num),font=BLACK(int(220*sc)),fill=LIME,anchor='mm',
                    stroke_width=6,stroke_fill=pal['ink'])
+            scene_strip(d,pal)
             progressbar(d,0.32+0.3*((3-num)+t)/3,pal); frames.append(V.fin(b))
     nrev=int(dur_lectura(dato,1.4)*FPS)
     for k in range(nrev):
@@ -312,10 +323,129 @@ def video_quiz(pregunta,opciones,correcta,dato,pal=FOREST):
         b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
         draw_preg(d)
         draw_ops(d,hl=correcta)
-        poptext(d,W//2,1660,dato,54,t*1.8,pal['ink'])
+        scene_strip(d,pal)
+        poptext(d,W//2,1560,dato,54,t*1.8,pal['ink'])
         progressbar(d,0.62+0.3*t,pal); frames.append(V.fin(b))
     cta_outro(frames,pal,line1='¿Le atinaste? Mide tu golf')
     return render(frames,'quiz-'+slug(pregunta))
+
+# ============================================================
+# FORMATO 6 · VERDADERO O FALSO (con escena de campo)
+# ============================================================
+def video_vf(afirmacion,es_verdad,dato,pal=CREAM):
+    frames=[]
+    npre=int(dur_lectura(afirmacion,1.0)*FPS)
+    tmpq=ImageDraw.Draw(Image.new('RGB',(4,4)))
+    fsq=72; qlines=V.wraptext(tmpq,afirmacion,GEO(fsq),W-200)
+    while len(qlines)>3 and fsq>52:
+        fsq-=4; qlines=V.wraptext(tmpq,afirmacion,GEO(fsq),W-200)
+    def draw_af(d):
+        qy=560-(len(qlines)-1)*(fsq+16)//2
+        for ln in qlines:
+            d.text((W//2,qy),ln,font=GEO(fsq),fill=pal['ink'],anchor='mm'); qy+=fsq+16
+    def draw_cards(d,hl=None,dim=False):
+        for j,(tx,cx) in enumerate([('VERDADERO',W//2-250),('FALSO',W//2+250)]):
+            win=(hl==0 and j==0) or (hl==1 and j==1)
+            bg=LIME if win else ((255,255,255,240) if not dim else (255,255,255,150))
+            fg=(36,48,14) if win else ((30,58,44) if pal is CREAM else (30,58,44))
+            d.rounded_rectangle([cx-220,1040,cx+220,1220],40,fill=bg)
+            d.text((cx,1130),tx,font=BLACK(52),fill=fg,anchor='mm')
+    for k in range(npre):
+        t=k/npre
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        d.rounded_rectangle([W//2-320,300,W//2+320,380],40,fill=LIME)
+        d.text((W//2,340),'¿VERDADERO O FALSO?',font=BLACK(40),fill=(36,48,14),anchor='mm')
+        poptext(d,W//2,700,afirmacion,80,t*1.6,pal['ink'])
+        scene_strip(d,pal); progressbar(d,0.12*t,pal); frames.append(V.fin(b))
+    for k in range(int(1.6*FPS)):
+        t=k/(1.6*FPS)
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        draw_af(d); draw_cards(d)
+        scene_strip(d,pal); progressbar(d,0.12+0.16*t,pal); frames.append(V.fin(b))
+    for num in (3,2,1):
+        for k in range(FPS):
+            t=k/FPS
+            b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+            draw_af(d); draw_cards(d,dim=True)
+            sc=1.35-0.35*ease(t)
+            d.text((W//2,1400),str(num),font=BLACK(int(190*sc)),fill=LIMEDK,anchor='mm',
+                   stroke_width=6,stroke_fill=pal['ink'])
+            scene_strip(d,pal); progressbar(d,0.3+0.3*((3-num)+t)/3,pal); frames.append(V.fin(b))
+    nrev=int(dur_lectura(dato,1.4)*FPS)
+    hl=0 if es_verdad else 1
+    for k in range(nrev):
+        t=k/nrev
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        draw_af(d); draw_cards(d,hl=hl)
+        poptext(d,W//2,1480,dato,52,t*1.8,pal['ink'])
+        scene_strip(d,pal); progressbar(d,0.62+0.3*t,pal); frames.append(V.fin(b))
+    cta_outro(frames,pal,line1='Mide tu golf de verdad')
+    return render(frames,'vf-'+slug(afirmacion))
+
+# ============================================================
+# FORMATO 7 · ¿ENTRA O NO ENTRA? (putt en suspenso)
+# ============================================================
+def video_entra(entra=True,pal=FOREST):
+    frames=[]
+    gy=1330
+    def campo(d,bx,ball=True,celebra=0.0):
+        gcol=(45,88,62) if pal is FOREST else (133,172,96)
+        d.ellipse([-340,gy-60,W+340,gy+420],fill=gcol)
+        hx=W-240
+        d.ellipse([hx-64,gy+8,hx+64,gy+38],fill=(238,236,226))
+        d.ellipse([hx-20,gy+14,hx+20,gy+30],fill=(24,28,26))
+        d.line([(hx,gy+20),(hx,gy-200)],fill=(238,236,226),width=10)
+        wob=math.sin(celebra*math.pi*6)*14 if celebra>0 else 0
+        d.polygon([(hx,gy-200),(hx+100+wob,gy-166),(hx,gy-132)],fill=(226,84,64))
+        B4.tree(d,180,gy+30,200); B4.cloud(d,260,520,70,{'cloud':(224,228,214) if pal is FOREST else (255,255,255)})
+        if ball:
+            d.ellipse([bx-26,gy-4,bx+26,gy+48],fill=(252,252,248))
+        if celebra>0:
+            import random as _r; rnd=_r.Random(9)
+            for _ in range(14):
+                ang=rnd.uniform(0,math.pi); rr=celebra*rnd.uniform(60,180)
+                px,py=hx+math.cos(ang)*rr, gy-10-math.sin(ang)*rr
+                d.ellipse([px-9,py-9,px+9,py+9],fill=LIME)
+    for k in range(int(1.4*FPS)):
+        t=k/(1.4*FPS)
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        poptext(d,W//2,620,'¿ENTRA O NO ENTRA?',94,t*1.6,pal['ink'],font=BLACK)
+        campo(d,150); progressbar(d,0.1*t,pal); frames.append(V.fin(b))
+    hx=W-240
+    n1=int(2.6*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        d.text((W//2,620),'¿ENTRA O NO ENTRA?',font=BLACK(94),fill=pal['ink'],anchor='mm')
+        bx=150+(hx-90-150)*ease(t*0.92)
+        campo(d,bx)
+        progressbar(d,0.1+0.25*t,pal); frames.append(V.fin(b))
+    for k in range(int(1.8*FPS)):
+        t=k/(1.8*FPS)
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        d.text((W//2,620),'¿ENTRA O NO ENTRA?',font=BLACK(94),fill=pal['ink'],anchor='mm')
+        campo(d,hx-90)
+        pu=1+0.12*math.sin(t*math.pi*3)
+        d.text((W//2,880),'DI TU APUESTA ↓',font=BOLD(int(52*pu)),fill=LIME if pal is FOREST else LIMEDK,anchor='mm')
+        progressbar(d,0.35+0.2*t,pal); frames.append(V.fin(b))
+    n3=int(2.6*FPS)
+    for k in range(n3):
+        t=k/(n3-1)
+        b,d=canvas(pal); wordmark(d,W//2,180,pal['ink'])
+        if entra:
+            bx=hx-90+(90-8)*min(t*2.2,1)
+            vis = bx<hx-14
+            campo(d,bx if vis else hx,ball=vis,celebra=max(0,(t-0.45))/0.55)
+            if t>0.5:
+                poptext(d,W//2,760,'¡ADENTRO!',110,(t-0.5)/0.5*1.5,pal['ink'],font=BLACK)
+        else:
+            bx=hx-90+(t*230)
+            campo(d,bx)
+            if t>0.5:
+                poptext(d,W//2,760,'SE PASÓ...',110,(t-0.5)/0.5*1.5,(226,84,64),font=BLACK)
+        progressbar(d,0.55+0.35*t,pal); frames.append(V.fin(b))
+    cta_outro(frames,pal,line1='Cuenta tus putts de verdad')
+    return render(frames,'entra-'+('si' if entra else 'no'))
 
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
@@ -333,4 +463,6 @@ if __name__=='__main__':
     elif cmd=='app': video_app()
     elif cmd=='meme': video_meme_putt(*a)
     elif cmd=='quiz': video_quiz(a[0],a[1:4],int(a[4]),a[5])
+    elif cmd=='vf': video_vf(a[0],a[1].lower() in ('v','true','si','1'),a[2])
+    elif cmd=='entra': video_entra(a[0].lower() in ('si','1','true') if a else True)
     else: print(__doc__)
