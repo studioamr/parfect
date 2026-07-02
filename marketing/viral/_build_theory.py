@@ -81,6 +81,44 @@ def titlecard(frames,lines,sub,seconds,accent_idx=None):
         M.progressbar(d,0.05+0.05*t,PAL)
         frames.append(V.fin(b))
 
+def titlecard_rain(frames,lines,sub,seconds,accent_idx=None):
+    """gancho alternativo: LLUVIA de tiros cayendo sobre un mini-green"""
+    full=' '.join(lines)+' '+(sub or '')
+    seconds=max(seconds, M.dur_lectura(full,1.0))
+    n=int(seconds*FPS)
+    import random as _r; rnd=_r.Random(11)
+    pts=[(rnd.gauss(0,120),rnd.gauss(0,80)) for _ in range(14)]
+    gcx,gcy=W//2,1590
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d)
+        # mini green cenital
+        gp=green_pts(gcx,gcy,300,190)
+        d.polygon(gp,fill=GREENDIM+(255,))
+        def gg(dd): dd.line(gp,fill=GREEN+(180,),width=4)
+        glow(b,gg,16,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.line([(gcx,gcy),(gcx,gcy-95)],fill=INK,width=5)
+        d2.polygon([(gcx,gcy-95),(gcx+52,gcy-77),(gcx,gcy-59)],fill=RED)
+        # tiros cayendo uno por uno
+        vis=int(len(pts)*min(t*1.3,1))
+        for i in range(vis):
+            dx,dy=pts[i]; px,py=gcx+dx,gcy+dy
+            dentro=((dx/315)**2+(dy/200)**2)<=1
+            col=GREEN if dentro else RED
+            pop=min((t*1.3*len(pts)-i)*3,1); r=10*max(pop,0.4)
+            def gd(dd,px=px,py=py,col=col,r=r): dd.ellipse([px-r,py-r,px+r,py+r],fill=col+(255,))
+            glow(b,gd,9,1)
+        ty=640-(len(lines)-1)*66
+        for i,ln in enumerate(lines):
+            col=GREEN if i==accent_idx else INK
+            M.poptext(d,W//2,ty,ln,92,(t-0.06*i)*2.4,col,font=BLACK,maxw=W-140)
+            ty+=132
+        if sub and t>0.28:
+            d.text((W//2,ty+40),sub,font=BOLD(44),fill=SUB,anchor='mm')
+        M.progressbar(d,0.05+0.05*t,PAL)
+        frames.append(V.fin(b))
+
 # ---------- geometría del green (vista cenital) ----------
 def green_pts(cx,cy,rx,ry,n=64):
     pts=[]
@@ -460,6 +498,69 @@ def teoria_3putts():
     M.cta_outro(frames,PAL,line1='PARFECT cuenta tus 3-putts solos')
     return M.render(frames,'theory-3putts')
 
+# ============================================================
+# THEORY 21 · "Tu wedge no cae donde crees" (anillos de proximidad)
+# ============================================================
+def teoria_wedges():
+    frames=[]
+    titlecard_rain(frames,['TU WEDGE NO CAE','DONDE CREES.'],'(la dispersión real duele)',3.0,accent_idx=1)
+    gcx,gcy=W//2,1030
+    anillos=[(95,'2 m',GREEN),(210,'5 m',(238,205,90)),(330,'8 m',RED)]
+    import random as _r; rnd=_r.Random(21)
+    tiros=[(rnd.gauss(0,150),rnd.gauss(0,105)) for _ in range(12)]
+    def base_green(b,d,ring_t=1.0):
+        gp=green_pts(gcx,gcy,430,320)
+        d.polygon(gp,fill=GREENDIM+(255,))
+        def gg(dd): dd.line(gp,fill=GREEN+(150,),width=4)
+        glow(b,gg,16,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for i,(r,lab,col) in enumerate(anillos):
+            ft=min(max(ring_t*3-i,0),1)
+            if ft<=0: continue
+            rr=r*M.ease(ft); ry=rr*0.72
+            def ga(dd,rr=rr,ry=ry,col=col): dd.ellipse([gcx-rr,gcy-ry,gcx+rr,gcy+ry],outline=col+(220,),width=4)
+            glow(b,ga,10,1)
+            if ft>0.9: d2.text((gcx+rr-6,gcy-ry-26),lab,font=BOLD(30),fill=col,anchor='rm')
+        d2.line([(gcx,gcy),(gcx,gcy-85)],fill=INK,width=5)
+        d2.polygon([(gcx,gcy-85),(gcx+48,gcy-69),(gcx,gcy-53)],fill=RED)
+    n1=int(2.6*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,380),'Desde 100 yardas,',font=GEO(58),fill=INK,anchor='mm')
+        d.text((W//2,458),'¿qué tan cerca la dejas?',font=GEO(58),fill=GREEN,anchor='mm')
+        base_green(b,d,ring_t=t)
+        M.progressbar(d,0.1+0.14*t,PAL); frames.append(V.fin(b))
+    n2=int(4.8*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d)
+        d.text((W//2,380),'12 wedges del amateur',font=GEO(58),fill=INK,anchor='mm')
+        d.text((W//2,458),'promedio:',font=GEO(58),fill=INK,anchor='mm')
+        base_green(b,d)
+        vis=int(len(tiros)*min(t*1.2,1)); cerca=0
+        for i in range(vis):
+            dx,dy=tiros[i]; px,py=gcx+dx,gcy+dy*0.72
+            dist=(dx*dx+dy*dy)**0.5
+            if dist<95: cerca+=1
+            col=GREEN if dist<95 else ((238,205,90) if dist<210 else RED)
+            def gd(dd,px=px,py=py,col=col): dd.ellipse([px-11,py-11,px+11,py+11],fill=col+(255,))
+            glow(b,gd,9,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.6:
+            d2.text((W//2,1560),f'Solo {cerca} de 12 quedan a tiro de birdie',font=BLACK(48),fill=RED,anchor='mm')
+        M.progressbar(d,0.24+0.3*t,PAL); frames.append(V.fin(b))
+    nin=int(M.dur_lectura('el promedio queda a 8 metros planea el putt largo no el tap-in',1.2)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d)
+        M.poptext(d,W//2,800,'El wedge promedio queda',76,t*1.8,INK)
+        M.poptext(d,W//2,930,'a 8 METROS del hoyo.',80,max(t*1.8-0.2,0),GREEN)
+        d.text((W//2,1150),'Planea el putt largo, no el tap-in.',font=BOLD(42),fill=SUB,anchor='mm')
+        M.progressbar(d,0.62+0.26*t,PAL); frames.append(V.fin(b))
+    M.cta_outro(frames,PAL,line1='PARFECT mide tu juego corto real')
+    return M.render(frames,'theory-wedges')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -468,5 +569,6 @@ if __name__=='__main__':
     elif cmd=='par5': teoria_par5()
     elif cmd=='putts30': teoria_putts30()
     elif cmd=='3putts': teoria_3putts()
+    elif cmd=='wedges': teoria_wedges()
     else:
         teoria_bandera(); teoria_okay()
