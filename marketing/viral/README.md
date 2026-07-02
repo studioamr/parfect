@@ -34,6 +34,31 @@ Gancho de un solo dato — formato rápido para Reels/Stories.
 > Mide tu juego real con PARFECT. Link en bio.
 > #golf #golfstats #golftips
 
+## Carruseles 4–14 (81 slides más, 100 en total)
+Mismo estilo (fondo oscuro, golfista 3D real, mascota Birdie en cada item, CTA claro):
+
+| # | Carpeta | Tema |
+|---|---|---|
+| 4 | `carrusel4-mitos/` | 7 mitos del golf que te están deteniendo |
+| 5 | `carrusel5-senales/` | 6 señales de que pierdes golpes sin darte cuenta |
+| 6 | `carrusel6-tabla-hcp/` | Cómo juega cada hándicap (36 → 0) |
+| 7 | `carrusel7-habitos/` | 5 hábitos de golfistas de un dígito |
+| 8 | `carrusel8-errores-green/` | 7 errores que te cuestan golpes en el green |
+| 9 | `carrusel9-preguntas/` | 5 preguntas después de cada ronda |
+| 10 | `carrusel10-cambia/` | 6 cosas que cambian cuando mides tu golf |
+| 11 | `carrusel11-amigos/` | 5 razones para llevar la cuenta con una app |
+| 12 | `carrusel12-practica/` | 5 formas de aprovechar tu tiempo de práctica |
+| 13 | `carrusel13-curiosos/` | 6 datos de golf que te van a sorprender |
+| 14 | `carrusel14-no-bajas-90/` | 3 razones por las que no bajas de 90 |
+
+Caption genérico que sirve para cualquiera de estos (ajusta el gancho de la 1a línea al título):
+> [Título del carrusel] 🏌️⛳
+> Los mido con PARFECT — anotas tu ronda y te dice en qué pierdes golpes de verdad.
+> Gratis, link en bio.
+> #golf #golftips #golfswing #hándicap #golfmexico #golfmorelia
+
+Sugerencia de cadencia: publica 1 carrusel cada 2-3 días → **100 imágenes te dan ~5 semanas** de contenido diario/interdiario sin repetir.
+
 ## Cómo publicarlas (esto sí lo tienes que hacer tú)
 No hay forma de subir esto a TikTok en automático desde aquí — TikTok requiere
 tu sesión/cuenta y no hay integración para eso. Dos caminos:

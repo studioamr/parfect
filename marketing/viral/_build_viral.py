@@ -177,17 +177,128 @@ def build_c3():
     footer_dark(d); save(fin(b),'carrusel3-dato','01.png')
     save(slide_cta('MIDE TU JUEGO','DE VERDAD','shot-logros.png'),'carrusel3-dato','02.png')
 
+# ============================================================
+# builder generico: kicker + titulo + N items + CTA
+# ============================================================
+def build_carousel(folder, kicker, title_lines, items, cta_headline, cta_sub, shotfile):
+    total=len(items)+2
+    save(slide_title(kicker,title_lines,1,total),folder,'01.png')
+    for i,t in enumerate(items):
+        save(slide_item(i+1,t,i+2,total),folder,f'{i+2:02d}.png')
+    save(slide_cta(cta_headline,cta_sub,shotfile),folder,f'{total:02d}.png')
+
+CAROUSELS = [
+    dict(folder='carrusel4-mitos', kicker='MITOS DEL GOLF', title_lines=['7 MITOS QUE TE','ESTÁN DETENIENDO'],
+        items=[
+            'Mito: necesitas pegarle más lejos para bajar tu hándicap. Falso: se ganan más golpes en el juego corto.',
+            'Mito: jugar todos los días te hace mejor. Falso: practicar sin objetivo no cambia tu score.',
+            'Mito: el putt es cuestión de suerte. Falso: es la parte más medible de tu juego.',
+            'Mito: solo los profesionales necesitan estadísticas. Falso: entre más alto tu hándicap, más golpes hay que ganar con datos.',
+            'Mito: un hándicap bajo significa que ya no hay nada que mejorar. Falso: siempre hay una fuga de golpes que no ves.',
+            'Mito: comprar palos nuevos baja tu hándicap. Falso: ayuda el fitting, pero el hándicap baja con repetición medida.',
+            'Mito: necesitas 18 hoyos para que cuente. Falso: hasta 9 hoyos bien anotados te dan datos reales.',
+        ], cta_headline='DEJA DE CREER MITOS.', cta_sub='EMPIEZA A MEDIR.', shotfile='shot-analisis.png'),
+    dict(folder='carrusel5-senales', kicker='AUTODIAGNÓSTICO', title_lines=['6 SEÑALES DE QUE','PIERDES GOLPES SIN','DARTE CUENTA'],
+        items=[
+            'No sabes tu porcentaje real de fairways.',
+            'Cuentas solo tu score total, nunca tus putts por ronda.',
+            'No sabes cuántos greens tomas en regulación.',
+            'Sientes que jugaste bien, pero tu tarjeta dice otra cosa.',
+            'Practicas exactamente lo mismo que hace un año.',
+            'Nunca comparas tu ronda contra tu meta de hándicap.',
+        ], cta_headline='DEJA DE ADIVINAR.', cta_sub='MIDE CADA RONDA.', shotfile='shot-rondas.png'),
+    dict(folder='carrusel6-tabla-hcp', kicker='LA TABLA REAL', title_lines=['ASÍ JUEGA CADA','HÁNDICAP (36 → 0)'],
+        items=[
+            'HCP 36: 37% fairways · 8% GIR · 37 putts por ronda.',
+            'HCP 18: 48% fairways · 26% GIR · 34 putts por ronda.',
+            'HCP 9: 54% fairways · 45% GIR · 32 putts por ronda.',
+            'HCP 0 (scratch): 60% fairways · 64% GIR · 30 putts por ronda.',
+        ], cta_headline='¿EN CUÁL DE ESTAS', cta_sub='FILAS ESTÁS TÚ?', shotfile='shot-logros.png'),
+    dict(folder='carrusel7-habitos', kicker='HÁBITOS', title_lines=['5 HÁBITOS DE','GOLFISTAS DE UN','SOLO DÍGITO'],
+        items=[
+            'Miden cada ronda, no solo el score final.',
+            'Priorizan el centro del green sobre la bandera.',
+            'Cuentan sus putts hoyo por hoyo.',
+            'Entrenan con un objetivo, no "a lo que salga".',
+            'Saben exactamente qué practicar antes de llegar al campo.',
+        ], cta_headline='CONSTRUYE ESOS', cta_sub='HÁBITOS CON DATOS.', shotfile='shot-inicio.png'),
+    dict(folder='carrusel8-errores-green', kicker='JUEGO CORTO', title_lines=['7 ERRORES QUE TE','CUESTAN GOLPES','EN EL GREEN'],
+        items=[
+            'Leer el putt desde un solo ángulo.',
+            'Apuntar a la bandera en vez del centro del green en tu approach.',
+            'No contar tus 3-putts.',
+            'Dejar el chip corto por miedo a pasarte.',
+            'No practicar los putts de 1 metro — los que "nunca fallas", hasta que fallas.',
+            'Cambiar tu rutina de putt cada ronda.',
+            'No medir tu up & down real.',
+        ], cta_headline='MIDE TU JUEGO', cta_sub='CORTO DE VERDAD.', shotfile='shot-analisis.png'),
+    dict(folder='carrusel9-preguntas', kicker='DESPUÉS DE JUGAR', title_lines=['5 PREGUNTAS TRAS','CADA RONDA'],
+        items=[
+            '¿Cuántos fairways pegué de verdad?',
+            '¿Cuántos greens tomé en regulación?',
+            '¿Cuántos putts hice por hoyo, no solo en total?',
+            '¿En qué parte del campo perdí más golpes?',
+            '¿Qué voy a practicar esta semana por eso?',
+        ], cta_headline='PARFECT TE RESPONDE', cta_sub='LAS 5, AUTOMÁTICO.', shotfile='shot-rondas.png'),
+    dict(folder='carrusel10-cambia', kicker='ANTES Y DESPUÉS', title_lines=['6 COSAS QUE CAMBIAN','CUANDO MIDES','TU GOLF'],
+        items=[
+            'Dejas de adivinar qué practicar.',
+            'Ves patrones que no notabas (ej. siempre fallas a la derecha).',
+            'Tu entrenamiento se vuelve más corto y más efectivo.',
+            'Compites contra tus propios números, no contra nadie más.',
+            'Tu hándicap baja más rápido.',
+            'Empiezas a disfrutar más el proceso.',
+        ], cta_headline='EMPIEZA A MEDIR', cta_sub='TU PRÓXIMA RONDA.', shotfile='shot-inicio.png'),
+    dict(folder='carrusel11-amigos', kicker='GOLF EN GRUPO', title_lines=['5 RAZONES PARA','LLEVAR LA CUENTA','CON UNA APP'],
+        items=[
+            'Se acaban las peleas por el score al final de la ronda.',
+            'Cada quien ve sus propias stats, no solo el resultado final.',
+            'Las apuestas se liquidan solas.',
+            'Puedes comparar tu ronda con la de tus amigos.',
+            'Queda un historial real de cada partido.',
+        ], cta_headline='ARMA TU LIGA', cta_sub='DE AMIGOS EN PARFECT.', shotfile='shot-social.png'),
+    dict(folder='carrusel12-practica', kicker='ENTRENAMIENTO', title_lines=['5 FORMAS DE','APROVECHAR TU','TIEMPO DE PRÁCTICA'],
+        items=[
+            'Entrena lo que tu diagnóstico dice que falla, no lo que se te antoja.',
+            'Pon un objetivo medible a cada sesión (ej. 7/10 en un ejercicio).',
+            'Cronometra tus sesiones cortas de 20 minutos.',
+            'Practica situaciones reales: chip desde el rough, no solo del tapete.',
+            'Registra tu práctica igual que registras tus rondas.',
+        ], cta_headline='TU PRÓXIMA SESIÓN,', cta_sub='YA ARMADA POR LA IA.', shotfile='shot-analisis.png'),
+    dict(folder='carrusel13-curiosos', kicker='CURIOSIDADES', title_lines=['6 DATOS DE GOLF','QUE TE VAN A','SORPRENDER'],
+        items=[
+            'Un putt de 1 metro y un drive de 250 yardas valen exactamente lo mismo en tu tarjeta: un golpe.',
+            'La mayoría de los golfistas amateur pierde más golpes en 50 yardas y menos que en el tee.',
+            'Bajar de 100 a 90 golpes suele costar menos práctica que bajar de 90 a 80.',
+            'El jugador promedio solo toma en regulación 1 de cada 3 greens.',
+            'Un solo 3-putt evitado por ronda puede bajar tu hándicap más que un drive extra de 20 yardas.',
+            'La mayoría de los golfistas nunca ha contado sus propios fairways en una ronda completa.',
+        ], cta_headline='CONOCE TUS PROPIOS', cta_sub='NÚMEROS, NO LOS PROMEDIOS.', shotfile='shot-logros.png'),
+    dict(folder='carrusel14-no-bajas-90', kicker='LA VERDAD', title_lines=['3 RAZONES POR LAS','QUE NO BAJAS DE 90'],
+        items=[
+            'No sabes dónde pierdes tus golpes de verdad.',
+            'Practicas al azar, no lo que de verdad te está fallando.',
+            'Nunca comparas tu ronda contra una meta clara.',
+        ], cta_headline='ROMPE 90 CON', cta_sub='UN PLAN, NO CON SUERTE.', shotfile='shot-rondas.png'),
+]
+
 def flatten():
     dest=os.path.join(OUT,'contenido')
     os.makedirs(dest,exist_ok=True)
     for f in os.listdir(dest):
         if f.endswith('.png'): os.remove(os.path.join(dest,f))
-    for folder in ('carrusel1-verdades','carrusel2-bajar-hcp','carrusel3-dato'):
+    folders=['carrusel1-verdades','carrusel2-bajar-hcp','carrusel3-dato']+[c['folder'] for c in CAROUSELS]
+    for folder in folders:
         src=os.path.join(OUT,folder)
         for f in sorted(os.listdir(src)):
             if f.endswith('.png'):
                 Image.open(os.path.join(src,f)).save(os.path.join(dest,f'{folder}-{f}'))
 
 if __name__=='__main__':
-    build_c1(); build_c2(); build_c3(); flatten()
+    build_c1(); build_c2(); build_c3()
+    for spec in CAROUSELS:
+        build_carousel(**spec)
+    flatten()
+    n=sum(len(c['items'])+2 for c in CAROUSELS) + 10 + 7 + 2
+    print(f'listo: {len(CAROUSELS)+3} carruseles, {n} imagenes en total (contenido/ aplanado)')
     print('listo: carrusel1-verdades (10), carrusel2-bajar-hcp (7), carrusel3-dato (2) + contenido/ (flat)')
