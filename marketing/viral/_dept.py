@@ -85,9 +85,9 @@ FEATURES=[('shot-analisis.png','Tu coach IA lee tus rondas','Te dice dónde pier
  ('shot-logros.png','Tu progreso, gamificado','Logros reales por hitos de tu juego, no medallitas vacías.'),
  ('shot-social.png','Tu liga de amigos','Scores en vivo, apuestas claras y cero peleas por la tarjeta.'),
  ('shot-inicio.png','Todo tu golf en una pantalla','Hándicap, tendencia y qué practicar hoy.')]
-RETOS=[('RETO: ROMPER 90','7 días midiendo cada ronda',['Registra tus próximas 3 rondas completas','Encuentra tu fuga #1 en Análisis IA','Entrena solo eso 20 min al día']),
- ('RETO: CERO 3-PUTTS','una semana de green disciplinado',['Cuenta tus putts hoyo por hoyo','Primer putt: solo déjala a 1 metro','10 min de putts cortos al día']),
- ('RETO: FAIRWAY FIRST','2 semanas de salidas inteligentes',['Anota cada salida: fairway sí o no','Cambia driver por madera 3 si fallas 3 seguidas','Compara tu % contra tu meta de HCP'])]
+RETOS=[('RETO: CERO 3-PUTTS','una semana de green disciplinado',['Cuenta tus putts hoyo por hoyo','Primer putt: solo déjala a 1 metro','10 min de putts cortos al día']),
+ ('RETO: FAIRWAY FIRST','2 semanas de salidas inteligentes',['Anota cada salida: fairway sí o no','Cambia driver por madera 3 si fallas 3 seguidas','Compara tu % contra tu meta de HCP']),
+ ('RETO: ROMPER 90','7 días midiendo cada ronda',['Registra tus próximas 3 rondas completas','Encuentra tu fuga #1 en Análisis IA','Entrena solo eso 20 min al día'])]
 
 HASHTAGS=['#golf #golftips #golfswing #handicap #golfmexico #golfmorelia',
  '#golf #golflife #golfstats #aprendegolf #golfmexico #morelia',
