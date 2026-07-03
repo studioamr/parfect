@@ -24,6 +24,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 20 | debajo | André: el clip de la app duró muy poco | **app_outro v2**: ~11s (antes 6), pan COMPLETO de la pantalla y 2 capturas con deslizamiento entre ellas |
 
+| 21 | 20min | André: que el demo SIMULE el uso (entrenamiento) | **app_outro v3 SIMULACIÓN**: capturas nuevas del flujo real de Entreno (analisis→tab Entreno→"30 min"→AI Coach) grabadas de la app viva (_shots2.swift); el tap lima DISPARA el cambio de pantalla con crossfade smoothstep |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.

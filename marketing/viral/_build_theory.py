@@ -1424,50 +1424,59 @@ def teoria_updown():
 # grabada de la app viva (marketing/shots) — cierre de CADA video
 # ============================================================
 SHOTSDIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','shots','shots')
-def app_outro(frames, shots=('03-diagnostico.png',), line1='Esto, en TU juego, se ve así:',
-              cta='Descárgala GRATIS', ep=None, focus=(0.5,0.4), per=5.2):
-    """cierre APP-DEMO: cada captura entra, PANEA COMPLETA (toda la pantalla),
-    tap ripple, y desliza a la siguiente; boton lima + url siempre presentes"""
+def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve así:',
+              cta='Descárgala GRATIS', ep=None, focus=(0.5,0.4), per=4.8):
+    """SIMULACION de uso real: en cada pantalla un dedo TOCA un control
+    (ripple lima) y la pantalla cambia a la siguiente con crossfade suave."""
+    if flow is None:
+        flow=[(sh,None) for sh in (shots or ('03-diagnostico.png',))]
     sw=620; scrh=1150
-    imgs=[]
-    for sh in shots:
+    items=[]
+    for sh,tap in flow:
         im=Image.open(os.path.join(SHOTSDIR,sh)).convert('RGB')
-        imgs.append(im.resize((sw,int(im.height*sw/im.width)),Image.LANCZOS))
+        items.append((im.resize((sw,int(im.height*sw/im.width)),Image.LANCZOS),tap))
     px,py=(W-sw)//2,470
     mask=Image.new('L',(sw,scrh),0)
     ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,scrh],44,fill=255)
-    for idx,im in enumerate(imgs):
-        maxpan=max(0,im.height-scrh)
+    prev_end=None
+    for idx,(im,tap) in enumerate(items):
+        imh=im.height; maxpan=max(0,imh-scrh)
+        if tap: pan_t=min(maxpan,max(0,int(tap[1]*imh-scrh*0.45)))
+        else:   pan_t=maxpan
         n=int(per*FPS)
         for k in range(n):
             t=k/max(n-1,1)
             b,d=canvas(); chrome(d,ep=ep)
             ftxt(d,(W//2,360),line1,GEO(52),INK,min(t+idx,1.0)*1.4,t_out=2.0)
             oy=int((1-M.ease(min(t*2.0,1)))*900) if idx==0 else 0
-            ox=int((1-M.ease(min(t*2.6,1)))*W) if idx>0 else 0
-            pan=int(maxpan*M.ease(min(max((t-0.16)/0.7,0),1)))
+            pan=int(pan_t*M.ease(min(max((t-0.15)/0.45,0),1)))
             scr=im.crop((0,pan,sw,pan+scrh))
-            def marco(dd,oy=oy,ox=ox):
-                dd.rounded_rectangle([px+ox-14,py+oy-14,px+ox+sw+14,py+oy+scrh+14],58,outline=GREEN+(200,),width=5)
+            if idx>0 and t<0.24 and prev_end is not None:
+                p=t/0.24; scr=Image.blend(prev_end,scr,p*p*(3-2*p))
+            def marco(dd,oy=oy):
+                dd.rounded_rectangle([px-14,py+oy-14,px+sw+14,py+oy+scrh+14],58,outline=GREEN+(200,),width=5)
             glow(b,marco,10,1)
-            b.paste(scr,(px+ox,py+oy),mask)
+            b.paste(scr,(px,py+oy),mask)
             d2=ImageDraw.Draw(b,'RGBA')
-            d2.rounded_rectangle([px+ox-2,py+oy-2,px+ox+sw+2,py+oy+scrh+2],46,outline=(236,241,237,255),width=4)
-            if 0.5<t<0.68 and ox==0:
-                rp=(t-0.5)/0.18
-                fx,fy=px+int(sw*focus[0]),py+oy+int(scrh*focus[1])
-                rr=int(24+110*M.ease(rp))
-                d2.ellipse([fx-rr,fy-rr,fx+rr,fy+rr],outline=LIME+(int(230*(1-rp)),),width=7)
-                d2.ellipse([fx-16,fy-16,fx+16,fy+16],fill=LIME+(int(190*(1-rp)),))
+            d2.rounded_rectangle([px-2,py+oy-2,px+sw+2,py+oy+scrh+2],46,outline=(236,241,237,255),width=4)
+            if tap and 0.68<t<0.94:
+                rp=(t-0.68)/0.26
+                fx=px+int(tap[0]*sw); fy=py+oy+int(tap[1]*imh-pan)
+                if 0<tap[1]*imh-pan<scrh:
+                    rr=int(20+120*M.ease(min(rp*1.6,1)))
+                    aa=int(235*(1-rp))
+                    d2.ellipse([fx-rr,fy-rr,fx+rr,fy+rr],outline=LIME+(aa,),width=7)
+                    d2.ellipse([fx-17,fy-17,fx+17,fy+17],fill=LIME+(min(aa+40,255),))
             if idx>0 or t>0.22:
                 ba=1.0 if idx>0 else min((t-0.22)*4,1)
-                pulse=1+0.035*math.sin((idx*per+t*per)*math.pi*2*1.3/per)
+                pulse=1+0.03*math.sin((idx*per+t*per)*2.6)
                 bw2,bh2=int(430*pulse),int(96*pulse)
                 byc=1755
                 d2.rounded_rectangle([W//2-bw2//2,byc-bh2//2,W//2+bw2//2,byc+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
                 d2.text((W//2,byc),cta,font=BLACK(int(36*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
                 d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
-            M.progressbar(d,0.8+0.2*(idx+t)/len(imgs),PAL); frames.append(V.fin(b))
+            M.progressbar(d,0.78+0.22*(idx+t)/len(items),PAL); frames.append(V.fin(b))
+        prev_end=im.crop((0,pan_t,sw,pan_t+scrh))
     return frames
 
 # ============================================================
@@ -1566,6 +1575,90 @@ def teoria_debajo():
     app_outro(frames,shots=('03-diagnostico.png','01-inicio.png'),line1='PARFECT te entrena esto así:',ep=19,focus=(0.5,0.42),per=5.4)
     return M.render(frames,'theory-debajo')
 
+# ============================================================
+# THEORY 34 · "20 minutos CON dato > 2 horas sin rumbo" (EP 20)
+# ============================================================
+def teoria_20min():
+    frames=[]
+    # gancho #13: dos cronometros
+    lines=['20 MIN CON DATO','> 2 HORAS SIN RUMBO.']; sub='(así se entrena de verdad)'
+    secs=max(4.0,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=20)
+        for (cx,rr,frac,col,lab,sub2,fast) in [(300,205,0.23,SUB,'2 H','sin rumbo',False),(780,205,1.0,GREEN,'20 MIN','con dato',True)]:
+            e=M.ease(min(t*(2.4 if fast else 1.1),1.0))
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.arc([cx-rr,1050-rr,cx+rr,1050+rr],0,360,fill=(255,255,255,46),width=26)
+            def arc(dd,cx=cx,rr=rr,e=e,frac=frac,col=col):
+                dd.arc([cx-rr,1050-rr,cx+rr,1050+rr],-90,-90+360*frac*e,fill=col+(245,),width=26)
+            glow(b,arc,10,1)
+            d2.text((cx,1010),lab,font=BLACK(56),fill=(250,250,246,255),anchor='mm')
+            d2.text((cx,1086),sub2,font=BOLD(34),fill=(col if col==GREEN else SUB)+(235,),anchor='mm')
+            if fast and e>=0.999:
+                d2.text((cx,1050+rr+70),'✓',font=BLACK(72),fill=LIME+(255,),anchor='mm')
+        ty=480
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,74,(t-0.07*i)*2.3,GREEN if i==0 else INK,font=BLACK,maxw=W-110)
+            ty+=124
+        if t>0.3: ftxt(d,(W//2,ty+34),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.05*t,PAL); frames.append(V.fin(b))
+    # fase 1: golpes que bajas al mes
+    filas=[('Range sin rumbo · 8 h/mes',0.16,RED,'≈ 0'),('Plan con dato · 80 min/mes',0.85,GREEN,'−3')]
+    n1=int(M.dur_lectura('golpes que bajas en un mes range sin rumbo 8 horas casi cero plan con dato 80 minutos menos tres',1.4)*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=20)
+        ftxt(d,(W//2,400),'Golpes que bajas en un mes:',GEO(56),INK,t)
+        for i,(lab,fr,col,val) in enumerate(filas):
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            y=760+i*300; a=int(255*(ft*ft*(3-2*ft)))
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((150,y-64),lab,font=BOLD(40),fill=INK+(a,),anchor='lm')
+            d2.rounded_rectangle([150,y,W-150,y+64],18,fill=(255,255,255,26))
+            def bar(dd,y=y,ft=ft,fr=fr,col=col):
+                wbar=(W-300)*fr*M.ease(ft)
+                if wbar>18: dd.rounded_rectangle([150,y,150+wbar,y+64],18,fill=col+(235,))
+            glow(b,bar,9,1)
+            d2.text((W-150,y-64),val,font=BLACK(56),fill=col+(a,),anchor='rm')
+        M.progressbar(d,0.1+0.18*t,PAL); frames.append(V.fin(b))
+    # fase 2: la sesion con dato (checklist)
+    items=['Objetivo medible: 5/6 al círculo','El drill exacto para TU fuga','Resultado anotado en la app']
+    n2=int(M.dur_lectura(' '.join(items),1.5)*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=20)
+        ftxt(d,(W//2,400),'La sesión CON dato:',GEO(58),INK,t)
+        for i,it in enumerate(items):
+            ft=min(max(t*2.8-i*0.55,0),1)
+            if ft<=0: continue
+            y=720+i*260; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft):
+                dd.rounded_rectangle([150,y-86,W-150,y+86],24,outline=GREEN+(int(210*ft),),width=4)
+            glow(b,box,7,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            if ft>0.55:
+                aa=int(255*min((ft-0.55)*3,1))
+                d2.text((215,y),'✓',font=BLACK(60),fill=LIME+(aa,),anchor='mm')
+            d2.text((290,y),it,font=BOLD(38),fill=INK+(a,),anchor='lm')
+        M.progressbar(d,0.28+0.2*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('la practica no cuenta por horas cuenta por datos y los datos toman 20 minutos',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=20)
+        M.poptext(d,W//2,780,'La práctica no cuenta por horas.',58,t*1.9,INK)
+        M.poptext(d,W//2,920,'Cuenta por DATOS.',80,max(t*1.9-0.3,0),GREEN)
+        if t>0.5:
+            ftxt(d,(W//2,1140),'Y los datos toman 20 minutos.',BOLD(44),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.48+0.3*t,PAL); frames.append(V.fin(b))
+    # SIMULACION: Analisis IA -> tap Entreno -> elegir 30 min -> AI Coach
+    app_outro(frames,flow=[('09-analisis.png',(0.38,0.159)),('06-entrenamiento.png',(0.28,0.394)),('10-min30.png',(0.5,0.315))],
+              line1='Así se arma tu sesión en PARFECT:',ep=20,per=4.8)
+    return M.render(frames,'theory-20min')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1585,5 +1678,6 @@ if __name__=='__main__':
     elif cmd=='brecha': teoria_brecha()
     elif cmd=='updown': teoria_updown()
     elif cmd=='debajo': teoria_debajo()
+    elif cmd=='20min': teoria_20min()
     else:
         teoria_bandera(); teoria_okay()
