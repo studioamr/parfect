@@ -1848,6 +1848,112 @@ def uso02():
         ep=2,serie='ASÍ SE USA',per=6.2)
     return M.render(frames,'uso02-coach')
 
+# ============================================================
+# TEORIA AUTO · motor generico por especificacion (_banco30.py)
+# ============================================================
+def _fase_vs(frames,titulo,rows,ep,p0,p1):
+    n=int(M.dur_lectura(titulo+' '+' '.join(r[0]+' '+r[1] for r in rows),1.4)*FPS)
+    for k in range(n):
+        t=k/(n-1)
+        b,d=canvas(); chrome(d,ep=ep)
+        ftxt(d,(W//2,400),titulo,GEO(52),INK,t)
+        for i,(lab,val,coln) in enumerate(rows):
+            col=GREEN if coln=='GREEN' else RED
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            y=780+i*320; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([150,y-110,W-150,y+110],28,outline=col+(int(215*ft),),width=5)
+            glow(b,box,8,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((190,y),lab,font=BOLD(38),fill=INK+(a,),anchor='lm')
+            d2.text((W-190,y),val,font=BLACK(66),fill=col+(a,),anchor='rm')
+        M.progressbar(d,p0+(p1-p0)*t,PAL); frames.append(V.fin(b))
+
+def _fase_donut(frames,spec,ep,p0,p1):
+    pct,label,sub2=spec
+    val=float(pct.replace('%',''))
+    cx,cy,rr=W//2,1000,300
+    n=int(M.dur_lectura(label+' '+sub2,1.6)*FPS)
+    for k in range(n):
+        t=k/(n-1)
+        b,d=canvas(); chrome(d,ep=ep)
+        e=M.ease(min(t*1.6,1))
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.arc([cx-rr,cy-rr,cx+rr,cy+rr],0,360,fill=(255,255,255,60),width=44)
+        def arc(dd,e=e):
+            dd.arc([cx-rr,cy-rr,cx+rr,cy+rr],-90,-90+360*(val/100)*e,fill=GREEN+(245,),width=44)
+        glow(b,arc,12,1)
+        d2.text((cx,cy-26),f'{int(round(val*e))}%',font=BLACK(120),fill=(250,250,246,255),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,255))
+        d2.text((cx,cy+80),label,font=BOLD(38),fill=SUB+(240,),anchor='mm')
+        if t>0.55:
+            a=min((t-0.55)*4,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1430),sub2,font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,p0+(p1-p0)*t,PAL); frames.append(V.fin(b))
+
+def _fase_bolitas(frames,spec,ep,p0,p1,titulo=''):
+    total,malas,label=spec
+    n=int(M.dur_lectura(titulo+' '+label,1.8)*FPS)
+    bx0=170; gap=(W-340)/(total-1)
+    for k in range(n):
+        t=k/(n-1)
+        b,d=canvas(); chrome(d,ep=ep)
+        ftxt(d,(W//2,430),titulo or label,GEO(50),INK,t)
+        for i in range(total):
+            ft=min(max(t*2.6-i*0.16,0),1)
+            if ft<=0: continue
+            mala=i<malas; px=bx0+i*gap; py=980
+            def gb(dd,px=px,py=py,ft=ft,mala=mala):
+                if mala:
+                    dd.ellipse([px-26,py-26,px+26,py+26],outline=RED+(int(230*ft),),width=6)
+                    dd.line([(px-15,py-15),(px+15,py+15)],fill=RED+(int(230*ft),),width=6)
+                else:
+                    dd.ellipse([px-26,py-26,px+26,py+26],fill=GREEN+(int(255*ft),))
+            glow(b,gb,7,1)
+        if titulo and t>0.55:
+            a=min((t-0.55)*4,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1300),label,font=BOLD(42),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,p0+(p1-p0)*t,PAL); frames.append(V.fin(b))
+
+def _fase_contador(frames,spec,ep,p0,p1,titulo=''):
+    big,label=spec
+    n=int(M.dur_lectura(titulo+' '+big+' '+label,1.5)*FPS)
+    for k in range(n):
+        t=k/(n-1)
+        b,d=canvas(); chrome(d,ep=ep)
+        if titulo: ftxt(d,(W//2,430),titulo,GEO(52),INK,t)
+        M.poptext(d,W//2,980,big,200,t*1.8,GREEN,font=BLACK)
+        if t>0.35:
+            ftxt(d,(W//2,1220),label,BOLD(44),INK,(t-0.35)/0.65,t_out=0.94)
+        M.progressbar(d,p0+(p1-p0)*t,PAL); frames.append(V.fin(b))
+
+def teoria_auto(spec,ep):
+    frames=[]
+    ganchos=[titlecard,titlecard_rain,titlecard_cone]
+    ganchos[ep%3](frames,spec['lines'],spec['sub'],3.6,accent_idx=1)
+    for key,(p0,p1) in (('f1',(0.12,0.36)),('f2',(0.38,0.6))):
+        tipo=spec[key][0]
+        if tipo=='vs': _fase_vs(frames,spec[key][1],spec[key][2],ep,p0,p1)
+        elif tipo=='donut': _fase_donut(frames,spec[key][1],ep,p0,p1)
+        elif tipo=='bolitas':
+            it=spec[key]
+            if len(it)==3: _fase_bolitas(frames,it[2],ep,p0,p1,titulo=it[1])
+            else: _fase_bolitas(frames,it[1],ep,p0,p1)
+        elif tipo=='contador': _fase_contador(frames,spec[key][2],ep,p0,p1,titulo=spec[key][1])
+    ins=spec['ins']
+    nin=int(M.dur_lectura(' '.join(ins),1.4)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=ep)
+        M.poptext(d,W//2,790,ins[0],62,t*1.9,INK)
+        M.poptext(d,W//2,930,ins[1],70,max(t*1.9-0.25,0),GREEN)
+        if len(ins)>2 and t>0.5:
+            ftxt(d,(W//2,1150),ins[2],BOLD(40),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.62+0.22*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,flow=[(spec['shot'],None)],line1=spec['cta'],ep=ep,per=4.6)
+    return M.render(frames,'theory-'+spec['slug'])
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()

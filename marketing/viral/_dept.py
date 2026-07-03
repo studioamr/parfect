@@ -291,4 +291,67 @@ def main():
     elif cmd=='reporte': reporte()
     else: print(__doc__)
 
-if __name__=='__main__': main()
+# ============================================================
+# MODO 10/DIA · tanda diaria completa (2026-07-03 en adelante)
+#   python3 _dept.py tanda 2026-07-03
+# Genera los 10 videos del dia + captions a outbox/<fecha>-tanda/
+# ============================================================
+import shutil as _sh
+EPOCH10=dt.date(2026,7,3)
+HORARIOS=['8:00','9:30','11:00','12:30','14:00','15:30','17:00','18:30','20:00','21:30']
+
+def tanda(fecha):
+    import _banco30 as B
+    import _build_theory as T
+    import _build_motion as MM
+    di=(fecha-EPOCH10).days
+    out=os.path.join(HERE,'outbox',f'{fecha.isoformat()}-tanda')
+    os.makedirs(out,exist_ok=True)
+    piezas=[]  # (archivo, caption, tipo)
+    URL='parfectapp.github.io/parfect'
+    FIN=f'Gratis, link en bio. '
+    def q(i):
+        p,ops,c,dato=B.QUIZ30[i%len(B.QUIZ30)]
+        f=MM.video_quiz(p,ops,c,dato)
+        return (f,f'QUIZ ⛳ {p} Responde antes del 3… {FIN}#golf #quiz #golftips #golfmexico','quiz')
+    def th(i,ep):
+        sp=B.TEORIAS_AUTO[i%len(B.TEORIAS_AUTO)]
+        f=T.teoria_auto(sp,ep)
+        tit=' '.join(sp['lines']).capitalize()
+        return (f,f'{tit} {sp["sub"]} {sp["cta"]}. {FIN}#golf #golftips #coursemanagement #golfmexico','theory')
+    def dat(i):
+        big,label,sub=B.DATOS30[i%len(B.DATOS30)]
+        f=MM.video_dato(big,label,sub)
+        return (f,f'El dato de hoy: {big} {label} — {sub} 📊 Mídelo en PARFECT. {FIN}#golf #golfstats #golfmexico','dato')
+    def vf(i):
+        a,v,dato=B.VF15[i%len(B.VF15)]
+        f=MM.video_vf(a,v,dato)
+        return (f,f'¿Verdadero o falso? "{a}" 🤔 {FIN}#golf #vf #golftips #golfmexico','vf')
+    def mem(i):
+        s2,p2=B.MEMES10[i%len(B.MEMES10)]
+        f=MM.video_meme_putt(s2,p2)
+        return (f,f'{s2}… {p2} 😅 Etiqueta a ese amigo. {FIN}#golf #humor #golfmexico','meme')
+    def raz(i):
+        t2,items=B.RAZONES10[i%len(B.RAZONES10)]
+        f=MM.video_razones(t2,items)
+        return (f,f'{t2} 👇 ¿Cuál te dolió? {FIN}#golf #golftips #golfmexico','razones')
+    def appv(i):
+        f=MM.video_app(variant=i%3)
+        return (f,f'Así se ve tu golf con datos 📱 Anota, la IA encuentra tu fuga y entrenas lo que importa. {FIN}#golfapp #golf #golfmexico','app')
+    plan=[th(di*2,22+di*2), q(di*2), dat(di*2), vf(di), th(di*2+1,23+di*2), appv(di),
+          q(di*2+1), dat(di*2+1), (mem(di//2) if di%2==0 else raz(di//2)), raz(di//2+5) if di%2==0 else mem(di//2+5)]
+    lines=[]
+    for slot,(src,cap,tipo) in enumerate(plan):
+        dst=os.path.join(out,f'{slot+1:02d}-{HORARIOS[slot].replace(":","")}-{tipo}.mp4')
+        _sh.copy(src,dst)
+        lines.append(f'== {HORARIOS[slot]} · {os.path.basename(dst)} ==\n{cap}\n')
+    open(os.path.join(out,'CAPTIONS.txt'),'w').write('\n'.join(lines))
+    print(f'tanda lista: {out} ({len(plan)} videos)')
+    return out
+
+if __name__=='__main__':
+    if len(sys.argv)>1 and sys.argv[1]=='tanda':
+        f=dt.date.fromisoformat(sys.argv[2]) if len(sys.argv)>2 else dt.date.today()
+        tanda(f); sys.exit(0)
+    main()
+
