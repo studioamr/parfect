@@ -51,10 +51,10 @@ def glow(base, draw_fn, blur=22, boost=2):
     for _ in range(boost): base.alpha_composite(halo)
     base.alpha_composite(layer)
 
-def chrome(d,alpha=255,ep=None):
+def chrome(d,alpha=255,ep=None,serie='THEORY'):
     M.wordmark(d,W//2,170,INK,52,alpha=alpha)
     if ep:
-        d.text((W-84,172),f'THEORY · EP {ep:02d}',font=BOLD(27),fill=LIME+(min(alpha,215),),anchor='rm')
+        d.text((W-84,172),f'{serie} · EP {ep:02d}',font=BOLD(27),fill=LIME+(min(alpha,215),),anchor='rm')
         d.text((84,172),'@parfectapp',font=BOLD(27),fill=SUB+(min(alpha,170),),anchor='lm')
 
 def titlecard(frames,lines,sub,seconds,accent_idx=None):
@@ -1425,7 +1425,7 @@ def teoria_updown():
 # ============================================================
 SHOTSDIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','shots','shots')
 def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve así:',
-              cta='Descárgala GRATIS', ep=None, focus=(0.5,0.4), per=4.8):
+              cta='Descárgala GRATIS', ep=None, focus=(0.5,0.4), per=4.8, serie='THEORY', labels=None):
     """SIMULACION de uso real: en cada pantalla un dedo TOCA un control
     (ripple lima) y la pantalla cambia a la siguiente con crossfade suave."""
     if flow is None:
@@ -1446,8 +1446,15 @@ def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve as�
         n=int(per*FPS)
         for k in range(n):
             t=k/max(n-1,1)
-            b,d=canvas(); chrome(d,ep=ep)
-            ftxt(d,(W//2,360),line1,GEO(52),INK,min(t+idx,1.0)*1.4,t_out=2.0)
+            b,d=canvas(); chrome(d,ep=ep,serie=serie)
+            if labels:
+                lt=min(t*2.6,1.0); la=int(255*(lt*lt*(3-2*lt)))
+                d2l=ImageDraw.Draw(b,'RGBA')
+                tw=d2l.textlength(labels[idx],font=BLACK(44))
+                d2l.rounded_rectangle([W//2-tw/2-44,300,W//2+tw/2+44,420],32,outline=LIME+(min(la,210),),width=4)
+                d2l.text((W//2,360),labels[idx],font=BLACK(44),fill=LIME+(la,),anchor='mm')
+            else:
+                ftxt(d,(W//2,360),line1,GEO(52),INK,min(t+idx,1.0)*1.4,t_out=2.0)
             oy=int((1-M.ease(min(t*2.0,1)))*900) if idx==0 else 0
             pan=int(pan_t*M.ease(min(max((t-0.15)/0.45,0),1)))
             scr=im.crop((0,pan,sw,pan+scrh))
@@ -1777,6 +1784,40 @@ def teoria_fairway():
     app_outro(frames,flow=[('01-inicio.png',None)],line1='PARFECT te dice TU % de fairways:',ep=21,per=5.4)
     return M.render(frames,'theory-fairway')
 
+# ============================================================
+# SERIE "ASI SE USA PARFECT" · EP 01 — Anota tu ronda en 3 taps
+# ============================================================
+def uso01():
+    frames=[]
+    # portada de serie
+    n=int(3.4*FPS)
+    im0=Image.open(os.path.join(SHOTSDIR,'12-nueva.png')).convert('RGB')
+    sw=620; im0=im0.resize((sw,int(im0.height*sw/im0.width)),Image.LANCZOS)
+    mask=Image.new('L',(sw,700),0)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,700],44,fill=255)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=1,serie='ASÍ SE USA')
+        M.poptext(d,W//2,520,'ASÍ SE USA',104,t*2.2,INK,font=BLACK)
+        M.wordmark(d,W//2,690,INK,96,alpha=int(255*min(t*2.6,1)))
+        if t>0.25:
+            ftxt(d,(W//2,850),'EP 01 · Anota tu ronda en 3 taps',BOLD(46),LIME,(t-0.25)/0.75,t_out=2.0)
+        oy=int((1-M.ease(min(max(t-0.15,0)*1.6,1)))*760)
+        def marco(dd,oy=oy):
+            dd.rounded_rectangle([(W-sw)//2-14,1046+oy,(W+sw)//2+14,1046+oy+728],58,outline=GREEN+(200,),width=5)
+        glow(b,marco,10,1)
+        b.paste(im0.crop((0,0,sw,700)),((W-sw)//2,1060+oy),mask)
+        M.progressbar(d,0.02+0.08*t,PAL); frames.append(V.fin(b))
+    # pasos con taps reales
+    app_outro(frames,
+        flow=[('12-nueva.png',(0.5,0.447)),
+              ('13-campo.png',(0.5,0.564)),
+              ('14-scorecard.png',(0.72,0.503)),
+              ('11-ronda.png',None)],
+        labels=['PASO 1 · Elige tu campo','PASO 2 · Comenzar ronda','PASO 3 · Hoyos y salida','Tu tarjeta se analiza SOLA'],
+        ep=1,serie='ASÍ SE USA',per=4.9)
+    return M.render(frames,'uso01-anota')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1798,5 +1839,6 @@ if __name__=='__main__':
     elif cmd=='debajo': teoria_debajo()
     elif cmd=='20min': teoria_20min()
     elif cmd=='fairway': teoria_fairway()
+    elif cmd=='uso1': uso01()
     else:
         teoria_bandera(); teoria_okay()

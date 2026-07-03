@@ -28,6 +28,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 22 | fairway | faltaba conclusión (descarga/waitlist) y los títulos aún con micro-lag | **poptext v3**: sin re-escalado de fuente (fade+rise subpíxel) = títulos mantequilla; **app_outro cierra SIEMPRE con tarjeta final**: DESCARGA + wordmark + botón lima + "únete a la waitlist en la landing" + url |
 
+| 23 | uso01 | André pidió serie de TODOS los casos de uso | **Serie "ASÍ SE USA PARFECT"** (SERIE-USO.md, 12 eps): el video ES la app con PASOS numerados (chips lima) + taps causales + conclusión; capturas nuevas del flujo Nueva Ronda (12/13/14) |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
