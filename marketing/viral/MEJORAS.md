@@ -20,6 +20,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 18 | updown | Probé fondo claro estilo landing ("DAY") → André: "horrible, regresa como estábamos" | **REVERTIDO a dark premium**. Regla: el mundo landing (cielo/campo claro) vive SOLO en el avatar del perfil; los videos son dark negro-verde + glow SIEMPRE. Se queda: gancho #11 bunker (la arena lee muy bien en dark) |
 
+| 19 | updown v2 | André: cerrar CADA video mostrando la función REAL de la app acorde al tema | **app_outro()**: teléfono con captura VIVA de la app (marketing/shots), paneo lento, tap ripple lima, botón CTA pulsante + url; mapa tema→captura en TEORIA-50.md |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
@@ -28,4 +30,5 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 5. Música: Keinemusik ↔ Black Coffee alternando, track NO repetido.
 6. Caption verificado en pantalla antes de Publicar.
 7. Branding de la app en cada frame: wordmark + chip EP lima + @parfectapp.
-8. Después de publicar: anotar aquí la observación del día.
+8. TODO video cierra con app_outro() y la captura que corresponde al tema.
+9. Después de publicar: anotar aquí la observación del día.

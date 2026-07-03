@@ -67,6 +67,20 @@ Ritmo: 3 THEORY/semana (mar·jue·dom) → ~4 meses de contenido.
 49. Mide 3 rondas y te digo qué practicar — timeline 3 rondas
 50. Tu plan semanal, escrito por tus propios datos — calendario glow
 
+## Cierre APP-DEMO (regla desde EP 18)
+TODO video termina con la FUNCIÓN REAL de la app que corresponde al tema
+(captura viva de marketing/shots + paneo + tap + CTA), vía `app_outro()`:
+| Tema del video | Captura (shots/) |
+|---|---|
+| putt / velocidad / 3-putts / putt 1m / lag | 03-diagnostico (Prioridad 1 Putting + drills) |
+| approach / wedges / 100y / GIR / up&down | 03-diagnostico (pan a Prioridad 2 Approach) |
+| dispersión / drive / bandera / course mgmt | 05-ronda (anotar ronda real) |
+| números / hándicap / promedio / tarjeta | 01-inicio (dashboard hándicap + stats) |
+| práctica / drills / entrenamiento | 03-diagnostico (ejercicios con meta) |
+| logros / mental / retos | 04-objetivos (trofeos) |
+| social / liga / apuestas | 02-social |
+Pendiente: grabar registro→onboarding y más funciones (extender _shots.swift).
+
 ## Rotación semanal del departamento (constante, sin repetir estilo)
 | Lun | Mar | Mié | Jue | Vie | Sáb | Dom |
 |---|---|---|---|---|---|---|

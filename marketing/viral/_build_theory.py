@@ -1416,8 +1416,54 @@ def teoria_updown():
         if t>0.5:
             ftxt(d,(W//2,1170),'Chip + putt = tu mina de oro.',BOLD(44),SUB,(t-0.5)/0.5,t_out=0.92)
         M.progressbar(d,0.66+0.22*t,PAL); frames.append(V.fin(b))
-    M.cta_outro(frames,PAL,line1='PARFECT mide tus up & down')
+    app_outro(frames,shot='03-diagnostico.png',line1='PARFECT te lo mide así, en TU juego:',ep=18,pan_to=0.52,focus=(0.5,0.42))
     return M.render(frames,'theory-updown')
+
+# ============================================================
+# APP OUTRO · la funcion REAL de la app que corresponde al tema,
+# grabada de la app viva (marketing/shots) — cierre de CADA video
+# ============================================================
+SHOTSDIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','shots','shots')
+def app_outro(frames, shot='03-diagnostico.png', line1='Esto, en TU juego, se ve así:',
+              cta='Descárgala GRATIS', ep=None, pan_to=0.45, focus=(0.5,0.35), seconds=6.4):
+    img=Image.open(os.path.join(SHOTSDIR,shot)).convert('RGB')
+    sw=620; sh=int(img.height*sw/img.width)
+    img=img.resize((sw,sh),Image.LANCZOS)
+    scrh=1150; maxpan=max(0,min(int((sh-scrh)*pan_to), sh-scrh))
+    px,py=(W-sw)//2,470
+    n=int(seconds*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=ep)
+        ftxt(d,(W//2,360),line1,GEO(52),INK,min(t*1.4,1),t_out=2.0)
+        oy=int((1-M.ease(min(t*2.0,1)))*900)
+        pan=int(maxpan*M.ease(min(max((t-0.25)/0.5,0),1)))
+        scr=img.crop((0,pan,sw,pan+scrh))
+        mask=Image.new('L',(sw,scrh),0)
+        ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,scrh],44,fill=255)
+        def marco(dd,oy=oy):
+            dd.rounded_rectangle([px-14,py+oy-14,px+sw+14,py+oy+scrh+14],58,outline=GREEN+(200,),width=5)
+        glow(b,marco,10,1)
+        b.paste(scr,(px,py+oy),mask)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.rounded_rectangle([px-2,py+oy-2,px+sw+2,py+oy+scrh+2],46,outline=(236,241,237,255),width=4)
+        if 0.52<t<0.72:
+            rp=(t-0.52)/0.2
+            fx,fy=px+int(sw*focus[0]),py+oy+int(scrh*focus[1])
+            rr=int(24+110*M.ease(rp))
+            d2.ellipse([fx-rr,fy-rr,fx+rr,fy+rr],outline=LIME+(int(230*(1-rp)),),width=7)
+            d2.ellipse([fx-16,fy-16,fx+16,fy+16],fill=LIME+(int(190*(1-rp)),))
+        # boton lima pulsante + url
+        if t>0.22:
+            ba=min((t-0.22)*4,1)
+            pulse=1+0.035*math.sin(t*math.pi*2*1.3)
+            bw2,bh2=int(430*pulse),int(96*pulse)
+            byc=1755
+            d2.rounded_rectangle([W//2-bw2//2,byc-bh2//2,W//2+bw2//2,byc+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
+            d2.text((W//2,byc),cta,font=BLACK(int(36*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
+            d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
+        M.progressbar(d,0.9+0.1*t,PAL); frames.append(V.fin(b))
+    return frames
 
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
