@@ -55,18 +55,22 @@ def progressbar(d,t,pal):
     d.rectangle([0,H-10,int(W*min(t,1)),H],fill=LIME)
 
 def poptext(d,cx,cy,txt,base_fs,t,ink,font=GEO,maxw=W-160):
-    """texto que entra con overshoot; t=0..1"""
+    """entrada SMOOTH: fade smoothstep + rise subpixel; sin re-escalado de
+    fuente (el escalado por tamanos enteros era el lag de los titulos)"""
     if t<=0: return
-    sc=0.6+0.4*ease(t*1.4)
-    if t>0.35: sc=spring(min((t-0.35)/0.65,1))*1.0
-    fs=max(10,int(base_fs*min(sc,1.12)))
-    f=font(fs)
+    p=min(t*2.2,1.0); e=p*p*(3-2*p)
+    a=int(255*e); off=14*(1-p)**2
+    f=font(base_fs)
     tmp=ImageDraw.Draw(Image.new('RGB',(4,4)))
     lines=V.wraptext(tmp,txt,f,maxw)
-    p=min(t*2.8,1.0); a=int(255*(p*p*(3-2*p)))
-    ty=cy-(len(lines)-1)*(fs+14)//2
+    lh=base_fs+14
+    yf=cy-(len(lines)-1)*lh/2.0+off
+    import math as _mt
+    y0=_mt.floor(yf); fr=yf-y0
     for ln in lines:
-        d.text((cx,ty),ln,font=f,fill=ink+(a,),anchor='mm'); ty+=fs+14
+        d.text((cx,y0),ln,font=f,fill=ink+(int(a*(1-fr)),),anchor='mm')
+        if fr>0.04: d.text((cx,y0+1),ln,font=f,fill=ink+(int(a*fr),),anchor='mm')
+        y0+=lh
 
 def scene_strip(d,pal,y=1840):
     gcol=(45,88,62) if pal is FOREST else (133,172,96)

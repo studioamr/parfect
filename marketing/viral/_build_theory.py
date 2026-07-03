@@ -1477,6 +1477,26 @@ def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve as�
                 d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
             M.progressbar(d,0.78+0.22*(idx+t)/len(items),PAL); frames.append(V.fin(b))
         prev_end=im.crop((0,pan_t,sw,pan_t+scrh))
+    # ---- CONCLUSION: descarga + waitlist ----
+    nf=int(4.2*FPS)
+    for k in range(nf):
+        t=k/(nf-1)
+        b,d=canvas(); chrome(d,alpha=0,ep=None)
+        M.poptext(d,W//2,560,'DESCARGA',96,t*2.0,INK,font=BLACK)
+        M.wordmark(d,W//2,730,INK,104,alpha=int(255*min(t*2.4,1)))
+        ftxt(d,(W//2,880),'Tu golf, medido.',GEO(52),SUB,min(t*1.6,1),t_out=2.0)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.25:
+            ba=min((t-0.25)*4,1)
+            pulse=1+0.035*math.sin(t*8.2)
+            bw2,bh2=int(560*pulse),int(112*pulse)
+            d2.rounded_rectangle([W//2-bw2//2,1170-bh2//2,W//2+bw2//2,1170+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
+            d2.text((W//2,1170),'DESCÁRGALA GRATIS',font=BLACK(int(40*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
+        if t>0.4:
+            ftxt(d,(W//2,1330),'y únete a la waitlist en la landing →',BOLD(40),SUB,(t-0.4)/0.6,t_out=2.0)
+            a2=int(255*min((t-0.4)*3,1))
+            d2.text((W//2,1430),'parfectapp.github.io/parfect',font=BOLD(42),fill=LIME+(a2,),anchor='mm')
+        M.progressbar(d,0.995+0.005*t,PAL); frames.append(V.fin(b))
     return frames
 
 # ============================================================
@@ -1659,6 +1679,104 @@ def teoria_20min():
               line1='Así se arma tu sesión en PARFECT:',ep=20,per=4.8)
     return M.render(frames,'theory-20min')
 
+# ============================================================
+# THEORY 22 · "Fairway > distancia: los numeros" (EP 21)
+# ============================================================
+def teoria_fairway():
+    frames=[]
+    # gancho #14: dos drives cenital — largo al rough (X) vs corto al fairway (✓)
+    lines=['FAIRWAY','> DISTANCIA.']; sub='(los números del drive)'
+    secs=max(3.8,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=21)
+        d2=ImageDraw.Draw(b,'RGBA')
+        # hoyo cenital: fairway franja, rough a los lados
+        d2.rounded_rectangle([340,940,740,1760],90,fill=GREENDIM+(255,))
+        def fwl(dd):
+            dd.rounded_rectangle([340,940,740,1760],90,outline=GREEN+(200,),width=4)
+        glow(b,fwl,8,1)
+        tee=(540,1740)
+        d2.ellipse([tee[0]-12,tee[1]-12,tee[0]+12,tee[1]+12],fill=(250,250,246,255))
+        # drive A: LARGO al rough (curva a la derecha, roja)
+        e1=M.ease(min(t/0.4,1))
+        if e1>0.02:
+            pts=[]
+            for i in range(int(30*e1)+1):
+                q=i/30
+                pts.append((tee[0]+q*q*330, tee[1]-q*640))
+            if len(pts)>1:
+                col=RED if pts[-1][0]>740 else (250,250,246)
+                def tr1(dd,pts=pts,col=col):
+                    dd.line(pts,fill=col+(230,),width=7)
+                glow(b,tr1,8,1)
+                if e1>=0.99:
+                    d2.text((905,1075),'✗ 285 y · rough',font=BLACK(38),fill=RED+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        # drive B: al centro del fairway (verde)
+        if t>0.45:
+            e2=M.ease(min((t-0.45)/0.35,1))
+            pts=[(tee[0],tee[1]-q/28*560) for q in range(int(28*e2)+1)]
+            if len(pts)>1:
+                def tr2(dd,pts=pts):
+                    dd.line(pts,fill=GREEN+(240,),width=7)
+                glow(b,tr2,9,1)
+                if e2>=0.99:
+                    d2.text((540,1105),'✓ 235 y · fairway',font=BLACK(38),fill=GREEN+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        ty=470
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,96,(t-0.07*i)*2.3,GREEN if i==0 else INK,font=BLACK,maxw=W-110)
+            ty+=150
+        if t>0.3: ftxt(d,(W//2,ty+30),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.05*t,PAL); frames.append(V.fin(b))
+    # fase 1: promedio del hoyo segun de donde juegas el 2do
+    filas=[('Segundo tiro desde FAIRWAY','4.6',GREEN),('Segundo tiro desde ROUGH','5.4',RED)]
+    n1=int(M.dur_lectura('promedio del hoyo segundo tiro desde fairway 4.6 desde rough 5.4',1.5)*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=21)
+        ftxt(d,(W//2,400),'Promedio del hoyo (par 4):',GEO(56),INK,t)
+        for i,(lab,val,col) in enumerate(filas):
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            y=780+i*320; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([150,y-110,W-150,y+110],28,outline=col+(int(215*ft),),width=5)
+            glow(b,box,8,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((190,y),lab,font=BOLD(38),fill=INK+(a,),anchor='lm')
+            cnt=4.0+ (float(val)-4.0)*M.ease(ft)
+            d2.text((W-190,y),f'{cnt:.1f}',font=BLACK(84),fill=col+(a,),anchor='rm')
+        if t>0.62:
+            aa=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,1500),'0.8 golpes de castigo. POR HOYO.',font=BLACK(50),fill=LIME+(int(255*aa),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*aa)))
+        M.progressbar(d,0.1+0.18*t,PAL); frames.append(V.fin(b))
+    # fase 2: la cuenta de la ronda
+    n2=int(M.dur_lectura('14 drives por ronda 6 al rough son 5 golpes regalados el fairway te los devuelve',1.4)*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=21)
+        ftxt(d,(W//2,400),'Tu ronda, en corto:',GEO(58),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        cnt=int(5*M.ease(min(max((t-0.25)/0.5,0),1)))
+        M.poptext(d,W//2,760,'14 drives · 6 al rough',60,t*2.0,INK)
+        if t>0.25:
+            d2.text((W//2,1050),f'−{cnt}',font=BLACK(210),fill=RED+(255,),anchor='mm')
+            d2.text((W//2,1220),'golpes regalados por ronda',font=BOLD(40),fill=SUB+(240,),anchor='mm')
+        M.progressbar(d,0.28+0.18*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('el fairway no es aburrido es la jugada agresiva disfrazada',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=21)
+        M.poptext(d,W//2,800,'El fairway no es aburrido.',62,t*1.9,INK)
+        M.poptext(d,W//2,950,'Es la jugada AGRESIVA disfrazada.',62,max(t*1.9-0.3,0),GREEN)
+        M.progressbar(d,0.46+0.3*t,PAL); frames.append(V.fin(b))
+    # demo + conclusion
+    app_outro(frames,flow=[('01-inicio.png',None)],line1='PARFECT te dice TU % de fairways:',ep=21,per=5.4)
+    return M.render(frames,'theory-fairway')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1679,5 +1797,6 @@ if __name__=='__main__':
     elif cmd=='updown': teoria_updown()
     elif cmd=='debajo': teoria_debajo()
     elif cmd=='20min': teoria_20min()
+    elif cmd=='fairway': teoria_fairway()
     else:
         teoria_bandera(); teoria_okay()
