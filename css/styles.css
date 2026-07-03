@@ -4817,3 +4817,17 @@ body.is-scrolling .lp-flyb, body.is-scrolling .lp-bug, body.is-scrolling .lp-bee
 .niv-track { flex: none; width: 40px; position: relative; background: var(--card2, #eef3ea); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .niv-fill { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#7cc24a, #3a9e46); border-radius: 99px; }
 .niv-emoji { position: absolute; left: 50%; transform: translate(-50%, 50%); font-size: 22px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(20,40,15,.3)); }
+
+
+/* ===== waitlist (landing) ===== */
+.lp-wl{display:flex;justify-content:center;padding:26px 18px 64px}
+.lp-wlcard{background:#fff;border-radius:22px;padding:36px 26px;max-width:540px;width:100%;text-align:center;box-shadow:0 18px 50px rgba(27,42,24,.14)}
+.lp-wlform{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.lp-wlform input{border:2px solid #dfe8d8;border-radius:14px;padding:14px 16px;font:600 16px Inter,sans-serif;color:#1b2a18;outline:none;background:#fbfdf8;min-width:0}
+.lp-wlform input:focus{border-color:#7cc24a}
+.lp-wlform .lp-order{white-space:nowrap}
+.lp-wlmsg{margin-top:12px;font:700 15px Inter,sans-serif;min-height:20px}
+.lp-wlmsg.ok{color:#347e3c}
+.lp-wlmsg.err{color:#c0392b}
+.lp-cta-wl{background:none;border:none;color:#1b2a18;opacity:.72;font:700 14px Inter,sans-serif;text-decoration:underline;cursor:pointer;margin-top:6px}
+@media(min-width:640px){.lp-wlform{flex-direction:row;align-items:stretch}.lp-wlform input{flex:1}}
