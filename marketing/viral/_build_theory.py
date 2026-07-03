@@ -1500,7 +1500,7 @@ def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve as�
             d2.rounded_rectangle([W//2-bw2//2,1170-bh2//2,W//2+bw2//2,1170+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
             d2.text((W//2,1170),'DESCÁRGALA GRATIS',font=BLACK(int(40*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
         if t>0.4:
-            ftxt(d,(W//2,1330),'y únete a la waitlist en la landing →',BOLD(40),SUB,(t-0.4)/0.6,t_out=2.0)
+            ftxt(d,(W//2,1330),'juega GRATIS desde hoy →',BOLD(40),SUB,(t-0.4)/0.6,t_out=2.0)
             a2=int(255*min((t-0.4)*3,1))
             d2.text((W//2,1430),'parfectapp.github.io/parfect',font=BOLD(42),fill=LIME+(a2,),anchor='mm')
         M.progressbar(d,0.995+0.005*t,PAL); frames.append(V.fin(b))

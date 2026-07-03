@@ -509,7 +509,7 @@ function vLanding() {
         <span class="lp-intro-tag">Golf Analytics</span>
         <div class="lp-intro-cta">
           <div class="lp-stores">${lpStoreBadge()}${lpGooglePlay()}</div>
-          <div class="lp-rating"><span class="lp-rating-stars">★★★★★</span><b class="lp-rating-num">4.9</b></div>
+          <div class="lp-rating"><span class="lp-rating-stars">★★★★★</span></div>
         </div>
       </div>
     </section>
@@ -522,7 +522,6 @@ function vLanding() {
         <div class="lp-cta-stack">
           <button class="lp-order lp-cta-main" data-act="go" data-view="signup">${golfIcon('flag')} Crear cuenta gratis</button>
           <button class="lp-cta-login" data-act="go" data-view="login">Ya tengo cuenta · Iniciar sesión</button>
-          <button class="lp-cta-wl" type="button">o únete a la waitlist ↓</button>
         </div>
         <p class="lp-trust">Gratis para empezar · Tu cuenta se guarda en la nube</p>
       </div>
@@ -590,21 +589,7 @@ function vLanding() {
       </div>
     </section>
 
-    <section class="lp-sec lp-wl" id="waitlist">
-      <div class="lp-wlcard reveal">
-        <span class="lp-eyebrow">WAITLIST</span>
-        <h2 class="lp-h2">Únete a la <span class="lime">waitlist</span></h2>
-        <p class="lp-lead">Te avisamos de cada función nueva y de la salida en tiendas. Cero spam.</p>
-        <form class="lp-wlform" id="wl-form">
-          <input id="wl-nombre" type="text" placeholder="Tu nombre" autocomplete="name">
-          <input id="wl-correo" type="email" required placeholder="tu@correo.com" autocomplete="email">
-          <button class="lp-order" type="submit">Unirme →</button>
-        </form>
-        <p class="lp-wlmsg" id="wl-msg"></p>
-      </div>
-    </section>
-
-    <footer class="lp-foot">
+        <footer class="lp-foot">
       <span class="lp-logo">${pLogo()}</span>
       <span>Tu app para mejorar en el golf y jugar con amigos.</span>
       <span class="lp-foot-links"><a href="legal.html#privacidad">Aviso de privacidad</a> · <a href="legal.html#terminos">Términos</a></span>
@@ -658,7 +643,7 @@ function pauseOffscreenSvgs() {
 function afterRender() {
   if (window.__lpClean) { window.__lpClean(); window.__lpClean = null; }
   const lp = document.querySelector('.lp');
-  if (lp) { document.body.classList.remove('in-app'); initLanding(lp); initWaitlist(lp); window.__lastView = 'landing'; return; }
+  if (lp) { document.body.classList.remove('in-app'); initLanding(lp); window.__lastView = 'landing'; return; }
   document.body.classList.add('in-app');
   setupScrollFlag();
   setupSwipeNav();
@@ -821,35 +806,3 @@ function vAuth(mode) {
 }
 
 
-/* ===== WAITLIST: guarda nombre+correo en Supabase (tabla waitlist) ===== */
-function initWaitlist(lp) {
-  const wlf = lp.querySelector('#wl-form');
-  if (!wlf) return;
-  const msg = lp.querySelector('#wl-msg');
-  const done = (texto) => { wlf.style.display = 'none'; msg.textContent = texto; msg.className = 'lp-wlmsg ok'; };
-  try { if (localStorage.getItem('pf_wl')) { done('Ya estás en la waitlist ⛳'); } } catch (_) {}
-  const wlBtn = lp.querySelector('.lp-cta-wl');
-  if (wlBtn) wlBtn.addEventListener('click', () => { const w = document.getElementById('waitlist'); if (w) w.scrollIntoView({ behavior: 'smooth' }); });
-  wlf.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const correo = (lp.querySelector('#wl-correo').value || '').trim().toLowerCase();
-    const nombre = (lp.querySelector('#wl-nombre').value || '').trim();
-    if (!correo) return;
-    const btn = wlf.querySelector('button[type=submit]');
-    btn.disabled = true; btn.textContent = 'Enviando…';
-    try {
-      const cfg = window.PARFECT_CONFIG || {};
-      const r = await fetch(cfg.SUPABASE_URL + '/rest/v1/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: cfg.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + cfg.SUPABASE_ANON_KEY, Prefer: 'return=minimal' },
-        body: JSON.stringify({ nombre, correo, fuente: new URLSearchParams(location.search).get('src') || 'landing' })
-      });
-      if (r.ok) { done('¡Dentro! ⛳ Te avisamos en cuanto haya novedades.'); try { localStorage.setItem('pf_wl', '1'); } catch (_) {} }
-      else if (r.status === 409) { done('Ese correo ya está en la lista 🙌'); }
-      else { throw new Error('http ' + r.status); }
-    } catch (err) {
-      msg.textContent = 'No se pudo enviar 😕 Intenta de nuevo en un momento.'; msg.className = 'lp-wlmsg err';
-      btn.disabled = false; btn.textContent = 'Unirme →';
-    }
-  });
-}
