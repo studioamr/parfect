@@ -553,102 +553,28 @@ function vLanding() {
 
 
 
-    <section class="lp-sec lp-presence">
-      <div class="lp-pres-orn" aria-hidden="true">
-        <span class="po po-plane">✈️</span>
-        <span class="po po-tr">🏆</span>
-        <span class="po po-cap">🎓</span>
-        <span class="po po-medal">🏅</span>
-        <span class="po po-flag">🚩</span>
-        <span class="po po-tr2">🏆</span>
+    <section class="lp-sec lp-cantera">
+      <span class="lp-eyebrow reveal">Talento juvenil</span>
+      <h2 class="lp-h2 reveal">Impulsamos la cantera<br/><span class="lime">del golf mexicano.</span></h2>
+      <p class="lp-lead reveal" style="text-align:center;max-width:38ch;margin:12px auto 0">PARFECT nace con una misión: que a ningún juvenil con talento lo frene la falta de datos, de guía o de exposición.</p>
+      <div class="lp-cant-card reveal">
+        <ol class="lp-cant-steps">
+          <li><span class="lp-cant-dot">1</span><div><b>Aprende con datos</b><p>Cada ronda anotada le dice qué practicar. No adivina: mejora.</p></div></li>
+          <li><span class="lp-cant-dot">2</span><div><b>Compite y súmalo</b><p>Sus torneos y rondas construyen un historial real de progreso.</p></div></li>
+          <li><span class="lp-cant-dot">3</span><div><b>Hazte visible</b><p>Un perfil con números verificables que entrenadores y programas pueden ver.</p></div></li>
+          <li><span class="lp-cant-dot lp-cant-dot-fin">⛳</span><div><b>Llega más lejos</b><p>Equipos representativos, academias y becas afuera. Ese es el norte.</p></div></li>
+        </ol>
       </div>
-      <span class="lp-eyebrow reveal">Nuestra visión</span>
-      <h2 class="lp-h2 reveal">Del torneo local<br/><span class="lime">a una beca afuera.</span></h2>
-      <p class="lp-lead reveal" style="text-align:center;max-width:34ch;margin:0 auto 14px">Para esto nace PARFECT: que el golf juvenil mexicano crezca, compita y llegue más lejos. Esto es lo que queremos construir.</p>
-      <div class="lp-journey reveal" aria-hidden="true">
-        <svg class="lp-jpath" viewBox="0 0 320 72" preserveAspectRatio="none">
-          <defs><linearGradient id="jgrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--lime)" stop-opacity=".35"/><stop offset="1" stop-color="var(--lime)"/></linearGradient></defs>
-          <path d="M16 58 Q160 -10 304 38" fill="none" stroke="url(#jgrad)" stroke-width="3" stroke-dasharray="1 10" stroke-linecap="round"/>
-        </svg>
-        <span class="lp-j lp-j-a">🇲🇽<small>Torneo local</small></span>
-        <span class="lp-j lp-j-p">✈️</span>
-        <span class="lp-j lp-j-b">🎓<small>Beca afuera</small></span>
-      </div>
-      <div class="lp-presgrid">
-        ${[['🏆', 'Torneos que cuentan', 'La meta: que cada torneo sume para el ranking juvenil y posicione a los jugadores.'],
-           ['🇲🇽', 'Equipos representativos', 'Que los mejores formen los equipos que representan a México.'],
-           ['🎓', 'Becas en el extranjero', 'Dar exposición de los talentos ante universidades y academias de golf.'],
-           ['🌱', 'Impulso al talento joven', 'Acercar el juego a más niños y jóvenes y darles herramientas para crecer.']]
-          .map(([ic, t, d]) => `<div class="lp-prescard reveal"><span class="lp-presic">${ic}</span><h3>${t}</h3><p>${d}</p></div>`).join('')}
+      <div class="lp-cant-cta reveal">
+        <button class="lp-order" data-act="go" data-view="signup">Súmate desde hoy →</button>
+        <p class="lp-trust">Gratis para juveniles · ¿Entrenas o diriges un programa? Escríbenos</p>
       </div>
     </section>
 
 
-    <section class="lp-sec lp-tj">
-      <div class="lp-tj-card reveal">
-        <span class="lp-tj-eyebrow">⛳ Convocatoria abierta</span>
-        <h2 class="lp-tj-h">Torneo PARFECT Juvenil</h2>
-        <p class="lp-tj-sub">Buscamos al próximo talento del golf mexicano. Si eres juvenil —o tu hijo lo es— este es tu lugar para competir y que te vean.</p>
-        <div class="lp-tj-steps">
-          <div class="lp-tj-step"><span class="lp-tj-n">1</span><div class="lp-tj-tx"><b>Síguenos en redes</b><span>@parfect.golf en Instagram</span></div></div>
-          <div class="lp-tj-step"><span class="lp-tj-n">2</span><div class="lp-tj-tx"><b>Crea tu cuenta gratis</b><span>Regístrate en la app en 60 segundos</span></div></div>
-          <div class="lp-tj-step"><span class="lp-tj-n">3</span><div class="lp-tj-tx"><b>¡Listo, estás dentro!</b><span>Te avisamos fecha y sede</span></div></div>
-        </div>
-        <div class="lp-tj-cta">
-          <button class="lp-order" data-act="go" data-view="signup">Registrarme gratis →</button>
-          <a class="lp-tj-ig" href="https://instagram.com/parfect.golf" target="_blank" rel="noopener">Seguir @parfect.golf</a>
-        </div>
-        <p class="lp-tj-note">Gratis · Sin costo de inscripción · Categorías por edad</p>
-      </div>
-    </section>
+    
 
-    <section class="lp-sec lpc-sec">
-      <span class="lp-eyebrow reveal">PARFECT para clubes</span>
-      <h2 class="lp-h2 reveal">Llena tus torneos.<br/><span class="lime">Forma a tu cantera.</span></h2>
-      <p class="lp-lead reveal" style="text-align:center;max-width:42ch;margin:14px auto 0">Lleva la vida social de tu campo y el desarrollo juvenil a una sola app, con la marca de tu club.</p>
-
-      <div class="lpc-grid">
-        <div class="lpc-card reveal">
-          <span class="lpc-num">01</span>
-          <h3>Torneos en vivo</h3>
-          <p>La vida social del campo, en digital.</p>
-          <ul class="lpc-feat">
-            <li>Crea torneos en minutos (gross y neto)</li>
-            <li>Leaderboard que se actualiza en vivo</li>
-            <li>Podio y ganadores automáticos</li>
-          </ul>
-        </div>
-        <div class="lpc-card reveal">
-          <span class="lpc-num">02</span>
-          <h3>Academia juvenil</h3>
-          <p>Impulsa el talento y fideliza familias.</p>
-          <ul class="lpc-feat">
-            <li>Plan de entrenamiento por juvenil</li>
-            <li>Progreso medido y “camino a la beca”</li>
-            <li>Reporte automático para los padres</li>
-            <li>Ranking de desarrollo del club</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="lpc-ai reveal">
-        <span class="lpc-ai-kick">Automático</span>
-        <b class="lpc-ai-h">Reportes listos para enviar</b>
-        <p>El reporte de cada torneo y el de cada juvenil para sus papás, generados solos con los datos reales del club.</p>
-      </div>
-
-      <div class="lpc-stats">
-        <div class="lpc-stat reveal"><b>2</b><span>ganchos: social + cantera</span></div>
-        <div class="lpc-stat reveal"><b>0</b><span>hardware requerido</span></div>
-        <div class="lpc-stat reveal"><b>100%</b><span>en español</span></div>
-        <div class="lpc-stat reveal"><b>Tu</b><span>marca en su espacio</span></div>
-      </div>
-
-      <div class="lpc-cta reveal">
-        <a class="lp-order" href="mailto:andremacouzetruiz@gmail.com?subject=PARFECT%20para%20mi%20club">Agendar demo para mi club →</a>
-        <a class="lpc-deck" href="deck/" target="_blank" rel="noopener">Ver la presentación completa →</a>
-      </div>
-    </section>
+    
 
     <section class="lp-final reveal">
       <div class="lp-finalcard">
