@@ -1818,6 +1818,36 @@ def uso01():
         ep=1,serie='ASÍ SE USA',per=4.9)
     return M.render(frames,'uso01-anota')
 
+# ============================================================
+# SERIE "ASI SE USA PARFECT" · EP 02 — Tu coach IA en 1 tap
+# ============================================================
+def uso02():
+    frames=[]
+    n=int(3.4*FPS)
+    im0=Image.open(os.path.join(SHOTSDIR,'09-analisis.png')).convert('RGB')
+    sw=620; im0=im0.resize((sw,int(im0.height*sw/im0.width)),Image.LANCZOS)
+    mask=Image.new('L',(sw,700),0)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,700],44,fill=255)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=2,serie='ASÍ SE USA')
+        M.poptext(d,W//2,520,'ASÍ SE USA',104,t*2.2,INK,font=BLACK)
+        M.wordmark(d,W//2,690,INK,96,alpha=int(255*min(t*2.6,1)))
+        if t>0.25:
+            ftxt(d,(W//2,850),'EP 02 · Tu coach IA en 1 tap',BOLD(46),LIME,(t-0.25)/0.75,t_out=2.0)
+        oy=int((1-M.ease(min(max(t-0.15,0)*1.6,1)))*760)
+        def marco(dd,oy=oy):
+            dd.rounded_rectangle([(W-sw)//2-14,1046+oy,(W+sw)//2+14,1046+oy+728],58,outline=GREEN+(200,),width=5)
+        glow(b,marco,10,1)
+        b.paste(im0.crop((0,0,sw,700)),((W-sw)//2,1060+oy),mask)
+        M.progressbar(d,0.02+0.08*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,
+        flow=[('09-analisis.png',(0.5,0.4875)),
+              ('15-diagnostico.png',None)],
+        labels=['PASO 1 · Un tap: Generar análisis','La IA encuentra TU fuga y te da el plan'],
+        ep=2,serie='ASÍ SE USA',per=6.2)
+    return M.render(frames,'uso02-coach')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1840,5 +1870,6 @@ if __name__=='__main__':
     elif cmd=='20min': teoria_20min()
     elif cmd=='fairway': teoria_fairway()
     elif cmd=='uso1': uso01()
+    elif cmd=='uso2': uso02()
     else:
         teoria_bandera(); teoria_okay()

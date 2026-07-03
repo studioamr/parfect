@@ -6,8 +6,8 @@ Chip de serie: "ASÍ SE USA · EP nn". Ritmo sugerido: 2/semana (mié y vie).
 
 | EP | Caso de uso | Flujo (capturas) | Estado |
 |---|---|---|---|
-| 01 | Anota tu ronda en 3 taps | nueva ronda → campo → ajusta (hoyos/salida) → tarjeta analizada | ✔ producido |
-| 02 | Genera tu diagnóstico IA | trainer → Análisis IA → generar → prioridades | capturas listas (03/09) |
+| 01 | Anota tu ronda en 3 taps | nueva ronda → campo → ajusta (hoyos/salida) → tarjeta analizada | ✔ PUBLICADO |
+| 02 | Genera tu diagnóstico IA | analisis (tap Generar) → diagnóstico real (15) | ✔ producido |
 | 03 | Arma tu sesión de entrenamiento | Entreno → tiempo → AI Coach | capturas listas (06/10) |
 | 04 | Lee tu dashboard como un caddie | inicio (hándicap, tendencia, stats) | capturas listas (01) |
 | 05 | Tu liga de amigos | social (torneo en juego + tabla) | capturas listas (02) |
