@@ -1712,7 +1712,7 @@ def teoria_fairway():
                     dd.line(pts,fill=col+(230,),width=7)
                 glow(b,tr1,8,1)
                 if e1>=0.99:
-                    d2.text((905,1075),'✗ 285 y · rough',font=BLACK(38),fill=RED+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+                    d2.text((905,1075),'ROUGH · 285 y',font=BLACK(38),fill=RED+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
         # drive B: al centro del fairway (verde)
         if t>0.45:
             e2=M.ease(min((t-0.45)/0.35,1))
@@ -1722,7 +1722,7 @@ def teoria_fairway():
                     dd.line(pts,fill=GREEN+(240,),width=7)
                 glow(b,tr2,9,1)
                 if e2>=0.99:
-                    d2.text((540,1105),'✓ 235 y · fairway',font=BLACK(38),fill=GREEN+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+                    d2.text((540,1105),'FAIRWAY · 235 y',font=BLACK(38),fill=GREEN+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
         ty=470
         for i,ln in enumerate(lines):
             M.poptext(d,W//2,ty,ln,96,(t-0.07*i)*2.3,GREEN if i==0 else INK,font=BLACK,maxw=W-110)

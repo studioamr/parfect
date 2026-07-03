@@ -36,5 +36,6 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 5. Música: Keinemusik ↔ Black Coffee alternando, track NO repetido.
 6. Caption verificado en pantalla antes de Publicar.
 7. Branding de la app en cada frame: wordmark + chip EP lima + @parfectapp.
-8. TODO video cierra con app_outro() y la captura que corresponde al tema.
-9. Después de publicar: anotar aquí la observación del día.
+8. NUNCA usar ✓/✗ tipográficos (tofu en Arial Black): color + texto, o dibujarlos.
+9. TODO video cierra con app_outro() y la captura que corresponde al tema.
+10. Después de publicar: anotar aquí la observación del día.
