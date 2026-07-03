@@ -22,6 +22,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 19 | updown v2 | André: cerrar CADA video mostrando la función REAL de la app acorde al tema | **app_outro()**: teléfono con captura VIVA de la app (marketing/shots), paneo lento, tap ripple lima, botón CTA pulsante + url; mapa tema→captura en TEORIA-50.md |
 
+| 20 | debajo | André: el clip de la app duró muy poco | **app_outro v2**: ~11s (antes 6), pan COMPLETO de la pantalla y 2 capturas con deslizamiento entre ellas |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.

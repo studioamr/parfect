@@ -1416,7 +1416,7 @@ def teoria_updown():
         if t>0.5:
             ftxt(d,(W//2,1170),'Chip + putt = tu mina de oro.',BOLD(44),SUB,(t-0.5)/0.5,t_out=0.92)
         M.progressbar(d,0.66+0.22*t,PAL); frames.append(V.fin(b))
-    app_outro(frames,shot='03-diagnostico.png',line1='PARFECT te lo mide así, en TU juego:',ep=18,pan_to=0.52,focus=(0.5,0.42))
+    app_outro(frames,shots=('03-diagnostico.png',),line1='PARFECT te lo mide así, en TU juego:',ep=18,focus=(0.5,0.42))
     return M.render(frames,'theory-updown')
 
 # ============================================================
@@ -1424,46 +1424,147 @@ def teoria_updown():
 # grabada de la app viva (marketing/shots) — cierre de CADA video
 # ============================================================
 SHOTSDIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','shots','shots')
-def app_outro(frames, shot='03-diagnostico.png', line1='Esto, en TU juego, se ve así:',
-              cta='Descárgala GRATIS', ep=None, pan_to=0.45, focus=(0.5,0.35), seconds=6.4):
-    img=Image.open(os.path.join(SHOTSDIR,shot)).convert('RGB')
-    sw=620; sh=int(img.height*sw/img.width)
-    img=img.resize((sw,sh),Image.LANCZOS)
-    scrh=1150; maxpan=max(0,min(int((sh-scrh)*pan_to), sh-scrh))
+def app_outro(frames, shots=('03-diagnostico.png',), line1='Esto, en TU juego, se ve así:',
+              cta='Descárgala GRATIS', ep=None, focus=(0.5,0.4), per=5.2):
+    """cierre APP-DEMO: cada captura entra, PANEA COMPLETA (toda la pantalla),
+    tap ripple, y desliza a la siguiente; boton lima + url siempre presentes"""
+    sw=620; scrh=1150
+    imgs=[]
+    for sh in shots:
+        im=Image.open(os.path.join(SHOTSDIR,sh)).convert('RGB')
+        imgs.append(im.resize((sw,int(im.height*sw/im.width)),Image.LANCZOS))
     px,py=(W-sw)//2,470
-    n=int(seconds*FPS)
+    mask=Image.new('L',(sw,scrh),0)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,scrh],44,fill=255)
+    for idx,im in enumerate(imgs):
+        maxpan=max(0,im.height-scrh)
+        n=int(per*FPS)
+        for k in range(n):
+            t=k/max(n-1,1)
+            b,d=canvas(); chrome(d,ep=ep)
+            ftxt(d,(W//2,360),line1,GEO(52),INK,min(t+idx,1.0)*1.4,t_out=2.0)
+            oy=int((1-M.ease(min(t*2.0,1)))*900) if idx==0 else 0
+            ox=int((1-M.ease(min(t*2.6,1)))*W) if idx>0 else 0
+            pan=int(maxpan*M.ease(min(max((t-0.16)/0.7,0),1)))
+            scr=im.crop((0,pan,sw,pan+scrh))
+            def marco(dd,oy=oy,ox=ox):
+                dd.rounded_rectangle([px+ox-14,py+oy-14,px+ox+sw+14,py+oy+scrh+14],58,outline=GREEN+(200,),width=5)
+            glow(b,marco,10,1)
+            b.paste(scr,(px+ox,py+oy),mask)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.rounded_rectangle([px+ox-2,py+oy-2,px+ox+sw+2,py+oy+scrh+2],46,outline=(236,241,237,255),width=4)
+            if 0.5<t<0.68 and ox==0:
+                rp=(t-0.5)/0.18
+                fx,fy=px+int(sw*focus[0]),py+oy+int(scrh*focus[1])
+                rr=int(24+110*M.ease(rp))
+                d2.ellipse([fx-rr,fy-rr,fx+rr,fy+rr],outline=LIME+(int(230*(1-rp)),),width=7)
+                d2.ellipse([fx-16,fy-16,fx+16,fy+16],fill=LIME+(int(190*(1-rp)),))
+            if idx>0 or t>0.22:
+                ba=1.0 if idx>0 else min((t-0.22)*4,1)
+                pulse=1+0.035*math.sin((idx*per+t*per)*math.pi*2*1.3/per)
+                bw2,bh2=int(430*pulse),int(96*pulse)
+                byc=1755
+                d2.rounded_rectangle([W//2-bw2//2,byc-bh2//2,W//2+bw2//2,byc+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
+                d2.text((W//2,byc),cta,font=BLACK(int(36*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
+                d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
+            M.progressbar(d,0.8+0.2*(idx+t)/len(imgs),PAL); frames.append(V.fin(b))
+    return frames
+
+# ============================================================
+# THEORY 27 · "Deja la bola DEBAJO del hoyo" (EP 19)
+# ============================================================
+def teoria_debajo():
+    frames=[]
+    # gancho #12: perfil de pendiente — el putt de bajada se pasa, el de subida muere
+    lines=['DEJA LA BOLA','DEBAJO DEL HOYO.']; sub='(el putt de subida es tu amigo)'
+    secs=max(4.0,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    x0,y0,x1,y1=150,1300,930,1580; hx=620
+    def y_on(x): return y0+(y1-y0)*(x-x0)/(x1-x0)
     for k in range(n):
         t=k/max(n-1,1)
-        b,d=canvas(); chrome(d,ep=ep)
-        ftxt(d,(W//2,360),line1,GEO(52),INK,min(t*1.4,1),t_out=2.0)
-        oy=int((1-M.ease(min(t*2.0,1)))*900)
-        pan=int(maxpan*M.ease(min(max((t-0.25)/0.5,0),1)))
-        scr=img.crop((0,pan,sw,pan+scrh))
-        mask=Image.new('L',(sw,scrh),0)
-        ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,scrh],44,fill=255)
-        def marco(dd,oy=oy):
-            dd.rounded_rectangle([px-14,py+oy-14,px+sw+14,py+oy+scrh+14],58,outline=GREEN+(200,),width=5)
-        glow(b,marco,10,1)
-        b.paste(scr,(px,py+oy),mask)
+        b,d=canvas(); chrome(d,ep=19)
+        def slope(dd):
+            dd.line([(x0,y0),(x1,y1)],fill=GREEN+(235,),width=6)
+        glow(b,slope,9,1)
         d2=ImageDraw.Draw(b,'RGBA')
-        d2.rounded_rectangle([px-2,py+oy-2,px+sw+2,py+oy+scrh+2],46,outline=(236,241,237,255),width=4)
-        if 0.52<t<0.72:
-            rp=(t-0.52)/0.2
-            fx,fy=px+int(sw*focus[0]),py+oy+int(scrh*focus[1])
-            rr=int(24+110*M.ease(rp))
-            d2.ellipse([fx-rr,fy-rr,fx+rr,fy+rr],outline=LIME+(int(230*(1-rp)),),width=7)
-            d2.ellipse([fx-16,fy-16,fx+16,fy+16],fill=LIME+(int(190*(1-rp)),))
-        # boton lima pulsante + url
-        if t>0.22:
-            ba=min((t-0.22)*4,1)
-            pulse=1+0.035*math.sin(t*math.pi*2*1.3)
-            bw2,bh2=int(430*pulse),int(96*pulse)
-            byc=1755
-            d2.rounded_rectangle([W//2-bw2//2,byc-bh2//2,W//2+bw2//2,byc+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
-            d2.text((W//2,byc),cta,font=BLACK(int(36*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
-            d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
-        M.progressbar(d,0.9+0.1*t,PAL); frames.append(V.fin(b))
-    return frames
+        hy=y_on(hx)
+        d2.ellipse([hx-18,hy-8,hx+18,hy+10],fill=(5,9,7,255),outline=GREEN+(200,),width=3)
+        # bola 1: de ARRIBA, pasa el hoyo y sigue (roja)
+        if t<0.52:
+            bt=M.ease(min(t/0.5,1)); bx=200+bt*660
+            col=(250,250,246) if bx<hx else RED
+            def b1(dd,bx=bx,col=col):
+                dd.ellipse([bx-15,y_on(bx)-32,bx+15,y_on(bx)-2],fill=col+(255,))
+            glow(b,b1,9,1)
+            if bx>hx+90: d2.text((760,y_on(760)-120),'se pasó 2 m',font=BOLD(38),fill=RED+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        # bola 2: de ABAJO, sube y muere en el hoyo (verde)
+        if t>0.56:
+            bt=M.ease(min((t-0.56)/0.34,1)); bx=900-(900-hx)*bt
+            def b2(dd,bx=bx):
+                dd.ellipse([bx-15,y_on(bx)-32,bx+15,y_on(bx)-2],fill=GREEN+(255,))
+            glow(b,b2,9,1)
+            if bt>0.96: d2.text((hx,hy-120),'muere en el hoyo',font=BOLD(38),fill=GREEN+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        ty=470
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,84,(t-0.07*i)*2.3,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=136
+        if t>0.3: ftxt(d,(W//2,ty+34),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: el mismo putt, dos mundos
+    filas=[('DE SUBIDA','frena sola · tap-in tranquilo',GREEN),('DE BAJADA','resbala: 2-3 m de pasada',RED)]
+    n1=int(M.dur_lectura('de subida frena sola tap in tranquilo de bajada resbala 2 a 3 metros de pasada',1.5)*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=19)
+        ftxt(d,(W//2,400),'El mismo putt, dos mundos:',GEO(56),INK,t)
+        for i,(tit,txt,col) in enumerate(filas):
+            ft=min(max(t*2.6-i*0.55,0),1)
+            if ft<=0: continue
+            y=760+i*330; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([150,y-110,W-150,y+110],28,outline=col+(int(220*ft),),width=5)
+            glow(b,box,8,1)
+            d2=ImageDraw.Draw(b,'RGBA')
+            d2.text((W//2,y-44),tit,font=BLACK(56),fill=col+(a,),anchor='mm')
+            d2.text((W//2,y+42),txt,font=BOLD(40),fill=INK+(a,),anchor='mm')
+        M.progressbar(d,0.12+0.2*t,PAL); frames.append(V.fin(b))
+    # fase 2: donde apuntar el approach
+    n2=int(5.0*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=19)
+        ftxt(d,(W//2,400),'Bandera en pendiente: apunta AQUÍ →',GEO(50),INK,t)
+        cx,cy=W//2,1050
+        e=M.ease(min(t*1.8,1))
+        def gr(dd,e=e):
+            dd.ellipse([cx-330*e,cy-250*e,cx+330*e,cy+250*e],fill=GREENDIM+(255,),outline=GREEN+(235,),width=5)
+        glow(b,gr,10,1)
+        d2=ImageDraw.Draw(b,'RGBA')
+        if t>0.3:
+            a=min((t-0.3)*3.5,1)
+            d2.ellipse([cx-320,cy-240,cx+320,cy-20],fill=RED+(int(60*a),))
+            d2.text((cx,cy-130),'ARRIBA = rezar',font=BLACK(40),fill=RED+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        if t>0.45:
+            a=min((t-0.45)*3.5,1)
+            d2.ellipse([cx-320,cy+20,cx+320,cy+240],fill=GREEN+(int(55*a),))
+            d2.text((cx,cy+130),'DEBAJO = atacar',font=BLACK(40),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        d2.line([(cx,cy-8),(cx,cy-190)],fill=(250,250,246,255),width=6)
+        d2.polygon([(cx,cy-190),(cx+62,cy-170),(cx,cy-148)],fill=LIME+(255,))
+        d2.ellipse([cx-9,cy-14,cx+9,cy-2],fill=(5,9,7,255))
+        M.progressbar(d,0.34+0.24*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('de subida agresivo de bajada rezando decide desde el approach',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=19)
+        M.poptext(d,W//2,790,'De subida: AGRESIVO.',68,t*1.9,GREEN)
+        M.poptext(d,W//2,930,'De bajada: rezando.',64,max(t*1.9-0.25,0),RED)
+        if t>0.5:
+            ftxt(d,(W//2,1150),'La decisión se toma DESDE el approach.',BOLD(42),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.6+0.2*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,shots=('03-diagnostico.png','01-inicio.png'),line1='PARFECT te entrena esto así:',ep=19,focus=(0.5,0.42),per=5.4)
+    return M.render(frames,'theory-debajo')
 
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
@@ -1483,5 +1584,6 @@ if __name__=='__main__':
     elif cmd=='tarjeta': teoria_tarjeta()
     elif cmd=='brecha': teoria_brecha()
     elif cmd=='updown': teoria_updown()
+    elif cmd=='debajo': teoria_debajo()
     else:
         teoria_bandera(); teoria_okay()
