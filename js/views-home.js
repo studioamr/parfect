@@ -46,9 +46,12 @@ function vSenseiCompanion() {
 /* clima discreto (demo, por hora del día) en Inicio */
 function weatherChip() {
   const h = new Date().getHours();
-  const tC = Math.round(21 + 4 * Math.sin(Math.max(0, Math.min(1, (h - 6) / 12)) * Math.PI));
-  const cond = h < 12 ? 'Soleado' : h < 17 ? 'Despejado' : 'Soleado';
-  const ic = `<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.4" fill="#ffce3a"/><g stroke="#ffce3a" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="1.5" x2="10" y2="3.4"/><line x1="10" y1="16.6" x2="10" y2="18.5"/><line x1="1.5" y1="10" x2="3.4" y2="10"/><line x1="16.6" y1="10" x2="18.5" y2="10"/><line x1="4" y1="4" x2="5.4" y2="5.4"/><line x1="14.6" y1="14.6" x2="16" y2="16"/><line x1="16" y1="4" x2="14.6" y2="5.4"/><line x1="5.4" y1="14.6" x2="4" y2="16"/></g></svg>`;
+  const night = h >= 19 || h < 6;
+  const tC = night ? 16 : Math.round(21 + 4 * Math.sin(Math.max(0, Math.min(1, (h - 6) / 12)) * Math.PI));
+  const cond = night ? 'Despejado' : h < 12 ? 'Soleado' : h < 17 ? 'Despejado' : 'Soleado';
+  const sun = `<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.4" fill="#ffce3a"/><g stroke="#ffce3a" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="1.5" x2="10" y2="3.4"/><line x1="10" y1="16.6" x2="10" y2="18.5"/><line x1="1.5" y1="10" x2="3.4" y2="10"/><line x1="16.6" y1="10" x2="18.5" y2="10"/><line x1="4" y1="4" x2="5.4" y2="5.4"/><line x1="14.6" y1="14.6" x2="16" y2="16"/><line x1="16" y1="4" x2="14.6" y2="5.4"/><line x1="5.4" y1="14.6" x2="4" y2="16"/></g></svg>`;
+  const moon = `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.8 12.9A6.9 6.9 0 0 1 7.1 4.2a7 7 0 1 0 8.7 8.7z" fill="#F0E27E"/><circle cx="14.6" cy="5.6" r=".9" fill="#F0E27E" opacity=".8"/><circle cx="16.8" cy="8.4" r=".55" fill="#F0E27E" opacity=".6"/></svg>`;
+  const ic = night ? moon : sun;
   return `<div class="wx" title="Clima estimado"><span class="wx-ic">${ic}</span><div class="wx-tx"><b>${tC}°</b><span>${cond} · Morelia</span></div></div>`;
 }
 
@@ -928,6 +931,16 @@ function socialReady(u) {
 }
 
 function postCardBtn() {
+  // sin rondas no hay nada que postear: guía a la primera ronda en vez de a un callejón sin salida
+  const u = cur();
+  const hasRounds = !!(u && (S.rounds || []).some(r => r.userId === u.id));
+  if (!hasRounds) {
+    return `<button class="card invite-card post-card-btn" data-act="quick-round">
+      <span class="invite-ic" aria-hidden="true" style="background:var(--lime-faint,rgba(124,194,74,.14))">${golfIcon('card')}</span>
+      <div class="invite-tx"><b>Registra tu primera ronda</b><span>y compártela aquí con tus amigos</span></div>
+      <span class="invite-go">Empezar ›</span>
+    </button>`;
+  }
   return `<button class="card invite-card post-card-btn" data-act="share-open">
     <span class="invite-ic" aria-hidden="true" style="background:var(--lime-faint,rgba(124,194,74,.14))">${golfIcon('card')}</span>
     <div class="invite-tx"><b>Postear tarjeta</b><span>Comparte tu ronda con tus amigos</span></div>

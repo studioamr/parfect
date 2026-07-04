@@ -76,7 +76,7 @@ function vRondaTab() {
     </button>`;
   }
   if (!rounds.length && !cont) {
-    html += `<div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p></div>`;
+    html += `<div class="card empty"><div class="e-ico">${golfIcon('flag')}</div><h3>Sin rondas todavía</h3><p>Tu primera ronda toma menos de 10 minutos en capturarse — 4 toques por hoyo.</p><button class="btn primary" data-act="quick-round" style="margin-top:14px">Registrar mi primera ronda</button></div>`;
     return html;
   }
   const myHcp = u.hcp;
