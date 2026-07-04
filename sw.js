@@ -1,5 +1,5 @@
 /* PARFECT service worker: la app funciona offline una vez visitada. */
-const CACHE = 'parfect-v504';
+const CACHE = 'parfect-v510';
 /* Shell + imágenes. El JS/CSS llevan ?v=N y se cachean en runtime (cache-first exacto),
    así nunca se sirve una versión vieja tras un deploy. */
 const ASSETS = [
@@ -60,7 +60,15 @@ self.addEventListener('fetch', (e) => {
       fetch(e.request).then((res) => {
         if (res.ok) {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
+          caches.open(CACHE).then(async (c) => {
+            // purga versiones viejas del mismo archivo (?v= distinto) para que el cache no crezca sin tope
+            const keys = await c.keys();
+            keys.forEach((req) => {
+              const u = new URL(req.url);
+              if (u.pathname === url.pathname && u.search !== url.search) c.delete(req);
+            });
+            c.put(e.request, copy);
+          });
         }
         return res;
       })

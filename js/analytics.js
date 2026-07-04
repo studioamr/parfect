@@ -30,5 +30,19 @@ const Analytics = (() => {
     } catch (e) { return { error: e.message || String(e) }; }
   }
 
+  /* errores JS en producción → eventos (máx 5 por sesión, sin datos personales) */
+  let errCount = 0;
+  function reportError(msg, src, line) {
+    if (errCount >= 5) return;
+    errCount++;
+    track('js_error', {
+      msg: String(msg || '').slice(0, 200),
+      src: String(src || '').split('/').pop().split('?')[0],
+      line: Number(line) || 0
+    });
+  }
+  window.addEventListener('error', e => reportError(e.message, e.filename, e.lineno));
+  window.addEventListener('unhandledrejection', e => reportError((e.reason && e.reason.message) || e.reason, 'promise', 0));
+
   return { track, summary };
 })();

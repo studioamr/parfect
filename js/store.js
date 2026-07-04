@@ -14,8 +14,18 @@ const Store = (() => {
     return { users: [], session: null, rounds: [], practices: [], active: null, parties: [], activeParty: null };
   }
 
+  let saveWarned = false;
   function save(s) {
-    localStorage.setItem(KEY, JSON.stringify(s));
+    try {
+      localStorage.setItem(KEY, JSON.stringify(s));
+    } catch (e) {
+      // cuota llena o modo privado: la app sigue en memoria y la nube sigue sincronizando
+      if (!saveWarned) {
+        saveWarned = true;
+        console.warn('PARFECT: no se pudo guardar en este dispositivo (¿almacenamiento lleno?). Tus datos siguen en la nube.', e);
+        if (typeof Analytics !== 'undefined') Analytics.track('storage_error', { msg: String((e && e.name) || e).slice(0, 80) });
+      }
+    }
   }
 
   const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
