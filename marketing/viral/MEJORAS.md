@@ -47,3 +47,10 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 8. NUNCA usar ✓/✗ tipográficos (tofu en Arial Black): color + texto, o dibujarlos.
 9. TODO video cierra con app_outro() y la captura que corresponde al tema.
 10. Después de publicar: anotar aquí la observación del día.
+
+## It. 26 — EP26 "El golpe héroe" (4-jul)
+- Gancho #17 nuevo: cenital bola entre árboles — ruta héroe roja punteada que CHOCA (anillo de impacto + "choca 8 de 10") vs salida lateral lima a la calle.
+- Fix de contraste: árboles con relleno (38,68,46) + outline (74,118,84) — los rellenos más oscuros desaparecían sobre el fondo dark.
+- Música: Black Coffee "Ready For You" (estreno). Usados ahora 25 tracks.
+- Señal de mercado: EP25 (bandera atrás) = 154 vistas / 8 likes, RÉCORD del canal (previo: 89). El estándar Mezcla 2.0 (THEORY artesanal + gancho nuevo por episodio) queda CONFIRMADO por datos.
+- Extractor de frames QC nuevo: scratchpad/_frames.swift (AVFoundation) — no hay ffmpeg/cv2 en esta Mac.

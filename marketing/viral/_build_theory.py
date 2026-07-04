@@ -2270,6 +2270,147 @@ def teoria_bandatras():
     app_outro(frames,flow=[('11-ronda.png',None)],line1='PARFECT te enseña dónde caen TUS tiros:',ep=25,per=5.0)
     return M.render(frames,'theory-bandatras')
 
+def teoria_heroe():
+    import math as mt
+    frames=[]
+    # gancho #17: CENITAL bola entre arboles — ruta heroe (roja, choca) vs salida lateral (lima)
+    lines=['EL GOLPE HÉROE','CUESTA 3.']; sub='(la salida lateral cuesta 1)'
+    secs=max(4.6,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    bx,by=280,1480                    # bola metida en los arboles
+    gcx,gcy=700,935                   # green cenital arriba-derecha
+    arboles=[(380,1330,52),(478,1244,46),(418,1168,40),(566,1156,54),(520,1078,42),(618,1042,44),(330,1420,44),(452,1400,38)]
+    def lerp(a,b,q): return a+(b-a)*q
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=26)
+        d2=ImageDraw.Draw(b,'RGBA')
+        # green con bandera
+        pts=green_pts(gcx,gcy,150,185)
+        d2.polygon(pts,fill=GREENDIM+(255,))
+        def edge(dd,pts=pts):
+            dd.line(pts+[pts[0]],fill=GREEN+(210,),width=5)
+        glow(b,edge,8,1)
+        d2.line([(gcx,gcy),(gcx,gcy-95)],fill=(250,250,246,255),width=5)
+        d2.polygon([(gcx,gcy-95),(gcx+44,gcy-81),(gcx,gcy-67)],fill=RED+(255,))
+        # calle a la derecha de la bola
+        d2.rounded_rectangle([620,1400,930,1560],32,fill=(20,42,30,255))
+        d2.text((775,1600),'calle',font=BOLD(30),fill=SUB+(210,),anchor='mm')
+        # arboles entre bola y green
+        for ax,ay,ar in arboles:
+            d2.ellipse([ax-ar,ay-ar,ax+ar,ay+ar],fill=(38,68,46,255),outline=(74,118,84,255),width=3)
+            d2.ellipse([ax-7,ay-7,ax+7,ay+7],fill=(96,72,44,255))
+        # bola
+        d2.ellipse([bx-15,by-15,bx+15,by+15],fill=(250,250,246,255))
+        # ruta 1 (heroe): punteada roja hacia el green, CHOCA a 45% del camino
+        if t<0.5:
+            e=M.ease(min(t/0.42,1))
+            q_end=0.45*e/max(e,1e-6)*e if e<1 else 0.45
+            q_end=0.45*min(e,1)
+            segs=int(26*min(e,1))
+            for i in range(segs):
+                q=0.45*i/26
+                px,py=lerp(bx,gcx,q),lerp(by,gcy,q)
+                def dash(dd,px=px,py=py):
+                    dd.ellipse([px-5,py-5,px+5,py+5],fill=RED+(220,))
+                glow(b,dash,5,1)
+            if e>=1:
+                ix,iy=lerp(bx,gcx,0.45),lerp(by,gcy,0.45)
+                def imp(dd,ix=ix,iy=iy):
+                    dd.ellipse([ix-26,iy-26,ix+26,iy+26],outline=RED+(240,),width=6)
+                glow(b,imp,8,1)
+                d2.text((215,1080),'choca 8 de 10',font=BOLD(36),fill=RED+(255,),anchor='lm',stroke_width=5,stroke_fill=(8,14,11,255))
+        # ruta 2 (lateral): lima solida a la calle, tiro limpio
+        if t>0.52:
+            e=M.ease(min((t-0.52)/0.3,1))
+            ex,ey=lerp(bx,775,e),lerp(by,1478,e)
+            def lat(dd,ex=ex,ey=ey):
+                dd.line([(bx,by),(ex,ey)],fill=LIME+(240,),width=8)
+            glow(b,lat,9,1)
+            if e>=1:
+                d2.ellipse([775-14,1478-14,775+14,1478+14],fill=(250,250,246,255))
+                d2.text((640,1650),'a la calle · tiro limpio',font=BOLD(36),fill=LIME+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        ty=420
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,80,(t-0.07*i)*2.3,RED if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=130
+        if t>0.3: ftxt(d,(W//2,ty+28),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: 10 intentos del heroe por el hueco — 8 chocan, 2 pasan
+    import random as rd
+    r1=rd.Random(17)
+    n1=int(6.0*FPS)
+    ox,oy=W//2,1600                    # origen de los tiros
+    tl,tr=(410,1075,95),(700,1055,105) # dos copas con hueco estrecho
+    dest=[]
+    for i in range(10):
+        if i in (3,7): dest.append((W//2+r1.uniform(-26,26),760,True))          # pasan por el hueco
+        else:
+            side=tl if i%2 else tr
+            dest.append((side[0]+r1.uniform(-40,40),side[1]+r1.uniform(-30,50),False))
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=26)
+        ftxt(d,(W//2,400),'10 intentos del golpe héroe:',GEO(54),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        e=M.ease(min(t*1.8,1))
+        for ax,ay,ar in (tl,tr):
+            rr=ar*e
+            d2.ellipse([ax-rr,ay-rr,ax+rr,ay+rr],fill=(38,68,46,255),outline=(74,118,84,255),width=3)
+            if e>0.9: d2.ellipse([ax-8,ay-8,ax+8,ay+8],fill=(96,72,44,255))
+        d2.ellipse([ox-13,oy-13,ox+13,oy+13],fill=(250,250,246,255))
+        for i,(px,py,pasa) in enumerate(dest):
+            ft=min(max(t*3.0-0.5-i*0.13,0),1)
+            if ft<=0: continue
+            ex,ey=ox+(px-ox)*M.ease(ft),oy+(py-oy)*M.ease(ft)
+            col=(250,250,246) if pasa else RED
+            def tray(dd,ex=ex,ey=ey,col=col,ft=ft):
+                dd.line([(ox,oy),(ex,ey)],fill=col+(int(190*ft),),width=5)
+            glow(b,tray,5,1)
+            if ft>=1:
+                if pasa: d2.ellipse([px-12,py-12,px+12,py+12],fill=(250,250,246,235))
+                else:
+                    def chk(dd,px=px,py=py):
+                        dd.ellipse([px-14,py-14,px+14,py+14],outline=RED+(240,),width=5)
+                        dd.line([(px-9,py-9),(px+9,py+9)],fill=RED+(240,),width=5)
+                    glow(b,chk,6,1)
+        if t>0.68:
+            a=min((t-0.68)*5,1.0) if t<0.92 else max(0.0,(1.0-t)/0.08)
+            d2.text((W//2,1750),'Pasa 2 de 10. El resto: doble bogey o peor.',font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.14+0.22*t,PAL); frames.append(V.fin(b))
+    # fase 2: score comparado
+    n2=int(M.dur_lectura('score del hoyo despues de un mal drive al heroe entre arboles 6.1 salida lateral 5.0 un golpe seguro tres de fantasia',1.4)*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=26)
+        ftxt(d,(W//2,400),'Tras un mal drive, el hoyo termina en:',GEO(52),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for i,(lab,val,col) in enumerate([('JUGANDO AL HÉROE','6.1',RED),('SALIDA LATERAL','5.0',GREEN)]):
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            y=780+i*320; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([150,y-110,W-150,y+110],28,outline=col+(int(215*ft),),width=5)
+            glow(b,box,8,1)
+            d2.text((190,y),lab,font=BOLD(38),fill=INK+(a,),anchor='lm')
+            d2.text((W-190,y),val,font=BLACK(80),fill=col+(a,),anchor='rm')
+        if t>0.62:
+            aa=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1480),'Un golpe seguro > tres golpes de fantasía',font=BOLD(42),fill=LIME+(int(255*aa),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*aa)))
+        M.progressbar(d,0.38+0.24*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('tu tarjeta no premia lo epico premia lo repetible bola a la calle bogey y al siguiente',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=26)
+        M.poptext(d,W//2,790,'Tu tarjeta no premia lo épico.',58,t*1.9,INK)
+        M.poptext(d,W//2,935,'Premia lo repetible.',84,max(t*1.9-0.3,0),GREEN)
+        if t>0.5:
+            ftxt(d,(W//2,1150),'Bola a la calle. Bogey. Siguiente hoyo.',BOLD(42),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.64+0.2*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,flow=[('09-analisis.png',None)],line1='PARFECT te dice dónde regalas golpes:',ep=26,per=5.0)
+    return M.render(frames,'theory-heroe')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -2290,6 +2431,7 @@ if __name__=='__main__':
     elif cmd=='updown': teoria_updown()
     elif cmd=='lag': teoria_lag()
     elif cmd=='bandatras': teoria_bandatras()
+    elif cmd=='heroe': teoria_heroe()
     elif cmd=='debajo': teoria_debajo()
     elif cmd=='20min': teoria_20min()
     elif cmd=='fairway': teoria_fairway()
