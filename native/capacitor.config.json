@@ -1,0 +1,9 @@
+{
+  "appId": "mx.parfect.app",
+  "appName": "PARFECT",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#aaddf2"
+  }
+}

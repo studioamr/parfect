@@ -3,3 +3,5 @@
 inversion/MEMO-VC.md
 inversion/MEMO-TECNICO.md
 inversion/MEMO-UX.md
+native/node_modules/
+native/www/
