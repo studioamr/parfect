@@ -30,6 +30,8 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 23 | uso01 | André pidió serie de TODOS los casos de uso | **Serie "ASÍ SE USA PARFECT"** (SERIE-USO.md, 12 eps): el video ES la app con PASOS numerados (chips lima) + taps causales + conclusión; capturas nuevas del flujo Nueva Ronda (12/13/14) |
 
+| 24 | tanda día 1 | el MEME cayó en "Contenido en revisión" + Solo yo automático (patrón POV/texto) | vigilar el formato meme: si 2 seguidos caen en revisión, sustituirlo por 2º dato/quiz en la mezcla diaria; revisar mañana si TikTok lo liberó y regresarlo a "Todo el mundo" |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
