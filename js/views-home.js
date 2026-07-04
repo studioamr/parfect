@@ -1301,12 +1301,28 @@ function vMetrics() {
   const days = []; for (let i = 6; i >= 0; i--) { const d = new Date(now - i * 86400000); const key = d.toISOString().slice(0, 10); const n = ev.filter(e => (e.name === 'round_saved' || e.name === 'party_round') && e.created_at.slice(0, 10) === key).length; days.push({ lab: ['D', 'L', 'M', 'M', 'J', 'V', 'S'][d.getDay()], n }); }
   const maxN = Math.max(1, ...days.map(d => d.n));
   const bars = `<div class="card"><span class="label">Rondas por día (7 días)</span><div style="display:flex;align-items:flex-end;gap:8px;height:90px;margin-top:10px">${days.map(d => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:flex-end"><b style="font-size:11px;font-weight:800;color:var(--text)">${d.n || ''}</b><div style="width:100%;border-radius:6px 6px 0 0;background:var(--lime);height:${Math.max(4, d.n / maxN * 64)}px"></div><span style="font-size:10px;color:var(--muted)">${d.lab}</span></div>`).join('')}</div></div>`;
+  // retención D7: de las altas con 8+ días de antigüedad, % que volvió entre el día 1 y el 7
+  const signups = ev.filter(e => e.name === 'signup' && e.user_id && new Date(e.created_at).getTime() <= now - 8 * 86400000);
+  const retained = signups.filter(s => {
+    const t0 = new Date(s.created_at).getTime();
+    return ev.some(e => e.user_id === s.user_id && e.name !== 'signup' &&
+      new Date(e.created_at).getTime() >= t0 + 86400000 && new Date(e.created_at).getTime() <= t0 + 7 * 86400000);
+  }).length;
+  const d7 = signups.length ? Math.round(retained / signups.length * 100) + '%' : '—';
+  const act7 = actives(7);
+  const depth = act7 ? (roundsCnt(7) / act7).toFixed(1) : '—';
   return head +
     `<div class="grid2">
       ${tile(m.users, 'Usuarios', 'registrados en la nube')}
       ${tile(cnt('signup', null), 'Altas (30d)', `hoy ${cnt('signup', 1)} · 7d ${cnt('signup', 7)}`)}
       ${tile(roundsCnt(null), 'Rondas (30d)', `hoy ${roundsCnt(1)} · 7d ${roundsCnt(7)}`)}
-      ${tile(actives(7), 'Activos 7d', `hoy ${actives(1)}`)}
+      ${tile(act7, 'Activos 7d', `hoy ${actives(1)}`)}
+    </div>
+    <div class="grid2">
+      ${tile(d7, 'Retención D7', signups.length ? `${retained} de ${signups.length} altas volvieron` : 'aún sin altas de 8+ días')}
+      ${tile(cnt('practice_saved', null), 'Prácticas (30d)', `7d ${cnt('practice_saved', 7)}`)}
+      ${tile(cnt('coach_used', null), 'Coach IA (30d)', `7d ${cnt('coach_used', 7)}`)}
+      ${tile(depth, 'Rondas por activo', 'últimos 7 días')}
     </div>
     ${bars}
     <p class="note" style="text-align:center;margin-top:10px">Eventos en ventana de 30 días · solo tú ves esto.</p>`;

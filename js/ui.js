@@ -578,6 +578,7 @@ function shareReport(text) {
    disponible, con indicador de "escribiendo…"; si no, cae al guion local. */
 function sendChat(txt) {
   txt = String(txt || '').trim(); if (!txt) return;
+  if (typeof Analytics !== 'undefined') Analytics.track('coach_used');
   V.chat = V.chat || { open: true, msgs: [] };
   V.chat.open = true;
   V.chat.msgs.push({ from: 'me', text: txt });

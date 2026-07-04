@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>PARFECT · Memo de inversión</title>
+<style>
+  :root {
+    --bg: #0A120D; --panel: #0F1A13; --panel2: #121F17; --line: #1D2E23;
+    --ink: #ECF1ED; --sub: #94A398; --lime: #C7EE54; --dim: #5C6B60;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+  section { padding: 88px 0; border-bottom: 1px solid var(--line); }
+  .k { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--lime); text-transform: uppercase; display: block; margin-bottom: 18px; }
+  .k .n { color: var(--dim); margin-right: 10px; }
+  h1 { font-size: clamp(40px, 7vw, 68px); font-weight: 900; letter-spacing: -.03em; line-height: 1.04; }
+  h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 850; letter-spacing: -.02em; line-height: 1.15; margin-bottom: 18px; }
+  p.lead { font-size: 18px; color: var(--sub); max-width: 620px; }
+  p.lead b, li b { color: var(--ink); }
+  .chip { display: inline-block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; color: var(--lime); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; margin: 0 8px 10px 0; background: var(--panel); }
+  .chip.warn { color: #E8B44C; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 30px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 30px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .card p { font-size: 14.5px; color: var(--sub); }
+  .big { font-size: 34px; font-weight: 900; letter-spacing: -.02em; display: block; }
+  .big.lime { color: var(--lime); }
+  .lab { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--dim); text-transform: uppercase; margin-top: 6px; display: block; }
+  table { width: 100%; border-collapse: collapse; margin-top: 28px; font-size: 14.5px; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  td { padding: 13px 12px; border-bottom: 1px solid var(--line); color: var(--sub); vertical-align: top; }
+  td:first-child { color: var(--ink); font-weight: 700; white-space: nowrap; }
+  td .si { color: var(--lime); font-weight: 800; }
+  td .no { color: var(--dim); }
+  .shots { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 34px; }
+  .shots img { width: 100%; border-radius: 18px; border: 1px solid var(--line); display: block; }
+  ul.list { list-style: none; margin-top: 22px; }
+  ul.list li { padding: 12px 0 12px 30px; position: relative; color: var(--sub); font-size: 15.5px; border-bottom: 1px solid var(--line); }
+  ul.list li::before { content: '—'; position: absolute; left: 2px; color: var(--lime); font-weight: 800; }
+  .foot { font-family: var(--mono); font-size: 11.5px; color: var(--dim); padding: 40px 0 60px; text-align: center; }
+  .hero { padding: 110px 0 90px; }
+  .hero .mark { display: flex; align-items: baseline; gap: 10px; margin-bottom: 26px; }
+  .hero .mark b { font-size: 24px; font-weight: 900; letter-spacing: .02em; }
+  .hero .mark span { font-family: var(--mono); font-size: 12px; color: var(--dim); letter-spacing: .12em; }
+  .hero h1 em { font-style: normal; color: var(--lime); }
+  .hero p.lead { margin-top: 24px; }
+  .hero .chips { margin-top: 34px; }
+  .num { font-family: var(--mono); font-size: 13px; color: var(--lime); }
+  .ask { background: linear-gradient(160deg, var(--panel2), var(--panel)); border: 1px solid #2A4230; border-radius: 20px; padding: 34px; margin-top: 30px; }
+  .ask .big { font-size: 44px; }
+  .note { font-size: 13px; color: var(--dim); margin-top: 14px; font-family: var(--mono); }
+  a { color: var(--lime); }
+  @media (max-width: 700px) {
+    .grid, .grid3, .shots { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+    td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap hero">
+  <div class="mark"><b>⛳ PARFECT</b><span>MEMO DE INVERSIÓN · JULIO 2026</span></div>
+  <h1>El golf mexicano,<br><em>medido por fin.</em></h1>
+  <p class="lead">App de golf en español que convierte cada ronda y cada práctica en datos — y una capa B2B para que los clubes operen torneos, roster y su <b>cantera juvenil</b> sobre esos datos.</p>
+  <div class="chips">
+    <span class="chip">PRE-SEED</span>
+    <span class="chip warn">PRE-LANZAMIENTO · SIN TRACCIÓN AÚN</span>
+    <span class="chip">MÉXICO → LATAM</span>
+  </div>
+</div>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">01</span>El problema</span>
+  <h2>El golfista promedio no mejora porque no se mide.</h2>
+  <p class="lead">Juega la misma ronda de 94 durante años, practica lo que le gusta (no lo que falla) y su club administra torneos y academia juvenil con WhatsApp y Excel. Las apps líderes están en inglés, pensadas para el jugador de EE.UU., y ninguna atiende la formación juvenil en México.</p>
+  <div class="grid3">
+    <div class="card"><span class="big">88→94</span><span class="lab">mismo score por años</span><p>Sin datos no hay diagnóstico; sin diagnóstico no hay mejora.</p></div>
+    <div class="card"><span class="big">Excel</span><span class="lab">la tecnología del club</span><p>Torneos, roster y academia juvenil se operan a mano.</p></div>
+    <div class="card"><span class="big">EN</span><span class="lab">idioma de las apps líderes</span><p>TheGrint, 18Birdies, Arccos: producto y cultura de EE.UU.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">02</span>La solución</span>
+  <h2>Un solo lugar: jugar, medir, entrenar, competir.</h2>
+  <p class="lead">Scorecard inteligente por hoyo, análisis de brechas contra tu meta, entrenamiento guiado con tracker, coach IA en español, rondas sociales con amigos — y del lado del club: torneos con leaderboard en vivo, roster con roles y el <b>camino de cantera</b> para juveniles con reporte a padres.</p>
+  <div class="shots">
+    <img src="../marketing/shots/shots/01-inicio.png" alt="Inicio de PARFECT" loading="lazy">
+    <img src="../marketing/shots/shots/09-analisis.png" alt="Análisis de juego" loading="lazy">
+    <img src="../marketing/shots/shots/06-entrenamiento.png" alt="Entrenamiento" loading="lazy">
+  </div>
+  <p class="note">Capturas reales del producto en producción: <a href="https://parfectapp.github.io/parfect/">parfectapp.github.io/parfect</a></p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">03</span>Por qué ahora</span>
+  <div class="grid3">
+    <div class="card"><h3>El costo de construir colapsó</h3><p>PARFECT se construyó con desarrollo IA-nativo: velocidad de un equipo de cinco, burn de cero. La misma palanca alimenta el coach IA del producto.</p></div>
+    <div class="card"><h3>Distribución orgánica barata</h3><p>Fábrica propia de contenido: 10 videos diarios calendarizados a 30 días, ya publicando en TikTok. El contenido compone; los ads no.</p></div>
+    <div class="card"><h3>Nadie atiende la cantera</h3><p>La formación juvenil mexicana no tiene herramienta: progreso medible, planes por edad y reporte a padres es una categoría vacía.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">04</span>Mercado</span>
+  <h2>El consumer es la cuña; el negocio grande es el club.</h2>
+  <p class="lead">Golf en México es nicho en volumen pero premium en gasto — y está concentrado en ~200 clubes que hoy no pagan software. La ruta: dominar Michoacán/Bajío, expandir por clubes, y crecer al mercado hispanohablante (LATAM + hispanos en EE.UU.).</p>
+  <div class="grid3">
+    <div class="card"><span class="big">~200</span><span class="lab">campos en México</span><p>Comprador B2B identificable uno por uno.</p></div>
+    <div class="card"><span class="big">1–2M</span><span class="lab">golfistas hispanohablantes*</span><p>México + LATAM + hispanos en EE.UU.</p></div>
+    <div class="card"><span class="big">30–50</span><span class="lab">clubes objetivo a 48 meses</span><p>Con 10–20k usuarios consumer y 500+ juveniles en cantera.</p></div>
+  </div>
+  <p class="note">* Estimación propia de trabajo, declarada como supuesto a validar durante el piloto.</p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">05</span>Competencia</span>
+  <h2>Contra gigantes en inglés, jugamos otro deporte.</h2>
+  <table>
+    <tr><th></th><th>TheGrint / 18Birdies / Arccos</th><th>PARFECT</th></tr>
+    <tr><td>Idioma y cultura</td><td>EE.UU., traducciones parciales</td><td><span class="si">Español nativo, campos mexicanos precargados</span></td></tr>
+    <tr><td>Cantera juvenil</td><td><span class="no">No existe</span></td><td><span class="si">Planes, progreso y reporte a padres</span></td></tr>
+    <tr><td>Capa de club (B2B)</td><td>Parcial, orientada a EE.UU.</td><td><span class="si">Torneos, roster, academia — multi-tenant ya construido</span></td></tr>
+    <tr><td>Coach IA en español</td><td><span class="no">No</span></td><td><span class="si">Sí, por ronda y por hoyo</span></td></tr>
+    <tr><td>Handicap oficial USGA</td><td><span class="si">Sí</span></td><td><span class="no">No (roadmap: alianza federación)</span></td></tr>
+    <tr><td>GPS del campo</td><td><span class="si">Sí</span></td><td><span class="no">No (no es la apuesta: la apuesta es el dato + la cantera)</span></td></tr>
+  </table>
+  <p class="note">Honestidad: TheGrint fue fundada por latinos y opera en español. Nuestra defensa no es el idioma solo — es club + cantera + coach, juntos.</p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">06</span>Modelo de negocio</span>
+  <h2>Gratis para el golfista. El club paga.</h2>
+  <table>
+    <tr><th>Línea</th><th>Precio</th><th>Cuándo se activa</th></tr>
+    <tr><td>PARFECT Gratis</td><td>$0 — scorecard, stats, social</td><td>Hoy. Es el motor de adquisición.</td></tr>
+    <tr><td>PARFECT Club</td><td>$3,000–8,000 MXN/mes por club</td><td>Primer piloto en cuanto cierre la ronda. Deck de ventas listo.</td></tr>
+    <tr><td>Cantera</td><td>$2,000–5,000 MXN/mes por academia</td><td>Con el primer club. El diferenciador sin competencia.</td></tr>
+    <tr><td>PARFECT PRO</td><td>~$99 MXN/mes — coach IA ilimitado</td><td>Solo cuando la retención D30 supere 20%.</td></tr>
+  </table>
+  <p class="note">Las apuestas del modo party son marcador social entre amigos: PARFECT no custodia dinero (decisión regulatoria deliberada).</p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">07</span>Lo construido (con $0 levantados)</span>
+  <ul class="list">
+    <li><b>Producto completo en producción:</b> 25+ módulos — scorecard, análisis, entrenamiento con tracker, coach IA, party social, trofeos, academia tipo Duolingo.</li>
+    <li><b>Capa B2B multi-tenant:</b> clubes con roles, motor de torneos con leaderboard en vivo, academia juvenil con consentimiento de menores, y deck de ventas para clubes.</li>
+    <li><b>Fábrica de distribución:</b> sistema de 10 videos/día con calendario a 30 días, publicando en TikTok (@parfectapp) desde julio 2026.</li>
+    <li><b>Funnel instrumentado:</b> altas, rondas, prácticas, coach, retención D7 — panel de métricas en vivo para reportar a inversionistas sin maquillaje.</li>
+    <li><b>Honestidad total:</b> hoy hay 0 usuarios activos. El piloto de 50 golfistas de Morelia (red directa del fundador) arranca ahora, y estas métricas decidirán la ronda.</li>
+  </ul>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">08</span>Milestones que compramos con esta ronda</span>
+  <div class="grid3">
+    <div class="card"><span class="big lime">D30 ≥ 20%</span><span class="lab">retención</span><p>Sobre ≥50 golfistas reales del piloto Morelia.</p></div>
+    <div class="card"><span class="big lime">3–5</span><span class="lab">clubes pagando</span><p>Empezando por la red caliente en Michoacán.</p></div>
+    <div class="card"><span class="big lime">1,000</span><span class="lab">usuarios activos/mes</span><p>Más App Store y Google Play vía wrapper nativo.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">09</span>La ronda</span>
+  <div class="ask">
+    <span class="big">$2.5M MXN <span style="font-size:18px;color:var(--sub);font-weight:600">(~$140K USD) · SAFE</span></span>
+    <span class="lab">pre-seed · 12–18 meses de runway</span>
+    <p style="margin-top:18px;color:var(--sub);font-size:15px">Uso de fondos: apps nativas (40%), ventas B2B a clubes (30%), infraestructura y coach IA (15%), contenido y piloto de cantera (15%). Burn actual: prácticamente cero — cada peso va a crecimiento, no a mantener las luces prendidas.</p>
+  </div>
+  <p class="note">Monto y términos ajustables — este memo es la base de conversación, no una oferta.</p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="k"><span class="n">10</span>Riesgos (los decimos nosotros primero)</span>
+  <ul class="list">
+    <li><b>Retención:</b> si al golfista no le importa medirse, nada más importa. Por eso el piloto de 50 es lo primero y sus números mandan.</li>
+    <li><b>Competencia fondeada:</b> TheGrint tiene años de datos y handicap USGA. Nuestra defensa es el paquete club+cantera+coach que ellos no tienen en México.</li>
+    <li><b>Fundador único:</b> velocidad excepcional hoy, riesgo de continuidad mañana. Parte de la ronda financia el primer hire.</li>
+    <li><b>Regulatorio:</b> resuelto por diseño — las apuestas del party son marcador social; nunca custodiamos dinero.</li>
+  </ul>
+</div></section>
+
+<div class="wrap foot">
+  ⛳ PARFECT · Tu golf, medido. — André Macouzet · andremacouzetruiz@gmail.com · <a href="https://parfectapp.github.io/parfect/">producto en vivo</a> · <a href="https://www.tiktok.com/@parfectapp">@parfectapp</a>
+</div>
+
+</body>
+</html>

@@ -286,6 +286,7 @@ function srFinish(completed) {
   const areas = [...new Set(r.blocks.filter(b => !b.warm).map(b => b.label))];
   S.practices = S.practices || [];
   S.practices.push({ id: Store.uid(), userId: S.session, date: today(), drill: 'Sesión guiada · ' + (areas.join(', ') || 'entrenamiento'), area: areas[0] || 'Sesión', minutes: mins, notes: 'sesion' });
+  if (typeof Analytics !== 'undefined') Analytics.track('practice_saved', { kind: 'sesion', minutes: mins });
   if (u) { u.drillsDone = u.drillsDone || {}; r.blocks.forEach((b, i) => { if (b.drill && (completed || i < r.idx)) u.drillsDone[b.drill] = today(); }); }
   V.sessionSummary = { mins, areas, count: areas.length, completed };
   V.sessionRun = null;
@@ -553,6 +554,7 @@ const actions = {
       const res = await Cloud.signIn(email, pass);
       if (!res.ok) { V.err = res.msg; render(); return; }
       V.authVals = null; V.err = null; V.view = 'inicio'; V.diag = null;
+      if (typeof Analytics !== 'undefined') Analytics.track('login');
       commit(); window.scrollTo(0, 0); return;
     }
     // ---- modo local (sin nube configurada) ----
@@ -1065,6 +1067,7 @@ const actions = {
     if (!touched) { V.trkSaved = null; V.trkMsg = 'Registra al menos un ejercicio antes de guardar.'; render(); return; }
     S.practices = S.practices || [];
     S.practices.push({ id: Store.uid(), userId: S.session, date: today(), area: 'Tracker', drill: `Tracker · ${touched} ejercicio${touched === 1 ? '' : 's'} (${done} al 100%)`, attempts: reps, hits, notes: 'tracker' });
+    if (typeof Analytics !== 'undefined') Analytics.track('practice_saved', { kind: 'tracker', done });
     V.trkMsg = null; V.trkSaved = today();
     commit();
   },
