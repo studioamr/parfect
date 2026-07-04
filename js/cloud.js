@@ -234,12 +234,19 @@ const Cloud = (() => {
     return { ok: true };
   }
 
-  async function signInWithGoogle() {
+  async function resetPass(email) {
     if (!ON) return { ok: false, msg: 'Nube no configurada.' };
-    const redirectTo = location.origin + location.pathname; // vuelve a esta misma página
-    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+    const redirectTo = location.origin + location.pathname; // el enlace del correo regresa aquí
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) return { ok: false, msg: mapErr(error) };
-    return { ok: true }; // el navegador se va a Google y regresa con la sesión
+    return { ok: true };
+  }
+
+  async function setNewPass(pass) {
+    if (!ON) return { ok: false, msg: 'Nube no configurada.' };
+    const { error } = await sb.auth.updateUser({ password: pass });
+    if (error) return { ok: false, msg: mapErr(error) };
+    return { ok: true };
   }
 
   async function signOut() {
@@ -262,9 +269,14 @@ const Cloud = (() => {
       }
       sb.auth.onAuthStateChange((event) => {
         if (event === 'SIGNED_OUT') { currentUid = null; hydrated = false; }
+        if (event === 'PASSWORD_RECOVERY') {
+          // el usuario llegó desde el enlace "restablecer contraseña" del correo
+          try { V.view = 'recover'; V.err = null; V.msg = null; } catch (e) {}
+          safeRender();
+        }
       });
     } catch (e) {}
   }
 
-  return { enabled, restore, signIn, signUp, signInWithGoogle, signOut, pushSoon, push, remove, wipeMine, client: () => sb, uid: () => currentUid };
+  return { enabled, restore, signIn, signUp, resetPass, setNewPass, signOut, pushSoon, push, remove, wipeMine, client: () => sb, uid: () => currentUid };
 })();

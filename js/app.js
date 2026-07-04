@@ -53,7 +53,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const val = id => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
 
 function commit() { Store.save(S); render(); if (typeof Cloud !== 'undefined' && Cloud.enabled()) Cloud.pushSoon(); if (typeof Clubs !== 'undefined' && Clubs.on() && typeof myClub === 'function') { const _c = myClub(); if (_c) Clubs.pushSoon(_c); } if (S.pendingRef && typeof claimRef === 'function') claimRef(); }
-function go(view) { V.view = view; V.err = null; render(); window.scrollTo(0, 0); }
+function go(view) { V.view = view; V.err = null; V.msg = null; render(); window.scrollTo(0, 0); }
 
 async function hashPass(pass) {
   try {
@@ -183,6 +183,7 @@ function parfectShareMedia(input) {
 }
 
 function App() {
+  if (V.view === 'recover') return vAuth('recover'); // llega del enlace del correo, con o sin sesión visible
   const u = cur();
   if (!u) {
     if (V.view === 'login' || V.view === 'signup') return vAuth(V.view);
@@ -525,17 +526,28 @@ const actions = {
   },
 
   /* ---- auth ---- */
-  async 'google-login'() {
-    if (typeof Cloud === 'undefined' || !Cloud.enabled()) { V.err = 'El inicio con Google aún no está configurado.'; render(); return; }
-    V.err = null;
-    const res = await Cloud.signInWithGoogle();
-    if (!res.ok) { V.err = res.msg || 'No se pudo conectar con Google.'; render(); }
-    // si ok, el navegador redirige a Google y vuelve con la sesión iniciada
+  async 'forgot-pass'() {
+    const email = val('f-email').toLowerCase();
+    V.authVals = { email };
+    if (!/^\S+@\S+\.\S+$/.test(email)) { V.msg = null; V.err = 'Escribe tu email arriba y vuelve a tocar aquí.'; render(); return; }
+    if (typeof Cloud === 'undefined' || !Cloud.enabled()) { V.msg = null; V.err = 'La recuperación aún no está configurada.'; render(); return; }
+    const res = await Cloud.resetPass(email);
+    if (!res.ok) { V.msg = null; V.err = res.msg; render(); return; }
+    V.err = null; V.msg = 'Listo. Revisa tu correo: te enviamos un enlace para crear una contraseña nueva.'; render();
+  },
+  async 'set-new-pass'() {
+    const pass = document.getElementById('f-pass').value;
+    if (pass.length < 4) { V.err = 'La contraseña necesita al menos 4 caracteres.'; render(); return; }
+    const res = await Cloud.setNewPass(pass);
+    if (!res.ok) { V.err = res.msg; render(); return; }
+    V.err = null; V.msg = null; V.authVals = null; V.view = 'inicio'; V.diag = null;
+    commit(); window.scrollTo(0, 0);
   },
   async login() {
     const email = val('f-email').toLowerCase();
     const pass = document.getElementById('f-pass').value;
     V.authVals = { email };
+    V.msg = null;
     // ---- nube activa: autentica contra Supabase ----
     if (typeof Cloud !== 'undefined' && Cloud.enabled()) {
       const res = await Cloud.signIn(email, pass);
@@ -575,7 +587,7 @@ const actions = {
     if (typeof Cloud !== 'undefined' && Cloud.enabled()) {
       const res = await Cloud.signUp({ name, email, pass, hcp, goal, demo });
       if (!res.ok) { V.err = res.msg; render(); return; }
-      if (res.needsConfirm) { V.authVals = null; V.err = 'Te enviamos un correo para confirmar tu cuenta. Confírmalo y luego inicia sesión.'; V.view = 'login'; render(); window.scrollTo(0, 0); return; }
+      if (res.needsConfirm) { V.authVals = { email }; V.err = null; V.msg = 'Te enviamos un correo para verificar tu cuenta. Ábrelo, confirma y luego inicia sesión aquí.'; V.view = 'login'; render(); window.scrollTo(0, 0); return; }
       V.authVals = null; V.err = null; V.view = 'inicio'; V.diag = null;
       if (typeof Analytics !== 'undefined') Analytics.track('signup', { demo: !!demo });
       commit(); window.scrollTo(0, 0); return;
@@ -1479,6 +1491,7 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   if (e.target && e.target.id === 'chat-text') { e.preventDefault(); actions['chat-send'](); return; }
+  if (V.view === 'recover' && e.target && e.target.id === 'f-pass') { e.preventDefault(); actions['set-new-pass'](); return; }
   if (cur()) return;
   if (V.view === 'login') { e.preventDefault(); actions.login(); }
   else if (V.view === 'signup' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); actions.signup(); }

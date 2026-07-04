@@ -758,17 +758,21 @@ function initLanding(root) {
 
 /* ============ Auth ============ */
 
-/* botón de Google (solo si la nube está configurada) */
-function googleBtn() {
-  if (typeof Cloud === 'undefined' || !Cloud.enabled()) return '';
-  const g = `<svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.89 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>`;
-  return `<div class="auth-or"><span>o</span></div>
-    <button class="btn gbtn" data-act="google-login">${g}Continuar con Google</button>`;
-}
-
 function vAuth(mode) {
   const vals = V.authVals || {};
   const err = V.err ? `<p class="form-err">${esc(V.err)}</p>` : '';
+  const msg = V.msg ? `<p class="form-ok">${esc(V.msg)}</p>` : '';
+  if (mode === 'recover') {
+    return `<div class="shell no-nav fade-in auth-wrap">
+      <div class="auth-card">
+        <h1 class="auth-h">Nueva contraseña</h1>
+        <p class="auth-sub">Escribe la nueva contraseña para tu cuenta.</p>
+        <div class="field"><label>Nueva contraseña</label><input id="f-pass" type="password" autocomplete="new-password" placeholder="Mínimo 4 caracteres"></div>
+        ${err}
+        <button class="btn primary" data-act="set-new-pass">Guardar contraseña</button>
+      </div>
+    </div>`;
+  }
   if (mode === 'login') {
     return `<div class="shell no-nav fade-in auth-wrap">
       <button class="auth-back" data-act="go" data-view="landing">← Volver</button>
@@ -777,9 +781,9 @@ function vAuth(mode) {
         <p class="auth-sub">Inicia sesión para seguir construyendo tu perfil de jugador.</p>
         <div class="field"><label>Email</label><input id="f-email" type="email" autocomplete="email" placeholder="tu@email.com" value="${esc(vals.email || '')}"></div>
         <div class="field"><label>Contraseña</label><input id="f-pass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        ${err}
+        ${err}${msg}
         <button class="btn primary" data-act="login">Iniciar sesión</button>
-        ${googleBtn()}
+        <button class="auth-forgot" data-act="forgot-pass">¿Olvidaste tu contraseña?</button>
         <p class="auth-alt">¿Aún no tienes cuenta? <button data-act="go" data-view="signup">Crear cuenta gratis</button></p>
       </div>
     </div>`;
@@ -798,7 +802,6 @@ function vAuth(mode) {
       </div>
       ${err}
       <button class="btn primary" data-act="signup">Crear cuenta gratis</button>
-      ${googleBtn()}
       <p class="auth-legal">Al continuar aceptas el <a href="legal.html#privacidad" target="_blank" rel="noopener">Aviso de privacidad</a> y los <a href="legal.html#terminos" target="_blank" rel="noopener">Términos</a>.</p>
       <p class="auth-alt">¿Ya tienes cuenta? <button data-act="go" data-view="login">Iniciar sesión</button></p>
     </div>
