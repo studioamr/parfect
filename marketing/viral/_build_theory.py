@@ -1954,6 +1954,183 @@ def teoria_auto(spec,ep):
     app_outro(frames,flow=[(spec['shot'],None)],line1=spec['cta'],ep=ep,per=4.6)
     return M.render(frames,'theory-'+spec['slug'])
 
+# ============================================================
+# SERIE "ASI SE USA PARFECT" · EP 03 — Tu sesion de entrenamiento
+# ============================================================
+def uso03():
+    frames=[]
+    n=int(3.4*FPS)
+    im0=Image.open(os.path.join(SHOTSDIR,'06-entrenamiento.png')).convert('RGB')
+    sw=620; im0=im0.resize((sw,int(im0.height*sw/im0.width)),Image.LANCZOS)
+    mask=Image.new('L',(sw,700),0)
+    ImageDraw.Draw(mask).rounded_rectangle([0,0,sw,700],44,fill=255)
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=3,serie='ASÍ SE USA')
+        M.poptext(d,W//2,520,'ASÍ SE USA',104,t*2.2,INK,font=BLACK)
+        M.wordmark(d,W//2,690,INK,96,alpha=int(255*min(t*2.6,1)))
+        if t>0.25:
+            ftxt(d,(W//2,850),'EP 03 · Tu sesión de entrenamiento en 2 taps',BOLD(42),LIME,(t-0.25)/0.75,t_out=2.0)
+        oy=int((1-M.ease(min(max(t-0.15,0)*1.6,1)))*760)
+        def marco(dd,oy=oy):
+            dd.rounded_rectangle([(W-sw)//2-14,1046+oy,(W+sw)//2+14,1046+oy+728],58,outline=GREEN+(200,),width=5)
+        glow(b,marco,10,1)
+        b.paste(im0.crop((0,0,sw,700)),((W-sw)//2,1060+oy),mask)
+        M.progressbar(d,0.02+0.08*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,
+        flow=[('09-analisis.png',(0.38,0.159)),
+              ('06-entrenamiento.png',(0.28,0.394)),
+              ('10-min30.png',(0.5,0.315))],
+        labels=['PASO 1 · Entra a Entreno','PASO 2 · ¿Cuánto tiempo tienes?','PASO 3 · AI Coach arma tu sesión'],
+        ep=3,serie='ASÍ SE USA',per=5.2)
+    return M.render(frames,'uso03-entreno')
+
+# ============================================================
+# THEORY 30 · "El lag putt: tirale al circulo de 1 m" (EP 24, artesanal)
+# ============================================================
+def teoria_lag():
+    frames=[]
+    # gancho #15: putt largo serpenteante que muere en el circulo
+    lines=['DESDE LEJOS NO LE','TIRES AL HOYO.']; sub='(tírale al círculo de 1 metro)'
+    secs=max(4.2,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    hx,hy=W//2,920
+    import math as mt
+    path=[]
+    for i in range(81):
+        q=i/80
+        px=W//2+mt.sin(q*mt.pi*1.6+0.4)*230*(1-q*0.55)
+        py=1760-q*820
+        path.append((px,py))
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=24)
+        d2=ImageDraw.Draw(b,'RGBA')
+        # circulo de 1 m pulsando alrededor del hoyo (abajo del titulo)
+        pul=1+0.05*mt.sin(t*mt.pi*4)
+        def circ(dd,pul=pul):
+            r=95*pul
+            for a in range(0,360,14):
+                x1=hx+r*mt.cos(mt.radians(a)); y1=hy+r*mt.sin(mt.radians(a))
+                dd.ellipse([x1-5,y1-5,x1+5,y1+5],fill=GREEN+(200,))
+        glow(b,circ,8,1)
+        d2.ellipse([hx-16,hy-8,hx+16,hy+10],fill=(5,9,7,255),outline=GREEN+(220,),width=3)
+        # putt avanzando con estela
+        e=M.ease(min(t/0.62,1)); m=max(2,int(len(path)*e))
+        def tr(dd,m=m):
+            dd.line(path[:m],fill=GREEN+(210,),width=7)
+        glow(b,tr,10,1)
+        bx,by=path[m-1]
+        d2.ellipse([bx-16,by-16,bx+16,by+16],fill=(250,250,246,255))
+        if e>=1 and t>0.7:
+            a=int(255*min((t-0.7)*4,1))
+            d2.text((hx+270,hy-40),'muerto\na 60 cm',font=BOLD(36),fill=GREEN+(a,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,a))
+        ty=400
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,84,(t-0.07*i)*2.3,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=134
+        if t>0.3: ftxt(d,(W//2,ty+26),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: ni los pros
+    n1=int(M.dur_lectura('putts de 10 metros embocados pros 9 por ciento tu 3 nadie los mete',1.5)*FPS)
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=24)
+        ftxt(d,(W//2,420),'Putts de 10 metros embocados:',GEO(54),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for i,(lab,val,col) in enumerate([('LOS PROS','9%',GREEN),('TÚ','3%',RED)]):
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            a=int(255*(ft*ft*(3-2*ft))); y=800+i*330
+            d2.text((W//2,y-90),lab,font=BOLD(40),fill=SUB+(a,),anchor='mm')
+            d2.text((W//2,y+40),val,font=BLACK(150),fill=col+(a,),anchor='mm')
+        if t>0.62:
+            aa=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1500),'Nadie la mete. Deja de intentarlo.',font=BLACK(48),fill=LIME+(int(255*aa),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*aa)))
+        M.progressbar(d,0.14+0.18*t,PAL); frames.append(V.fin(b))
+    # fase 2: LA DIANA — al hoyo vs al circulo
+    import random as rd
+    r1=rd.Random(5); r2=rd.Random(9)
+    cx,cy=W//2,1030
+    rojos=[(cx+r1.uniform(-1,1)*250,cy+r1.uniform(-0.9,1)*240) for _ in range(6)]
+    verdes=[(cx+r2.gauss(0,42),cy+r2.gauss(0,40)) for _ in range(6)]
+    n2=int(6.2*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=24)
+        ftxt(d,(W//2,400),'12 lag putts desde 10 metros:',GEO(54),INK,t)
+        # green blob
+        e=M.ease(min(t*1.8,1))
+        pts=green_pts(cx,cy,380*e,300*e)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.polygon(pts,fill=GREENDIM+(255,))
+        def edge(dd,pts=pts):
+            dd.line(pts+[pts[0]],fill=GREEN+(220,),width=5)
+        glow(b,edge,9,1)
+        d2.ellipse([cx-13,cy-7,cx+13,cy+9],fill=(5,9,7,255))
+        # tanda 1: al hoyo (dispersos)
+        for i,(px,py) in enumerate(rojos):
+            ft=min(max(t*3.2-0.5-i*0.14,0),1)
+            if ft<=0: continue
+            lejos=((px-cx)**2+(py-cy)**2)**0.5>150
+            def dot(dd,px=px,py=py,ft=ft,lejos=lejos):
+                dd.ellipse([px-13,py-13,px+13,py+13],fill=(250,250,246,int(235*ft)))
+                if lejos: dd.ellipse([px-24,py-24,px+24,py+24],outline=RED+(int(220*ft),),width=4)
+            glow(b,dot,6,1)
+        if 0.3<t<0.55:
+            a=int(255*min((t-0.3)*5,1))
+            d2.text((W//2,1440),'AL HOYO: quedan a 2.1 m en promedio',font=BOLD(40),fill=RED+(a,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,a))
+        # diana + tanda 2
+        if t>0.52:
+            de=M.ease(min((t-0.52)*3,1))
+            def diana(dd,de=de):
+                for rr in (60,110):
+                    r=rr*de
+                    dd.ellipse([cx-r,cy-r,cx+r,cy+r],outline=LIME+(230,),width=5)
+            glow(b,diana,8,1)
+        if t>0.6:
+            for i,(px,py) in enumerate(verdes):
+                ft=min(max((t-0.6)*3.4-i*0.12,0),1)
+                if ft<=0: continue
+                def dg(dd,px=px,py=py,ft=ft):
+                    dd.ellipse([px-13,py-13,px+13,py+13],fill=GREEN+(int(255*ft),))
+                glow(b,dg,7,1)
+        if t>0.78:
+            a=min((t-0.78)*5,1.0) if t<0.93 else max(0.0,(1.0-t)/0.07)
+            d2.text((W//2,1440),'AL CÍRCULO: 0.7 m — puro tap-in',font=BLACK(44),fill=GREEN+(int(255*a),),anchor='mm',stroke_width=6,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.34+0.28*t,PAL); frames.append(V.fin(b))
+    # fase 3: el 3-putt muere aqui
+    n3=int(M.dur_lectura('el 3 putt muere aqui de 36 putts a 31 por ronda',1.4)*FPS)
+    for k in range(n3):
+        t=k/(n3-1)
+        b,d=canvas(); chrome(d,ep=24)
+        ftxt(d,(W//2,480),'El 3-putt muere aquí:',GEO(58),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        a1=int(255*min(t*2.5,1))
+        d2.text((W//2-180,950),'36',font=BLACK(160),fill=SUB+(a1,),anchor='mm')
+        if t>0.3:
+            aa=int(255*min((t-0.3)*3,1))
+            d2.line([(W//2-290,950),(W//2-70,950)],fill=RED+(aa,),width=10)
+            d2.text((W//2+30,950),'→',font=BLACK(80),fill=SUB+(aa,),anchor='mm')
+        if t>0.45:
+            e3=M.ease(min((t-0.45)*2.6,1))
+            d2.text((W//2+230,950),'31',font=BLACK(190),fill=GREEN+(int(255*e3),),anchor='mm')
+        if t>0.62:
+            ftxt(d,(W//2,1180),'putts por ronda con lag disciplinado',BOLD(42),SUB,(t-0.62)/0.38,t_out=0.94)
+        M.progressbar(d,0.62+0.16*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('el lag putt no busca gloria busca un tap in circulo de 1 metro siempre',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=24)
+        M.poptext(d,W//2,790,'El lag putt no busca gloria.',62,t*1.9,INK)
+        M.poptext(d,W//2,930,'Busca un TAP-IN.',80,max(t*1.9-0.25,0),GREEN)
+        if t>0.5:
+            ftxt(d,(W//2,1150),'Círculo de 1 metro. Siempre.',BOLD(44),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.78+0.08*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,flow=[('15-diagnostico.png',None)],line1='PARFECT te da los drills exactos del lag:',ep=24,per=5.0)
+    return M.render(frames,'theory-lag')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -1972,10 +2149,12 @@ if __name__=='__main__':
     elif cmd=='tarjeta': teoria_tarjeta()
     elif cmd=='brecha': teoria_brecha()
     elif cmd=='updown': teoria_updown()
+    elif cmd=='lag': teoria_lag()
     elif cmd=='debajo': teoria_debajo()
     elif cmd=='20min': teoria_20min()
     elif cmd=='fairway': teoria_fairway()
     elif cmd=='uso1': uso01()
     elif cmd=='uso2': uso02()
+    elif cmd=='uso3': uso03()
     else:
         teoria_bandera(); teoria_okay()

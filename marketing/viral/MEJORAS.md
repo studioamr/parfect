@@ -32,6 +32,10 @@ para el siguiente. Nada se repite igual si algo se puede leer/ver mejor.
 
 | 24 | tanda día 1 | el MEME cayó en "Contenido en revisión" + Solo yo automático (patrón POV/texto) | vigilar el formato meme: si 2 seguidos caen en revisión, sustituirlo por 2º dato/quiz en la mezcla diaria; revisar mañana si TikTok lo liberó y regresarlo a "Todo el mundo" |
 
+| 25 | uso03 | André: los videos artesanales (EP13-21/USO) gustan más que los de tanda auto | **Mezcla 2.0**: THEORYs de tanda = ARTESANALES (gancho único); +1 USO diario; lo auto solo quiz/dato/VF; el 2º dato sale de la mezcla |
+
+| 25 | lag | André: la tanda auto se sintió simple; quiere MÁS diseño y elementos de golf (mostró el grid) | **Regla de mezcla 2.0**: los slots THEORY de cada tanda = ARTESANALES (diagramas ricos: dianas, greens, trayectorias, gancho único); teoria_auto solo de respaldo; +1 USO diario |
+
 ## Reglas vigentes (acumuladas)
 1. Frame 1 = portada diseñada. Nunca abrir de negro.
 2. Todo texto vive ≥ `dur_lectura`; labels entran a mitad de fase.
