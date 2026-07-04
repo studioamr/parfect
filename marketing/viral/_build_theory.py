@@ -2131,6 +2131,145 @@ def teoria_lag():
     app_outro(frames,flow=[('15-diagnostico.png',None)],line1='PARFECT te da los drills exactos del lag:',ep=24,per=5.0)
     return M.render(frames,'theory-lag')
 
+# ============================================================
+# THEORY 12 · "Bandera atras = FRENTE del green" (EP 25, artesanal)
+# ============================================================
+def teoria_bandatras():
+    import math as mt
+    frames=[]
+    # gancho #16: PERFIL del green — el tiro largo muere atras, el corto rueda a la bandera
+    lines=['BANDERA ATRÁS','= FRENTE DEL GREEN.']; sub='(la profundidad es una trampa)'
+    secs=max(4.4,M.dur_lectura(' '.join(lines)+' '+sub,1.2))
+    n=int(secs*FPS)
+    gy=1560; gx0,gx1=180,860   # superficie del green de perfil
+    fx=820                     # bandera atras
+    for k in range(n):
+        t=k/max(n-1,1)
+        b,d=canvas(); chrome(d,ep=25)
+        d2=ImageDraw.Draw(b,'RGBA')
+        # suelo + green elevado de perfil
+        def suelo(dd):
+            dd.line([(90,gy+26),(W-90,gy+26)],fill=GREENDIM+(255,),width=6)
+            dd.line([(gx0,gy),(gx1,gy)],fill=GREEN+(235,),width=7)
+        glow(b,suelo,9,1)
+        # rough trasero
+        d2.rectangle([gx1+14,gy-8,W-100,gy+18],fill=(46,36,24,255))
+        d2.text(((gx1+W-90)//2,gy+64),'rough',font=BOLD(30),fill=SUB+(210,),anchor='mm')
+        # bandera atras
+        d2.line([(fx,gy),(fx,gy-160)],fill=(250,250,246,255),width=6)
+        d2.polygon([(fx,gy-160),(fx+62,gy-140),(fx,gy-118)],fill=RED+(255,))
+        d2.ellipse([fx-9,gy-6,fx+9,gy+6],fill=(5,9,7,255))
+        # tiro 1: a la bandera -> vuela largo y muere en el rough (rojo)
+        if t<0.5:
+            e=M.ease(min(t/0.46,1))
+            pts=[]
+            for i in range(int(46*e)+1):
+                q=i/46
+                px=140+q*(940-140); py=gy-16-mt.sin(q*mt.pi)*560
+                pts.append((px,py))
+            if len(pts)>1:
+                col=RED if pts[-1][0]>fx else (250,250,246)
+                def t1(dd,pts=pts,col=col):
+                    dd.line(pts,fill=col+(230,),width=7)
+                glow(b,t1,9,1)
+                bx,by=pts[-1]; d2.ellipse([bx-14,by-14,bx+14,by+14],fill=(250,250,246,255))
+            if e>=1:
+                d2.text((950,gy-240),'muerta atrás',font=BOLD(36),fill=RED+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        # tiro 2: al FRENTE -> aterriza y rueda hasta la bandera (verde)
+        if t>0.52:
+            e=M.ease(min((t-0.52)/0.32,1))
+            pts=[]
+            for i in range(int(40*e)+1):
+                q=i/40
+                px=140+q*(430-140); py=gy-16-mt.sin(q*mt.pi)*470
+                pts.append((px,py))
+            if len(pts)>1:
+                def t2(dd,pts=pts):
+                    dd.line(pts,fill=GREEN+(240,),width=7)
+                glow(b,t2,9,1)
+            if e>=1:
+                r=M.ease(min((t-0.84)/0.14,1)) if t>0.84 else 0
+                rx=430+(fx-60-430)*r
+                def rueda(dd,rx=rx):
+                    for xx in range(440,int(rx),34):
+                        dd.ellipse([xx-4,gy-22,xx+4,gy-14],fill=GREEN+(170,))
+                glow(b,rueda,6,1)
+                d2.ellipse([rx-14,gy-32,rx+14,gy-4],fill=(250,250,246,255))
+                if r>=1: d2.text((470,gy-100),'rueda sola a la bandera',font=BOLD(36),fill=GREEN+(255,),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,255))
+        ty=420
+        for i,ln in enumerate(lines):
+            M.poptext(d,W//2,ty,ln,80,(t-0.07*i)*2.3,GREEN if i==1 else INK,font=BLACK,maxw=W-110)
+            ty+=130
+        if t>0.3: ftxt(d,(W//2,ty+28),sub,BOLD(42),SUB,(t-0.3)/0.7,t_out=0.95)
+        M.progressbar(d,0.04+0.06*t,PAL); frames.append(V.fin(b))
+    # fase 1: cenital con profundidad — 10 tiros a la bandera trasera
+    import random as rd
+    r1=rd.Random(13)
+    cx,cy=W//2,1020
+    n1=int(6.0*FPS)
+    tiros=[(cx+r1.uniform(-150,150),cy+r1.uniform(-40,300)) for _ in range(7)]+[(cx+r1.uniform(-120,120),cy-r1.uniform(300,430)) for _ in range(3)]
+    for k in range(n1):
+        t=k/(n1-1)
+        b,d=canvas(); chrome(d,ep=25)
+        ftxt(d,(W//2,400),'10 tiros a la bandera de ATRÁS:',GEO(54),INK,t)
+        e=M.ease(min(t*1.8,1))
+        pts=green_pts(cx,cy,300*e,390*e)
+        d2=ImageDraw.Draw(b,'RGBA')
+        d2.polygon(pts,fill=GREENDIM+(255,))
+        def edge(dd,pts=pts):
+            dd.line(pts+[pts[0]],fill=GREEN+(220,),width=5)
+        glow(b,edge,9,1)
+        fx2,fy2=cx,cy-300
+        d2.line([(fx2,fy2),(fx2,fy2-120)],fill=(250,250,246,255),width=6)
+        d2.polygon([(fx2,fy2-120),(fx2+52,fy2-104),(fx2,fy2-86)],fill=RED+(255,))
+        for i,(px,py) in enumerate(tiros):
+            ft=min(max(t*3.0-0.5-i*0.14,0),1)
+            if ft<=0: continue
+            largo=py<cy-280
+            def dot(dd,px=px,py=py,ft=ft,largo=largo):
+                if largo:
+                    dd.ellipse([px-13,py-13,px+13,py+13],outline=RED+(int(240*ft),),width=5)
+                    dd.line([(px-9,py-9),(px+9,py+9)],fill=RED+(int(240*ft),),width=5)
+                else:
+                    dd.ellipse([px-13,py-13,px+13,py+13],fill=(250,250,246,int(235*ft)))
+            glow(b,dot,6,1)
+        if t>0.68:
+            a=min((t-0.68)*5,1.0) if t<0.92 else max(0.0,(1.0-t)/0.08)
+            d2.text((W//2,1560),'7 quedan cortos igual. Y los 3 largos: castigo.',font=BOLD(40),fill=LIME+(int(255*a),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*a)))
+        M.progressbar(d,0.14+0.22*t,PAL); frames.append(V.fin(b))
+    # fase 2: score comparado
+    n2=int(M.dur_lectura('score del hoyo a la bandera atras 4.9 al centro frente 4.4 putt de subida en vez de chip imposible',1.4)*FPS)
+    for k in range(n2):
+        t=k/(n2-1)
+        b,d=canvas(); chrome(d,ep=25)
+        ftxt(d,(W//2,400),'Score promedio del hoyo:',GEO(56),INK,t)
+        d2=ImageDraw.Draw(b,'RGBA')
+        for i,(lab,val,col) in enumerate([('A LA BANDERA ATRÁS','4.9',RED),('AL CENTRO-FRENTE','4.4',GREEN)]):
+            ft=min(max(t*2.4-i*0.5,0),1)
+            if ft<=0: continue
+            y=780+i*320; a=int(255*(ft*ft*(3-2*ft)))
+            def box(dd,y=y,ft=ft,col=col):
+                dd.rounded_rectangle([150,y-110,W-150,y+110],28,outline=col+(int(215*ft),),width=5)
+            glow(b,box,8,1)
+            d2.text((190,y),lab,font=BOLD(38),fill=INK+(a,),anchor='lm')
+            d2.text((W-190,y),val,font=BLACK(80),fill=col+(a,),anchor='rm')
+        if t>0.62:
+            aa=min((t-0.62)*5,1.0) if t<0.9 else max(0.0,(1.0-t)/0.1)
+            d2.text((W//2,1480),'Putt de subida > chip imposible de bajada',font=BOLD(42),fill=LIME+(int(255*aa),),anchor='mm',stroke_width=5,stroke_fill=(8,14,11,int(255*aa)))
+        M.progressbar(d,0.38+0.24*t,PAL); frames.append(V.fin(b))
+    # insight
+    nin=int(M.dur_lectura('la bandera de atras es un anzuelo el frente del green es el tiro inteligente',1.3)*FPS)
+    for k in range(nin):
+        t=k/(nin-1)
+        b,d=canvas(); chrome(d,ep=25)
+        M.poptext(d,W//2,790,'La bandera de atrás es un anzuelo.',58,t*1.9,INK)
+        M.poptext(d,W//2,935,'No lo muerdas.',84,max(t*1.9-0.3,0),GREEN)
+        if t>0.5:
+            ftxt(d,(W//2,1150),'Frente del green. Putt de subida. Score.',BOLD(42),SUB,(t-0.5)/0.5,t_out=0.92)
+        M.progressbar(d,0.64+0.2*t,PAL); frames.append(V.fin(b))
+    app_outro(frames,flow=[('11-ronda.png',None)],line1='PARFECT te enseña dónde caen TUS tiros:',ep=25,per=5.0)
+    return M.render(frames,'theory-bandatras')
+
 if __name__=='__main__':
     cmd=sys.argv[1] if len(sys.argv)>1 else 'demo'
     if cmd=='bandera': teoria_bandera()
@@ -2150,6 +2289,7 @@ if __name__=='__main__':
     elif cmd=='brecha': teoria_brecha()
     elif cmd=='updown': teoria_updown()
     elif cmd=='lag': teoria_lag()
+    elif cmd=='bandatras': teoria_bandatras()
     elif cmd=='debajo': teoria_debajo()
     elif cmd=='20min': teoria_20min()
     elif cmd=='fairway': teoria_fairway()
