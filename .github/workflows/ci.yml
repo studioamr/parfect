@@ -17,7 +17,11 @@ jobs:
             node --check "$f"
             echo "OK $f"
           done
-      - name: El index referencia una sola versión de cache
+      - name: El index referencia una sola versión de cache (js/css)
         run: |
-          n=$(grep -o 'v=[0-9]*' index.html | sort -u | wc -l)
-          if [ "$n" -ne 1 ]; then echo "index.html mezcla versiones ?v="; grep -o 'v=[0-9]*' index.html | sort -u; exit 1; fi
+          n=$(grep -oE '(js/[a-z0-9_-]+\.js|css/styles\.css)\?v=[0-9]+' index.html | grep -oE 'v=[0-9]+' | sort -u | wc -l)
+          if [ "$n" -ne 1 ]; then
+            echo "index.html mezcla versiones ?v= en js/css:"
+            grep -oE '(js/[a-z0-9_-]+\.js|css/styles\.css)\?v=[0-9]+' index.html | sort -u
+            exit 1
+          fi
