@@ -23,7 +23,7 @@ Tres emociones en las que se apoya todo el contenido:
 | **Nombre** | PARFECT · Golf con datos |
 | **Categoría** | Aplicación (cuenta profesional → Empresa) |
 | **Bio** | ⛳ Tu golf, medido.\n📊 La app que te dice dónde pierdes golpes\n🇲🇽 Hecha en Morelia · Gratis\n👇 Pruébala |
-| **Link** | https://parfectapp.github.io/parfect/ |
+| **Link** | https://studioamr.github.io/parfect/ |
 | **Avatar** | `avatar.png` (bandera lima sobre navy — legible en 40px) |
 
 ## Sistema visual (el mismo del dept, serie IG)

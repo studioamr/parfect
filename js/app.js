@@ -1399,7 +1399,7 @@ const actions = {
   'friend-del'(d) { const u = cur(); u.friends = (u.friends || []).filter(f => f.id !== d.id); commit(); },
   'invite-wa'() {
     const u = cur();
-    const link = 'https://parfectapp.github.io/parfect/' + (u && u.id ? '?ref=' + encodeURIComponent(u.id) : '');
+    const link = 'https://studioamr.github.io/parfect/' + (u && u.id ? '?ref=' + encodeURIComponent(u.id) : '');
     const msg = `¡Juega golf conmigo en PARFECT! 🏌️⛳️ Anota tus rondas, mídete con tus amigos:`;
     shareWA(msg, link);
   },

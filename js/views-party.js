@@ -662,7 +662,7 @@ const partyActions = {
   },
   'party-share-wa'() {
     const p = activeParty(); if (!p) return;
-    const link = 'https://parfectapp.github.io/parfect/';
+    const link = 'https://studioamr.github.io/parfect/';
     const msg = `¡Te invito a mi party en PARFECT! 🏌️⛳️ Entra desde TU teléfono → Social → "Unirse con código" y pon: ${p.code}. Cada quien anota su propia tarjeta.`;
     shareWA(msg, link);
   },

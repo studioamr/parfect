@@ -308,7 +308,7 @@ def tanda(fecha):
     out=os.path.join(HERE,'outbox',f'{fecha.isoformat()}-tanda')
     os.makedirs(out,exist_ok=True)
     piezas=[]  # (archivo, caption, tipo)
-    URL='parfectapp.github.io/parfect'
+    URL='studioamr.github.io/parfect'
     FIN=f'Gratis, link en bio. '
     def q(i):
         p,ops,c,dato=B.QUIZ30[i%len(B.QUIZ30)]

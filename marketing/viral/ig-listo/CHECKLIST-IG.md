@@ -10,7 +10,7 @@ Pásate esta carpeta al teléfono (AirDrop) y sigue en orden. Todo está en `ig-
       Tu golf, medido ⛳ Stats + Coach IA
       Gratis · Morelia 🇲🇽
       ⬇️ Descárgala y únete a la waitlist
-- [ ] Link: `https://parfectapp.github.io/parfect` (en IG SÍ es clicable)
+- [ ] Link: `https://studioamr.github.io/parfect` (en IG SÍ es clicable)
 - [ ] Cuenta pública; cambiar a "Cuenta profesional → Creador" (en IG no castiga la música)
 
 ## 2 · Feed inicial (5 min) — subir EN ESTE ORDEN (9→1 para que el grid quede bien)

@@ -18,7 +18,7 @@
   🇲🇽 Hecha en Morelia · Gratis
   👇 Pruébala
   ```
-- Link: `https://parfectapp.github.io/parfect/`
+- Link: `https://studioamr.github.io/parfect/`
 
 ## Paso 2 · El grid inicial (9 posts, EN ESTE ORDEN)
 IG pone el más nuevo arriba-izquierda → **se publica del 09 al 01**

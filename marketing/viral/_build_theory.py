@@ -1481,7 +1481,7 @@ def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve asÃ
                 byc=1755
                 d2.rounded_rectangle([W//2-bw2//2,byc-bh2//2,W//2+bw2//2,byc+bh2//2],bh2//2,fill=LIME+(int(255*ba),))
                 d2.text((W//2,byc),cta,font=BLACK(int(36*pulse)),fill=(12,18,12,int(255*ba)),anchor='mm')
-                d2.text((W//2,byc+86),'parfectapp.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
+                d2.text((W//2,byc+86),'studioamr.github.io/parfect',font=BOLD(30),fill=SUB+(int(220*ba),),anchor='mm')
             M.progressbar(d,0.78+0.22*(idx+t)/len(items),PAL); frames.append(V.fin(b))
         prev_end=im.crop((0,pan_t,sw,pan_t+scrh))
     # ---- CONCLUSION: descarga + waitlist ----
@@ -1502,7 +1502,7 @@ def app_outro(frames, flow=None, shots=None, line1='Esto, en TU juego, se ve asÃ
         if t>0.4:
             ftxt(d,(W//2,1330),'juega GRATIS desde hoy â†’',BOLD(40),SUB,(t-0.4)/0.6,t_out=2.0)
             a2=int(255*min((t-0.4)*3,1))
-            d2.text((W//2,1430),'parfectapp.github.io/parfect',font=BOLD(42),fill=LIME+(a2,),anchor='mm')
+            d2.text((W//2,1430),'studioamr.github.io/parfect',font=BOLD(42),fill=LIME+(a2,),anchor='mm')
         M.progressbar(d,0.995+0.005*t,PAL); frames.append(V.fin(b))
     return frames
 

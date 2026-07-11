@@ -41,8 +41,8 @@ Qué hay aquí:
 | Bundle ID | `mx.parfect.app` (ya configurado en el proyecto) |
 | Categoría | Deportes |
 | Precio | Gratis |
-| URL de soporte | `https://parfectapp.github.io/parfect/` |
-| URL de política de privacidad | `https://parfectapp.github.io/parfect/legal.html` |
+| URL de soporte | `https://studioamr.github.io/parfect/` |
+| URL de política de privacidad | `https://studioamr.github.io/parfect/legal.html` |
 | Versión | 1.0.0 |
 
 **Descripción:**

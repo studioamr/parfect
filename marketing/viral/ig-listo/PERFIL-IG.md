@@ -20,7 +20,7 @@ Gratis · Morelia 🇲🇽
 ⬇️ Descárgala y únete a la waitlist
 
 **Enlace** (campo "Sitio web" — en IG SÍ es clicable)
-https://parfectapp.github.io/parfect
+https://studioamr.github.io/parfect
 
 **Tipo de cuenta**
 Configuración → Cuenta → Cambiar a cuenta profesional → **Creador** → categoría "Deportes"

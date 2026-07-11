@@ -232,7 +232,7 @@ def slide_cta(headline,sub,shotfile,n,total,pal):
     except Exception: pass
     d.rounded_rectangle([S//2-620,S-370,S//2+620,S-220],75,fill=pal['ink'])
     d.text((S//2,S-295),'PRUÉBALA GRATIS · LINK EN BIO',font=BLACK(58),fill=pal['bg'],anchor='mm')
-    d.text((S//2,S-150),'parfectapp.github.io/parfect',font=BOLD(46),fill=pal['sub'],anchor='mm')
+    d.text((S//2,S-150),'studioamr.github.io/parfect',font=BOLD(46),fill=pal['sub'],anchor='mm')
     footer(d,pal)
     return V.fin(b)
 

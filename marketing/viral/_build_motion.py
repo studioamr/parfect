@@ -93,7 +93,7 @@ def cta_outro(frames,pal,seconds=2.8,line1='PRUÉBALA GRATIS',line2='link en bio
             d.rounded_rectangle([W//2-bw//2,1050-bh//2,W//2+bw//2,1050+bh//2],bh//2,fill=LIME)
             d.text((W//2,1050),line2.upper(),font=BLACK(52),fill=(36,48,14),anchor='mm')
         if t>0.45:
-            d.text((W//2,1240),'parfectapp.github.io/parfect',font=BOLD(40),fill=pal['sub'],anchor='mm')
+            d.text((W//2,1240),'studioamr.github.io/parfect',font=BOLD(40),fill=pal['sub'],anchor='mm')
             d.text((W//2,1330),'@parfect.golf',font=BOLD(36),fill=pal['sub'],anchor='mm')
         progressbar(d,1.0,pal)
         frames.append(V.fin(b))
